@@ -4,3 +4,6 @@ include ':app'
 
 include ':reactnativemembrane'
 project(':reactnativemembrane').projectDir = new File(rootProject.projectDir, '../../android')
+
+include ':MembraneRTC'
+project(':MembraneRTC').projectDir = new File(rootProject.projectDir, '../../android/MembraneRTC')

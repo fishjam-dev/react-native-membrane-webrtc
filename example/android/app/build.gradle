@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: 'kotlin-android'
 
 import com.android.build.OutputFile
 
@@ -162,6 +163,20 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+
+  packagingOptions {
+    exclude 'META-INF/proguard/androidx-annotations.pro'
+    exclude 'META-INF/com.android.tools/proguard/coroutines.pro'
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/LICENSE.txt'
+    exclude 'META-INF/license.txt'
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/NOTICE.txt'
+    exclude 'META-INF/notice.txt'
+    exclude 'META-INF/ASL2.0'
+  }
+
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
