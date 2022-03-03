@@ -1,6 +1,11 @@
 package com.reactnativemembrane
 
+import android.app.Activity
+import android.content.Intent
+import android.media.projection.MediaProjectionManager
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.getSystemService
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import kotlinx.coroutines.Dispatchers
@@ -19,11 +24,15 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext),
   MembraneRTCListener {
   private val TAG = "MEMBRANE"
+  private val SCREENCAST_REQUEST = 1
   private var room: MembraneRTC? = null
 
   var localAudioTrack: LocalAudioTrack? = null
   var localVideoTrack: LocalVideoTrack? = null
   var localScreencastTrack: LocalScreencastTrack? = null
+
+  var isScreenCastOn = false
+  private var localScreencastId: String? = null
 
   var isMicrophoneOn = false
   var isCameraOn = false
@@ -33,9 +42,29 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   private val globalToLocalTrackId = HashMap<String, String>()
 
   private var connectPromise: Promise? = null
+  private var screencastPromise: Promise? = null
 
   override fun getName(): String {
     return "Membrane"
+  }
+
+  private val activityEventListener = object : BaseActivityEventListener() {
+    override fun onActivityResult(
+      activity: Activity?,
+      requestCode: Int,
+      resultCode: Int,
+      data: Intent?
+    ) {
+      if (resultCode != Activity.RESULT_OK) return
+
+      data?.let {
+        startScreencast(it)
+      }
+    }
+  }
+
+  init {
+    reactContext.addActivityEventListener(activityEventListener)
   }
 
   @ReactMethod
@@ -95,6 +124,66 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     promise.resolve(null)
   }
 
+  @ReactMethod
+  fun toggleScreencast(promise: Promise) {
+    screencastPromise = promise
+    if(!isScreenCastOn) {
+      val currentActivity = currentActivity
+      if (currentActivity == null) {
+        promise.reject("E_ACTIVITY_DOES_NOT_EXIST", "Activity doesn't exist")
+        return
+      }
+
+      val mediaProjectionManager =
+        reactApplicationContext.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+      val intent = mediaProjectionManager.createScreenCaptureIntent()
+      currentActivity.startActivityForResult(intent, SCREENCAST_REQUEST)
+    } else {
+      stopScreencast()
+    }
+  }
+
+  fun startScreencast(mediaProjectionPermission: Intent) {
+    if (localScreencastTrack != null) return
+
+    isScreenCastOn = true
+
+    localScreencastId = UUID.randomUUID().toString()
+
+    var videoParameters = VideoParameters.presetScreenShareHD15
+    val dimensions = videoParameters.dimensions.flip()
+    videoParameters = videoParameters.copy(dimensions = dimensions)
+
+    localScreencastTrack = room?.createScreencastTrack(mediaProjectionPermission, videoParameters, mapOf(
+      "type" to "screensharing",
+      "user_id" to (localDisplayName ?: "")
+    )) {
+      stopScreencast()
+    }
+
+    localScreencastTrack?.let {
+      MembraneRoom.participants[localScreencastId!!] = Participant(id = localScreencastId!!, displayName = "Me (screen cast)", videoTrack = it)
+      emitParticipants()
+    }
+    screencastPromise?.resolve(isScreenCastOn)
+  }
+
+  fun stopScreencast() {
+    isScreenCastOn = false
+
+    localScreencastTrack?.let {
+      room?.removeTrack(it.id())
+
+      localScreencastId?.let {
+        MembraneRoom.participants.remove(it)
+
+        emitParticipants()
+      }
+
+      localScreencastTrack = null
+    }
+    screencastPromise?.resolve(isScreenCastOn)
+  }
 
   private fun emitEvent(eventName: String, data: Any?) {
     reactApplicationContext

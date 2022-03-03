@@ -59,7 +59,7 @@ export function useParticipants() {
   return participants;
 }
 
-export function useCameraState() {
+export function useCameraState(): [boolean, () => Promise<void>] {
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export function useCameraState() {
       (event) => setIsCameraOn(event)
     );
     Membrane.isCameraOn().then(setIsCameraOn);
-    return eventListener.remove;
+    return () => eventListener.remove();
   }, []);
 
   const toggleCamera = async () => {
@@ -79,7 +79,7 @@ export function useCameraState() {
   return [isCameraOn, toggleCamera];
 }
 
-export function useMicrophoneState() {
+export function useMicrophoneState(): [boolean, () => Promise<void>] {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export function useMicrophoneState() {
       (event) => setIsMicrophoneOn(event)
     );
     Membrane.isMicrophoneOn().then(setIsMicrophoneOn);
-    return eventListener.remove;
+    return () => eventListener.remove();
   }, []);
 
   const toggleMicrophone = async () => {
@@ -101,6 +101,17 @@ export function useMicrophoneState() {
 
 export function flipCamera(): Promise<void> {
   return Membrane.flipCamera();
+}
+
+export function useScreencast(): [boolean, () => Promise<void>] {
+  const [isScreencastOn, setIsScreencastOn] = useState<boolean>(false);
+
+  const toggleScreencast = async () => {
+    const state = await Membrane.toggleScreencast();
+    setIsScreencastOn(state);
+  }
+
+  return [isScreencastOn, toggleScreencast];
 }
 
 type VideoRendererProps = {

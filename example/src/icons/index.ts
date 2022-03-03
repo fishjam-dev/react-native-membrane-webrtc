@@ -4,4 +4,5 @@ export { default as MicrophoneDisabledIcon } from './outline-microphone-disabled
 export { default as MicrophoneIcon } from './outline-microphone.svg';
 export { default as PhoneDownIcon } from './outline-phone-down.svg';
 export { default as FlipCameraIcon } from './outline-refresh.svg';
-export { default as ScreenShareIcon } from './outline-screen-share.svg';
+export { default as ScreencastIcon } from './outline-screen.svg';
+export { default as ScreencastDisabledIcon } from './outline-screen-disabled.svg';
