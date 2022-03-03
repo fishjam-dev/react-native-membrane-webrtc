@@ -35,8 +35,12 @@ export function connect(
   url: string,
   roomName: string,
   displayName: string
-): Promise<number> {
+): Promise<void> {
   return Membrane.connect(url, roomName, displayName);
+}
+
+export function disconnect() {
+  return Membrane.disconnect();
 }
 
 export function useParticipants() {

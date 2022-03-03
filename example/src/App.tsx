@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import {
   StyleSheet,
   View,
-  Text,
   Button,
   PermissionsAndroid,
-  TouchableOpacity
 } from 'react-native';
 
 import * as Membrane from 'react-native-membrane';
@@ -22,6 +20,11 @@ export default function App() {
     );
     setConnected(true);
   };
+
+  const disconnect = () => {
+    setConnected(false);
+    Membrane.disconnect();
+  }
 
   const requestPermissions = async () => {
     try {
@@ -45,7 +48,7 @@ export default function App() {
   };
 
   if (connected) {
-    return <Room disconnect={() => setConnected(false)} />;
+    return <Room disconnect={disconnect} />;
   }
 
   return (

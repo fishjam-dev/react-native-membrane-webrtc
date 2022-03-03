@@ -41,8 +41,14 @@ class MembraneModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
         ),
         listener = this@MembraneModule
       )
-
     }
+
+  @ReactMethod
+  fun disconnect() {
+    room?.disconnect()
+    room = null
+    MembraneRoom.participants.clear();
+  }
 
   private fun emitEvent(eventName: String, data: Any?) {
     reactApplicationContext
