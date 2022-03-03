@@ -39,7 +39,7 @@ export function connect(
   return Membrane.connect(url, roomName, displayName);
 }
 
-export function disconnect() {
+export function disconnect(): Promise<void> {
   return Membrane.disconnect();
 }
 
@@ -47,7 +47,6 @@ export function useParticipants() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   useEffect(() => {
     const listener = (event) => {
-      console.log('EVENT!', event);
       setParticipants(event.participants);
     };
     const eventListener = eventEmitter.addListener(
@@ -58,6 +57,50 @@ export function useParticipants() {
   }, []);
 
   return participants;
+}
+
+export function useCameraState() {
+  const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
+
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener(
+      'IsCameraOn',
+      (event) => setIsCameraOn(event)
+    );
+    Membrane.isCameraOn().then(setIsCameraOn);
+    return eventListener.remove;
+  }, []);
+
+  const toggleCamera = async () => {
+    const state = await Membrane.toggleCamera();
+    setIsCameraOn(state);
+  }
+
+  return [isCameraOn, toggleCamera];
+}
+
+export function useMicrophoneState() {
+  const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
+
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener(
+      'IsMicrophoneOn',
+      (event) => setIsMicrophoneOn(event)
+    );
+    Membrane.isMicrophoneOn().then(setIsMicrophoneOn);
+    return eventListener.remove;
+  }, []);
+
+  const toggleMicrophone = async () => {
+    const state = await Membrane.toggleMicrophone();
+    setIsMicrophoneOn(state);
+  }
+
+  return [isMicrophoneOn, toggleMicrophone];
+}
+
+export function flipCamera(): Promise<void> {
+  return Membrane.flipCamera();
 }
 
 type VideoRendererProps = {

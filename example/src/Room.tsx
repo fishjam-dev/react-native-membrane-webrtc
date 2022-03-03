@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Membrane from 'react-native-membrane';
-import { CameraIcon, CameraDisabledIcon, MicrophoneDisabledIcon, MicrophoneIcon, PhoneDownIcon, SwitchCameraIcon, ScreenShareIcon } from './icons';
+import { CameraIcon, CameraDisabledIcon, MicrophoneDisabledIcon, MicrophoneIcon, PhoneDownIcon, FlipCameraIcon, ScreenShareIcon } from './icons';
 
 const iconSize = 32;
 
 export const Room = ({ disconnect }: { disconnect: () => void }) => {
-  const [isCameraDisabled, setIsCameraDisabled] = useState<Boolean>(false);
-  const [isAudioMuted, setIsAudioMuted] = useState<Boolean>(false);
+  const [isCameraOn, toggleCamera] = Membrane.useCameraState();
+  const [isMicrophoneOn, toggleMicrophone] = Membrane.useMicrophoneState();
 
   const participants = Membrane.useParticipants();
 
@@ -46,22 +46,24 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
         </View>
       </View>
       <View style={styles.iconsContainer}>
-        <TouchableOpacity onPress={() => setIsAudioMuted(!isAudioMuted)}>
-          {isAudioMuted ? <MicrophoneDisabledIcon width={iconSize} height={iconSize} /> :
+        <TouchableOpacity onPress={toggleMicrophone}>
+          {!isMicrophoneOn ? <MicrophoneDisabledIcon width={iconSize} height={iconSize} /> :
             <MicrophoneIcon width={iconSize} height={iconSize} />}
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setIsCameraDisabled(!isCameraDisabled)}>
-          {isCameraDisabled ? <CameraDisabledIcon width={iconSize} height={iconSize} /> :
+        <TouchableOpacity onPress={toggleCamera}>
+          {!isCameraOn ? <CameraDisabledIcon width={iconSize} height={iconSize} /> :
             <CameraIcon width={iconSize} height={iconSize} />
           }
         </TouchableOpacity>
         <TouchableOpacity onPress={disconnect}>
           <PhoneDownIcon width={iconSize} height={iconSize} />
         </TouchableOpacity>
-        <SwitchCameraIcon width={iconSize} height={iconSize} />
+        <TouchableOpacity onPress={Membrane.flipCamera}>
+          <FlipCameraIcon width={iconSize} height={iconSize} />
+        </TouchableOpacity>
         <ScreenShareIcon width={iconSize} height={iconSize} />
       </View>
-    </View>);
+    </View >);
 };
 
 const styles = StyleSheet.create({

@@ -11,7 +11,7 @@ import * as Membrane from 'react-native-membrane';
 import { Room } from './Room';
 
 export default function App() {
-  const [connected, setConnected] = useState<Boolean>(false);
+  const [connected, setConnected] = useState<boolean>(false);
   const connectRoom = () => {
     Membrane.connect(
       'http://192.168.0.213:4000/socket',
