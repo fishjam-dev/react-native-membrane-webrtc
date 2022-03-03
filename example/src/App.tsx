@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   StyleSheet,
@@ -8,15 +8,19 @@ import {
   PermissionsAndroid,
   TouchableOpacity
 } from 'react-native';
+
 import * as Membrane from 'react-native-membrane';
+import { Room } from './Room';
 
 export default function App() {
+  const [connected, setConnected] = useState<Boolean>(false);
   const connectRoom = () => {
     Membrane.connect(
       'http://192.168.0.213:4000/socket',
       'room',
       'Android user'
     );
+    setConnected(true);
   };
 
   const requestPermissions = async () => {
@@ -40,40 +44,12 @@ export default function App() {
     }
   };
 
-  const participants = Membrane.useParticipants();
-
-  const [firstParticipant, setFirstParticipant] = React.useState<Membrane.Participant | null>(null)
-
-  React.useEffect(() => {
-    if (!firstParticipant) {
-      setFirstParticipant(participants[0])
-    }
-  }, [participants, firstParticipant]);
+  if (connected) {
+    return <Room disconnect={() => setConnected(false)} />;
+  }
 
   return (
     <View style={styles.container}>
-      {!!firstParticipant && (
-        <View style={styles.firstParticipant}>
-          <Membrane.VideoRendererView
-            participantId={firstParticipant.id}
-            style={styles.firstParticipant}
-          />
-          <Text style={styles.displayName}>{firstParticipant.displayName}</Text>
-        </View>
-      )}
-      <View style={styles.participantsContainer}>
-        {participants.filter(p => p.id !== firstParticipant?.id).map((p) => (
-          <TouchableOpacity onPress={() => setFirstParticipant(p)} key={p.id} style={styles.participant}>
-            <Membrane.VideoRendererView
-              participantId={p.id}
-              style={styles.participant}
-
-            />
-            <Text style={styles.displayName}>{p.displayName}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
       <Button onPress={connectRoom} title="Connect!" />
       <Button onPress={requestPermissions} title="Request permissions" />
     </View>
@@ -86,24 +62,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  firstParticipant: {
-    width: 300,
-    height: 300,
-    marginVertical: 20,
-  },
-  participantsContainer: {
-    flexDirection: 'row',
-    height: 100,
-    width: 300,
-  },
-  participant: {
-    height: 100,
-    width: 100,
-  },
-  displayName: {
-    backgroundColor: 'white',
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
-  }
+
 });
