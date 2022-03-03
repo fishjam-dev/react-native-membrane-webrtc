@@ -1,10 +1,6 @@
 package com.reactnativemembrane
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.util.Log
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
-import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import kotlinx.coroutines.Dispatchers
@@ -136,6 +132,36 @@ class MembraneModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
   }
 
   override fun onTrackRemoved(ctx: TrackContext) {
+      if (ctx.metadata["type"] == "screensharing") {
+        // screencast is a throw-away type of participant so remove it and emit participants once again
+        MembraneRoom.participants.remove(ctx.trackId)
+        globalToLocalTrackId.remove(ctx.trackId)
+
+        emitParticipants()
+      } else {
+        val participant = MembraneRoom.participants[ctx.peer.id] ?: return
+
+        val localTrackId = globalToLocalTrackId[ctx.trackId]
+        val audioTrackId = participant.audioTrack?.id()
+        val videoTrackId = participant.videoTrack?.id()
+
+        val newParticipant = when {
+          localTrackId == videoTrackId ->
+            participant.copy(videoTrack = null)
+
+          localTrackId == audioTrackId ->
+            participant.copy(audioTrack = null)
+
+          else ->
+            throw IllegalArgumentException("track has not been found for given peer")
+        }
+
+        globalToLocalTrackId.remove(ctx.trackId)
+
+        MembraneRoom.participants[ctx.peer.id] = newParticipant
+
+        emitParticipants()
+    }
   }
 
   override fun onTrackUpdated(ctx: TrackContext) {
@@ -147,6 +173,8 @@ class MembraneModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
   }
 
   override fun onPeerLeft(peer: Peer) {
+    MembraneRoom.participants.remove(peer.id)
+    emitParticipants()
   }
 
   override fun onPeerUpdated(peer: Peer) {
@@ -154,6 +182,4 @@ class MembraneModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
 
   override fun onError(error: MembraneRTCError) {
   }
-
-
 }

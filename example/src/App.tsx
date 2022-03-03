@@ -43,11 +43,10 @@ export default function App() {
   const participants = Membrane.useParticipants();
 
   const [firstParticipant, setFirstParticipant] = React.useState<Membrane.Participant | null>(null)
-  console.log("ASDF", firstParticipant);
 
   React.useEffect(() => {
     if (!firstParticipant) {
-      setFirstParticipant(participants[1])
+      setFirstParticipant(participants[0])
     }
   }, [participants, firstParticipant]);
 
