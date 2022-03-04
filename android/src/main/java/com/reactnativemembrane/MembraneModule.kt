@@ -3,7 +3,6 @@ package com.reactnativemembrane
 import android.app.Activity
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -22,7 +21,6 @@ import java.util.*
 class MembraneModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext),
   MembraneRTCListener {
-  private val TAG = "MEMBRANE"
   private val SCREENCAST_REQUEST = 1
   private var room: MembraneRTC? = null
 
@@ -41,6 +39,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   private val globalToLocalTrackId = HashMap<String, String>()
 
   private var connectPromise: Promise? = null
+  private var joinPromise: Promise? = null
   private var screencastPromise: Promise? = null
 
   override fun getName(): String {
@@ -54,7 +53,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       resultCode: Int,
       data: Intent?
     ) {
-      if (resultCode != Activity.RESULT_OK) return
+      if(requestCode != SCREENCAST_REQUEST) return
+      if (resultCode != Activity.RESULT_OK) {
+        screencastPromise?.resolve(false)
+        screencastPromise = null
+        return
+      }
 
       data?.let {
         startScreencast(it)
@@ -69,14 +73,20 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun connect(url: String, roomName: String, displayName: String, promise: Promise) {
     connectPromise = promise
-    room = MembraneRTC.connect(
-      appContext = reactApplicationContext,
-      options = ConnectOptions(
-        transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO),
-        config = mapOf("displayName" to displayName)
-      ),
-      listener = this@MembraneModule
-    )
+      room = MembraneRTC.connect(
+        appContext = reactApplicationContext,
+        options = ConnectOptions(
+          transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO),
+          config = mapOf("displayName" to displayName)
+        ),
+        listener = this@MembraneModule
+      )
+  }
+
+  @ReactMethod
+  fun join(promise: Promise) {
+    joinPromise = promise
+    room?.join()
   }
 
   @ReactMethod
@@ -143,6 +153,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun getParticipants(promise: Promise) {
+    promise.resolve(getParticipantsAsRNMap())
+  }
+
+  @ReactMethod
   fun addListener(eventName: String?) {}
 
   @ReactMethod
@@ -188,6 +203,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       localScreencastTrack = null
     }
     screencastPromise?.resolve(isScreenCastOn)
+    screencastPromise = null
   }
 
   private fun emitEvent(eventName: String, data: Any?) {
@@ -196,8 +212,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       .emit(eventName, data)
   }
 
-  private fun emitParticipants() {
-    val params = Arguments.createMap();
+  private fun getParticipantsAsRNMap(): WritableMap? {
+    val params = Arguments.createMap()
     val participantsArray = Arguments.createArray();
     MembraneRoom.participants.values.filter { it.videoTrack != null }.forEach {
       val participantMap = Arguments.createMap()
@@ -205,12 +221,15 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       participantMap.putString("displayName", it.displayName)
       participantsArray.pushMap(participantMap)
     }
-    params.putArray("participants", participantsArray);
-    emitEvent("ParticipantsUpdate", params)
+    params.putArray("participants", participantsArray)
+    return params
+  }
+
+  private fun emitParticipants() {
+    emitEvent("ParticipantsUpdate", getParticipantsAsRNMap())
   }
 
   override fun onConnected() {
-    Log.d(TAG, "on Connected")
     room?.let {
       localAudioTrack = it.createAudioTrack(
         mapOf(
@@ -233,28 +252,28 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       emitEvent("IsCameraOn", isCameraOn)
       emitEvent("IsMicrophoneOn", isMicrophoneOn)
 
-      connectPromise?.resolve(null)
-
       val localPeerId = UUID.randomUUID().toString()
       MembraneRoom.participants[localPeerId] =
         Participant(localPeerId, "Me", localVideoTrack, localAudioTrack)
+      connectPromise?.resolve(null)
+      connectPromise = null
       emitParticipants()
-
-      it.join()
     }
   }
 
   override fun onJoinSuccess(peerID: String, peersInRoom: List<Peer>) {
-    Log.d(TAG, "on join success")
     peersInRoom.forEach {
       MembraneRoom.participants[it.id] =
         Participant(it.id, it.metadata["displayName"] ?: "UNKNOWN", null, null)
     }
+    joinPromise?.resolve(null)
+    joinPromise = null
     emitParticipants()
   }
 
   override fun onJoinError(metadata: Any) {
-    Log.d(TAG, "on join error")
+    joinPromise?.reject("E_JOIN_ERROR", metadata.toString())
+    joinPromise = null
   }
 
   override fun onTrackReady(ctx: TrackContext) {
@@ -292,7 +311,6 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onTrackAdded(ctx: TrackContext) {
-    Log.d(TAG, "on track added")
   }
 
   override fun onTrackRemoved(ctx: TrackContext) {
@@ -346,5 +364,16 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onError(error: MembraneRTCError) {
+    when {
+        connectPromise != null -> {
+          connectPromise?.reject("E_MEMBRANE_ERROR", error.toString())
+          connectPromise = null
+        }
+        joinPromise != null -> {
+          joinPromise?.reject("E_MEMBRANE_ERROR", error.toString())
+          joinPromise = null
+        }
+    }
+    emitEvent("MembraneError", error.toString())
   }
 }

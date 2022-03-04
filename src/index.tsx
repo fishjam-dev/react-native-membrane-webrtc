@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   NativeModules,
   Platform,
@@ -31,87 +31,108 @@ export type Participant = {
   displayName: string;
 };
 
-export function connect(
-  url: string,
-  roomName: string,
-  displayName: string
-): Promise<void> {
-  return Membrane.connect(url, roomName, displayName);
-}
+export function useMembraneServer() {
+  const [error, setError] = useState<string | null>(null);
 
-export function disconnect(): Promise<void> {
-  return Membrane.disconnect();
-}
-
-export function useParticipants() {
-  const [participants, setParticipants] = useState<Participant[]>([]);
   useEffect(() => {
-    const listener = (event) => {
-      setParticipants(event.participants);
-    };
+    const eventListener = eventEmitter.addListener('MembraneError', setError);
+    return () => eventListener.remove();
+  }, []);
+
+  const connect = useCallback(
+    async (
+      url: string,
+      roomName: string,
+      displayName: string
+    ): Promise<void> => {
+      setError(null);
+      await Membrane.connect(url, roomName, displayName);
+    },
+    []
+  );
+
+  const joinRoom = useCallback((): Promise<void> => {
+    setError(null);
+    return Membrane.join();
+  }, []);
+
+  const disconnect = useCallback((): Promise<void> => {
+    setError(null);
+    return Membrane.disconnect();
+  }, []);
+  return { connect, disconnect, joinRoom, error };
+}
+
+export function useRoomParticipants() {
+  const [participants, setParticipants] = useState<Participant[]>([]);
+
+  useEffect(() => {
     const eventListener = eventEmitter.addListener(
       'ParticipantsUpdate',
-      listener
+      ({ participants }) => {
+        setParticipants(participants);
+      }
     );
+    Membrane.getParticipants().then(({ participants }: { participants: Participant[] }) => {
+      setParticipants(participants);
+    });
     return () => eventListener.remove();
   }, []);
 
   return participants;
 }
 
-export function useCameraState(): [boolean, () => Promise<void>] {
+export function useCameraState() {
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener(
-      'IsCameraOn',
-      (event) => setIsCameraOn(event)
+    const eventListener = eventEmitter.addListener('IsCameraOn', (event) =>
+      setIsCameraOn(event)
     );
     Membrane.isCameraOn().then(setIsCameraOn);
     return () => eventListener.remove();
   }, []);
 
-  const toggleCamera = async () => {
+  const toggleCamera = useCallback(async () => {
     const state = await Membrane.toggleCamera();
     setIsCameraOn(state);
-  }
+  }, []);
 
-  return [isCameraOn, toggleCamera];
+  return { isCameraOn, toggleCamera };
 }
 
-export function useMicrophoneState(): [boolean, () => Promise<void>] {
+export function useMicrophoneState() {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener(
-      'IsMicrophoneOn',
-      (event) => setIsMicrophoneOn(event)
+    const eventListener = eventEmitter.addListener('IsMicrophoneOn', (event) =>
+      setIsMicrophoneOn(event)
     );
     Membrane.isMicrophoneOn().then(setIsMicrophoneOn);
     return () => eventListener.remove();
   }, []);
 
-  const toggleMicrophone = async () => {
+  const toggleMicrophone = useCallback(async () => {
     const state = await Membrane.toggleMicrophone();
     setIsMicrophoneOn(state);
-  }
+  }, []);
 
-  return [isMicrophoneOn, toggleMicrophone];
+  return { isMicrophoneOn, toggleMicrophone };
 }
 
 export function flipCamera(): Promise<void> {
   return Membrane.flipCamera();
 }
 
-export function useScreencast(): [boolean, () => Promise<void>] {
+export function useScreencast() {
   const [isScreencastOn, setIsScreencastOn] = useState<boolean>(false);
 
-  const toggleScreencast = async () => {
+  const toggleScreencast = useCallback(async () => {
     const state = await Membrane.toggleScreencast();
     setIsScreencastOn(state);
-  }
+  }, []);
 
-  return [isScreencastOn, toggleScreencast];
+  return { isScreencastOn, toggleScreencast };
 }
 
 type VideoRendererProps = {

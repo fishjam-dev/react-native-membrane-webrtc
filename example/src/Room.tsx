@@ -1,59 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import * as Membrane from 'react-native-membrane';
-import {
-  CameraIcon,
-  CameraDisabledIcon,
-  MicrophoneDisabledIcon,
-  MicrophoneIcon,
-  PhoneDownIcon,
-  FlipCameraIcon,
-  ScreencastIcon,
-  ScreencastDisabledIcon,
-} from './icons';
-
-const iconSize = 32;
+import { Controls } from './Controls';
 
 export const Room = ({ disconnect }: { disconnect: () => void }) => {
-  const [isCameraOn, toggleCamera] = Membrane.useCameraState();
-  const [isMicrophoneOn, toggleMicrophone] = Membrane.useMicrophoneState();
-  const [isScreencastOn, toggleScreencast] = Membrane.useScreencast();
+  const participants = Membrane.useRoomParticipants();
 
-  const participants = Membrane.useParticipants();
-
-  const [firstParticipantId, setFirstParticipantId] = useState<string | null>(
-    null
-  );
-  const firstParticipant = participants.find(
-    (p) => p.id === firstParticipantId
+  const [focusedParticipantId, setFocusedParticipantId] = useState<
+    string | null
+  >(null);
+  const focusedParticipant = participants.find(
+    (p) => p.id === focusedParticipantId
   );
 
   useEffect(() => {
-    if (!firstParticipant && participants[0]) {
-      setFirstParticipantId(participants[0].id);
+    if (!focusedParticipant && participants[0]) {
+      setFocusedParticipantId(participants[0].id);
     }
-  }, [participants, firstParticipantId]);
+  }, [participants, focusedParticipant]);
 
   return (
     <View style={styles.container}>
       <View style={styles.participantsContainer}>
-        {!!firstParticipant && (
-          <View style={styles.firstParticipantContainer}>
+        {!!focusedParticipant && (
+          <View style={styles.focusedParticipantContainer}>
             <Membrane.VideoRendererView
-              participantId={firstParticipant.id}
-              style={styles.firstParticipant}
+              participantId={focusedParticipant.id}
+              style={styles.focusedParticipant}
             />
             <Text style={styles.displayName}>
-              {firstParticipant.displayName}
+              {focusedParticipant.displayName}
             </Text>
           </View>
         )}
         <View style={styles.otherParticipantsContainer}>
           {participants
-            .filter((p) => p.id !== firstParticipant?.id)
+            .filter((p) => p.id !== focusedParticipant?.id)
             .map((p) => (
               <Pressable
-                onPress={() => setFirstParticipantId(p.id)}
+                onPress={() => setFocusedParticipantId(p.id)}
                 key={p.id}
                 style={styles.participant}
               >
@@ -66,35 +51,7 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
             ))}
         </View>
       </View>
-      <View style={styles.iconsContainer}>
-        <Pressable onPress={toggleMicrophone}>
-          {!isMicrophoneOn ? (
-            <MicrophoneDisabledIcon width={iconSize} height={iconSize} />
-          ) : (
-            <MicrophoneIcon width={iconSize} height={iconSize} />
-          )}
-        </Pressable>
-        <Pressable onPress={toggleCamera}>
-          {!isCameraOn ? (
-            <CameraDisabledIcon width={iconSize} height={iconSize} />
-          ) : (
-            <CameraIcon width={iconSize} height={iconSize} />
-          )}
-        </Pressable>
-        <Pressable onPress={disconnect}>
-          <PhoneDownIcon width={iconSize} height={iconSize} />
-        </Pressable>
-        <Pressable onPress={Membrane.flipCamera}>
-          <FlipCameraIcon width={iconSize} height={iconSize} />
-        </Pressable>
-        <Pressable onPress={toggleScreencast}>
-          {isScreencastOn ? (
-            <ScreencastIcon width={iconSize} height={iconSize} />
-          ) : (
-            <ScreencastDisabledIcon width={iconSize} height={iconSize} />
-          )}
-        </Pressable>
-      </View>
+      <Controls disconnect={disconnect} />
     </View>
   );
 };
@@ -103,16 +60,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  iconsContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 24,
-  },
   participantsContainer: {
     flex: 1,
   },
-  firstParticipantContainer: {
+  focusedParticipantContainer: {
     flex: 1,
     borderRadius: 4,
     overflow: 'hidden',
@@ -120,7 +71,7 @@ const styles = StyleSheet.create({
     borderColor: '#001A72',
     margin: 20,
   },
-  firstParticipant: {
+  focusedParticipant: {
     flex: 1,
   },
   otherParticipantsContainer: {

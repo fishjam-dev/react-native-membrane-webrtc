@@ -1,32 +1,26 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import {
-  StyleSheet,
-  View,
-  Button,
-  PermissionsAndroid,
-} from 'react-native';
+import { StyleSheet, View, Button, PermissionsAndroid } from 'react-native';
 
 import * as Membrane from 'react-native-membrane';
 import { Room } from './Room';
 
 export default function App() {
+  const {
+    connect: mbConnect,
+    disconnect: mbDisconnect,
+    joinRoom,
+    error,
+  } = Membrane.useMembraneServer();
   const [connected, setConnected] = useState<boolean>(false);
-  const connectRoom = () => {
-    Membrane.connect(
-      'http://192.168.0.213:4000/socket',
-      'room',
-      'Android user'
-    );
-    setConnected(true);
-  };
 
-  const disconnect = () => {
-    setConnected(false);
-    Membrane.disconnect();
-  }
+  useEffect(() => {
+    if (error) {
+      console.log(error);
+    }
+  }, [error]);
 
-  const requestPermissions = async () => {
+  const requestPermissions = useCallback(async () => {
     try {
       const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -34,9 +28,9 @@ export default function App() {
       ]);
       if (
         granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
-        PermissionsAndroid.RESULTS.GRANTED &&
+          PermissionsAndroid.RESULTS.GRANTED &&
         granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] ===
-        PermissionsAndroid.RESULTS.GRANTED
+          PermissionsAndroid.RESULTS.GRANTED
       ) {
         console.log('You can use the camera');
       } else {
@@ -45,7 +39,19 @@ export default function App() {
     } catch (err) {
       console.warn(err);
     }
-  };
+  }, []);
+
+  const connect = useCallback(async () => {
+    await requestPermissions();
+    await mbConnect('http://192.168.0.213:4000/socket', 'room', 'Android user');
+    await joinRoom();
+    setConnected(true);
+  }, [requestPermissions, mbConnect, joinRoom]);
+
+  const disconnect = useCallback(() => {
+    setConnected(false);
+    mbDisconnect();
+  }, [mbDisconnect]);
 
   if (connected) {
     return <Room disconnect={disconnect} />;
@@ -53,8 +59,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Button onPress={connectRoom} title="Connect!" />
-      <Button onPress={requestPermissions} title="Request permissions" />
+      <Button onPress={connect} title="Connect!" />
     </View>
   );
 }
@@ -65,5 +70,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
 });
