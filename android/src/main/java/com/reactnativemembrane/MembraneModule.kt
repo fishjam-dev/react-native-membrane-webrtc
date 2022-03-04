@@ -5,11 +5,9 @@ import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.getSystemService
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.membraneframework.rtc.ConnectOptions
 import org.membraneframework.rtc.MembraneRTC
 import org.membraneframework.rtc.MembraneRTCError
@@ -19,6 +17,7 @@ import org.membraneframework.rtc.models.Peer
 import org.membraneframework.rtc.models.TrackContext
 import org.membraneframework.rtc.transport.PhoenixTransport
 import java.util.*
+
 
 class MembraneModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext),
@@ -142,6 +141,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       stopScreencast()
     }
   }
+
+  @ReactMethod
+  fun addListener(eventName: String?) {}
+
+  @ReactMethod
+  fun removeListeners(count: Int?) {}
 
   fun startScreencast(mediaProjectionPermission: Intent) {
     if (localScreencastTrack != null) return

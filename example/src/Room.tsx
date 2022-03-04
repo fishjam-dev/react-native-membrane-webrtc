@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
 import * as Membrane from 'react-native-membrane';
 import {
   CameraIcon,
@@ -52,7 +52,7 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
           {participants
             .filter((p) => p.id !== firstParticipant?.id)
             .map((p) => (
-              <TouchableOpacity
+              <Pressable
                 onPress={() => setFirstParticipantId(p.id)}
                 key={p.id}
                 style={styles.participant}
@@ -62,38 +62,38 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
                   style={styles.participant}
                 />
                 <Text style={styles.displayName}>{p.displayName}</Text>
-              </TouchableOpacity>
+              </Pressable>
             ))}
         </View>
       </View>
       <View style={styles.iconsContainer}>
-        <TouchableOpacity onPress={toggleMicrophone}>
+        <Pressable onPress={toggleMicrophone}>
           {!isMicrophoneOn ? (
             <MicrophoneDisabledIcon width={iconSize} height={iconSize} />
           ) : (
             <MicrophoneIcon width={iconSize} height={iconSize} />
           )}
-        </TouchableOpacity>
-        <TouchableOpacity onPress={toggleCamera}>
+        </Pressable>
+        <Pressable onPress={toggleCamera}>
           {!isCameraOn ? (
             <CameraDisabledIcon width={iconSize} height={iconSize} />
           ) : (
             <CameraIcon width={iconSize} height={iconSize} />
           )}
-        </TouchableOpacity>
-        <TouchableOpacity onPress={disconnect}>
+        </Pressable>
+        <Pressable onPress={disconnect}>
           <PhoneDownIcon width={iconSize} height={iconSize} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={Membrane.flipCamera}>
+        </Pressable>
+        <Pressable onPress={Membrane.flipCamera}>
           <FlipCameraIcon width={iconSize} height={iconSize} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={toggleScreencast}>
+        </Pressable>
+        <Pressable onPress={toggleScreencast}>
           {isScreencastOn ? (
             <ScreencastIcon width={iconSize} height={iconSize} />
           ) : (
             <ScreencastDisabledIcon width={iconSize} height={iconSize} />
           )}
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
