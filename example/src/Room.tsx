@@ -38,7 +38,7 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
     <View style={styles.container}>
       <View style={styles.participantsContainer}>
         {!!firstParticipant && (
-          <View style={styles.firstParticipant}>
+          <View style={styles.firstParticipantContainer}>
             <Membrane.VideoRendererView
               participantId={firstParticipant.id}
               style={styles.firstParticipant}
@@ -111,21 +111,23 @@ const styles = StyleSheet.create({
   },
   participantsContainer: {
     flex: 1,
-    alignItems: 'center',
   },
-  firstParticipant: {
+  firstParticipantContainer: {
     flex: 1,
-    width: '100%',
     borderRadius: 4,
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: '#001A72',
+    margin: 20,
+  },
+  firstParticipant: {
+    flex: 1,
   },
   otherParticipantsContainer: {
+    width: '100%',
     flexDirection: 'row',
     height: 100,
-    width: 300,
-    paddingVertical: 20,
+    margin: 20,
   },
   participant: {
     height: 100,
