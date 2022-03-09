@@ -20,8 +20,8 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
   }, [participants, focusedParticipant]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.participantsContainer}>
+    <View style={styles.flex}>
+      <View style={styles.flex}>
         {!!focusedParticipant && (
           <View style={styles.focusedParticipantContainer}>
             <Membrane.VideoRendererView
@@ -44,7 +44,7 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
               >
                 <Membrane.VideoRendererView
                   participantId={p.id}
-                  style={styles.participant}
+                  style={styles.flex}
                 />
                 <Text style={styles.displayName}>{p.displayName}</Text>
               </Pressable>
@@ -57,10 +57,7 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  participantsContainer: {
+  flex: {
     flex: 1,
   },
   focusedParticipantContainer: {

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { StyleSheet, View, Button, PermissionsAndroid } from 'react-native';
+import { StyleSheet, View, Button, PermissionsAndroid, SafeAreaView } from 'react-native';
 
 import * as Membrane from 'react-native-membrane';
 import { Room } from './Room';
@@ -28,9 +28,9 @@ export default function App() {
       ]);
       if (
         granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
+        PermissionsAndroid.RESULTS.GRANTED &&
         granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] ===
-          PermissionsAndroid.RESULTS.GRANTED
+        PermissionsAndroid.RESULTS.GRANTED
       ) {
         console.log('You can use the camera');
       } else {
@@ -42,8 +42,8 @@ export default function App() {
   }, []);
 
   const connect = useCallback(async () => {
-    await requestPermissions();
-    await mbConnect('http://192.168.0.213:4000/socket', 'room', 'Android user');
+    //await requestPermissions();
+    await mbConnect('http://192.168.83.221:4000/socket', 'room', 'Android user');
     await joinRoom();
     setConnected(true);
   }, [requestPermissions, mbConnect, joinRoom]);
@@ -54,7 +54,7 @@ export default function App() {
   }, [mbDisconnect]);
 
   if (connected) {
-    return <Room disconnect={disconnect} />;
+    return <SafeAreaView style={styles.container}><Room disconnect={disconnect} /></SafeAreaView>;
   }
 
   return (
