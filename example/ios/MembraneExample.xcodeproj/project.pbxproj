@@ -10,9 +10,37 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		441A418727D8E06700BC0BA9 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 441A418627D8E06700BC0BA9 /* ReplayKit.framework */; };
+		441A418A27D8E06700BC0BA9 /* SampleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 441A418927D8E06700BC0BA9 /* SampleHandler.swift */; };
+		441A419D27D8E06700BC0BA9 /* ScreenBroadcast.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 441A418527D8E06600BC0BA9 /* ScreenBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4C39C56BAD484C67AA576FFA /* libPods-MembraneExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CA3E69C5B9553B26FBA2DF04 /* libPods-MembraneExample.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		944F7AAD44E2DBA19AF181B2 /* libPods-ScreenBroadcast.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2986F38E37627E6946AD1A6 /* libPods-ScreenBroadcast.a */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		441A419B27D8E06700BC0BA9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 441A418427D8E06600BC0BA9;
+			remoteInfo = ScreenBroadcast;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		441A419E27D8E06700BC0BA9 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				441A419D27D8E06700BC0BA9 /* ScreenBroadcast.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
@@ -24,12 +52,21 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = MembraneExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MembraneExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = MembraneExample/main.m; sourceTree = "<group>"; };
+		441A418527D8E06600BC0BA9 /* ScreenBroadcast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScreenBroadcast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		441A418627D8E06700BC0BA9 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
+		441A418927D8E06700BC0BA9 /* SampleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleHandler.swift; sourceTree = "<group>"; };
+		441A418B27D8E06700BC0BA9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		441A419227D8E06700BC0BA9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		441A41A527D8E55100BC0BA9 /* MembraneExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = MembraneExample.entitlements; path = MembraneExample/MembraneExample.entitlements; sourceTree = "<group>"; };
+		441A41A627D8E57200BC0BA9 /* ScreenBroadcast.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScreenBroadcast.entitlements; sourceTree = "<group>"; };
 		47F7ED3B7971BE374F7B8635 /* Pods-MembraneExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MembraneExample.debug.xcconfig"; path = "Target Support Files/Pods-MembraneExample/Pods-MembraneExample.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = MembraneExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8562F29C8685F911B1176F8D /* Pods-ScreenBroadcast.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.release.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.release.xcconfig"; sourceTree = "<group>"; };
 		CA3E69C5B9553B26FBA2DF04 /* libPods-MembraneExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MembraneExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D048D25C0E15565EA4A697D9 /* Pods-ScreenBroadcast.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.debug.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.debug.xcconfig"; sourceTree = "<group>"; };
 		E00ACF0FDA8BF921659E2F9A /* Pods-MembraneExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MembraneExample.release.xcconfig"; path = "Target Support Files/Pods-MembraneExample/Pods-MembraneExample.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		F2986F38E37627E6946AD1A6 /* libPods-ScreenBroadcast.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScreenBroadcast.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +75,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C39C56BAD484C67AA576FFA /* libPods-MembraneExample.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		441A418227D8E06600BC0BA9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				441A418727D8E06700BC0BA9 /* ReplayKit.framework in Frameworks */,
+				944F7AAD44E2DBA19AF181B2 /* libPods-ScreenBroadcast.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,6 +110,7 @@
 		13B07FAE1A68108700A75B9A /* MembraneExample */ = {
 			isa = PBXGroup;
 			children = (
+				441A41A527D8E55100BC0BA9 /* MembraneExample.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -79,10 +126,22 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				CA3E69C5B9553B26FBA2DF04 /* libPods-MembraneExample.a */,
+				441A418627D8E06700BC0BA9 /* ReplayKit.framework */,
+				441A419227D8E06700BC0BA9 /* UIKit.framework */,
+				F2986F38E37627E6946AD1A6 /* libPods-ScreenBroadcast.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		441A418827D8E06700BC0BA9 /* ScreenBroadcast */ = {
+			isa = PBXGroup;
+			children = (
+				441A41A627D8E57200BC0BA9 /* ScreenBroadcast.entitlements */,
+				441A418927D8E06700BC0BA9 /* SampleHandler.swift */,
+				441A418B27D8E06700BC0BA9 /* Info.plist */,
+			);
+			path = ScreenBroadcast;
 			sourceTree = "<group>";
 		};
 		6B9684456A2045ADE5A6E47E /* Pods */ = {
@@ -90,6 +149,8 @@
 			children = (
 				47F7ED3B7971BE374F7B8635 /* Pods-MembraneExample.debug.xcconfig */,
 				E00ACF0FDA8BF921659E2F9A /* Pods-MembraneExample.release.xcconfig */,
+				D048D25C0E15565EA4A697D9 /* Pods-ScreenBroadcast.debug.xcconfig */,
+				8562F29C8685F911B1176F8D /* Pods-ScreenBroadcast.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -107,6 +168,7 @@
 				13B07FAE1A68108700A75B9A /* MembraneExample */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* MembraneExampleTests */,
+				441A418827D8E06700BC0BA9 /* ScreenBroadcast */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				6B9684456A2045ADE5A6E47E /* Pods */,
@@ -120,6 +182,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* MembraneExample.app */,
+				441A418527D8E06600BC0BA9 /* ScreenBroadcast.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -139,15 +202,35 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				C1D60D28B925C94BD88E79D7 /* [CP] Copy Pods Resources */,
 				5C3E3C356060314B4CA014ED /* [CP] Embed Pods Frameworks */,
+				441A419E27D8E06700BC0BA9 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				441A419C27D8E06700BC0BA9 /* PBXTargetDependency */,
 			);
 			name = MembraneExample;
 			productName = MembraneExample;
 			productReference = 13B07F961A680F5B00A75B9A /* MembraneExample.app */;
 			productType = "com.apple.product-type.application";
+		};
+		441A418427D8E06600BC0BA9 /* ScreenBroadcast */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 441A41A427D8E06700BC0BA9 /* Build configuration list for PBXNativeTarget "ScreenBroadcast" */;
+			buildPhases = (
+				09D69A322B152CB934080255 /* [CP] Check Pods Manifest.lock */,
+				441A418127D8E06600BC0BA9 /* Sources */,
+				441A418227D8E06600BC0BA9 /* Frameworks */,
+				441A418327D8E06600BC0BA9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ScreenBroadcast;
+			productName = ScreenBroadcast;
+			productReference = 441A418527D8E06600BC0BA9 /* ScreenBroadcast.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -155,11 +238,17 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1320;
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = 37994Y34H9;
 						LastSwiftMigration = 1120;
+					};
+					441A418427D8E06600BC0BA9 = {
+						CreatedOnToolsVersion = 13.2.1;
+						DevelopmentTeam = 37994Y34H9;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -177,6 +266,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* MembraneExample */,
+				441A418427D8E06600BC0BA9 /* ScreenBroadcast */,
 			);
 		};
 /* End PBXProject section */
@@ -188,6 +278,13 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		441A418327D8E06600BC0BA9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,6 +304,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh index.tsx\n";
+		};
+		09D69A322B152CB934080255 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ScreenBroadcast-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
 		4F0A6FC082772762E3E4C96C /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -301,15 +420,33 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		441A418127D8E06600BC0BA9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				441A418A27D8E06700BC0BA9 /* SampleHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		441A419C27D8E06700BC0BA9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 441A418427D8E06600BC0BA9 /* ScreenBroadcast */;
+			targetProxy = 441A419B27D8E06700BC0BA9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 47F7ED3B7971BE374F7B8635 /* Pods-MembraneExample.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = MembraneExample/MembraneExample.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 37994Y34H9;
 				ENABLE_BITCODE = NO;
@@ -332,8 +469,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E00ACF0FDA8BF921659E2F9A /* Pods-MembraneExample.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = MembraneExample/MembraneExample.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 37994Y34H9;
 				INFOPLIST_FILE = MembraneExample/Info.plist;
@@ -347,6 +486,83 @@
 				PRODUCT_NAME = MembraneExample;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		441A419F27D8E06700BC0BA9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D048D25C0E15565EA4A697D9 /* Pods-ScreenBroadcast.debug.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = ScreenBroadcast/ScreenBroadcast.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 37994Y34H9;
+				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScreenBroadcast/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ScreenBroadcast;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembrane.ScreenBroadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		441A41A027D8E06700BC0BA9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8562F29C8685F911B1176F8D /* Pods-ScreenBroadcast.release.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = ScreenBroadcast/ScreenBroadcast.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 37994Y34H9;
+				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScreenBroadcast/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ScreenBroadcast;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembrane.ScreenBroadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -473,6 +689,15 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		441A41A427D8E06700BC0BA9 /* Build configuration list for PBXNativeTarget "ScreenBroadcast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				441A419F27D8E06700BC0BA9 /* Debug */,
+				441A41A027D8E06700BC0BA9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
