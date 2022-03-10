@@ -25,6 +25,7 @@ export default function App() {
   }, [error]);
 
   const requestPermissions = useCallback(async () => {
+    if (Platform.OS == 'ios') return;
     try {
       const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -46,7 +47,7 @@ export default function App() {
   }, []);
 
   const connect = useCallback(async () => {
-    //await requestPermissions();
+    await requestPermissions();
     await mbConnect(serverUrl, roomName, displayName);
     await joinRoom();
     setConnected(true);
