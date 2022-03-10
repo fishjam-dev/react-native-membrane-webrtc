@@ -304,10 +304,16 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     if let joinResolve = joinResolve {
       joinResolve(nil)
     }
+    joinResolve = nil
+    joinReject = nil
   }
   
   func onJoinError(metadata: Any) {
-    
+    if let joinReject = joinReject {
+      joinReject("E_MEMBRANE_JOIN", "Failed to join room: \(metadata)", nil)
+    }
+    joinResolve = nil
+    joinReject = nil
   }
   
   func onTrackReady(ctx: TrackContext) {
@@ -365,7 +371,28 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   func onError(_ error: MembraneRTCError) {
-    print("ERROR")
+    if let joinReject = joinReject {
+      joinReject("E_MEMBRANE_JOIN", "Failed to join room: \(error)", nil)
+    }
+    if let connectReject = connectReject {
+      connectReject("E_MEMBRANE_CONNECT", "Failed to connect: \(error)", nil)
+    }
+    joinReject = nil
+    joinResolve = nil
+    connectReject = nil
+    connectResolve = nil
+    var errorMessage: String? = nil
+    switch error {
+    case let .rtc(message):
+        errorMessage = message
+
+    case let .transport(message):
+        errorMessage = message
+
+    case let .unknown(message):
+        errorMessage = message
+    }
+    emitEvent(name: "MembraneError", data: errorMessage)
   }
   
 }
