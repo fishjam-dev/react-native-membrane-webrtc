@@ -127,9 +127,20 @@ export function flipCamera(): Promise<void> {
 export function useScreencast() {
   const [isScreencastOn, setIsScreencastOn] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (Platform.OS == 'ios') {
+      const eventListener = eventEmitter.addListener('IsScreencastOn', (event) =>
+        setIsScreencastOn(event)
+      );
+      return () => eventListener.remove();
+    }
+  }, []);
+
   const toggleScreencast = useCallback(async () => {
     const state = await Membrane.toggleScreencast();
-    setIsScreencastOn(state);
+    if (Platform.OS == 'android') {
+      setIsScreencastOn(state);
+    }
   }, []);
 
   return { isScreencastOn, toggleScreencast };

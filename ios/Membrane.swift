@@ -108,7 +108,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       DispatchQueue.main.async {
         RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
       }
-      resolve(true)
+      resolve(nil)
       return
     }
     guard let room = room,
@@ -142,6 +142,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       
       self.add(video: localParticipantScreensharing)
       self.isScreensharingEnabled = true
+      self.emitEvent(name: "IsScreencastOn", data: true)
     }, onStop: { [weak self] in
       guard let self = self,
             let localScreensharingId = self.localScreensharingVideoId,
@@ -152,11 +153,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       
       self.remove(video: video)
       self.isScreensharingEnabled = false
+      self.emitEvent(name: "IsScreencastOn", data: false)
     })
     DispatchQueue.main.async {
       RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
     }
-    resolve(true)
+    resolve(nil)
   }
   
   func getParticipantsForRN() -> Dictionary<String, Array<Dictionary<String, String>>> {
@@ -187,7 +189,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       "MembraneError",
       "IsMicrophoneOn",
       "IsCameraOn",
-      
+      "IsScreencastOn",
     ]
   }
   
