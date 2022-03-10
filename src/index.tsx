@@ -26,9 +26,16 @@ const Membrane = NativeModules.Membrane
   );
 const eventEmitter = new NativeEventEmitter(Membrane);
 
+export enum ParticipantType {
+  Remote = "Remote",
+  Local = "Local",
+  LocalScreencasting = "LocalScreencasting"
+}
+
 export type Participant = {
   id: string;
   displayName: string;
+  type: ParticipantType;
 };
 
 export enum VideoLayout {

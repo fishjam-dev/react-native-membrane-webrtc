@@ -43,7 +43,7 @@ export default function App() {
 
   const connect = useCallback(async () => {
     //await requestPermissions();
-    await mbConnect('http://192.168.83.221:4000/socket', 'room', 'Android user');
+    await mbConnect('http://192.168.83.138:4000/socket', 'room', 'Android user');
     await joinRoom();
     setConnected(true);
   }, [requestPermissions, mbConnect, joinRoom]);

@@ -27,6 +27,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   var localAudioTrack: LocalAudioTrack? = null
   var localVideoTrack: LocalVideoTrack? = null
   var localScreencastTrack: LocalScreencastTrack? = null
+  var localParticipantId: String? = null
 
   var isScreenCastOn = false
   private var localScreencastId: String? = null
@@ -215,10 +216,16 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   private fun getParticipantsAsRNMap(): WritableMap? {
     val params = Arguments.createMap()
     val participantsArray = Arguments.createArray();
-    MembraneRoom.participants.values.filter { it.videoTrack != null }.forEach {
+    MembraneRoom.participants.values.forEach {
       val participantMap = Arguments.createMap()
       participantMap.putString("id", it.id)
       participantMap.putString("displayName", it.displayName)
+      val participantType = when (it.id) {
+          localScreencastId -> "LocalScreencasting"
+          localParticipantId -> "Local"
+          else -> "Remote"
+      }
+      participantMap.putString("type", participantType)
       participantsArray.pushMap(participantMap)
     }
     params.putArray("participants", participantsArray)
@@ -252,9 +259,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       emitEvent("IsCameraOn", isCameraOn)
       emitEvent("IsMicrophoneOn", isMicrophoneOn)
 
-      val localPeerId = UUID.randomUUID().toString()
-      MembraneRoom.participants[localPeerId] =
-        Participant(localPeerId, "Me", localVideoTrack, localAudioTrack)
+      localParticipantId = UUID.randomUUID().toString()
+      MembraneRoom.participants[localParticipantId!!] =
+        Participant(localParticipantId!!, "Me", localVideoTrack, localAudioTrack)
       connectPromise?.resolve(null)
       connectPromise = null
       emitParticipants()
@@ -262,6 +269,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onJoinSuccess(peerID: String, peersInRoom: List<Peer>) {
+    MembraneRoom.participants.remove(peerID)
     peersInRoom.forEach {
       MembraneRoom.participants[it.id] =
         Participant(it.id, it.metadata["displayName"] ?: "UNKNOWN", null, null)
@@ -308,6 +316,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     MembraneRoom.participants[id] = newParticipant
 
     emitParticipants()
+    MembraneRoom.roomObserver?.let { it1 -> it1() }
   }
 
   override fun onTrackAdded(ctx: TrackContext) {
@@ -343,6 +352,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       MembraneRoom.participants[ctx.peer.id] = newParticipant
 
       emitParticipants()
+      MembraneRoom.roomObserver?.let { it1 -> it1() }
     }
   }
 

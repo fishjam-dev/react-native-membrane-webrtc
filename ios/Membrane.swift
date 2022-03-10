@@ -177,7 +177,19 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   func getParticipantsForRN() -> Dictionary<String, Array<Dictionary<String, String>>> {
     return ["participants": MembraneRoom.sharedInstance.participants.values.map {
       (p) -> Dictionary in
-      return ["id": p.id, "displayName": p.displayName]
+      var participantType = ""
+      if (p.id == localParticipantId) {
+          participantType = "Local"
+      } else if (p.id == localScreensharingParticipantId) {
+        participantType = "LocalScreencasting"
+      } else {
+        participantType = "Remote"
+      }
+      return [
+        "id": p.id,
+        "displayName": p.displayName,
+        "type": participantType
+      ]
     }]
   }
   

@@ -1,6 +1,9 @@
 package com.reactnativemembrane
 
 import android.content.Context
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.membraneframework.rtc.media.VideoTrack
 import org.membraneframework.rtc.ui.VideoTextureViewRenderer
 
@@ -8,6 +11,7 @@ class VideoRendererWrapper(context: Context) {
   var view: VideoTextureViewRenderer = VideoTextureViewRenderer(context)
   var isInitialized = false
   var activeVideoTrack: VideoTrack? = null
+  var participantId: String? = null
 
   fun setupTrack(videoTrack: VideoTrack) {
     if (activeVideoTrack == videoTrack) return
@@ -17,14 +21,21 @@ class VideoRendererWrapper(context: Context) {
     activeVideoTrack = videoTrack
   }
 
-  fun init(participantId: String) {
-    val participant = MembraneRoom.participants[participantId] ?: return
-    if(participant.videoTrack == null) return;
-    if(!isInitialized) {
-      isInitialized = true
-      view.init(participant.videoTrack.eglContext, null)
+  fun update() {
+    CoroutineScope(Dispatchers.Main).launch {
+      val participant = MembraneRoom.participants[participantId] ?: return@launch
+      if(participant.videoTrack == null) return@launch;
+      if(!isInitialized) {
+        isInitialized = true
+        view.init(participant.videoTrack.eglContext, null)
+      }
+      setupTrack(participant.videoTrack)
     }
-    setupTrack(participant.videoTrack)
+  }
+
+  fun init(participantId: String) {
+    this.participantId = participantId
+    update()
   }
 
   fun dispose() {

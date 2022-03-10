@@ -11,6 +11,12 @@ class VideoRendererViewManager : SimpleViewManager<View>() {
 
   private val viewsWrappers = HashMap<VideoTextureViewRenderer, VideoRendererWrapper>();
 
+  init {
+    MembraneRoom.roomObserver = {
+      viewsWrappers.values.forEach { it.update() }
+    }
+  }
+
   override fun createViewInstance(reactContext: ThemedReactContext): View {
     val wrapper = VideoRendererWrapper(reactContext)
     viewsWrappers[wrapper.view] = wrapper
