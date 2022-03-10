@@ -21,10 +21,15 @@ public extension RPSystemBroadcastPickerView {
 struct Participant {
   let id: String
   let displayName: String
+  let order: Int
+  
+  static var participantCounter = 0
   
   init(id: String, displayName: String) {
     self.id = id
     self.displayName = displayName
+    self.order = Participant.participantCounter
+    Participant.participantCounter += 1
   }
 }
 
@@ -67,6 +72,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var connectReject: RCTPromiseRejectBlock? = nil
   var joinResolve: RCTPromiseResolveBlock? = nil
   var joinReject: RCTPromiseRejectBlock? = nil
+ 
   
   
   @objc(connect:withRoomName:withDisplayName:withResolver:withRejecter:)
@@ -175,7 +181,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   func getParticipantsForRN() -> Dictionary<String, Array<Dictionary<String, String>>> {
-    return ["participants": MembraneRoom.sharedInstance.participants.values.map {
+    return ["participants": MembraneRoom.sharedInstance.participants.values.sorted(by: {$0.order < $1.order}).map {
       (p) -> Dictionary in
       var participantType = ""
       if (p.id == localParticipantId) {
