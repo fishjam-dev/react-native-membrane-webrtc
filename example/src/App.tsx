@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { StyleSheet, View, Button, PermissionsAndroid, SafeAreaView } from 'react-native';
+import { StyleSheet, View, PermissionsAndroid, SafeAreaView, Text, TextInput, Platform, Pressable } from 'react-native';
 
 import * as Membrane from 'react-native-membrane';
 import { Room } from './Room';
+
+const serverUrl = 'http://192.168.83.138:4000/socket'
 
 export default function App() {
   const {
@@ -13,6 +15,8 @@ export default function App() {
     error,
   } = Membrane.useMembraneServer();
   const [connected, setConnected] = useState<boolean>(false);
+  const [roomName, setRoomName] = useState<string>("room");
+  const [displayName, setDisplayName] = useState<string>(`mobile ${Platform.OS}`)
 
   useEffect(() => {
     if (error) {
@@ -43,7 +47,7 @@ export default function App() {
 
   const connect = useCallback(async () => {
     //await requestPermissions();
-    await mbConnect('http://192.168.83.138:4000/socket', 'room', 'Android user');
+    await mbConnect(serverUrl, roomName, displayName);
     await joinRoom();
     setConnected(true);
   }, [requestPermissions, mbConnect, joinRoom]);
@@ -54,20 +58,45 @@ export default function App() {
   }, [mbDisconnect]);
 
   if (connected) {
-    return <SafeAreaView style={styles.container}><Room disconnect={disconnect} /></SafeAreaView>;
+    return <SafeAreaView style={styles.flex}><Room disconnect={disconnect} /></SafeAreaView>;
   }
 
   return (
     <View style={styles.container}>
-      <Button onPress={connect} title="Connect!" />
+      <Text>Room name:</Text>
+      <TextInput value={roomName} onChangeText={setRoomName} style={styles.textInput} />
+      <Text>Display name:</Text>
+      <TextInput value={displayName} onChangeText={setDisplayName} style={styles.textInput} />
+      <Pressable onPress={connect}><Text style={styles.button}>Connect!</Text></Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    alignItems: 'center',
+    padding: 50,
     justifyContent: 'center',
   },
+  textInput: {
+    borderWidth: 2,
+    borderColor: '#001A72',
+    borderRadius: 4,
+    marginBottom: 20,
+    fontSize: 20,
+    padding: 10,
+  },
+  button: {
+    borderWidth: 2,
+    borderColor: '#001A72',
+    borderRadius: 4,
+    marginVertical: 20,
+    fontSize: 20,
+    padding: 10,
+    textAlign: 'center',
+    backgroundColor: '#b5d2ff'
+  }
 });
