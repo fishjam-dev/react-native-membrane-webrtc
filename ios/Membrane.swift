@@ -178,14 +178,28 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     resolve(getParticipantsForRN())
   }
   
+  @objc(toggleCamera:withRejecter:)
+  func toggleCamera(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    isCameraEnabled = !isCameraEnabled
+    localVideoTrack?.setEnabled(isCameraEnabled)
+    resolve(isCameraEnabled)
+  }
+  
   @objc(isCameraOn:withRejecter:)
   func isCameraOn(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-    resolve(true)
+    resolve(isCameraEnabled)
+  }
+  
+  @objc(toggleMicrophone:withRejecter:)
+  func toggleMicrophone(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    isMicEnabled = !isMicEnabled
+    localAudioTrack?.setEnabled(isMicEnabled)
+    resolve(isMicEnabled)
   }
   
   @objc(isMicrophoneOn:withRejecter:)
   func isMicrophoneOn(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-    resolve(true)
+    resolve(isMicEnabled)
   }
   
   override func supportedEvents() -> [String]! {
@@ -241,7 +255,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     let videoParameters = VideoParameters(dimensions: preset.dimensions.flip(), encoding: preset.encoding)
     
     localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: trackMetadata)
-    localAudioTrack = nil //room.createAudioTrack(metadata: trackMetadata)
+    localAudioTrack = room.createAudioTrack(metadata: trackMetadata)
     
     if let connectResolve = connectResolve {
       connectResolve(nil)
