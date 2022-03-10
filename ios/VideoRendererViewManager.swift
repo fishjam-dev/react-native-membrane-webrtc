@@ -21,7 +21,7 @@ class VideoRendererView : UIView {
     addSubview(videoView!)
     cancellableParticipantVideos = MembraneRoom.sharedInstance.$participantVideos
       .sink { _ in
-        self.setListener()
+        self.updateVideoTrack()
       }
   }
   
@@ -30,7 +30,7 @@ class VideoRendererView : UIView {
     fatalError("init(coder:) has not been implemented")
   }
   
-  func setListener() {
+  func updateVideoTrack() {
     DispatchQueue.main.async {
       let video = MembraneRoom.sharedInstance.participantVideos.first(where: {$0.participant.id == self.participantId})
       self.videoView?.track = video?.videoTrack
@@ -39,7 +39,7 @@ class VideoRendererView : UIView {
   
   @objc var participantId: String = "" {
     didSet {
-      setListener()
+      updateVideoTrack()
     }
   }
   
