@@ -202,6 +202,28 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     resolve(isMicEnabled)
   }
   
+  @objc(flipCamera:withRejecter:)
+  func flipCamera(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    guard let cameraTrack = localVideoTrack as? LocalCameraVideoTrack else {
+        return
+    }
+
+    cameraTrack.switchCamera()
+    isFrontCamera = !isFrontCamera
+    
+    guard let id = localParticipantId,
+          let localVideo = findParticipantVideo(id: id) else {
+              return
+    }
+    
+    let localIsFrontCamera = isFrontCamera
+    // HACK: there is a delay when we set the mirror and the camer actually switches
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        localVideo.mirror = localIsFrontCamera
+    }
+    resolve(nil)
+  }
+  
   override func supportedEvents() -> [String]! {
     return [
       "ParticipantsUpdate",
