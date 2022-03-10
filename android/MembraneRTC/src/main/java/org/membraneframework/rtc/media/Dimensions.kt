@@ -3,41 +3,24 @@ package org.membraneframework.rtc.media
 import kotlin.math.abs
 
 data class Dimensions(val width: Int, val height: Int) {
-    companion object {
-        const val aspect16By9 = 16.0 / 9.0
-        const val aspect4By3 = 4.0 / 3.0
-
-    }
-
     fun flip(): Dimensions {
         return Dimensions(width = this.height, height = this.width)
     }
-
-    fun computeSuggestedPresets(): List<VideoParameters> {
-        val aspect = width.toDouble() / height.toDouble()
-
-        if (abs(aspect - aspect16By9) < abs(aspect - Dimensions.aspect4By3)) {
-            return VideoParameters.presets169
-        }
-        return VideoParameters.presets43
-    }
-
-    fun computeSuggestedPreset(presets: List<VideoParameters>): VideoParameters {
-        assert(!presets.isEmpty())
-        var result = presets[0]
-        for (preset in presets) {
-            if (width >= preset.dimensions.width && height >= preset.dimensions.height) {
-                result = preset
-            }
-        }
-        return result
-    }
 }
 
+/**
+ * Represents a set of video encoding parameters
+ * @property maxBitrate: specifies maximum bitrate of video stream
+ * @property maxFps: specifies maximum frame rate of the video stream
+ */
 public data class VideoEncoding(val maxBitrate: Int, val maxFps: Int)
 
+/**
+ * A set of parameters representing a video feed.
+ * <p>
+ * Contains a set of useful presets.
+ */
 public data class VideoParameters(val dimensions: Dimensions, val encoding: VideoEncoding) {
-
     companion object {
         // 4:3 aspect ratio
         val presetQVGA43 = VideoParameters(

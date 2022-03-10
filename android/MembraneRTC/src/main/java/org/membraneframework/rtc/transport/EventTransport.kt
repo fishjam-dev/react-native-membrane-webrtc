@@ -2,7 +2,9 @@ package org.membraneframework.rtc.transport
 
 import org.membraneframework.rtc.events.*
 
-
+/**
+ * A base class of exceptions that can be emitted by the <strong>EventTransport</strong> implementations.
+ */
 sealed class EventTransportError: Exception() {
     data class Unauthorized(val reason: String): EventTransportError()
     data class ConnectionError(val reason: String): EventTransportError()
@@ -20,12 +22,22 @@ sealed class EventTransportError: Exception() {
     }
 }
 
+/**
+ * An interface defining a listener to a <strong>EventTransport</strong>.
+ */
 public interface EventTransportListener {
     fun onEvent(event: ReceivableEvent)
     fun onError(error: EventTransportError)
     fun onClose()
 }
 
+/**
+ * Interface defining an event transport that the <strong>MembraneRTC</strong> uses for
+ * relaying media events from/to the <strong>Membrane RTC Engine</strong>.
+ * <p>
+ * An implementation of the transport should parse and forward received events to the listener
+ * passed with <strong>connect</strong> method.
+ */
 public interface EventTransport {
     suspend fun connect(listener: EventTransportListener)
     suspend fun disconnect()

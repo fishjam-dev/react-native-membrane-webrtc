@@ -4,7 +4,7 @@ import org.webrtc.EglBase
 
 public class RemoteVideoTrack(
     mediaTrack: org.webrtc.VideoTrack,
-    private val eglBase: EglBase,
+    eglBase: EglBase,
 ) : VideoTrack(mediaTrack, eglBase.eglBaseContext), RemoteTrack {
     override fun enabled(): Boolean {
         return this.videoTrack.enabled()

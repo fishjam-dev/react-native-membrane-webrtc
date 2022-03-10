@@ -4,6 +4,11 @@ import android.content.Context
 import org.webrtc.*
 import java.util.*
 
+/**
+ * A class representing a local video track.
+ *
+ * Internally it wraps a WebRTC <strong>VideoTrack</strong>.
+ */
 class LocalVideoTrack
 constructor(
     mediaTrack: org.webrtc.VideoTrack,

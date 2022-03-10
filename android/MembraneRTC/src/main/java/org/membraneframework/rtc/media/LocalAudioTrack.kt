@@ -9,6 +9,11 @@ import org.webrtc.MediaConstraints
 import org.webrtc.PeerConnectionFactory
 import java.util.*
 
+/**
+ * A class representing a local audio track.
+ *
+ * Internally it wraps a WebRTC <strong>AudioTrack</strong>.
+ */
 public class LocalAudioTrack constructor(
     var mediaTrack: org.webrtc.AudioTrack
 ): AudioTrack(mediaTrack), LocalTrack {

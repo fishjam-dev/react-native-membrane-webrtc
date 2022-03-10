@@ -89,11 +89,6 @@ object RTCModule {
             .setAudioRecordStateCallback(audioRecordStateCallback)
             .setAudioTrackStateCallback(audioTrackStateCallback)
             .createAudioDeviceModule()
-//        return JavaAudioDeviceModule
-//            .builder(appContext)
-//            .setUseHardwareAcousticEchoCanceler(true)
-//            .setUseHardwareNoiseSuppressor(true)
-//            .createAudioDeviceModule()
     }
 
     @Provides

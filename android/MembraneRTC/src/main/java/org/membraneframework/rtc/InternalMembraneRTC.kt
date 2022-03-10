@@ -99,7 +99,7 @@ constructor(
         }
     }
 
-    public fun createLocalVideoTrack(videoParameters: VideoParameters, metadata: Metadata = mapOf()): LocalVideoTrack {
+    fun createLocalVideoTrack(videoParameters: VideoParameters, metadata: Metadata = mapOf()): LocalVideoTrack {
         val videoTrack = LocalVideoTrack.create(
             context,
             peerConnectionFactory,
@@ -115,7 +115,7 @@ constructor(
         return videoTrack
     }
 
-    public fun createLocalAudioTrack(metadata: Metadata = mapOf()): LocalAudioTrack {
+    fun createLocalAudioTrack(metadata: Metadata = mapOf()): LocalAudioTrack {
         val audioTrack = LocalAudioTrack.create(context, peerConnectionFactory).also {
             it.start()
         }
@@ -126,7 +126,7 @@ constructor(
         return audioTrack
     }
 
-    public fun createScreencastTrack(mediaProjectionPermission: Intent, videoParameters: VideoParameters, metadata: Metadata = mapOf(), onEnd: () -> Unit): LocalScreencastTrack? {
+    fun createScreencastTrack(mediaProjectionPermission: Intent, videoParameters: VideoParameters, metadata: Metadata = mapOf(), onEnd: () -> Unit): LocalScreencastTrack? {
         val pc = peerConnection ?: return null
 
         val screencastTrack = LocalScreencastTrack.create(context, peerConnectionFactory, eglBase, mediaProjectionPermission, videoParameters) { track ->
@@ -136,7 +136,7 @@ constructor(
         }
 
         localTracks.add(screencastTrack)
-        localPeer = localPeer.withTrack(screencastTrack.id(), mapOf(
+        localPeer = localPeer.withTrack(screencastTrack.id(), metadata + mapOf(
             "type" to "screensharing",
             "user_id" to (localPeer.metadata["displayName"] ?: "")
         ))
@@ -157,7 +157,7 @@ constructor(
         return screencastTrack
     }
 
-    public fun removeTrack(trackId: String): Boolean {
+    fun removeTrack(trackId: String): Boolean {
         val pc = peerConnection ?: return false
         val track = localTracks.find { it.id() == trackId } ?: run {
             return@removeTrack false
@@ -314,6 +314,12 @@ constructor(
 
                     this.listener.onTrackRemoved(context)
                 }
+
+                val updatedPeer = event.data.trackIds.fold(peer) { acc, trackId ->
+                    acc.withoutTrack(trackId)
+                }
+
+                remotePeers[event.data.peerId] = updatedPeer
             }
 
             is TrackUpdated -> {
@@ -323,6 +329,12 @@ constructor(
 
                 val updatedContext = context.copy(metadata = event.data.metadata)
                 trackContexts[event.data.trackId] = updatedContext
+
+                val updatedPeer = peer
+                    .withoutTrack(event.data.trackId)
+                    .withTrack(event.data.trackId, event.data.metadata)
+
+                remotePeers[event.data.peerId] = updatedPeer
 
                 this.listener.onTrackUpdated(updatedContext)
             }
@@ -344,7 +356,7 @@ constructor(
     private suspend fun onOfferData(offerData: OfferData) {
         prepareIceServers(offerData.data.integratedTurnServers, offerData.data.iceTransportPolicy)
 
-        var needsRestart: Boolean = true
+        var needsRestart = true
         if (peerConnection == null) {
             setupPeerConnection()
             needsRestart = false
@@ -358,8 +370,8 @@ constructor(
         addNecessaryTransceivers(offerData)
 
         pc.transceivers.forEach {
-            if (it.direction == RtpTransceiver.RtpTransceiverDirection.SEND_RECV) {
-                it.direction = RtpTransceiver.RtpTransceiverDirection.SEND_ONLY
+            if (it.direction == RtpTransceiverDirection.SEND_RECV) {
+                it.direction = RtpTransceiverDirection.SEND_ONLY
             }
         }
 
@@ -476,7 +488,7 @@ constructor(
         var lackingVideo = necessaryVideo
 
         pc.transceivers.filter {
-            it.direction == RtpTransceiver.RtpTransceiverDirection.RECV_ONLY
+            it.direction == RtpTransceiverDirection.RECV_ONLY
         }.forEach {
             val track = it.receiver.track() ?: return@forEach
 
@@ -491,15 +503,13 @@ constructor(
         Timber.d("peerConnection adding $lackingAudio audio and $lackingVideo video lacking transceivers")
 
         repeat(lackingAudio) {
-            pc.addTransceiver(MediaStreamTrack.MediaType.MEDIA_TYPE_AUDIO).let {
-                it.direction = RtpTransceiver.RtpTransceiverDirection.RECV_ONLY
-            }
+            pc.addTransceiver(MediaStreamTrack.MediaType.MEDIA_TYPE_AUDIO).direction =
+                RtpTransceiverDirection.RECV_ONLY
         }
 
         repeat(lackingVideo) {
-            pc.addTransceiver(MediaStreamTrack.MediaType.MEDIA_TYPE_VIDEO).let {
-                it.direction = RtpTransceiver.RtpTransceiverDirection.RECV_ONLY
-            }
+            pc.addTransceiver(MediaStreamTrack.MediaType.MEDIA_TYPE_VIDEO).direction =
+                RtpTransceiverDirection.RECV_ONLY
         }
     }
 
@@ -522,11 +532,11 @@ constructor(
     }
 
     // PeerConnection callbacks
-    override fun onSignalingChange(state: PeerConnection.SignalingState?) {
+    override fun onSignalingChange(state: SignalingState?) {
         Timber.d("Changed signalling state to $state")
     }
 
-    override fun onIceConnectionChange(state: PeerConnection.IceConnectionState?) {
+    override fun onIceConnectionChange(state: IceConnectionState?) {
         Timber.d("Changed ice connection state to $state")
     }
 
@@ -534,16 +544,15 @@ constructor(
         Timber.d("Changed ice connection receiving status to: $receiving")
     }
 
-    override fun onIceGatheringChange(state: PeerConnection.IceGatheringState?) {
+    override fun onIceGatheringChange(state: IceGatheringState?) {
         Timber.d("Change ice gathering state to $state")
     }
 
     override fun onIceCandidate(candidate: IceCandidate?) {
-        val cand = candidate ?: return
-
-        onLocalCandidate(cand)
-
-        Timber.d("Generated new ice candidate")
+        candidate?.let {
+            onLocalCandidate(it)
+            Timber.d("Generated new ice candidate")
+        }
     }
 
     override fun onIceCandidatesRemoved(candidates: Array<out IceCandidate>?) {
