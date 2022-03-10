@@ -16,6 +16,7 @@ import org.membraneframework.rtc.models.Peer
 import org.membraneframework.rtc.models.TrackContext
 import org.membraneframework.rtc.transport.PhoenixTransport
 import java.util.*
+import kotlin.properties.Delegates
 
 
 class MembraneModule(reactContext: ReactApplicationContext) :
@@ -42,6 +43,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   private var connectPromise: Promise? = null
   private var joinPromise: Promise? = null
   private var screencastPromise: Promise? = null
+
+  companion object {
+    val participants = LinkedHashMap<String, Participant>()
+    var onTracksUpdate: (() -> Unit)? = null
+  }
 
   override fun getName(): String {
     return "Membrane"
@@ -94,7 +100,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   fun disconnect(promise: Promise) {
     room?.disconnect()
     room = null
-    MembraneRoom.participants.clear();
+    participants.clear();
     promise.resolve(null)
   }
 
@@ -183,7 +189,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     }
 
     localScreencastTrack?.let {
-      MembraneRoom.participants[localScreencastId!!] = Participant(id = localScreencastId!!, displayName = "Me (screen cast)", videoTrack = it)
+      participants[localScreencastId!!] = Participant(id = localScreencastId!!, displayName = "Me (screen cast)", videoTrack = it)
       emitParticipants()
     }
     screencastPromise?.resolve(isScreenCastOn)
@@ -196,7 +202,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       room?.removeTrack(it.id())
 
       localScreencastId?.let {
-        MembraneRoom.participants.remove(it)
+        participants.remove(it)
 
         emitParticipants()
       }
@@ -216,7 +222,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   private fun getParticipantsAsRNMap(): WritableMap? {
     val params = Arguments.createMap()
     val participantsArray = Arguments.createArray();
-    MembraneRoom.participants.values.forEach {
+    participants.values.forEach {
       val participantMap = Arguments.createMap()
       participantMap.putString("id", it.id)
       participantMap.putString("displayName", it.displayName)
@@ -260,7 +266,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       emitEvent("IsMicrophoneOn", isMicrophoneOn)
 
       localParticipantId = UUID.randomUUID().toString()
-      MembraneRoom.participants[localParticipantId!!] =
+      participants[localParticipantId!!] =
         Participant(localParticipantId!!, "Me", localVideoTrack, localAudioTrack)
       connectPromise?.resolve(null)
       connectPromise = null
@@ -269,9 +275,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onJoinSuccess(peerID: String, peersInRoom: List<Peer>) {
-    MembraneRoom.participants.remove(peerID)
+    participants.remove(peerID)
     peersInRoom.forEach {
-      MembraneRoom.participants[it.id] =
+      participants[it.id] =
         Participant(it.id, it.metadata["displayName"] ?: "UNKNOWN", null, null)
     }
     joinPromise?.resolve(null)
@@ -285,7 +291,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onTrackReady(ctx: TrackContext) {
-    val participant = MembraneRoom.participants[ctx.peer.id] ?: return
+    val participant = participants[ctx.peer.id] ?: return
 
     val (id, newParticipant) = when (ctx.track) {
       is RemoteVideoTrack -> {
@@ -313,10 +319,10 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         throw IllegalArgumentException("invalid type of incoming remote track")
     }
 
-    MembraneRoom.participants[id] = newParticipant
+    participants[id] = newParticipant
 
     emitParticipants()
-    MembraneRoom.roomObserver?.let { it1 -> it1() }
+    onTracksUpdate?.let { it1 -> it1() }
   }
 
   override fun onTrackAdded(ctx: TrackContext) {
@@ -325,12 +331,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   override fun onTrackRemoved(ctx: TrackContext) {
     if (ctx.metadata["type"] == "screensharing") {
       // screencast is a throw-away type of participant so remove it and emit participants once again
-      MembraneRoom.participants.remove(ctx.trackId)
+      participants.remove(ctx.trackId)
       globalToLocalTrackId.remove(ctx.trackId)
 
       emitParticipants()
     } else {
-      val participant = MembraneRoom.participants[ctx.peer.id] ?: return
+      val participant = participants[ctx.peer.id] ?: return
 
       val localTrackId = globalToLocalTrackId[ctx.trackId]
       val audioTrackId = participant.audioTrack?.id()
@@ -349,10 +355,10 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
       globalToLocalTrackId.remove(ctx.trackId)
 
-      MembraneRoom.participants[ctx.peer.id] = newParticipant
+      participants[ctx.peer.id] = newParticipant
 
       emitParticipants()
-      MembraneRoom.roomObserver?.let { it1 -> it1() }
+      onTracksUpdate?.let { it1 -> it1() }
     }
   }
 
@@ -360,13 +366,13 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onPeerJoined(peer: Peer) {
-    MembraneRoom.participants[peer.id] =
+    participants[peer.id] =
       Participant(id = peer.id, displayName = peer.metadata["displayName"] ?: "UNKNOWN")
     emitParticipants()
   }
 
   override fun onPeerLeft(peer: Peer) {
-    MembraneRoom.participants.remove(peer.id)
+    participants.remove(peer.id)
     emitParticipants()
   }
 

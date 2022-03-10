@@ -12,7 +12,7 @@ class VideoRendererViewManager : SimpleViewManager<View>() {
   private val viewsWrappers = HashMap<VideoTextureViewRenderer, VideoRendererWrapper>();
 
   init {
-    MembraneRoom.roomObserver = {
+    MembraneModule.onTracksUpdate = {
       viewsWrappers.values.forEach { it.update() }
     }
   }

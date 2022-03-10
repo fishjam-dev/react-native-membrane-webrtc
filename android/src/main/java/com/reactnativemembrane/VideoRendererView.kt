@@ -23,7 +23,7 @@ class VideoRendererWrapper(context: Context) {
 
   fun update() {
     CoroutineScope(Dispatchers.Main).launch {
-      val participant = MembraneRoom.participants[participantId] ?: return@launch
+      val participant = MembraneModule.participants[participantId] ?: return@launch
       if(participant.videoTrack == null) return@launch;
       if(!isInitialized) {
         isInitialized = true
