@@ -27,6 +27,7 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
             <Membrane.VideoRendererView
               participantId={focusedParticipant.id}
               style={styles.focusedParticipant}
+              videoLayout={Membrane.VideoLayout.FIT}
             />
             <Text style={styles.displayName}>
               {focusedParticipant.displayName}

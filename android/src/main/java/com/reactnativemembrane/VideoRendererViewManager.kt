@@ -4,6 +4,7 @@ import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 import org.membraneframework.rtc.ui.VideoTextureViewRenderer
+import org.webrtc.RendererCommon
 
 class VideoRendererViewManager : SimpleViewManager<View>() {
   override fun getName() = "VideoRendererView"
@@ -24,5 +25,16 @@ class VideoRendererViewManager : SimpleViewManager<View>() {
   @ReactProp(name = "participantId")
   fun setParticipantId(view: VideoTextureViewRenderer, participantId: String) {
     viewsWrappers[view]?.init(participantId)
+  }
+
+  @ReactProp(name = "videoLayout")
+  fun setVideoLayout(view: VideoTextureViewRenderer, videoLayout: String) {
+    val scalingType = when (videoLayout) {
+      "FILL" -> RendererCommon.ScalingType.SCALE_ASPECT_FILL
+      "FIT" -> RendererCommon.ScalingType.SCALE_ASPECT_FIT
+      else -> RendererCommon.ScalingType.SCALE_ASPECT_FILL
+    }
+    view.setScalingType(scalingType)
+    view.setEnableHardwareScaler(true)
   }
 }

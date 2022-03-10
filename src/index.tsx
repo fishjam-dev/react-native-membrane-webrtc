@@ -31,6 +31,11 @@ export type Participant = {
   displayName: string;
 };
 
+export enum VideoLayout {
+  FILL = "FILL",
+  FIT = "FIT"
+};
+
 export function useMembraneServer() {
   const [error, setError] = useState<string | null>(null);
 
@@ -148,6 +153,7 @@ export function useScreencast() {
 
 type VideoRendererProps = {
   participantId: string;
+  videoLayout?: VideoLayout;
   style?: ViewStyle;
 };
 

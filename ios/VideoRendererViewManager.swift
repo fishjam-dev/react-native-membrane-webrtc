@@ -32,7 +32,7 @@ class VideoRendererView : UIView {
   
   func setListener() {
     DispatchQueue.main.async {
-    let video = MembraneRoom.sharedInstance.participantVideos.first(where: {$0.participant.id == self.participantId})
+      let video = MembraneRoom.sharedInstance.participantVideos.first(where: {$0.participant.id == self.participantId})
       self.videoView?.track = video?.videoTrack
     }
   }
@@ -40,6 +40,20 @@ class VideoRendererView : UIView {
   @objc var participantId: String = "" {
     didSet {
       setListener()
+    }
+  }
+  
+  @objc var videoLayout: String = "FILL" {
+    didSet {
+      switch(videoLayout) {
+      case "FIT":
+        self.videoView?.layout = .fit
+      case "FILL":
+        self.videoView?.layout = .fill
+      default:
+        self.videoView?.layout = .fill
+      }
+      
     }
   }
 }
