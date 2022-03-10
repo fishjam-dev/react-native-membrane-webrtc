@@ -59,6 +59,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   var localParticipantId: String?
   var localScreensharingVideoId: String?
+  var localScreensharingParticipantId: String?
   var isFrontCamera: Bool = true
   
   var room: MembraneRTC? = nil;
@@ -116,9 +117,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       resolve(nil)
       return
     }
-    guard let room = room,
-          let localParticipantId = localParticipantId,
-          let localParticipant = MembraneRoom.sharedInstance.participants[localParticipantId] else {
+    guard let room = room else {
             return
           }
     
@@ -137,10 +136,14 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       }
       
       self.localScreensharingVideoId = UUID().uuidString
-      
+      self.localScreensharingParticipantId = UUID().uuidString
+      guard let localScreensharingParticipantId = self.localScreensharingParticipantId else { return }
+      let localScreensharingParticipant = Participant(id: localScreensharingParticipantId, displayName: "Me (presenting")
+      MembraneRoom.sharedInstance.participants[localScreensharingParticipantId] = localScreensharingParticipant
+    
       let localParticipantScreensharing = ParticipantVideo(
         id: self.localScreensharingVideoId!,
-        participant: localParticipant,
+        participant: localScreensharingParticipant,
         videoTrack: screencastTrack,
         isScreensharing: true
       )
@@ -148,17 +151,22 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       self.add(video: localParticipantScreensharing)
       self.isScreensharingEnabled = true
       self.emitEvent(name: "IsScreencastOn", data: true)
+      self.emitParticipants()
     }, onStop: { [weak self] in
       guard let self = self,
             let localScreensharingId = self.localScreensharingVideoId,
-            let video = self.findParticipantVideo(id: localScreensharingId)
+            let video = self.findParticipantVideo(id: localScreensharingId),
+            let localScreensharingParticipantId = self.localScreensharingParticipantId
       else {
         return
       }
       
       self.remove(video: video)
+      MembraneRoom.sharedInstance.participants.removeValue(forKey: localScreensharingParticipantId)
+      
       self.isScreensharingEnabled = false
       self.emitEvent(name: "IsScreencastOn", data: false)
+      self.emitParticipants()
     })
     DispatchQueue.main.async {
       RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
