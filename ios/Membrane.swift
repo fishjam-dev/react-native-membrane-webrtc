@@ -90,7 +90,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   @objc(disconnect:withRejecter:)
   func disconnect(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-    
+    room?.remove(delegate: self)
+    room?.disconnect()
+    room = nil
+    MembraneRoom.sharedInstance.participants = [:]
+    MembraneRoom.sharedInstance.participantVideos = []
+    resolve(nil)
   }
   
   @objc(toggleScreencast:withRejecter:)
