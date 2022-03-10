@@ -95,11 +95,18 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   @objc(toggleScreencast:withRejecter:)
   func toggleScreencast(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    let screencastExtensionBundleId = Bundle.main.infoDictionary!["ScreencastExtensionBundleId"] as? String
+    let appGroupName = Bundle.main.infoDictionary!["AppGroupName"] as? String
+    guard let screencastExtensionBundleId = screencastExtensionBundleId,
+          let appGroupName = appGroupName else {
+            fatalError("ScreencastExtensionBundleId or AppGroupName not set")
+          }
+          
     // if screensharing is enabled it must be closed by the Broadcast Extension, not by our application
     // the only thing we can do is to display stop recording button, which we already do
     guard isScreensharingEnabled == false else {
       DispatchQueue.main.async {
-        RPSystemBroadcastPickerView.show(for: Constants.screencastExtensionBundleId)
+        RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
       }
       resolve(true)
         return
@@ -116,10 +123,10 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     let preset = VideoParameters.presetScreenShareHD15
     let videoParameters = VideoParameters(dimensions: preset.dimensions.flip(), encoding: preset.encoding)
     
-    room.createScreencastTrack(appGroup: Constants.appGroup, videoParameters: videoParameters, metadata: ["user_id": displayName, "type": "screensharing"], onStart: { [weak self] screencastTrack in
+    room.createScreencastTrack(appGroup: appGroupName, videoParameters: videoParameters, metadata: ["user_id": displayName, "type": "screensharing"], onStart: { [weak self] screencastTrack in
         guard let self = self else {
           DispatchQueue.main.async {
-            RPSystemBroadcastPickerView.show(for: Constants.screencastExtensionBundleId)
+            RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
           }
             return
         }
@@ -147,7 +154,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         self.isScreensharingEnabled = false
     })
     DispatchQueue.main.async {
-      RPSystemBroadcastPickerView.show(for: Constants.screencastExtensionBundleId)
+      RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
     }
     resolve(true)
   }
