@@ -4,9 +4,12 @@ import Combine
 
 @objc(VideoRendererViewManager)
 class VideoRendererViewManager: RCTViewManager {
-  
   override func view() -> (VideoRendererView) {
     return VideoRendererView()
+  }
+  
+  @objc static override func requiresMainQueueSetup() -> Bool {
+      return false
   }
 }
 

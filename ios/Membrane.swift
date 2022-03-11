@@ -75,6 +75,9 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var videoQuality: String? = nil
   var flipVideo: Bool = true
   
+  @objc static override func requiresMainQueueSetup() -> Bool {
+      return false
+  }
   
   @objc(connect:withRoomName:withDisplayName:withVideoQuality:withFlipVideo:withResolver:withRejecter:)
   func connect(url: String, roomName: String, displayName: String, videoQuality: String, flipVideo: Bool, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
