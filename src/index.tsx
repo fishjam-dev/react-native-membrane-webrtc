@@ -43,6 +43,19 @@ export enum VideoLayout {
   FIT = "FIT"
 };
 
+export enum VideoQuality {
+  QVGA_169 = "QVGA169",
+  VGA_169 = "VGA169",
+  QHD_169 = "QHD169",
+  HD_169 = "HD169",
+  FHD_169 = "FHD169",
+  QVGA_43 = "QVGA43",
+  VGA_43 = "VGA43",
+  QHD_43 = "QHD43",
+  HD_43 = "HD43",
+  FHD_43 = "FHD43"
+};
+
 export function useMembraneServer() {
   const [error, setError] = useState<string | null>(null);
 
@@ -55,10 +68,12 @@ export function useMembraneServer() {
     async (
       url: string,
       roomName: string,
-      displayName: string
+      displayName: string,
+      quality: VideoQuality = VideoQuality.FHD_169,
+      flip: boolean = true,
     ): Promise<void> => {
       setError(null);
-      await Membrane.connect(url, roomName, displayName);
+      await Membrane.connect(url, roomName, displayName, quality, flip);
     },
     []
   );

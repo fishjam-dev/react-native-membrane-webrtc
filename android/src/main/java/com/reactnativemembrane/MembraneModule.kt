@@ -44,6 +44,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   private var joinPromise: Promise? = null
   private var screencastPromise: Promise? = null
 
+  var videoQuality: String? = null
+  var flipVideo: Boolean = false
+
   companion object {
     val participants = LinkedHashMap<String, Participant>()
     var onTracksUpdate: (() -> Unit)? = null
@@ -78,7 +81,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun connect(url: String, roomName: String, displayName: String, promise: Promise) {
+  fun connect(url: String, roomName: String, displayName: String, videoQuality: String, flipVideo: Boolean, promise: Promise) {
+    this.videoQuality = videoQuality
+    this.flipVideo = flipVideo
     connectPromise = promise
       room = MembraneRTC.connect(
         appContext = reactApplicationContext,
@@ -250,8 +255,20 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         )
       )
 
-      var videoParameters = VideoParameters.presetVGA169
-      videoParameters = videoParameters.copy(dimensions = videoParameters.dimensions.flip())
+      var videoParameters = when (videoQuality) {
+        "QVGA169" -> VideoParameters.presetQVGA169
+        "VGA169" -> VideoParameters.presetVGA169
+        "QHD169" -> VideoParameters.presetQHD169
+        "HD169" -> VideoParameters.presetHD169
+        "FHD169" -> VideoParameters.presetFHD169
+        "QVGA43" -> VideoParameters.presetQVGA43
+        "VGA43" -> VideoParameters.presetVGA43
+        "QHD43" -> VideoParameters.presetQHD43
+        "HD43" -> VideoParameters.presetHD43
+        "FHD43" -> VideoParameters.presetFHD43
+        else -> VideoParameters.presetVGA169
+      }
+      videoParameters = videoParameters.copy(dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions)
 
       localVideoTrack = it.createVideoTrack(
         videoParameters, mapOf(

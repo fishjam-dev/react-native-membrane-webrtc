@@ -3,8 +3,11 @@
 
 @interface RCT_EXTERN_MODULE(Membrane, RCTEventEmitter <RCTBridgeModule>)
 
-RCT_EXTERN_METHOD(connect:(NSString)url withRoomName:(NSString)roomName
+RCT_EXTERN_METHOD(connect:(NSString)url
+                  withRoomName:(NSString)roomName
                   withDisplayName:(NSString)displayName
+                  withVideoQuality:(NSString)videoQuality
+                  withFlipVideo:(BOOL)flip
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 

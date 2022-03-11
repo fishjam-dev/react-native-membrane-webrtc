@@ -72,13 +72,16 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var connectReject: RCTPromiseRejectBlock? = nil
   var joinResolve: RCTPromiseResolveBlock? = nil
   var joinReject: RCTPromiseRejectBlock? = nil
- 
+  var videoQuality: String? = nil
+  var flipVideo: Bool = true
   
   
-  @objc(connect:withRoomName:withDisplayName:withResolver:withRejecter:)
-  func connect(url: String, roomName: String, displayName: String, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
+  @objc(connect:withRoomName:withDisplayName:withVideoQuality:withFlipVideo:withResolver:withRejecter:)
+  func connect(url: String, roomName: String, displayName: String, videoQuality: String, flipVideo: Bool, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
     connectResolve = resolve
     connectReject = reject
+    self.videoQuality = videoQuality
+    self.flipVideo = flipVideo
     room = MembraneRTC.connect(
       with: MembraneRTC.ConnectOptions(
         transport: PhoenixTransport(url: url, topic: "room:\(roomName)"),
@@ -299,8 +302,33 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     let localPeer = room.currentPeer()
     let trackMetadata = ["user_id": localPeer.metadata["displayName"] ?? "UNKNOWN"]
     
-    let preset = VideoParameters.presetVGA169
-    let videoParameters = VideoParameters(dimensions: preset.dimensions.flip(), encoding: preset.encoding)
+    let preset: VideoParameters = {
+      switch videoQuality {
+      case "QVGA169":
+        return VideoParameters.presetQVGA169
+      case "VGA169":
+        return VideoParameters.presetVGA169
+      case "VQHD169":
+        return VideoParameters.presetQHD169
+      case "HD169":
+        return VideoParameters.presetHD169
+      case "FHD169":
+        return VideoParameters.presetFHD169
+      case "QVGA43":
+        return VideoParameters.presetQVGA43
+      case "VGA43":
+        return VideoParameters.presetVGA43
+      case "VQHD43":
+        return VideoParameters.presetQHD43
+      case "HD43":
+        return VideoParameters.presetHD43
+      case "FHD43":
+        return VideoParameters.presetFHD43
+      default:
+        return VideoParameters.presetVGA169
+      }
+    }()
+    let videoParameters = VideoParameters(dimensions: flipVideo ? preset.dimensions.flip() : preset.dimensions, encoding: preset.encoding)
     
     localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: trackMetadata)
     localAudioTrack = room.createAudioTrack(metadata: trackMetadata)
