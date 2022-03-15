@@ -21,15 +21,9 @@ target 'MembraneExample' do
   post_install do |installer|
     react_native_post_install(installer)
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
-
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-        config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'No'
-      end
-    end
   end
 end
 
 target 'ScreenBroadcast' do
-  pod 'MembraneRTC', :path => '~/Projects/MembraneRTC/MembraneRTC/'
+  pod 'MembraneRTC/Broadcast', :path => '~/Projects/MembraneRTC/MembraneRTC/'
 end
