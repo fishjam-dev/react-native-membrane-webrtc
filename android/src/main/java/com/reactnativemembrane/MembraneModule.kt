@@ -162,7 +162,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun toggleScreencast(screencastOptions: ReadableMap, promise: Promise) {
-    this.screencastMetadata = screencastOptions.getMap("screencastTrackMetadata")?.toMetadata() ?: mutableMapOf()
+    this.screencastMetadata = screencastOptions.getMap("screencastMetadata")?.toMetadata() ?: mutableMapOf()
+    this.screencastMetadata["type"] = "screensharing"
     this.screencastQuality = screencastOptions.getString("quality")
     screencastPromise = promise
     if(!isScreenCastOn) {
@@ -334,6 +335,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
             ctx.trackId,
             participant.copy(
               id = ctx.trackId,
+              metadata = ctx.metadata,
               videoTrack = ctx.track as RemoteVideoTrack
             )
           )

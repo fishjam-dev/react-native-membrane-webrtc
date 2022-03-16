@@ -77,7 +77,7 @@ export type ConnectionOptions = Partial<{
 
 export type ScreencastOptions = Partial<{
   quality: ScreencastQuality,
-  screencastTrackMetadata: Metadata,
+  screencastMetadata: Metadata,
 }>
 
 export function useMembraneServer() {

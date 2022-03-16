@@ -48,16 +48,14 @@ struct Participant {
 class ParticipantVideo: Identifiable, ObservableObject {
   let id: String
   let participant: Participant
-  let isScreensharing: Bool
   
   @Published var videoTrack: VideoTrack
   var mirror: Bool
   
-  init(id: String, participant: Participant, videoTrack: VideoTrack, isScreensharing: Bool = false, mirror: Bool = false) {
+  init(id: String, participant: Participant, videoTrack: VideoTrack, mirror: Bool = false) {
     self.id = id
     self.participant = participant
     self.videoTrack = videoTrack
-    self.isScreensharing = isScreensharing
     self.mirror = mirror
   }
 }
@@ -169,7 +167,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }()
     let videoParameters = VideoParameters(dimensions: preset.dimensions.flip(), encoding: preset.encoding)
     
-    let screencastMetadata = (screencastOptions["screencastMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    var screencastMetadata = (screencastOptions["screencastMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    screencastMetadata["type"] = "screensharing"
     
     room.createScreencastTrack(appGroup: appGroupName, videoParameters: videoParameters, metadata: screencastMetadata, onStart: { [weak self] screencastTrack in
       guard let self = self else {
@@ -188,8 +187,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       let localParticipantScreensharing = ParticipantVideo(
         id: self.localScreensharingVideoId!,
         participant: localScreensharingParticipant,
-        videoTrack: screencastTrack,
-        isScreensharing: true
+        videoTrack: screencastTrack
       )
       
       self.add(video: localParticipantScreensharing)
@@ -419,11 +417,16 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     
-    // track is seen for the first time so initialize the participant's video
-    let isScreensharing = ctx.metadata["type"] == "screensharing"
-    let video = ParticipantVideo(id: ctx.trackId, participant: participant, videoTrack: videoTrack, isScreensharing: isScreensharing)
-    
-    add(video: video)
+    if ctx.metadata["type"] == "screensharing" {
+      // add a fake screencasting participant
+      let screensharingParticipant = Participant(id: ctx.trackId, metadata: ctx.metadata)
+      MembraneRoom.sharedInstance.participants[screensharingParticipant.id] = screensharingParticipant
+      let video = ParticipantVideo(id: ctx.trackId, participant: screensharingParticipant, videoTrack: videoTrack)
+      add(video: video)
+    } else {
+      let video = ParticipantVideo(id: ctx.trackId, participant: participant, videoTrack: videoTrack)
+      add(video: video)
+    }
     emitParticipants()
   }
   
@@ -432,6 +435,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   func onTrackRemoved(ctx: TrackContext) {
+    if (ctx.metadata["type"] == "screensharing") {
+      if let video = MembraneRoom.sharedInstance.participantVideos.first(where: { $0.id == ctx.trackId }) {
+        MembraneRoom.sharedInstance.participants.removeValue(forKey: video.participant.id)
+        remove(video: video)
+      }
+    }
     if let video = MembraneRoom.sharedInstance.participantVideos.first(where: { $0.id == ctx.trackId }) {
       remove(video: video)
     }

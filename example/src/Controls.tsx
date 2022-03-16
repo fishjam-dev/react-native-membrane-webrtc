@@ -41,7 +41,7 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
       <Pressable onPress={Membrane.flipCamera}>
         <FlipCameraIcon width={iconSize} height={iconSize} />
       </Pressable>
-      <Pressable onPress={() => toggleScreencast()}>
+      <Pressable onPress={() => toggleScreencast({ screencastMetadata: { displayName: "presenting" } })}>
         {isScreencastOn ? (
           <ScreencastIcon width={iconSize} height={iconSize} />
         ) : (
