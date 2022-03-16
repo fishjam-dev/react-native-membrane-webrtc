@@ -18,16 +18,28 @@ public extension RPSystemBroadcastPickerView {
 }
 #endif
 
+public extension NSDictionary {
+  func toMetadata() -> Metadata {
+    var res: Metadata = [:]
+    self.forEach { entry in
+      if let key = entry.key as? String, let value = entry.value as? String {
+        res[key] = value
+      }
+    }
+    return res
+  }
+}
+
 struct Participant {
   let id: String
-  let displayName: String
+  let metadata: Metadata
   let order: Int
   
   static var participantCounter = 0
   
-  init(id: String, displayName: String) {
+  init(id: String, metadata: Metadata) {
     self.id = id
-    self.displayName = displayName
+    self.metadata = metadata
     self.order = Participant.participantCounter
     Participant.participantCounter += 1
   }
@@ -55,6 +67,9 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var localVideoTrack: LocalVideoTrack?
   var localAudioTrack: LocalAudioTrack?
   var localScreencastTrack: LocalScreenBroadcastTrack?
+  var localUserMetadata: Metadata = [:]
+  var videoTrackMetadata: Metadata = [:]
+  var audioTrackMetadata: Metadata = [:]
   
   var errorMessage: String?
   var isMicEnabled: Bool = true
@@ -79,16 +94,19 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return false
   }
   
-  @objc(connect:withRoomName:withDisplayName:withVideoQuality:withFlipVideo:withResolver:withRejecter:)
-  func connect(url: String, roomName: String, displayName: String, videoQuality: String, flipVideo: Bool, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
+  @objc(connect:withRoomName:withConnectionOptions:withResolver:withRejecter:)
+  func connect(url: String, roomName: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
     connectResolve = resolve
     connectReject = reject
-    self.videoQuality = videoQuality
-    self.flipVideo = flipVideo
+    self.videoQuality = connectionOptions["videoQuality"] as? String ?? ""
+    self.flipVideo = connectionOptions["flipVideo"] as? Bool ?? true
+    self.localUserMetadata = (connectionOptions["userMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     room = MembraneRTC.connect(
       with: MembraneRTC.ConnectOptions(
         transport: PhoenixTransport(url: url, topic: "room:\(roomName)"),
-        config: ["displayName": displayName]
+        config: self.localUserMetadata
       ),
       delegate: self
     )
@@ -111,8 +129,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     resolve(nil)
   }
   
-  @objc(toggleScreencast:withRejecter:)
-  func toggleScreencast(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  @objc(toggleScreencast:withResolver:withRejecter:)
+  func toggleScreencast(screencastOptions: NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
     let screencastExtensionBundleId = Bundle.main.infoDictionary!["ScreencastExtensionBundleId"] as? String
     let appGroupName = Bundle.main.infoDictionary!["AppGroupName"] as? String
     guard let screencastExtensionBundleId = screencastExtensionBundleId,
@@ -130,16 +148,15 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     guard let room = room else {
-            return
-          }
-    
-    
-    let displayName = room.currentPeer().metadata["displayName"] ?? "UNKNOWN"
+        return
+    }
     
     let preset = VideoParameters.presetScreenShareHD15
     let videoParameters = VideoParameters(dimensions: preset.dimensions.flip(), encoding: preset.encoding)
     
-    room.createScreencastTrack(appGroup: appGroupName, videoParameters: videoParameters, metadata: ["user_id": displayName, "type": "screensharing"], onStart: { [weak self] screencastTrack in
+    let screencastMetadata = (screencastOptions["screencastMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    
+    room.createScreencastTrack(appGroup: appGroupName, videoParameters: videoParameters, metadata: screencastMetadata, onStart: { [weak self] screencastTrack in
       guard let self = self else {
         DispatchQueue.main.async {
           RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
@@ -150,7 +167,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       self.localScreensharingVideoId = UUID().uuidString
       self.localScreensharingParticipantId = UUID().uuidString
       guard let localScreensharingParticipantId = self.localScreensharingParticipantId else { return }
-      let localScreensharingParticipant = Participant(id: localScreensharingParticipantId, displayName: "Me (presenting")
+      let localScreensharingParticipant = Participant(id: localScreensharingParticipantId, metadata: screencastMetadata)
       MembraneRoom.sharedInstance.participants[localScreensharingParticipantId] = localScreensharingParticipant
     
       let localParticipantScreensharing = ParticipantVideo(
@@ -186,7 +203,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     resolve(nil)
   }
   
-  func getParticipantsForRN() -> Dictionary<String, Array<Dictionary<String, String>>> {
+  func getParticipantsForRN() -> Dictionary<String, Array<Dictionary<String, Any>>> {
     return ["participants": MembraneRoom.sharedInstance.participants.values.sorted(by: {$0.order < $1.order}).map {
       (p) -> Dictionary in
       var participantType = ""
@@ -199,7 +216,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       }
       return [
         "id": p.id,
-        "displayName": p.displayName,
+        "metadata": p.metadata,
         "type": participantType
       ]
     }]
@@ -302,9 +319,6 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     
-    let localPeer = room.currentPeer()
-    let trackMetadata = ["user_id": localPeer.metadata["displayName"] ?? "UNKNOWN"]
-    
     let preset: VideoParameters = {
       switch videoQuality {
       case "QVGA169":
@@ -333,8 +347,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }()
     let videoParameters = VideoParameters(dimensions: flipVideo ? preset.dimensions.flip() : preset.dimensions, encoding: preset.encoding)
     
-    localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: trackMetadata)
-    localAudioTrack = room.createAudioTrack(metadata: trackMetadata)
+    localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata)
+    localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
     
     if let connectResolve = connectResolve {
       connectResolve(nil)
@@ -344,10 +358,10 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   func onJoinSuccess(peerID: String, peersInRoom: [Peer]) {
     localParticipantId = peerID
     
-    let localParticipant = Participant(id: peerID, displayName: "Me")
+    let localParticipant = Participant(id: peerID, metadata: localUserMetadata)
     
     let participants = peersInRoom.map { peer in
-      Participant(id: peer.id, displayName: peer.metadata["displayName"] ?? "")
+      Participant(id: peer.id, metadata: peer.metadata)
     }
     
     MembraneRoom.sharedInstance.participants[localParticipant.id] = localParticipant
@@ -414,7 +428,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   func onPeerJoined(peer: Peer) {
-    MembraneRoom.sharedInstance.participants[peer.id] = Participant(id: peer.id, displayName: peer.metadata["displayName"] ?? "")
+    MembraneRoom.sharedInstance.participants[peer.id] = Participant(id: peer.id, metadata: peer.metadata)
     emitParticipants()
   }
   

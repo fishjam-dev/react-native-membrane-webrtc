@@ -30,7 +30,7 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
               videoLayout={Membrane.VideoLayout.FIT}
             />
             <Text style={styles.displayName}>
-              {focusedParticipant.displayName}
+              {focusedParticipant.metadata.displayName}
             </Text>
           </View>
         )}
@@ -47,7 +47,7 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
                   participantId={p.id}
                   style={styles.flex}
                 />
-                <Text style={styles.displayName}>{p.displayName}</Text>
+                <Text style={styles.displayName}>{p.metadata.displayName}</Text>
               </Pressable>
             ))}
         </View>

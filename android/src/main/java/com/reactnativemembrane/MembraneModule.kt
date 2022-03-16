@@ -16,7 +16,6 @@ import org.membraneframework.rtc.models.Peer
 import org.membraneframework.rtc.models.TrackContext
 import org.membraneframework.rtc.transport.PhoenixTransport
 import java.util.*
-import kotlin.properties.Delegates
 
 
 class MembraneModule(reactContext: ReactApplicationContext) :
@@ -36,8 +35,6 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   var isMicrophoneOn = false
   var isCameraOn = false
 
-  var localDisplayName: String? = null
-
   private val globalToLocalTrackId = HashMap<String, String>()
 
   private var connectPromise: Promise? = null
@@ -45,7 +42,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   private var screencastPromise: Promise? = null
 
   var videoQuality: String? = null
-  var flipVideo: Boolean = false
+  var flipVideo: Boolean = true
+  private var localUserMetadata: MutableMap<String, String> = mutableMapOf()
+  var screencastMetadata: MutableMap<String, String> = mutableMapOf()
+  var videoTrackMetadata: MutableMap<String, String> = mutableMapOf()
+  var audioTrackMetadata: MutableMap<String, String> = mutableMapOf()
 
   companion object {
     val participants = LinkedHashMap<String, Participant>()
@@ -80,19 +81,32 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     reactContext.addActivityEventListener(activityEventListener)
   }
 
+  fun ReadableMap.toMetadata(): MutableMap<String, String> {
+    val res = mutableMapOf<String, String>()
+    this.entryIterator.forEach {
+      res[it.key] = it.value as String
+    }
+    return res
+  }
+
   @ReactMethod
-  fun connect(url: String, roomName: String, displayName: String, videoQuality: String, flipVideo: Boolean, promise: Promise) {
-    this.videoQuality = videoQuality
-    this.flipVideo = flipVideo
+  fun connect(url: String, roomName: String, connectionOptions: ReadableMap, promise: Promise) {
+    this.videoQuality = connectionOptions.getString("videoQuality")
+    if(connectionOptions.hasKey("flipVideo"))
+      this.flipVideo = connectionOptions.getBoolean("flipVideo")
+    this.localUserMetadata = connectionOptions.getMap("userMetadata")?.toMetadata() ?: mutableMapOf()
+    this.videoTrackMetadata = connectionOptions.getMap("videoTrackMetadata")?.toMetadata() ?: mutableMapOf()
+    this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMetadata() ?: mutableMapOf()
+
     connectPromise = promise
-      room = MembraneRTC.connect(
-        appContext = reactApplicationContext,
-        options = ConnectOptions(
-          transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO),
-          config = mapOf("displayName" to displayName)
-        ),
-        listener = this@MembraneModule
-      )
+    room = MembraneRTC.connect(
+      appContext = reactApplicationContext,
+      options = ConnectOptions(
+        transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO),
+        config = this.localUserMetadata
+      ),
+      listener = this@MembraneModule
+    )
   }
 
   @ReactMethod
@@ -146,7 +160,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun toggleScreencast(promise: Promise) {
+  fun toggleScreencast(screencastOptions: ReadableMap, promise: Promise) {
+    this.screencastMetadata = screencastOptions.getMap("screencastTrackMetadata")?.toMetadata() ?: mutableMapOf()
     screencastPromise = promise
     if(!isScreenCastOn) {
       val currentActivity = currentActivity
@@ -186,15 +201,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     val dimensions = videoParameters.dimensions.flip()
     videoParameters = videoParameters.copy(dimensions = dimensions)
 
-    localScreencastTrack = room?.createScreencastTrack(mediaProjectionPermission, videoParameters, mapOf(
-      "type" to "screensharing",
-      "user_id" to (localDisplayName ?: "")
-    )) {
+    localScreencastTrack = room?.createScreencastTrack(mediaProjectionPermission, videoParameters, screencastMetadata) {
       stopScreencast()
     }
 
     localScreencastTrack?.let {
-      participants[localScreencastId!!] = Participant(id = localScreencastId!!, displayName = "Me (screen cast)", videoTrack = it)
+      participants[localScreencastId!!] = Participant(id = localScreencastId!!, metadata = screencastMetadata, videoTrack = it)
       emitParticipants()
     }
     screencastPromise?.resolve(isScreenCastOn)
@@ -230,13 +242,15 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     participants.values.forEach {
       val participantMap = Arguments.createMap()
       participantMap.putString("id", it.id)
-      participantMap.putString("displayName", it.displayName)
       val participantType = when (it.id) {
           localScreencastId -> "LocalScreencasting"
           localParticipantId -> "Local"
           else -> "Remote"
       }
       participantMap.putString("type", participantType)
+      val metadataMap = Arguments.createMap()
+      it.metadata.forEach { e -> metadataMap.putString(e.key, e.value)}
+      participantMap.putMap("metadata", metadataMap)
       participantsArray.pushMap(participantMap)
     }
     params.putArray("participants", participantsArray)
@@ -249,11 +263,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   override fun onConnected() {
     room?.let {
-      localAudioTrack = it.createAudioTrack(
-        mapOf(
-          "user_id" to (localDisplayName ?: "")
-        )
-      )
+      localAudioTrack = it.createAudioTrack(audioTrackMetadata)
 
       var videoParameters = when (videoQuality) {
         "QVGA169" -> VideoParameters.presetQVGA169
@@ -270,11 +280,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       }
       videoParameters = videoParameters.copy(dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions)
 
-      localVideoTrack = it.createVideoTrack(
-        videoParameters, mapOf(
-          "user_id" to (localDisplayName ?: "")
-        )
-      )
+      localVideoTrack = it.createVideoTrack(videoParameters, videoTrackMetadata)
 
       isCameraOn = localVideoTrack?.enabled() ?: false
       isMicrophoneOn = localAudioTrack?.enabled() ?: false
@@ -284,7 +290,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
       localParticipantId = UUID.randomUUID().toString()
       participants[localParticipantId!!] =
-        Participant(localParticipantId!!, "Me", localVideoTrack, localAudioTrack)
+        Participant(localParticipantId!!, localUserMetadata, localVideoTrack, localAudioTrack)
       connectPromise?.resolve(null)
       connectPromise = null
       emitParticipants()
@@ -295,7 +301,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     participants.remove(peerID)
     peersInRoom.forEach {
       participants[it.id] =
-        Participant(it.id, it.metadata["displayName"] ?: "UNKNOWN", null, null)
+        Participant(it.id, it.metadata, null, null)
     }
     joinPromise?.resolve(null)
     joinPromise = null
@@ -319,7 +325,6 @@ class MembraneModule(reactContext: ReactApplicationContext) :
             ctx.trackId,
             participant.copy(
               id = ctx.trackId,
-              displayName = "${participant.displayName} (screencast)",
               videoTrack = ctx.track as RemoteVideoTrack
             )
           )
@@ -384,7 +389,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   override fun onPeerJoined(peer: Peer) {
     participants[peer.id] =
-      Participant(id = peer.id, displayName = peer.metadata["displayName"] ?: "UNKNOWN")
+      Participant(id = peer.id, metadata = peer.metadata)
     emitParticipants()
   }
 

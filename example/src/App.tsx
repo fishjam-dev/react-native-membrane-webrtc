@@ -5,7 +5,7 @@ import { StyleSheet, View, PermissionsAndroid, SafeAreaView, Text, TextInput, Pl
 import * as Membrane from 'react-native-membrane';
 import { Room } from './Room';
 
-const serverUrl = 'http://192.168.83.138:4000/socket'
+const serverUrl = 'http://192.168.83.86:4000/socket'
 
 export default function App() {
   const {
@@ -48,7 +48,7 @@ export default function App() {
 
   const connect = useCallback(async () => {
     await requestPermissions();
-    await mbConnect(serverUrl, roomName, displayName);
+    await mbConnect(serverUrl, roomName, { userMetadata: { displayName } });
     await joinRoom();
     setConnected(true);
   }, [requestPermissions, mbConnect, joinRoom]);

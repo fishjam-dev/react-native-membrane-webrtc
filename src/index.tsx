@@ -32,10 +32,13 @@ export enum ParticipantType {
   LocalScreencasting = "LocalScreencasting"
 }
 
+export type Metadata = { [key: string]: string }
+
 export type Participant = {
   id: string;
   displayName: string;
   type: ParticipantType;
+  metadata: Metadata;
 };
 
 export enum VideoLayout {
@@ -56,6 +59,23 @@ export enum VideoQuality {
   FHD_43 = "FHD43"
 };
 
+export enum ScreencastQuality {
+
+}
+
+export type ConnectionOptions = Partial<{
+  quality: VideoQuality,
+  flipVideo: boolean,
+  userMetadata: Metadata,
+  videoTrackMetadata: Metadata,
+  audioTrackMetadata: Metadata,
+}>
+
+export type ScreencastOptions = Partial<{
+  quality: ScreencastQuality,
+  screencastTrackMetadata: Metadata,
+}>
+
 export function useMembraneServer() {
   const [error, setError] = useState<string | null>(null);
 
@@ -68,12 +88,10 @@ export function useMembraneServer() {
     async (
       url: string,
       roomName: string,
-      displayName: string,
-      quality: VideoQuality = VideoQuality.FHD_169,
-      flip: boolean = true,
+      connectionOptions: ConnectionOptions = {},
     ): Promise<void> => {
       setError(null);
-      await Membrane.connect(url, roomName, displayName, quality, flip);
+      await Membrane.connect(url, roomName, connectionOptions);
     },
     []
   );
@@ -163,8 +181,8 @@ export function useScreencast() {
     }
   }, []);
 
-  const toggleScreencast = useCallback(async () => {
-    const state = await Membrane.toggleScreencast();
+  const toggleScreencast = useCallback(async (screencastOptions: ScreencastOptions = {}) => {
+    const state = await Membrane.toggleScreencast(screencastOptions);
     if (Platform.OS == 'android') {
       setIsScreencastOn(state);
     }
