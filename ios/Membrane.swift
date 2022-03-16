@@ -151,7 +151,22 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         return
     }
     
-    let preset = VideoParameters.presetScreenShareHD15
+    let preset: VideoParameters = {
+      switch(screencastOptions["quality"] as? String) {
+        case "VGA":
+          return VideoParameters.presetScreenShareVGA
+        case "HD5":
+          return VideoParameters.presetScreenShareHD5
+        case "HD15":
+          return VideoParameters.presetScreenShareHD15
+        case "FHD15":
+          return VideoParameters.presetScreenShareFHD15
+        case "FHD30":
+          return VideoParameters.presetScreenShareFHD30
+        default:
+          return VideoParameters.presetScreenShareHD15
+      }
+    }()
     let videoParameters = VideoParameters(dimensions: preset.dimensions.flip(), encoding: preset.encoding)
     
     let screencastMetadata = (screencastOptions["screencastMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()

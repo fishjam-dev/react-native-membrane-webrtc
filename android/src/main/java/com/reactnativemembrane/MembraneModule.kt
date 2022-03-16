@@ -43,6 +43,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   var videoQuality: String? = null
   var flipVideo: Boolean = true
+  var screencastQuality: String? = null
   private var localUserMetadata: MutableMap<String, String> = mutableMapOf()
   var screencastMetadata: MutableMap<String, String> = mutableMapOf()
   var videoTrackMetadata: MutableMap<String, String> = mutableMapOf()
@@ -162,6 +163,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun toggleScreencast(screencastOptions: ReadableMap, promise: Promise) {
     this.screencastMetadata = screencastOptions.getMap("screencastTrackMetadata")?.toMetadata() ?: mutableMapOf()
+    this.screencastQuality = screencastOptions.getString("quality")
     screencastPromise = promise
     if(!isScreenCastOn) {
       val currentActivity = currentActivity
@@ -197,7 +199,14 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
     localScreencastId = UUID.randomUUID().toString()
 
-    var videoParameters = VideoParameters.presetScreenShareHD15
+    var videoParameters = when(screencastQuality) {
+      "VGA" -> VideoParameters.presetScreenShareVGA
+      "HD5" -> VideoParameters.presetScreenShareHD5
+      "HD15" -> VideoParameters.presetScreenShareHD15
+      "FHD15" -> VideoParameters.presetScreenShareFHD15
+      "FHD30" -> VideoParameters.presetScreenShareFHD30
+      else -> VideoParameters.presetScreenShareHD15
+    }
     val dimensions = videoParameters.dimensions.flip()
     videoParameters = videoParameters.copy(dimensions = dimensions)
 
