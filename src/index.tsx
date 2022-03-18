@@ -36,7 +36,6 @@ export type Metadata = { [key: string]: string }
 
 export type Participant = {
   id: string;
-  displayName: string;
   type: ParticipantType;
   metadata: Metadata;
 };
