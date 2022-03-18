@@ -183,6 +183,7 @@ export function useScreencast() {
       );
       return () => eventListener.remove();
     }
+    return () => { }
   }, []);
 
   const toggleScreencast = useCallback(async (screencastOptions: ScreencastOptions = {}) => {
