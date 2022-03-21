@@ -65,11 +65,23 @@ On iOS installation is a bit more complicated, because you need to setup a scree
    <string>Allow $(PRODUCT_NAME) to use the microphone</string>
    ```
 2. Open your `<your-project>.xcworkspace` in Xcode
-3. Create new Broadcast Upload Extension. Select File → New → Target... → Broadcast Upload Extension → Next. Choose the name for the new target, select Swift language and deselect "Include UI Extension". Press Finish. In the next alert xcode will ask you if you want to activate the new scheme - press Cancel.
-4. Configure app group. Go to "Signing & Capabilities" tab, click "+ Capability" button in upper left corner and select "App Groups". Then in the "App Groups" add a new group or select existing. Usually group name has format `group.<your-bundle-identifier>`. Verify that both app and extension targets have app group and dev team set correctly.
+3. Create new Broadcast Upload Extension. Select File → New → Target... → Broadcast Upload Extension → Next. Choose the name for the new target, select Swift language and deselect "Include UI Extension".
+
+   ![New target config](/screenshots/xcode1.png)
+
+   Press Finish. In the next alert xcode will ask you if you want to activate the new scheme - press Cancel.
+
+4. Configure app group. Go to "Signing & Capabilities" tab, click "+ Capability" button in upper left corner and select "App Groups".
+
+   ![App groups config](/screenshots/xcode2.png)
+
+   Then in the "App Groups" add a new group or select existing. Usually group name has format `group.<your-bundle-identifier>`. Verify that both app and extension targets have app group and dev team set correctly.
+
 5. A new folder with app extension should appear on the left with contents like this:
 
-   Copy this code to SampleHeader.swift:
+   ![App extension files](/screenshots/xcode3.png)
+
+   Replace `SampleHandler.swift` with `MembraneBroadcastSampleHandler.swift` and this code:
 
    ```swift
    import Foundation
