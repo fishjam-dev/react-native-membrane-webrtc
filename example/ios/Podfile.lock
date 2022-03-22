@@ -75,15 +75,15 @@ PODS:
   - glog (0.3.5)
   - libevent (2.1.12)
   - Logging (1.4.0)
-  - MembraneRTC (0.1.21):
+  - MembraneRTC (0.1.22):
     - Logging
-    - MembraneRTC/Broadcast (= 0.1.21)
+    - MembraneRTC/Broadcast (= 0.1.22)
     - PromisesSwift (= 2.0.1)
     - SwiftCollection
     - SwiftPhoenixClient
     - SwiftProtobuf
     - WebRTC-SDK
-  - MembraneRTC/Broadcast (0.1.21):
+  - MembraneRTC/Broadcast (0.1.22):
     - Logging
     - PromisesSwift (= 2.0.1)
     - SwiftCollection
@@ -559,7 +559,7 @@ SPEC CHECKSUMS:
   glog: 85ecdd10ee8d8ec362ef519a6a45ff9aa27b2e85
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
-  MembraneRTC: 69fa9be677d602a8afe6ad6b19dcea515ccd267d
+  MembraneRTC: e70fc63a4fced5066eaaf8dd0c91c4e3303e3172
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   OrderedObjectSet: 7eb2d546c515a9dc5ac321ce5605d4e96f5d4c3c
   PromisesObjC: 9f58644172c8554a56af6c226fbd197bf6e6eb7a
@@ -576,7 +576,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 15ea57ead631a11fad57634ff69f78e797113a39
   React-jsinspector: 1e1e03345cf6d47779e2061d679d0a87d9ae73d8
   React-logger: 1e10789cb84f99288479ba5f20822ce43ced6ffe
-  react-native-membrane: a221dbd8e42bc0a202a1a79c7c2175595fc07beb
+  react-native-membrane: c8abeaa3739bbf564a40ab9c2a5fe209247d8b9f
   React-perflogger: 93d3f142d6d9a46e635f09ba0518027215a41098
   React-RCTActionSheet: 87327c3722203cc79cf79d02fb83e7332aeedd18
   React-RCTAnimation: 009c87c018d50e0b38692699405ebe631ff4872d

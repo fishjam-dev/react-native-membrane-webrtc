@@ -5,7 +5,7 @@ import { StyleSheet, View, PermissionsAndroid, SafeAreaView, Text, TextInput, Pl
 import * as Membrane from 'react-native-membrane';
 import { Room } from './Room';
 
-const serverUrl = 'http://192.168.0.213:4000/socket'
+const serverUrl = 'http://192.168.83.173:4000/socket'
 
 export default function App() {
   const {

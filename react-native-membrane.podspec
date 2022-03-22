@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
   
-  s.ios.deployment_target = '15.0'
+  s.ios.deployment_target = '13.0'
   
   s.dependency "React-Core"
   s.dependency "MembraneRTC"

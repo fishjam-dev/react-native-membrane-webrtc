@@ -457,7 +457,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembrane;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembraneasdf;
 				PRODUCT_NAME = MembraneExample;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -482,7 +482,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembrane;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembraneasdf;
 				PRODUCT_NAME = MembraneExample;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -512,12 +512,12 @@
 				INFOPLIST_FILE = ScreenBroadcast/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ScreenBroadcast;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembrane.ScreenBroadcast;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembraneasdf.ScreenBroadcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -552,11 +552,11 @@
 				INFOPLIST_FILE = ScreenBroadcast/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ScreenBroadcast;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembrane.ScreenBroadcast;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativemembraneasdf.ScreenBroadcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
