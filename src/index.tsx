@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   NativeModules,
   Platform,
@@ -81,33 +81,42 @@ export type ScreencastOptions = Partial<{
 
 export function useMembraneServer() {
   const [error, setError] = useState<string | null>(null);
+  // prevent user from calling connect methods multiple times
+  const lock = useRef(false)
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener('MembraneError', setError);
     return () => eventListener.remove();
   }, []);
 
+  const withLock = (f: any) => async (...args: any) => {
+    if (lock.current) return Promise.resolve();
+    lock.current = true;
+    await f(...args)
+    lock.current = false;
+  }
+
   const connect = useCallback(
-    async (
+    withLock((
       url: string,
       roomName: string,
       connectionOptions: ConnectionOptions = {},
     ): Promise<void> => {
       setError(null);
-      await Membrane.connect(url, roomName, connectionOptions);
-    },
+      return Membrane.connect(url, roomName, connectionOptions);
+    }),
     []
   );
 
-  const joinRoom = useCallback((): Promise<void> => {
+  const joinRoom = useCallback(withLock((): Promise<void> => {
     setError(null);
     return Membrane.join();
-  }, []);
+  }), []);
 
-  const disconnect = useCallback((): Promise<void> => {
+  const disconnect = useCallback(withLock((): Promise<void> => {
     setError(null);
     return Membrane.disconnect();
-  }, []);
+  }), []);
   return { connect, disconnect, joinRoom, error };
 }
 
