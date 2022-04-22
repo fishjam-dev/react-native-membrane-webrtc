@@ -11,7 +11,7 @@ import * as fs from 'fs/promises';
 const SBE_TARGET_NAME = 'MembraneScreenBroadcastExtension'
 const SBE_PODFILE_SNIPPET = `
 target '${SBE_TARGET_NAME}' do
-  pod 'MembraneRTC/Broadcast', :path => '~/Projects/MembraneRTC/MembraneRTC/'
+  pod 'MembraneRTC/Broadcast'
 end`;
 const TARGETED_DEVICE_FAMILY = `"1,2"`;
 const IPHONEOS_DEPLOYMENT_TARGET = "13.0";
@@ -95,7 +95,7 @@ const withMembraneSBE: ConfigPlugin = (config) => {
     const appName = props.modRequest.projectName || "";
     const iosPath = props.modRequest.platformProjectRoot;
     const bundleIdentifier = props.ios?.bundleIdentifier;
-    const extensionSourceDir = "node_modules/plugintest/plugin/broadcastExtensionFiles/"
+    const extensionSourceDir = "node_modules/react-native-membrane/plugin/broadcastExtensionFiles/"
     const xcodeProject = props.modResults;
 
     await updatePodfile(iosPath);
@@ -190,7 +190,8 @@ const withMembraneSBE: ConfigPlugin = (config) => {
           buildSettingsObj.TARGETED_DEVICE_FAMILY = TARGETED_DEVICE_FAMILY;
           buildSettingsObj.CODE_SIGN_ENTITLEMENTS = `${SBE_TARGET_NAME}/${SBE_TARGET_NAME}.entitlements`;
           buildSettingsObj.CODE_SIGN_STYLE = "Automatic";
-          buildSettingsObj.INFOPLIST_FILE = `${SBE_TARGET_NAME}/Info.plist`
+          buildSettingsObj.INFOPLIST_FILE = `${SBE_TARGET_NAME}/Info.plist`;
+          buildSettingsObj.SWIFT_VERSION = "5.0";
         }
       }
 

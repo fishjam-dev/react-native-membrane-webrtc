@@ -9,9 +9,6 @@ target 'MembraneExample' do
   use_react_native!(:path => config["reactNativePath"])
 
   pod 'react-native-membrane', :path => '../..'
-  pod 'MembraneRTC', :path => '~/Projects/MembraneRTC/MembraneRTC/'
-  pod 'PromisesObjC', :git => 'https://github.com/graszka22/promises.git'
-  pod 'PromisesSwift', :git => 'https://github.com/graszka22/promises.git'
 
   # Enables Flipper.
   #
@@ -25,5 +22,5 @@ target 'MembraneExample' do
 end
 
 target 'ScreenBroadcast' do
-  pod 'MembraneRTC/Broadcast', :path => '~/Projects/MembraneRTC/MembraneRTC/'
+  pod 'MembraneRTC/Broadcast'
 end

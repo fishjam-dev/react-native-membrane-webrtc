@@ -1,15 +1,15 @@
 buildscript {
-  // Buildscript is evaluated before everything else so we can't use getExtOrDefault
-  def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['Membrane_kotlinVersion']
+  def kotlin_version = '1.6.10'
 
   repositories {
     google()
     mavenCentral()
     jcenter()
+    maven { url "https://jitpack.io" }
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.2.1'
+    classpath 'com.android.tools.build:gradle:7.1.2'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
@@ -31,8 +31,6 @@ android {
   defaultConfig {
     minSdkVersion 21
     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
-    versionCode 1
-    versionName "1.0"
 
   }
 
@@ -50,10 +48,59 @@ android {
   }
 }
 
+ext {
+    androidSdk = [
+            compileVersion: 31,
+            targetVersion : 31,
+            minVersion    : 21,
+    ]
+    versions = [
+            androidx_core     : "1.7.0",
+            androidx_lifecycle: "2.4.0",
+            preference_version: "1.2.0",
+            autoService       : '1.0.1',
+            dagger            : "2.27",
+            groupie           : "2.9.0",
+            junit             : "4.13.2",
+            junitJupiter      : "5.5.0",
+            coroutines        : "1.6.0",
+            lint              : "30.0.1",
+            protobuf          : "3.15.1",
+    ]
+    generated = [
+            protoSrc: "$projectDir/protocol",
+    ]
+    deps = [
+            auto              : [
+                    'service'           : "com.google.auto.service:auto-service:${versions.autoService}",
+                    'serviceAnnotations': "com.google.auto.service:auto-service-annotations:${versions.autoService}",
+            ],
+            coroutines        : [
+                    "lib" : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
+                    "test": "org.jetbrains.kotlinx:kotlinx-coroutines-test: ${versions.coroutines}",
+            ],
+            timber            : "com.github.ajalt:timberkt:1.5.1",
+            // lint
+            lint              : "com.android.tools.lint:lint:${versions.lint}",
+            lintApi           : "com.android.tools.lint:lint-api:${versions.lint}",
+            lintChecks        : "com.android.tools.lint:lint-checks:${versions.lint}",
+            lintTests         : "com.android.tools.lint:lint-tests:${versions.lint}",
+
+            // tests
+            junit             : "junit:junit:${versions.junit}",
+            junitJupiterApi   : "org.junit.jupiter:junit-jupiter-api:${versions.junitJupiter}",
+            junitJupiterEngine: "org.junit.jupiter:junit-jupiter-engine:${versions.junitJupiter}",
+    ]
+    annotations = [
+    ]
+}
+
+
 repositories {
   mavenCentral()
   jcenter()
   google()
+  maven { url "https://jitpack.io" }
 
   def found = false
   def defaultDir = null
@@ -128,5 +175,5 @@ dependencies {
   api 'com.facebook.react:react-native:+'
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}"
-  implementation project(':MembraneRTC')
+  implementation 'com.github.membraneframework:membrane-webrtc-android:1.0.1'
 }

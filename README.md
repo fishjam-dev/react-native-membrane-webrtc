@@ -1,56 +1,24 @@
-# react-native-membrane
+# react-native-membrane-webrtc
 
-react-native-membrane is a RN wrapper for (TODO: ?). It allows you to quickly and easily create a mobile client app for Membrane server.
+react-native-membrane-webrtc is a React Native wrapper for [membrane-webrtc-android](https://github.com/membraneframework/membrane-webrtc-android) and [membrane-webrtc-ios](https://github.com/membraneframework/membrane-webrtc-ios). It allows you to quickly and easily create a mobile client app in React Native for Membrane server.
 
 # Installation
-
-## Expo managed workflow
-
-react-native-membrane includes Expo config plugin so it should work out-of-the-box for managed workflow:
-
-```
-expo install react-native-membrane
-```
-
-You may need to add the plugin in `app.json` / `app.config.json`:
-
-```json
-{
-  "plugins": ["react-native-membrane"]
-}
-```
-
-You will also need to rebuild the app:
-
-```sh
-$ expo prebuild --clean
-
-# Build your native iOS project
-$ expo run:ios
-
-# Build your native Android project
-$ expo run:android
-```
-
-## Manual installation
-
-If the above solution doesn't work for you, you can do the setup manually.
 
 Firstly install react-native-membrane with `yarn` or `npm`
 
 ```
-yarn add react-native-membrane
+yarn add @membrane/react-native-membrane-webrtc
 ```
 
 or
 
 ```
-npm install --save react-native-membrane
+npm install --save @membrane/react-native-membrane-webrtc
 ```
 
 ### Android
 
-1. Add camera and microphone permissions to your `AndroidManifest.xml` (TODO: is it really needed? if so, add code here)
+1. Add camera and microphone permissions to your `AndroidManifest.xml`.
 2. Rebuild the app. That's it!
 
 ### iOS
@@ -67,19 +35,19 @@ On iOS installation is a bit more complicated, because you need to setup a scree
 2. Open your `<your-project>.xcworkspace` in Xcode
 3. Create new Broadcast Upload Extension. Select File → New → Target... → Broadcast Upload Extension → Next. Choose the name for the new target, select Swift language and deselect "Include UI Extension".
 
-   ![New target config](/screenshots/xcode1.png)
+   ![New target config](/.github/xcode1.png)
 
    Press Finish. In the next alert xcode will ask you if you want to activate the new scheme - press Cancel.
 
 4. Configure app group. Go to "Signing & Capabilities" tab, click "+ Capability" button in upper left corner and select "App Groups".
 
-   ![App groups config](/screenshots/xcode2.png)
+   ![App groups config](/.github/xcode2.png)
 
    Then in the "App Groups" add a new group or select existing. Usually group name has format `group.<your-bundle-identifier>`. Verify that both app and extension targets have app group and dev team set correctly.
 
 5. A new folder with app extension should appear on the left with contents like this:
 
-   ![App extension files](/screenshots/xcode3.png)
+   ![App extension files](/.github/xcode3.png)
 
    Replace `SampleHandler.swift` with `MembraneBroadcastSampleHandler.swift` and this code:
 
@@ -140,10 +108,10 @@ On iOS installation is a bit more complicated, because you need to setup a scree
 
    Replace `{{GROUP_IDENTIFIER}}` and `{{BUNDLE_IDENTIFIER}}` with your group identifier and bundle identifier respectively.
 
-6. In project's Podfile add the following code: (TODO: update it when it's released!)
+6. In project's Podfile add the following code:
    ```rb
    target 'MembraneScreenBroadcastExtension' do
-     pod 'MembraneRTC/Broadcast', :path => '~/Projects/MembraneRTC/MembraneRTC/'
+     pod 'MembraneRTC/Broadcast'
    end
    ```
 7. Run `pod install` in your `ios/` directory
@@ -360,10 +328,9 @@ Props:
 - `participantId: string` -- id of the participant which you want to render.
 - `videoLayout: VideoLayout` -- `FILL` or `FIT` - it works just like RN `Image` component. `FILL` fills the whole view with video and it may cut some parts of the video. `FIT` scales the video so the whole video is visible, but it may leave some empty space in the view. Default: `FILL`.
 
-## Contributing
+## Credits
 
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+This project has been built and is maintained thanks to the support from [dscout](https://dscout.com/) and [Software Mansion](https://swmansion.com).
 
-## License
-
-MIT
+<img alt="dscout" height="100" src="./.github/dscout_logo.png"/>
+<img alt="Software Mansion" src="https://logo.swmansion.com/logo?color=white&variant=desktop&width=150&tag=react-native-reanimated-github"/>
