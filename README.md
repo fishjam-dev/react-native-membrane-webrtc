@@ -7,13 +7,13 @@ react-native-membrane-webrtc is a React Native wrapper for [membrane-webrtc-andr
 Firstly install react-native-membrane with `yarn` or `npm`
 
 ```
-yarn add @membrane/react-native-membrane-webrtc
+yarn add @membraneframework/react-native-membrane-webrtc
 ```
 
 or
 
 ```
-npm install --save @membrane/react-native-membrane-webrtc
+npm install --save @membraneframework/react-native-membrane-webrtc
 ```
 
 ### Android
