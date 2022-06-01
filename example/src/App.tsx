@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { StyleSheet, View, PermissionsAndroid, SafeAreaView, Text, TextInput, Platform, Pressable } from 'react-native';
 
-import * as Membrane from 'react-native-membrane';
+import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import { Room } from './Room';
 
 const serverUrl = 'http://192.168.83.173:4000/socket'

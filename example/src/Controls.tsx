@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import * as Membrane from 'react-native-membrane';
+import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import {
   CameraIcon,
   CameraDisabledIcon,

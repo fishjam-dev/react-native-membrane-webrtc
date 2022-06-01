@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
-import * as Membrane from 'react-native-membrane';
+import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import { Controls } from './Controls';
 
 export const Room = ({ disconnect }: { disconnect: () => void }) => {
