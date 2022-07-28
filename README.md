@@ -114,6 +114,16 @@ On iOS installation is a bit more complicated, because you need to setup a scree
      pod 'MembraneRTC/Broadcast'
    end
    ```
+   > This new dependency should be added outside of your application target. Example
+   > ```rb
+   > target 'ReactNativeMembraneExample' do
+   >  ...
+   > end
+   > 
+   > target 'MembraneScreenBroadcastExtension' do
+   >  pod 'MembraneRTC/Broadcast'
+   > end
+   > ```
 7. Run `pod install` in your `ios/` directory
 8. Add the following constants in your Info.plist:
    ```xml
