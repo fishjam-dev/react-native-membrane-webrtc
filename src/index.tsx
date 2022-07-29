@@ -17,22 +17,22 @@ const LINKING_ERROR =
 const Membrane = NativeModules.Membrane
   ? NativeModules.Membrane
   : new Proxy(
-    {},
-    {
-      get() {
-        throw new Error(LINKING_ERROR);
-      },
-    }
-  );
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
+      }
+    );
 const eventEmitter = new NativeEventEmitter(Membrane);
 
 export enum ParticipantType {
-  Remote = "Remote",
-  Local = "Local",
-  LocalScreencasting = "LocalScreencasting"
+  Remote = 'Remote',
+  Local = 'Local',
+  LocalScreencasting = 'LocalScreencasting',
 }
 
-export type Metadata = { [key: string]: string }
+export type Metadata = { [key: string]: string };
 
 export type Participant = {
   id: string;
@@ -41,82 +41,92 @@ export type Participant = {
 };
 
 export enum VideoLayout {
-  FILL = "FILL",
-  FIT = "FIT"
-};
+  FILL = 'FILL',
+  FIT = 'FIT',
+}
 
 export enum VideoQuality {
-  QVGA_169 = "QVGA169",
-  VGA_169 = "VGA169",
-  QHD_169 = "QHD169",
-  HD_169 = "HD169",
-  FHD_169 = "FHD169",
-  QVGA_43 = "QVGA43",
-  VGA_43 = "VGA43",
-  QHD_43 = "QHD43",
-  HD_43 = "HD43",
-  FHD_43 = "FHD43"
-};
+  QVGA_169 = 'QVGA169',
+  VGA_169 = 'VGA169',
+  QHD_169 = 'QHD169',
+  HD_169 = 'HD169',
+  FHD_169 = 'FHD169',
+  QVGA_43 = 'QVGA43',
+  VGA_43 = 'VGA43',
+  QHD_43 = 'QHD43',
+  HD_43 = 'HD43',
+  FHD_43 = 'FHD43',
+}
 
 export enum ScreencastQuality {
-  VGA = "VGA",
-  HD5 = "HD5",
-  HD15 = "HD15",
-  FHD15 = "FHD15",
-  FHD30 = "FHD30"
+  VGA = 'VGA',
+  HD5 = 'HD5',
+  HD15 = 'HD15',
+  FHD15 = 'FHD15',
+  FHD30 = 'FHD30',
 }
 
 export type ConnectionOptions = Partial<{
-  quality: VideoQuality,
-  flipVideo: boolean,
-  userMetadata: Metadata,
-  videoTrackMetadata: Metadata,
-  audioTrackMetadata: Metadata,
-}>
+  quality: VideoQuality;
+  flipVideo: boolean;
+  userMetadata: Metadata;
+  videoTrackMetadata: Metadata;
+  audioTrackMetadata: Metadata;
+}>;
 
 export type ScreencastOptions = Partial<{
-  quality: ScreencastQuality,
-  screencastMetadata: Metadata,
-}>
+  quality: ScreencastQuality;
+  screencastMetadata: Metadata;
+}>;
 
 export function useMembraneServer() {
   const [error, setError] = useState<string | null>(null);
   // prevent user from calling connect methods multiple times
-  const lock = useRef(false)
+  const lock = useRef(false);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener('MembraneError', setError);
     return () => eventListener.remove();
   }, []);
 
-  const withLock = (f: any) => async (...args: any) => {
-    if (lock.current) return Promise.resolve();
-    lock.current = true;
-    await f(...args)
-    lock.current = false;
-  }
+  const withLock =
+    (f: any) =>
+    async (...args: any) => {
+      if (lock.current) return Promise.resolve();
+      lock.current = true;
+      await f(...args);
+      lock.current = false;
+    };
 
   const connect = useCallback(
-    withLock((
-      url: string,
-      roomName: string,
-      connectionOptions: ConnectionOptions = {},
-    ): Promise<void> => {
+    withLock(
+      (
+        url: string,
+        roomName: string,
+        connectionOptions: ConnectionOptions = {}
+      ): Promise<void> => {
+        setError(null);
+        return Membrane.connect(url, roomName, connectionOptions);
+      }
+    ),
+    []
+  );
+
+  const joinRoom = useCallback(
+    withLock((): Promise<void> => {
       setError(null);
-      return Membrane.connect(url, roomName, connectionOptions);
+      return Membrane.join();
     }),
     []
   );
 
-  const joinRoom = useCallback(withLock((): Promise<void> => {
-    setError(null);
-    return Membrane.join();
-  }), []);
-
-  const disconnect = useCallback(withLock((): Promise<void> => {
-    setError(null);
-    return Membrane.disconnect();
-  }), []);
+  const disconnect = useCallback(
+    withLock((): Promise<void> => {
+      setError(null);
+      return Membrane.disconnect();
+    }),
+    []
+  );
   return { connect, disconnect, joinRoom, error };
 }
 
@@ -130,9 +140,11 @@ export function useRoomParticipants() {
         setParticipants(participants);
       }
     );
-    Membrane.getParticipants().then(({ participants }: { participants: Participant[] }) => {
-      setParticipants(participants);
-    });
+    Membrane.getParticipants().then(
+      ({ participants }: { participants: Participant[] }) => {
+        setParticipants(participants);
+      }
+    );
     return () => eventListener.remove();
   }, []);
 
@@ -185,21 +197,25 @@ export function useScreencast() {
   const [isScreencastOn, setIsScreencastOn] = useState<boolean>(false);
 
   useEffect(() => {
-    if (Platform.OS == 'ios') {
-      const eventListener = eventEmitter.addListener('IsScreencastOn', (event) =>
-        setIsScreencastOn(event)
+    if (Platform.OS === 'ios') {
+      const eventListener = eventEmitter.addListener(
+        'IsScreencastOn',
+        (event) => setIsScreencastOn(event)
       );
       return () => eventListener.remove();
     }
-    return () => { }
+    return () => {};
   }, []);
 
-  const toggleScreencast = useCallback(async (screencastOptions: ScreencastOptions = {}) => {
-    const state = await Membrane.toggleScreencast(screencastOptions);
-    if (Platform.OS == 'android') {
-      setIsScreencastOn(state);
-    }
-  }, []);
+  const toggleScreencast = useCallback(
+    async (screencastOptions: ScreencastOptions = {}) => {
+      const state = await Membrane.toggleScreencast(screencastOptions);
+      if (Platform.OS === 'android') {
+        setIsScreencastOn(state);
+      }
+    },
+    []
+  );
 
   return { isScreencastOn, toggleScreencast };
 }
@@ -216,5 +232,5 @@ export const VideoRendererView =
   UIManager.getViewManagerConfig(ComponentName) != null
     ? requireNativeComponent<VideoRendererProps>(ComponentName)
     : () => {
-      throw new Error(LINKING_ERROR);
-    };
+        throw new Error(LINKING_ERROR);
+      };

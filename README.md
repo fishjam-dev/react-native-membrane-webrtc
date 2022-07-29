@@ -16,6 +16,31 @@ or
 npm install --save @membraneframework/react-native-membrane-webrtc
 ```
 
+### Expo plugin
+
+If you're using development builds with `eas build` or bare workflow you can try using expo plugin to do the configuration below for you.
+Simply run:
+
+```
+expo install @membraneframework/react-native-membrane-webrtc
+```
+
+Add plugin to your `app.json` if it's not already added:
+```json
+{
+  "expo": {
+    "name": "example",
+    ...
+    "plugins": [
+      "@membraneframework/react-native-membrane-webrtc"
+    ]
+  }
+}
+```
+
+On bare workflow run `expo prebuild` to configure the app, then run `pod install`.
+On development build `eas build` should take care of it.
+
 ### Android
 
 1. Add camera and microphone permissions to your `AndroidManifest.xml`.

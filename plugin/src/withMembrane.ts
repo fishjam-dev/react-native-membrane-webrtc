@@ -5,16 +5,17 @@ import {
   withEntitlementsPlist,
   withXcodeProject,
   withInfoPlist,
-} from "@expo/config-plugins";
-import * as fs from 'fs/promises';
+  withPodfileProperties,
+} from '@expo/config-plugins';
+import fs from 'promise-fs';
 
-const SBE_TARGET_NAME = 'MembraneScreenBroadcastExtension'
+const SBE_TARGET_NAME = 'MembraneScreenBroadcastExtension';
 const SBE_PODFILE_SNIPPET = `
 target '${SBE_TARGET_NAME}' do
   pod 'MembraneRTC/Broadcast'
 end`;
 const TARGETED_DEVICE_FAMILY = `"1,2"`;
-const IPHONEOS_DEPLOYMENT_TARGET = "13.0";
+const IPHONEOS_DEPLOYMENT_TARGET = '13.0';
 const GROUP_IDENTIFIER_TEMPLATE_REGEX = /{{GROUP_IDENTIFIER}}/gm;
 const BUNDLE_IDENTIFIER_TEMPLATE_REGEX = /{{BUNDLE_IDENTIFIER}}/gm;
 const CAMERA_USAGE = 'Allow $(PRODUCT_NAME) to access your camera';
@@ -23,16 +24,17 @@ const MICROPHONE_USAGE = 'Allow $(PRODUCT_NAME) to access your microphone';
 type MembranePluginOptions = {
   cameraPermission?: string;
   microphonePermission?: string;
-} | void
+  iPhoneDeploymentTarget?: string;
+} | void;
 
 const withAppGroupPermissions: ConfigPlugin = (config) => {
-  const APP_GROUP_KEY = "com.apple.security.application-groups";
-  return withEntitlementsPlist(config, newConfig => {
+  const APP_GROUP_KEY = 'com.apple.security.application-groups';
+  return withEntitlementsPlist(config, (newConfig) => {
     if (!Array.isArray(newConfig.modResults[APP_GROUP_KEY])) {
       newConfig.modResults[APP_GROUP_KEY] = [];
     }
-    const modResultsArray = (newConfig.modResults[APP_GROUP_KEY] as Array<any>);
-    const entitlement = `group.${newConfig?.ios?.bundleIdentifier || ""}`;
+    const modResultsArray = newConfig.modResults[APP_GROUP_KEY] as any[];
+    const entitlement = `group.${newConfig?.ios?.bundleIdentifier || ''}`;
     if (modResultsArray.indexOf(entitlement) !== -1) {
       return newConfig;
     }
@@ -40,30 +42,44 @@ const withAppGroupPermissions: ConfigPlugin = (config) => {
 
     return newConfig;
   });
-}
+};
 
-const withMediaPermissions: ConfigPlugin<MembranePluginOptions> = (config, { cameraPermission, microphonePermission } = {}) => {
+const withMediaPermissions: ConfigPlugin<MembranePluginOptions> = (
+  config,
+  { cameraPermission, microphonePermission } = {}
+) => {
   return withInfoPlist(config, (config) => {
     config.modResults.NSCameraUsageDescription =
-      cameraPermission || config.modResults.NSCameraUsageDescription || CAMERA_USAGE;
+      cameraPermission ||
+      config.modResults.NSCameraUsageDescription ||
+      CAMERA_USAGE;
 
     config.modResults.NSMicrophoneUsageDescription =
-      microphonePermission || config.modResults.NSMicrophoneUsageDescription || MICROPHONE_USAGE;
+      microphonePermission ||
+      config.modResults.NSMicrophoneUsageDescription ||
+      MICROPHONE_USAGE;
 
     return config;
   });
-}
+};
 
 const withInfoPlistConstants: ConfigPlugin = (config) => {
   return withInfoPlist(config, (config) => {
-    const bundleIdentifier = config.ios?.bundleIdentifier || "";
-    config.modResults["AppGroupName"] = `group.${bundleIdentifier}`;
-    config.modResults["ScreencastExtensionBundleId"] = `${bundleIdentifier}.${SBE_TARGET_NAME}`
+    const bundleIdentifier = config.ios?.bundleIdentifier || '';
+    config.modResults['AppGroupName'] = `group.${bundleIdentifier}`;
+    config.modResults[
+      'ScreencastExtensionBundleId'
+    ] = `${bundleIdentifier}.${SBE_TARGET_NAME}`;
     return config;
-  })
-}
+  });
+};
 
-async function updateFileWithRegex(iosPath: string, fileName: string, regex: RegExp, value: string) {
+async function updateFileWithRegex(
+  iosPath: string,
+  fileName: string,
+  regex: RegExp,
+  value: string
+) {
   const filePath = `${iosPath}/${SBE_TARGET_NAME}/${fileName}`;
   let file = await fs.readFile(filePath, { encoding: 'utf-8' });
   file = file.replace(regex, value);
@@ -73,38 +89,46 @@ async function updateFileWithRegex(iosPath: string, fileName: string, regex: Reg
 async function updatePodfile(iosPath: string) {
   let matches;
   try {
-    const podfile = await fs.readFile(`${iosPath}/Podfile`, { encoding: 'utf-8' });
+    const podfile = await fs.readFile(`${iosPath}/Podfile`, {
+      encoding: 'utf-8',
+    });
     matches = podfile.match(SBE_PODFILE_SNIPPET);
   } catch (e) {
-    console.error("Error reading from Podfile: ", e);
+    console.error('Error reading from Podfile: ', e);
   }
 
   if (matches) {
-    console.log(`${SBE_TARGET_NAME} target already added to Podfile. Skipping...`);
+    console.log(
+      `${SBE_TARGET_NAME} target already added to Podfile. Skipping...`
+    );
     return;
   }
   try {
-    fs.appendFile(`${iosPath}/Podfile`, SBE_PODFILE_SNIPPET)
+    fs.appendFile(`${iosPath}/Podfile`, SBE_PODFILE_SNIPPET);
   } catch (e) {
-    console.error("Error writing to Podfile: ", e);
+    console.error('Error writing to Podfile: ', e);
   }
 }
 
-const withMembraneSBE: ConfigPlugin = (config) => {
-  return withXcodeProject(config, async props => {
-    const appName = props.modRequest.projectName || "";
+const withMembraneSBE: ConfigPlugin<MembranePluginOptions> = (
+  config,
+  membraneProps
+) => {
+  return withXcodeProject(config, async (props) => {
+    const appName = props.modRequest.projectName || '';
     const iosPath = props.modRequest.platformProjectRoot;
     const bundleIdentifier = props.ios?.bundleIdentifier;
-    const extensionSourceDir = "node_modules/react-native-membrane/plugin/broadcastExtensionFiles/"
+    const extensionSourceDir =
+      'node_modules/@membraneframework/react-native-membrane-webrtc/plugin/broadcastExtensionFiles/';
     const xcodeProject = props.modResults;
 
     await updatePodfile(iosPath);
 
     const projPath = `${iosPath}/${appName}.xcodeproj/project.pbxproj`;
     const extFiles = [
-      "MembraneBroadcastSampleHandler.swift",
+      'MembraneBroadcastSampleHandler.swift',
       `${SBE_TARGET_NAME}.entitlements`,
-      `Info.plist`
+      `Info.plist`,
     ];
 
     await xcodeProject.parse(async function (err: Error) {
@@ -113,8 +137,10 @@ const withMembraneSBE: ConfigPlugin = (config) => {
         return;
       }
 
-      if (!!xcodeProject.pbxTargetByName(`"${SBE_TARGET_NAME}"`)) {
-        console.log(`${SBE_TARGET_NAME} already exists in project. Skipping...`);
+      if (xcodeProject.pbxTargetByName(`"${SBE_TARGET_NAME}"`)) {
+        console.log(
+          `${SBE_TARGET_NAME} already exists in project. Skipping...`
+        );
         return;
       }
       try {
@@ -125,22 +151,40 @@ const withMembraneSBE: ConfigPlugin = (config) => {
           const targetFile = `${iosPath}/${SBE_TARGET_NAME}/${extFile}`;
           await fs.copyFile(`${extensionSourceDir}${extFile}`, targetFile);
         }
-      } catch(e) {
-        console.error("Error copying extension files: ", e);
+      } catch (e) {
+        console.error('Error copying extension files: ', e);
       }
 
       // update extension files
-      await updateFileWithRegex(iosPath, `${SBE_TARGET_NAME}.entitlements`, GROUP_IDENTIFIER_TEMPLATE_REGEX, `group.${bundleIdentifier}`);
-      await updateFileWithRegex(iosPath, "MembraneBroadcastSampleHandler.swift", GROUP_IDENTIFIER_TEMPLATE_REGEX, `group.${bundleIdentifier}`);
-      await updateFileWithRegex(iosPath, "MembraneBroadcastSampleHandler.swift", BUNDLE_IDENTIFIER_TEMPLATE_REGEX, bundleIdentifier || '');
-
+      await updateFileWithRegex(
+        iosPath,
+        `${SBE_TARGET_NAME}.entitlements`,
+        GROUP_IDENTIFIER_TEMPLATE_REGEX,
+        `group.${bundleIdentifier}`
+      );
+      await updateFileWithRegex(
+        iosPath,
+        'MembraneBroadcastSampleHandler.swift',
+        GROUP_IDENTIFIER_TEMPLATE_REGEX,
+        `group.${bundleIdentifier}`
+      );
+      await updateFileWithRegex(
+        iosPath,
+        'MembraneBroadcastSampleHandler.swift',
+        BUNDLE_IDENTIFIER_TEMPLATE_REGEX,
+        bundleIdentifier || ''
+      );
 
       // Create new PBXGroup for the extension
-      const extGroup = xcodeProject.addPbxGroup(extFiles, SBE_TARGET_NAME, SBE_TARGET_NAME);
+      const extGroup = xcodeProject.addPbxGroup(
+        extFiles,
+        SBE_TARGET_NAME,
+        SBE_TARGET_NAME
+      );
 
       // Add the new PBXGroup to the top level group. This makes the
       // files / folder appear in the file explorer in Xcode.
-      const groups = xcodeProject.hash.project.objects["PBXGroup"];
+      const groups = xcodeProject.hash.project.objects['PBXGroup'];
       Object.keys(groups).forEach(function (key) {
         if (groups[key].name === undefined) {
           xcodeProject.addToPbxGroup(extGroup.uuid, key);
@@ -152,46 +196,65 @@ const withMembraneSBE: ConfigPlugin = (config) => {
       // An upstream fix should be made to the code referenced in this link:
       //   - https://github.com/apache/cordova-node-xcode/blob/8b98cabc5978359db88dc9ff2d4c015cba40f150/lib/pbxProject.js#L860
       const projObjects = xcodeProject.hash.project.objects;
-      projObjects['PBXTargetDependency'] = projObjects['PBXTargetDependency'] || {};
-      projObjects['PBXContainerItemProxy'] = projObjects['PBXTargetDependency'] || {};
+      projObjects['PBXTargetDependency'] =
+        projObjects['PBXTargetDependency'] || {};
+      projObjects['PBXContainerItemProxy'] =
+        projObjects['PBXTargetDependency'] || {};
 
       // Add the SBE target
       // This adds PBXTargetDependency and PBXContainerItemProxy for you
-      const sbeTarget = xcodeProject.addTarget(SBE_TARGET_NAME, "app_extension", SBE_TARGET_NAME, `${bundleIdentifier}.${SBE_TARGET_NAME}`);
+      const sbeTarget = xcodeProject.addTarget(
+        SBE_TARGET_NAME,
+        'app_extension',
+        SBE_TARGET_NAME,
+        `${bundleIdentifier}.${SBE_TARGET_NAME}`
+      );
 
       // Add build phases to the new target
       xcodeProject.addBuildPhase(
-        ["MembraneBroadcastSampleHandler.swift"],
-        "PBXSourcesBuildPhase",
-        "Sources",
+        ['MembraneBroadcastSampleHandler.swift'],
+        'PBXSourcesBuildPhase',
+        'Sources',
         sbeTarget.uuid
       );
-      xcodeProject.addBuildPhase([], "PBXResourcesBuildPhase", "Resources", sbeTarget.uuid);
+      xcodeProject.addBuildPhase(
+        [],
+        'PBXResourcesBuildPhase',
+        'Resources',
+        sbeTarget.uuid
+      );
 
       xcodeProject.addBuildPhase(
         [],
-        "PBXFrameworksBuildPhase",
-        "Frameworks",
+        'PBXFrameworksBuildPhase',
+        'Frameworks',
         sbeTarget.uuid
       );
 
-      xcodeProject.addFramework("ReplayKit.framework", { target: sbeTarget.uuid });
+      xcodeProject.addFramework('ReplayKit.framework', {
+        target: sbeTarget.uuid,
+      });
 
       // Edit the Deployment info of the new Target, only IphoneOS and Targeted Device Family
       // However, can be more
       const configurations = xcodeProject.pbxXCBuildConfigurationSection();
       for (const key in configurations) {
         if (
-          typeof configurations[key].buildSettings !== "undefined" &&
-          configurations[key].buildSettings.PRODUCT_NAME == `"${SBE_TARGET_NAME}"`
+          typeof configurations[key].buildSettings !== 'undefined' &&
+          configurations[key].buildSettings.PRODUCT_NAME ===
+            `"${SBE_TARGET_NAME}"`
         ) {
           const buildSettingsObj = configurations[key].buildSettings;
-          buildSettingsObj.IPHONEOS_DEPLOYMENT_TARGET = IPHONEOS_DEPLOYMENT_TARGET;
+          buildSettingsObj.IPHONEOS_DEPLOYMENT_TARGET =
+            membraneProps?.iPhoneDeploymentTarget ?? IPHONEOS_DEPLOYMENT_TARGET;
           buildSettingsObj.TARGETED_DEVICE_FAMILY = TARGETED_DEVICE_FAMILY;
           buildSettingsObj.CODE_SIGN_ENTITLEMENTS = `${SBE_TARGET_NAME}/${SBE_TARGET_NAME}.entitlements`;
-          buildSettingsObj.CODE_SIGN_STYLE = "Automatic";
+          buildSettingsObj.CODE_SIGN_STYLE = 'Automatic';
           buildSettingsObj.INFOPLIST_FILE = `${SBE_TARGET_NAME}/Info.plist`;
-          buildSettingsObj.SWIFT_VERSION = "5.0";
+          buildSettingsObj.SWIFT_VERSION = '5.0';
+          buildSettingsObj.MARKETING_VERSION = '1.0.0';
+          buildSettingsObj.CURRENT_PROJECT_VERSION = '1';
+          buildSettingsObj.ENABLE_BITCODE = 'NO';
         }
       }
 
@@ -200,13 +263,21 @@ const withMembraneSBE: ConfigPlugin = (config) => {
 
     return props;
   });
-}
+};
 
-const withMembraneIOS: ConfigPlugin<MembranePluginOptions> = (config, props) => {
+const withMembraneIOS: ConfigPlugin<MembranePluginOptions> = (
+  config,
+  props
+) => {
   withMediaPermissions(config, props);
   withAppGroupPermissions(config);
   withInfoPlistConstants(config);
-  withMembraneSBE(config);
+  withMembraneSBE(config, props);
+  withPodfileProperties(config, (config) => {
+    config.modResults['ios.deploymentTarget'] =
+      props?.iPhoneDeploymentTarget ?? IPHONEOS_DEPLOYMENT_TARGET;
+    return config;
+  });
   return config;
 };
 
@@ -216,7 +287,7 @@ const withMembraneAndroid: ConfigPlugin = (config) => {
     'android.permission.RECORD_AUDIO',
   ]);
   return config;
-}
+};
 
 const withMembrane: ConfigPlugin<MembranePluginOptions> = (config, props) => {
   withMembraneIOS(config, props);
