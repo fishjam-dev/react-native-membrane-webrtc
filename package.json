@@ -9,7 +9,7 @@
     "clean": "expo-module clean",
     "lint": "expo-module lint",
     "test": "expo-module test",
-    "prepare": "expo-module prepare",
+    "prepare": "expo-module prepare && husky install",
     "prepublishOnly": "expo-module prepublishOnly",
     "expo-module": "expo-module",
     "release": "release-it"
@@ -40,8 +40,9 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "expo-module-scripts": "^2.0.0",
-    "husky": "^6.0.0",
+    "husky": "^8.0.0",
     "jest": "^26.0.1",
+    "lint-staged": "^13.0.3",
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
     "promise-fs": "^2.1.1",
@@ -92,5 +93,11 @@
   },
   "dependencies": {
     "@expo/config-plugins": "^4.1.5"
+  },
+  "lint-staged": {
+    "*.(js|ts|tsx)": [
+      "eslint --ext '.js,.ts,.tsx'",
+      "prettier --write"
+    ]
   }
 }

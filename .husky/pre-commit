@@ -1,4 +1,6 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
-yarn lint && yarn typescript
+yarn lint-staged
+EXPO_NONINTERACTIVE=true yarn build
+EXPO_NONINTERACTIVE=true yarn build plugin
