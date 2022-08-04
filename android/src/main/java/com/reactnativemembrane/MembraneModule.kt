@@ -90,8 +90,23 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     return res
   }
 
+  private fun ReadableMap.toMap(): MutableMap<String, Any> {
+    val res = mutableMapOf<String, Any>()
+    this.entryIterator.forEach {
+      when (this.getType(it.key)) {
+        ReadableType.Null -> res[it.key] = Unit
+        ReadableType.Boolean -> res[it.key] = this.getBoolean(it.key)
+        ReadableType.Number -> res[it.key] = this.getDouble(it.key)
+        ReadableType.String -> res[it.key] = this.getString(it.key) as String
+        ReadableType.Map -> res[it.key] = this.getMap(it.key)!!.toMap()
+        else -> throw IllegalArgumentException("Could not convert key: ${it.key}")
+      }
+    }
+    return res
+  }
+
   @ReactMethod
-  fun connect(url: String, roomName: String, connectionOptions: ReadableMap, promise: Promise) {
+  fun connect(url: String, roomName: String, connectionOptions: ReadableMap, params: ReadableMap, promise: Promise) {
     this.videoQuality = connectionOptions.getString("videoQuality")
     if(connectionOptions.hasKey("flipVideo"))
       this.flipVideo = connectionOptions.getBoolean("flipVideo")
@@ -99,11 +114,13 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.videoTrackMetadata = connectionOptions.getMap("videoTrackMetadata")?.toMetadata() ?: mutableMapOf()
     this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMetadata() ?: mutableMapOf()
 
+    val socketConnectionParams = params.toMap()
+
     connectPromise = promise
     room = MembraneRTC.connect(
       appContext = reactApplicationContext,
       options = ConnectOptions(
-        transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO),
+        transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO, socketConnectionParams),
         config = this.localUserMetadata
       ),
       listener = this@MembraneModule

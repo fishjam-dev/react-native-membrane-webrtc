@@ -1,11 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { StyleSheet, View, PermissionsAndroid, SafeAreaView, Text, TextInput, Platform, Pressable } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  PermissionsAndroid,
+  SafeAreaView,
+  Text,
+  TextInput,
+  Platform,
+  Pressable,
+} from 'react-native';
 
 import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import { Room } from './Room';
 
-const serverUrl = 'http://192.168.83.173:4000/socket'
+const serverUrl = 'http://192.168.83.173:4000/socket';
 
 export default function App() {
   const {
@@ -15,8 +24,17 @@ export default function App() {
     error,
   } = Membrane.useMembraneServer();
   const [connected, setConnected] = useState<boolean>(false);
-  const [roomName, setRoomName] = useState<string>("room");
-  const [displayName, setDisplayName] = useState<string>(`mobile ${Platform.OS}`)
+  const [roomName, setRoomName] = useState<string>('room');
+  const [displayName, setDisplayName] = useState<string>(
+    `mobile ${Platform.OS}`
+  );
+
+  const params = {
+    token: 'NOW_YOU_CAN_SEND_PARAMS',
+    data: {
+      value: 'string',
+    },
+  };
 
   useEffect(() => {
     if (error) {
@@ -33,9 +51,9 @@ export default function App() {
       ]);
       if (
         granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
-        PermissionsAndroid.RESULTS.GRANTED &&
+          PermissionsAndroid.RESULTS.GRANTED &&
         granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] ===
-        PermissionsAndroid.RESULTS.GRANTED
+          PermissionsAndroid.RESULTS.GRANTED
       ) {
         console.log('You can use the camera');
       } else {
@@ -49,7 +67,12 @@ export default function App() {
   const connect = useCallback(async () => {
     await requestPermissions();
     try {
-      await mbConnect(serverUrl, roomName, { userMetadata: { displayName } });
+      await mbConnect(
+        serverUrl,
+        roomName,
+        { userMetadata: { displayName } },
+        params
+      );
       await joinRoom();
     } catch (err) {
       console.warn(err);
@@ -63,16 +86,30 @@ export default function App() {
   }, [mbDisconnect]);
 
   if (connected) {
-    return <SafeAreaView style={styles.flex}><Room disconnect={disconnect} /></SafeAreaView>;
+    return (
+      <SafeAreaView style={styles.flex}>
+        <Room disconnect={disconnect} />
+      </SafeAreaView>
+    );
   }
 
   return (
     <View style={styles.container}>
       <Text>Room name:</Text>
-      <TextInput value={roomName} onChangeText={setRoomName} style={styles.textInput} />
+      <TextInput
+        value={roomName}
+        onChangeText={setRoomName}
+        style={styles.textInput}
+      />
       <Text>Display name:</Text>
-      <TextInput value={displayName} onChangeText={setDisplayName} style={styles.textInput} />
-      <Pressable onPress={connect}><Text style={styles.button}>Connect!</Text></Pressable>
+      <TextInput
+        value={displayName}
+        onChangeText={setDisplayName}
+        style={styles.textInput}
+      />
+      <Pressable onPress={connect}>
+        <Text style={styles.button}>Connect!</Text>
+      </Pressable>
     </View>
   );
 }
@@ -102,6 +139,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     padding: 10,
     textAlign: 'center',
-    backgroundColor: '#b5d2ff'
-  }
+    backgroundColor: '#b5d2ff',
+  },
 });

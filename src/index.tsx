@@ -33,6 +33,7 @@ export enum ParticipantType {
 }
 
 export type Metadata = { [key: string]: string };
+export type SocketConnectionParams = { [key: string]: any };
 
 export type Participant = {
   id: string;
@@ -103,10 +104,11 @@ export function useMembraneServer() {
       (
         url: string,
         roomName: string,
-        connectionOptions: ConnectionOptions = {}
+        connectionOptions: ConnectionOptions = {},
+        params: SocketConnectionParams = {}
       ): Promise<void> => {
         setError(null);
-        return Membrane.connect(url, roomName, connectionOptions);
+        return Membrane.connect(url, roomName, connectionOptions, params);
       }
     ),
     []
