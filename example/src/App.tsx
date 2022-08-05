@@ -14,7 +14,7 @@ import {
 import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import { Room } from './Room';
 
-const serverUrl = 'http://192.168.83.173:4000/socket';
+const serverUrl = 'http://localhost:4000/socket';
 
 export default function App() {
   const {

@@ -28,6 +28,13 @@ public extension NSDictionary {
     }
     return res
   }
+    
+    func toDictionary() -> Dictionary<String, Any> {
+        if self.count > 0 {
+            return self as! Dictionary<String, Any>
+        }
+        return [:]
+    }
 }
 
 struct Participant {
@@ -92,8 +99,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return false
   }
   
-  @objc(connect:withRoomName:withConnectionOptions:withResolver:withRejecter:)
-  func connect(url: String, roomName: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
+    @objc(connect:withRoomName:withConnectionOptions:withParams:withResolver:withRejecter:)
+    func connect(url: String, roomName: String, connectionOptions: NSDictionary, params: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
     connectResolve = resolve
     connectReject = reject
     self.videoQuality = connectionOptions["videoQuality"] as? String ?? ""
@@ -101,9 +108,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.localUserMetadata = (connectionOptions["userMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+        
+    let socketConnectionParams = params.toDictionary()
+        
     room = MembraneRTC.connect(
       with: MembraneRTC.ConnectOptions(
-        transport: PhoenixTransport(url: url, topic: "room:\(roomName)"),
+        transport: PhoenixTransport(url: url, topic: "room:\(roomName)", params: socketConnectionParams),
         config: self.localUserMetadata
       ),
       delegate: self
