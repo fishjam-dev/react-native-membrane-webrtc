@@ -82,25 +82,10 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     reactContext.addActivityEventListener(activityEventListener)
   }
 
-  fun ReadableMap.toMetadata(): MutableMap<String, String> {
+  private fun ReadableMap.toMetadata(): MutableMap<String, String> {
     val res = mutableMapOf<String, String>()
     this.entryIterator.forEach {
       res[it.key] = it.value as String
-    }
-    return res
-  }
-
-  private fun ReadableMap.toMap(): MutableMap<String, Any> {
-    val res = mutableMapOf<String, Any>()
-    this.entryIterator.forEach {
-      when (this.getType(it.key)) {
-        ReadableType.Null -> res[it.key] = Unit
-        ReadableType.Boolean -> res[it.key] = this.getBoolean(it.key)
-        ReadableType.Number -> res[it.key] = this.getDouble(it.key)
-        ReadableType.String -> res[it.key] = this.getString(it.key) as String
-        ReadableType.Map -> res[it.key] = this.getMap(it.key)!!.toMap()
-        else -> throw IllegalArgumentException("Could not convert key: ${it.key}")
-      }
     }
     return res
   }
@@ -114,7 +99,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.videoTrackMetadata = connectionOptions.getMap("videoTrackMetadata")?.toMetadata() ?: mutableMapOf()
     this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMetadata() ?: mutableMapOf()
 
-    val socketConnectionParams = params.toMap()
+    val socketConnectionParams = params.toMetadata()
 
     connectPromise = promise
     room = MembraneRTC.connect(

@@ -28,13 +28,6 @@ public extension NSDictionary {
     }
     return res
   }
-    
-    func toDictionary() -> Dictionary<String, Any> {
-        if self.count > 0 {
-            return self as! Dictionary<String, Any>
-        }
-        return [:]
-    }
 }
 
 struct Participant {
@@ -109,7 +102,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
         
-    let socketConnectionParams = params.toDictionary()
+    let socketConnectionParams = params.toMetadata()
         
     room = MembraneRTC.connect(
       with: MembraneRTC.ConnectOptions(
