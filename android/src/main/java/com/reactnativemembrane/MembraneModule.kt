@@ -82,7 +82,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     reactContext.addActivityEventListener(activityEventListener)
   }
 
-  fun ReadableMap.toMetadata(): MutableMap<String, String> {
+  private fun ReadableMap.toMetadata(): MutableMap<String, String> {
     val res = mutableMapOf<String, String>()
     this.entryIterator.forEach {
       res[it.key] = it.value as String
@@ -91,7 +91,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun connect(url: String, roomName: String, connectionOptions: ReadableMap, promise: Promise) {
+  fun connect(url: String, roomName: String, connectionOptions: ReadableMap, params: ReadableMap, promise: Promise) {
     this.videoQuality = connectionOptions.getString("videoQuality")
     if(connectionOptions.hasKey("flipVideo"))
       this.flipVideo = connectionOptions.getBoolean("flipVideo")
@@ -99,11 +99,13 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.videoTrackMetadata = connectionOptions.getMap("videoTrackMetadata")?.toMetadata() ?: mutableMapOf()
     this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMetadata() ?: mutableMapOf()
 
+    val socketConnectionParams = params.toMetadata()
+
     connectPromise = promise
     room = MembraneRTC.connect(
       appContext = reactApplicationContext,
       options = ConnectOptions(
-        transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO),
+        transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO, socketConnectionParams),
         config = this.localUserMetadata
       ),
       listener = this@MembraneModule

@@ -181,16 +181,21 @@ Start with connecting to the membrane server. Use `useMembraneServer()` hook to 
 const { connect, joinRoom, disconnect, error } = useMembraneServer();
 ```
 
-Connect to the server using the `connect` function and then join the room. Use user metadata to pass things like usernames etc. to the server. After joining the room the user is visible to their peers and vice-versa.
+Connect to the server using the `connect` function and then join the room. Use user metadata to pass things like usernames. to the server. After joining the room the user is visible to their peers and vice-versa. You can also pass params to the `connect` function, theses params object will be sent to the socket when the connection tries to be established.
 
 ```ts
 const startServerConnection = () => {
   try {
-    await connect('https://example.com', "Annie's room", {
-      userMetadata: {
-        displayName: 'Annie',
+    await connect('https://example.com', "Annie's room", 
+      {
+        userMetadata: {
+          displayName: 'Annie',
+        },
       },
-    });
+      {
+        token: "TOKEN"
+      }
+    );
     await joinRoom();
   } catch (e) {
     console.log('error!');
