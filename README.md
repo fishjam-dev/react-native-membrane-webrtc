@@ -181,7 +181,7 @@ Start with connecting to the membrane server. Use `useMembraneServer()` hook to 
 const { connect, joinRoom, disconnect, error } = useMembraneServer();
 ```
 
-Connect to the server using the `connect` function and then join the room. Use user metadata to pass things like usernames. to the server. After joining the room the user is visible to their peers and vice-versa. You can also pass params to the `connect` function, theses params object will be sent to the socket when the connection tries to be established.
+Connect to the server using the `connect` function and then join the room. Use user metadata to pass things like usernames etc. to the server. After joining the room the user is visible to their peers and vice-versa. You can also pass connection params that will be sent to the socket when establishing the connection tries.
 
 ```ts
 const startServerConnection = () => {
@@ -191,10 +191,10 @@ const startServerConnection = () => {
         userMetadata: {
           displayName: 'Annie',
         },
+        connectionParams: {
+          token: "TOKEN",
+        }
       },
-      {
-        token: "TOKEN"
-      }
     );
     await joinRoom();
   } catch (e) {
@@ -276,6 +276,7 @@ Arguments:
   - `userMetadata: Metadata` -- a map `string -> string` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
   - `videoTrackMetadata: Metadata` -- a map `string -> string` containing video track metadata to be sent to the server.
   - `audioTrackMetadata: Metadata` -- a map `string -> string` containing audio track metadata to be sent to the server.
+  - `connectionParams: SocketConnectionParams` -- a map `string -> string` containing connection params passed to the socket.
 
 Returns:
 A promise that resolves on success or rejects in case of an error.

@@ -1,5 +1,5 @@
+import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import React, { useCallback, useEffect, useState } from 'react';
-
 import {
   StyleSheet,
   View,
@@ -11,10 +11,9 @@ import {
   Pressable,
 } from 'react-native';
 
-import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import { Room } from './Room';
 
-const serverUrl = 'http://192.168.83.173:4000/socket';
+const serverUrl = 'http://192.168.83.101:4000/socket';
 
 export default function App() {
   const {
@@ -40,7 +39,7 @@ export default function App() {
   }, [error]);
 
   const requestPermissions = useCallback(async () => {
-    if (Platform.OS == 'ios') return;
+    if (Platform.OS === 'ios') return;
     try {
       const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -64,12 +63,10 @@ export default function App() {
   const connect = useCallback(async () => {
     await requestPermissions();
     try {
-      await mbConnect(
-        serverUrl,
-        roomName,
-        { userMetadata: { displayName } },
-        params
-      );
+      await mbConnect(serverUrl, roomName, {
+        userMetadata: { displayName },
+        connectionParams: params,
+      });
       await joinRoom();
     } catch (err) {
       console.warn(err);

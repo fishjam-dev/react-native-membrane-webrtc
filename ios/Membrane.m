@@ -6,7 +6,6 @@
 RCT_EXTERN_METHOD(connect:(NSString)url
                   withRoomName:(NSString)roomName
                   withConnectionOptions:(NSDictionary)connectionOptions
-                  withParams:(NSDictionary)params
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 

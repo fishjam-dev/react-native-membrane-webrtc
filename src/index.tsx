@@ -73,6 +73,7 @@ export type ConnectionOptions = Partial<{
   userMetadata: Metadata;
   videoTrackMetadata: Metadata;
   audioTrackMetadata: Metadata;
+  connectionParams: SocketConnectionParams;
 }>;
 
 export type ScreencastOptions = Partial<{
@@ -104,11 +105,10 @@ export function useMembraneServer() {
       (
         url: string,
         roomName: string,
-        connectionOptions: ConnectionOptions = {},
-        params: SocketConnectionParams = {}
+        connectionOptions: ConnectionOptions = {}
       ): Promise<void> => {
         setError(null);
-        return Membrane.connect(url, roomName, connectionOptions, params);
+        return Membrane.connect(url, roomName, connectionOptions);
       }
     ),
     []

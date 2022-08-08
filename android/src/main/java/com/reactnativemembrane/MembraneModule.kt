@@ -91,7 +91,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun connect(url: String, roomName: String, connectionOptions: ReadableMap, params: ReadableMap, promise: Promise) {
+  fun connect(url: String, roomName: String, connectionOptions: ReadableMap, promise: Promise) {
     this.videoQuality = connectionOptions.getString("videoQuality")
     if(connectionOptions.hasKey("flipVideo"))
       this.flipVideo = connectionOptions.getBoolean("flipVideo")
@@ -99,7 +99,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.videoTrackMetadata = connectionOptions.getMap("videoTrackMetadata")?.toMetadata() ?: mutableMapOf()
     this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMetadata() ?: mutableMapOf()
 
-    val socketConnectionParams = params.toMetadata()
+    val socketConnectionParams = connectionOptions.getMap("connectionParams")?.toMetadata() ?: mutableMapOf()
 
     connectPromise = promise
     room = MembraneRTC.connect(
