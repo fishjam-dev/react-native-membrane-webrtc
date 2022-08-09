@@ -1,6 +1,6 @@
 {
   "name": "@membraneframework/react-native-membrane-webrtc",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A React Native client for Membrane WebRTC server.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
