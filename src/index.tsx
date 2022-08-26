@@ -219,7 +219,35 @@ export function useScreencast() {
     []
   );
 
-  return { isScreencastOn, toggleScreencast };
+  const updateScreencastTrackMetadata = useCallback(
+    async (metadata: Metadata) => {
+      await Membrane.updateScreencastTrackMetadata(metadata);
+    },
+    []
+  );
+
+  return { isScreencastOn, toggleScreencast, updateScreencastTrackMetadata };
+}
+
+export function usePeerMetadata() {
+  const updatePeerMetadata = useCallback(async (metadata: Metadata) => {
+    await Membrane.updatePeerMetadata(metadata);
+  }, []);
+  return { updatePeerMetadata };
+}
+
+export function useVideoTrackMetadata() {
+  const updateVideoTrackMetadata = useCallback(async (metadata: Metadata) => {
+    await Membrane.updateVideoTrackMetadata(metadata);
+  }, []);
+  return { updateVideoTrackMetadata };
+}
+
+export function useAudioTrackMetadata() {
+  const updateAudioTrackMetadata = useCallback(async (metadata: Metadata) => {
+    await Membrane.updateAudioTrackMetadata(metadata);
+  }, []);
+  return { updateAudioTrackMetadata };
 }
 
 type VideoRendererProps = {

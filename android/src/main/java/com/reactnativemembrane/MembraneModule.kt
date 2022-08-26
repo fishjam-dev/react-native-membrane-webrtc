@@ -190,6 +190,33 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun updatePeerMetadata(metadata: ReadableMap, promise: Promise) {
+    room?.updatePeerMetadata(metadata.toMetadata())
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun updateVideoTrackMetadata(metadata: ReadableMap, promise: Promise) {
+    val trackId = localVideoTrack?.rtcTrack()?.id() ?: return
+    room?.updateTrackMetadata(trackId, metadata.toMetadata())
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun updateAudioTrackMetadata(metadata: ReadableMap, promise: Promise) {
+    val trackId = localAudioTrack?.rtcTrack()?.id() ?: return
+    room?.updateTrackMetadata(trackId, metadata.toMetadata())
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun updateScreencastTrackMetadata(metadata: ReadableMap, promise: Promise) {
+    val trackId = localScreencastTrack?.rtcTrack()?.id() ?: return
+    room?.updateTrackMetadata(trackId, metadata.toMetadata())
+    promise.resolve(null)
+  }
+
+  @ReactMethod
   fun addListener(eventName: String?) {}
 
   @ReactMethod

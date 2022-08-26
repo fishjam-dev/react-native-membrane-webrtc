@@ -358,7 +358,43 @@ An object containing:
     - `quality: ScreencastQuality` - resolution + fps of screencast track, one of: `VGA`, `HD5`, `HD15`, `FHD15`, `FHD30`. Note that quality might be worse than specified due to device capabilities, internet connection etc. Default: `HD15`.
     - `screencastMetadata: Metadata` - a map `string -> string` containing screencast track metadata to be sent to the server.
 
-  Under the hood the screencast is just given participant's another video track. However for convenience the library creates a fake screencasting participant. The library recognizes a screencast track by `type: "screencasting"` metadata in screencasting video track.
+- `updateScreencastTrackMetadata(metatada: Metadata)` - a function that updates screencast track metadata on the server. Arguments:
+  - `metatada: Metadata` - a map `string -> string` containing screencast track metadata to be sent to the server.
+
+Under the hood the screencast is just given participant's another video track. However for convenience the library creates a fake screencasting participant. The library recognizes a screencast track by `type: "screencasting"` metadata in screencasting video track.
+
+## `usePeerMetadata()`
+
+This hook manages user's metadata. Use it to for example update when user is muted etc.
+
+### Returns
+
+An object containing:
+
+- `updatePeerMetadata(metatada: Metadata)` -  a function that updates user's metadata on the server. Arguments:
+  - `metatada: Metadata` - a map `string -> string` containing user's track metadata to be sent to the server.
+
+## `useVideoTrackMetadata()`
+
+This hook manages video track metadata.
+
+### Returns
+
+An object containing:
+
+- `updateVideoTrackMetadata(metatada: Metadata)` -  a function that updates video metadata on the server. Arguments:
+  - `metatada: Metadata` - a map `string -> string` containing video track metadata to be sent to the server.
+
+## `useAudioTrackMetadata()`
+
+This hook manages audio track metadata.
+
+### Returns
+
+An object containing:
+
+- `updateAudioTrackMetadata(metatada: Metadata)` -  a function that updates audio metadata on the server. Arguments:
+  - `metatada: Metadata` - a map `string -> string` containing audio track metadata to be sent to the server.
 
 ## `<VideoRendererView />`
 
