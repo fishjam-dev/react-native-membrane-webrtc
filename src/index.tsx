@@ -250,6 +250,22 @@ export function useAudioTrackMetadata() {
   return { updateAudioTrackMetadata };
 }
 
+export function useAudioSettings() {
+  const [isSpeakerphoneOn, setIsSpeakerphoneOn] = useState<boolean>(true);
+
+  const toggleSpeakerphone = useCallback(async () => {
+    if (Platform.OS !== 'android') {
+      console.warn(
+        'react-native-membrane: toggleSpeakerphone is available only on Android'
+      );
+      return;
+    }
+    await Membrane.toggleSpeakerphone();
+    setIsSpeakerphoneOn((isSpeakerphoneOn) => !isSpeakerphoneOn);
+  }, []);
+  return { toggleSpeakerphone, isSpeakerphoneOn };
+}
+
 type VideoRendererProps = {
   participantId: string;
   videoLayout?: VideoLayout;

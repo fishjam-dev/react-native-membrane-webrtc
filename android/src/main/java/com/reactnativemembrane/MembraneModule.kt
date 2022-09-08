@@ -1,7 +1,10 @@
 package com.reactnativemembrane
 
 import android.app.Activity
+import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.media.projection.MediaProjectionManager
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.*
@@ -100,6 +103,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMetadata() ?: mutableMapOf()
 
     val socketConnectionParams = connectionOptions.getMap("connectionParams")?.toMetadata() ?: mutableMapOf()
+
+    val audioManager =  reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    audioManager.isSpeakerphoneOn = true
 
     connectPromise = promise
     room = MembraneRTC.connect(
@@ -213,6 +219,13 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   fun updateScreencastTrackMetadata(metadata: ReadableMap, promise: Promise) {
     val trackId = localScreencastTrack?.rtcTrack()?.id() ?: return
     room?.updateTrackMetadata(trackId, metadata.toMetadata())
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun toggleSpeakerphone(promise: Promise) {
+    val audioManager =  reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    audioManager.isSpeakerphoneOn = !audioManager.isSpeakerphoneOn
     promise.resolve(null)
   }
 
