@@ -60,6 +60,12 @@ class ParticipantVideo: Identifiable, ObservableObject {
   }
 }
 
+extension LocalAudioTrack{
+    public func trackId() -> String {
+        return track.trackId
+    }
+}
+
 @objc(Membrane)
 class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var localVideoTrack: LocalVideoTrack?
@@ -173,7 +179,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     var screencastMetadata = (screencastOptions["screencastMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     screencastMetadata["type"] = "screensharing"
     
-    room.createScreencastTrack(appGroup: appGroupName, videoParameters: videoParameters, metadata: screencastMetadata, onStart: { [weak self] screencastTrack in
+      self.localScreencastTrack = room.createScreencastTrack(appGroup: appGroupName, videoParameters: videoParameters, metadata: screencastMetadata, onStart: { [weak self] screencastTrack in
       guard let self = self else {
         DispatchQueue.main.async {
           RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
@@ -288,6 +294,42 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     resolve(nil)
   }
+    
+    @objc(updatePeerMetadata:withResolver:withRejecter:)
+    func updatePeerMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+        room?.updatePeerMetadata(peerMetadata: metadata.toMetadata())
+        resolve(nil)
+    }
+    
+    @objc(updateVideoTrackMetadata:withResolver:withRejecter:)
+    func updateVideoTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+        guard let room = room, let trackId = localVideoTrack?.trackId() else {
+            return
+        }
+
+        room.updateTrackMetadata(trackId: trackId, trackMetadata: metadata.toMetadata())
+        resolve(nil)
+    }
+    
+    @objc(updateAudioTrackMetadata:withResolver:withRejecter:)
+    func updateAudioTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+        guard let room = room, let trackId = localAudioTrack?.trackId() else {
+            return
+        }
+
+        room.updateTrackMetadata(trackId: trackId, trackMetadata: metadata.toMetadata())
+        resolve(nil)
+    }
+    
+    @objc(updateScreencastTrackMetadata:withResolver:withRejecter:)
+    func updateScreencastTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+        guard let room = room, let trackId = localScreencastTrack?.trackId() else {
+            return
+        }
+
+        room.updateTrackMetadata(trackId: trackId, trackMetadata: metadata.toMetadata())
+        resolve(nil)
+    }
   
   override func supportedEvents() -> [String]! {
     return [
