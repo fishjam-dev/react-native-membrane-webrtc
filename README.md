@@ -396,6 +396,17 @@ An object containing:
 - `updateAudioTrackMetadata(metatada: Metadata)` -  a function that updates audio metadata on the server. Arguments:
   - `metatada: Metadata` - a map `string -> string` containing audio track metadata to be sent to the server.
 
+## `useAudioSettings()`
+
+This hook manages audio settings.
+
+### Returns
+
+An object containing:
+
+- `toggleSpeakerphone()` - a function that toggles the speakerphone on/off. Supported only on Android
+- `isSpeakerphoneOn` - `boolean`, `true` if the speakerphone is on. The speakerphone is on by default.
+
 ## `<VideoRendererView />`
 
 A component used for rendering participant's video and audio. You can add some basic View styling.
