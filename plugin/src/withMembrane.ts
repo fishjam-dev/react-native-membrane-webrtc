@@ -285,7 +285,7 @@ const withMembraneAndroid: ConfigPlugin = (config) => {
   config = AndroidConfig.Permissions.withPermissions(config, [
     'android.permission.CAMERA',
     'android.permission.RECORD_AUDIO',
-    'andorid.permission.MODIFY_AUDIO_SETTINGS',
+    'android.permission.MODIFY_AUDIO_SETTINGS',
   ]);
   return config;
 };
