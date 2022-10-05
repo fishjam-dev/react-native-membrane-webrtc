@@ -277,6 +277,8 @@ Arguments:
   - `videoTrackMetadata: Metadata` -- a map `string -> string` containing video track metadata to be sent to the server.
   - `audioTrackMetadata: Metadata` -- a map `string -> string` containing audio track metadata to be sent to the server.
   - `connectionParams: SocketConnectionParams` -- a map `string -> string` containing connection params passed to the socket.
+  - `simulcastConfig: SimulcastConfig` - [SimulcastConfig](#SimulcastConfig) of a video track. By default simulcast is disabled.
+  - `maxBandwidth: TrackBandwidthLimit` - [bandwidth limit](#TrackBandwidthLimit) of a video track. By default there is no bandwidth limit.
 
 Returns:
 A promise that resolves on success or rejects in case of an error.
@@ -357,9 +359,19 @@ An object containing:
   - `screencastOptions: ScreencastOptions`
     - `quality: ScreencastQuality` - resolution + fps of screencast track, one of: `VGA`, `HD5`, `HD15`, `FHD15`, `FHD30`. Note that quality might be worse than specified due to device capabilities, internet connection etc. Default: `HD15`.
     - `screencastMetadata: Metadata` - a map `string -> string` containing screencast track metadata to be sent to the server.
+    - `simulcastConfig: SimulcastConfig` - [SimulcastConfig](#simulcastconfig) of a screencast track. By default simulcast is disabled.
+    - `maxBandwidth: TrackBandwidthLimit` - [bandwidth limit](#trackbandwidthlimit) of a screencast track. By default there is no bandwidth limit.
 
 - `updateScreencastTrackMetadata(metatada: Metadata)` - a function that updates screencast track metadata on the server. Arguments:
   - `metatada: Metadata` - a map `string -> string` containing screencast track metadata to be sent to the server.
+- `simulcastConfig` - current [SimulcastConfig](#SimulcastConfig) of a screencast track
+- `toggleScreencastTrackEncoding(encoding: TrackEncoding)` - toggles simulcast encoding of a screencast track on/off. Arguments:
+  - `encoding: TrackEncoding` - encoding to toggle
+- `setScreencastTrackEncodingBandwidth(encoding: TrackEncoding, bandwidth: BandwidthLimit)` - updates maximum bandwidth for the given simulcast encoding of the screencast track. Arguments:
+  - `encoding: TrackEncoding` - encoding to update
+  - `bandwidth: BandwidthLimit` - [BandwidthLimit](#trackbandwidthlimit) to set
+- `setScreencastTrackBandwidth(bandwidth: BandwidthLimit)` - updates maximum bandwidth for the screencast track. This value directly translates to quality of the stream and the amount of RTP packets being sent. In case simulcast is enabled bandwidth is split between all of the variant streams proportionally to their resolution. Arguments:
+  - `bandwidth: BandwidthLimit` - [BandwidthLimit](#trackbandwidthlimit) to set
 
 Under the hood the screencast is just given participant's another video track. However for convenience the library creates a fake screencasting participant. The library recognizes a screencast track by `type: "screencasting"` metadata in screencasting video track.
 
@@ -415,6 +427,55 @@ Props:
 
 - `participantId: string` -- id of the participant which you want to render.
 - `videoLayout: VideoLayout` -- `FILL` or `FIT` - it works just like RN `Image` component. `FILL` fills the whole view with video and it may cut some parts of the video. `FIT` scales the video so the whole video is visible, but it may leave some empty space in the view. Default: `FILL`.
+
+## `useSimulcast()`
+
+This hook manages the simulcast configuration of a video track.
+
+### Returns
+
+An object containing:
+
+- `simulcastConfig` - current [SimulcastConfig](#SimulcastConfig) of a video track
+- `selectReceivedTrackEncoding(peerId: string, encoding: TrackEncoding)` - selects track encoding that server should send to the client library. Arguments:
+  - `peerId: string` - id of a peer whose track encoding you want to select 
+  - `encoding: TrackEncoding` - encoding to select
+- `toggleVideoTrackEncoding(encoding: TrackEncoding)` - toggles encoding of a video track on/off. Arguments:
+  - `encoding: TrackEncoding` - encoding to toggle
+- `setVideoTrackEncodingBandwidth(encoding: TrackEncoding, bandwidth: BandwidthLimit)` - updates maximum bandwidth for the given simulcast encoding of the video track. Arguments:
+  - `encoding: TrackEncoding` - encoding to update
+  - `bandwidth: BandwidthLimit` - [BandwidthLimit](#trackbandwidthlimit) to set
+
+## `useBandwidthLimit()`
+
+This hook manages the bandwidth limit of a video track.
+
+### Returns
+
+An object containing:
+
+- `setVideoTrackBandwidth(bandwidth: BandwidthLimit)` - updates maximum bandwidth for the video track. This value directly translates to quality of the stream and the amount of RTP packets being sent. In case simulcast is enabled bandwidth is split between all of the variant streams proportionally to their resolution. Arguments:
+  -- `bandwidth: BandwidthLimit` - [BandwidthLimit](#trackbandwidthlimit) to set
+
+## `SimulcastConfig`
+
+A type describing simulcast configuration.
+
+At the moment, simulcast track is initialized in three versions - low, medium and high.
+High resolution is the original track resolution, while medium and low resolutions
+are the original track resolution scaled down by 2 and 4 respectively.
+
+`type SimulcastConfig`
+
+- `enabled: boolean` -- whether to simulcast track or not. By default simulcast is disabled.
+- `activeEncodings: TrackEncoding[]` -- list of active encodings. Encoding can be one of `"h"` (original encoding), `"m"` (scaled down x2), `"l"` (scaled down x4).
+
+## `TrackBandwidthLimit`
+
+A type describing bandwidth limitation of a track, including simulcast and non-simulcast tracks. Can be `BandwidthLimit` or `SimulcastBandwidthLimit`.
+
+- `type BandwidthLimit` - Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
+- `type SimulcastBandwidthLimit` - Type describing bandwidth limit for simulcast track. It is a mapping `encoding -> BandwidthLimit`. If encoding isn't present in this mapping, it will be assumed that this particular encoding shouldn't have any bandwidth limit.
 
 ## Credits
 

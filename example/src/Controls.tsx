@@ -1,6 +1,7 @@
+import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
+
 import {
   CameraIcon,
   CameraDisabledIcon,
@@ -41,7 +42,17 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
       <Pressable onPress={Membrane.flipCamera}>
         <FlipCameraIcon width={iconSize} height={iconSize} />
       </Pressable>
-      <Pressable onPress={() => toggleScreencast({ screencastMetadata: { displayName: "presenting" } })}>
+      <Pressable
+        onPress={() =>
+          toggleScreencast({
+            screencastMetadata: { displayName: 'presenting' },
+            simulcastConfig: {
+              enabled: true,
+              activeEncodings: ['l', 'm', 'h'],
+            },
+          })
+        }
+      >
         {isScreencastOn ? (
           <ScreencastIcon width={iconSize} height={iconSize} />
         ) : (

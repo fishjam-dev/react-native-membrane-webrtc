@@ -6,3 +6,4 @@ export { default as PhoneDownIcon } from './outline-phone-down.svg';
 export { default as FlipCameraIcon } from './outline-refresh.svg';
 export { default as ScreencastIcon } from './outline-screen.svg';
 export { default as ScreencastDisabledIcon } from './outline-screen-disabled.svg';
+export { default as SettingsIcon } from './settings.svg';

@@ -67,19 +67,44 @@ export enum ScreencastQuality {
   FHD30 = 'FHD30',
 }
 
+export type TrackEncoding = 'l' | 'm' | 'h';
+
+export type SimulcastConfig = {
+  enabled: boolean;
+  activeEncodings: TrackEncoding[];
+};
+
+export type BandwidthLimit = number;
+
+export type SimulcastBandwidthLimit = Map<TrackEncoding, BandwidthLimit>;
+
+export type TrackBandwidthLimit = BandwidthLimit | SimulcastBandwidthLimit;
+
 export type ConnectionOptions = Partial<{
   quality: VideoQuality;
   flipVideo: boolean;
   userMetadata: Metadata;
   videoTrackMetadata: Metadata;
   audioTrackMetadata: Metadata;
+  simulcastConfig: SimulcastConfig;
+  maxBandwidth: TrackBandwidthLimit;
   connectionParams: SocketConnectionParams;
 }>;
 
 export type ScreencastOptions = Partial<{
   quality: ScreencastQuality;
   screencastMetadata: Metadata;
+  simulcastConfig: SimulcastConfig;
+  maxBandwidth: TrackBandwidthLimit;
 }>;
+
+const defaultSimulcastConfig = () => ({
+  enabled: false,
+  activeEncodings: [],
+});
+
+let videoSimulcastConfig: SimulcastConfig = defaultSimulcastConfig();
+let screencastSimulcastConfig: SimulcastConfig = defaultSimulcastConfig();
 
 export function useMembraneServer() {
   const [error, setError] = useState<string | null>(null);
@@ -108,6 +133,8 @@ export function useMembraneServer() {
         connectionOptions: ConnectionOptions = {}
       ): Promise<void> => {
         setError(null);
+        videoSimulcastConfig =
+          connectionOptions.simulcastConfig || defaultSimulcastConfig();
         return Membrane.connect(url, roomName, connectionOptions);
       }
     ),
@@ -197,6 +224,9 @@ export function flipCamera(): Promise<void> {
 
 export function useScreencast() {
   const [isScreencastOn, setIsScreencastOn] = useState<boolean>(false);
+  const [simulcastConfig, setSimulcastConfig] = useState<SimulcastConfig>(
+    screencastSimulcastConfig
+  );
 
   useEffect(() => {
     if (Platform.OS === 'ios') {
@@ -215,6 +245,9 @@ export function useScreencast() {
       if (Platform.OS === 'android') {
         setIsScreencastOn(state);
       }
+      screencastSimulcastConfig =
+        screencastOptions.simulcastConfig || defaultSimulcastConfig();
+      setSimulcastConfig(screencastSimulcastConfig);
     },
     []
   );
@@ -226,7 +259,39 @@ export function useScreencast() {
     []
   );
 
-  return { isScreencastOn, toggleScreencast, updateScreencastTrackMetadata };
+  const toggleScreencastTrackEncoding = useCallback(
+    async (encoding: TrackEncoding) => {
+      screencastSimulcastConfig = await Membrane.toggleScreencastTrackEncoding(
+        encoding
+      );
+      setSimulcastConfig(screencastSimulcastConfig);
+    },
+    []
+  );
+
+  const setScreencastTrackEncodingBandwidth = useCallback(
+    async (encoding: TrackEncoding, bandwidth: BandwidthLimit) => {
+      await Membrane.setScreencastTrackEncodingBandwidth(encoding, bandwidth);
+    },
+    []
+  );
+
+  const setScreencastTrackBandwidth = useCallback(
+    async (bandwidth: BandwidthLimit) => {
+      await Membrane.setScreencastTrackBandwidth(bandwidth);
+    },
+    []
+  );
+
+  return {
+    isScreencastOn,
+    toggleScreencast,
+    updateScreencastTrackMetadata,
+    toggleScreencastTrackEncoding,
+    simulcastConfig,
+    setScreencastTrackEncodingBandwidth,
+    setScreencastTrackBandwidth,
+  };
 }
 
 export function usePeerMetadata() {
@@ -264,6 +329,54 @@ export function useAudioSettings() {
     setIsSpeakerphoneOn((isSpeakerphoneOn) => !isSpeakerphoneOn);
   }, []);
   return { toggleSpeakerphone, isSpeakerphoneOn };
+}
+
+export function useSimulcast() {
+  const [simulcastConfig, setSimulcastConfig] =
+    useState<SimulcastConfig>(videoSimulcastConfig);
+
+  const selectReceivedTrackEncoding = useCallback(
+    async (peerId: string, encoding: TrackEncoding) => {
+      await Membrane.selectReceivedTrackEncoding(peerId, encoding);
+    },
+    []
+  );
+
+  const toggleVideoTrackEncoding = useCallback(
+    async (encoding: TrackEncoding) => {
+      videoSimulcastConfig = await Membrane.toggleVideoTrackEncoding(encoding);
+      setSimulcastConfig(videoSimulcastConfig);
+    },
+    []
+  );
+
+  const setVideoTrackEncodingBandwidth = useCallback(
+    async (encoding: TrackEncoding, bandwidth: BandwidthLimit) => {
+      await Membrane.setVideoTrackEndodingEncodingBandwidth(
+        encoding,
+        bandwidth
+      );
+    },
+    []
+  );
+
+  return {
+    simulcastConfig,
+    selectReceivedTrackEncoding,
+    toggleVideoTrackEncoding,
+    setVideoTrackEncodingBandwidth,
+  };
+}
+
+export function useBandwidthLimit() {
+  const setVideoTrackBandwidth = useCallback(
+    async (bandwidth: BandwidthLimit) => {
+      await Membrane.setVideoTrackBandwidth(bandwidth);
+    },
+    []
+  );
+
+  return { setVideoTrackBandwidth };
 }
 
 type VideoRendererProps = {
