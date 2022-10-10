@@ -437,7 +437,7 @@ This hook manages the simulcast configuration of a video track.
 An object containing:
 
 - `simulcastConfig` - current [SimulcastConfig](#SimulcastConfig) of a video track
-- `selectReceivedTrackEncoding(peerId: string, encoding: TrackEncoding)` - selects track encoding that server should send to the client library. Arguments:
+- `selectReceivedTrackTargetEncoding(peerId: string, encoding: TrackEncoding)` - selects track encoding that server should send to the client library. The encoding will be sent whenever it is available. If choosen encoding is temporarily unavailable, some other encoding will be sent until choosen encoding becomes active again. Arguments:
   - `peerId: string` - id of a peer whose track encoding you want to select 
   - `encoding: TrackEncoding` - encoding to select
 - `toggleVideoTrackEncoding(encoding: TrackEncoding)` - toggles encoding of a video track on/off. Arguments:

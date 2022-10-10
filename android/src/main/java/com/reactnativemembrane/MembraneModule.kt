@@ -314,9 +314,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun selectReceivedTrackEncoding(peerId: String, encoding: String, promise: Promise) {
+  fun selectReceivedTrackTargetEncoding(peerId: String, encoding: String, promise: Promise) {
     val trackId = participants.get(peerId)?.videoTrack?.id()?.let { getGlobalTrackId(it) } ?: return
-    room?.selectTrackEncoding(peerId, trackId, encoding.toTrackEncoding())
+    room?.setTargetTrackEncoding(trackId, encoding.toTrackEncoding())
     promise.resolve(null)
   }
 

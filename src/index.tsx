@@ -335,9 +335,9 @@ export function useSimulcast() {
   const [simulcastConfig, setSimulcastConfig] =
     useState<SimulcastConfig>(videoSimulcastConfig);
 
-  const selectReceivedTrackEncoding = useCallback(
+  const selectReceivedTrackTargetEncoding = useCallback(
     async (peerId: string, encoding: TrackEncoding) => {
-      await Membrane.selectReceivedTrackEncoding(peerId, encoding);
+      await Membrane.selectReceivedTrackTargetEncoding(peerId, encoding);
     },
     []
   );
@@ -362,7 +362,7 @@ export function useSimulcast() {
 
   return {
     simulcastConfig,
-    selectReceivedTrackEncoding,
+    selectReceivedTrackTargetEncoding,
     toggleVideoTrackEncoding,
     setVideoTrackEncodingBandwidth,
   };
