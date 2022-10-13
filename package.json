@@ -12,7 +12,8 @@
     "prepare": "expo-module prepare && husky install",
     "prepublishOnly": "expo-module prepublishOnly",
     "expo-module": "expo-module",
-    "release": "release-it"
+    "release": "release-it",
+    "releaseApp": "cd example/android && fastlane deploy"
   },
   "keywords": [
     "react-native",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@react-native-community/eslint-config": "^3.0.3",
+    "@release-it/bumper": "^4.0.0",
     "@types/jest": "^26.0.0",
     "@types/promise-fs": "^2.1.2",
     "@types/react": "^16.9.19",

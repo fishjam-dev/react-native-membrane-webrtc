@@ -1,3 +1,4 @@
+import { SERVER_URL } from '@env';
 import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -12,8 +13,6 @@ import {
 } from 'react-native';
 
 import { Room } from './Room';
-
-const serverUrl = 'http://192.168.83.101:4000/socket';
 
 export default function App() {
   const {
@@ -63,7 +62,7 @@ export default function App() {
   const connect = useCallback(async () => {
     await requestPermissions();
     try {
-      await mbConnect(serverUrl, roomName, {
+      await mbConnect(SERVER_URL, roomName, {
         userMetadata: { displayName },
         connectionParams: params,
       });

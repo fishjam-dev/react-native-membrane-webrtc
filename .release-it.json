@@ -1,5 +1,17 @@
 {
-    "hooks": {
-      "after:bump": "yarn build && yarn build plugin"
+  "hooks": {
+    "after:bump": "yarn build && yarn build plugin"
+  },
+  "plugins": {
+    "@release-it/bumper": {
+      "out": [
+        {
+          "file": "example/android/app/build.gradle",
+          "type": "text/plain"
+        },
+        "package.json",
+        "example/package.json"
+      ]
     }
   }
+}

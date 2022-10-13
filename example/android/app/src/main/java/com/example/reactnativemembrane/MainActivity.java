@@ -1,4 +1,4 @@
-package com.example.reactnativemembrane;
+package com.membrane.reactnativemembrane;
 
 import com.facebook.react.ReactActivity;
 
