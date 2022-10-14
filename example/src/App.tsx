@@ -10,6 +10,7 @@ import {
   TextInput,
   Platform,
   Pressable,
+  Switch,
 } from 'react-native';
 
 import { Room } from './Room';
@@ -26,6 +27,7 @@ export default function App() {
   const [displayName, setDisplayName] = useState<string>(
     `mobile ${Platform.OS}`
   );
+  const [isSimulcastOn, setIsSimulcastOn] = useState<boolean>(false);
 
   const params = {
     token: 'NOW_YOU_CAN_SEND_PARAMS',
@@ -65,13 +67,18 @@ export default function App() {
       await mbConnect(SERVER_URL, roomName, {
         userMetadata: { displayName },
         connectionParams: params,
+        simulcastConfig: {
+          enabled: isSimulcastOn,
+          activeEncodings: ['l', 'm', 'h'],
+        },
+        quality: Membrane.VideoQuality.HD_169,
       });
       await joinRoom();
     } catch (err) {
       console.warn(err);
     }
     setConnected(true);
-  }, [requestPermissions, mbConnect, joinRoom, roomName]);
+  }, [requestPermissions, mbConnect, joinRoom, roomName, isSimulcastOn]);
 
   const disconnect = useCallback(() => {
     setConnected(false);
@@ -100,6 +107,13 @@ export default function App() {
         onChangeText={setDisplayName}
         style={styles.textInput}
       />
+      <View style={styles.row}>
+        <Text>Simulcast:</Text>
+        <Switch
+          onValueChange={(v) => setIsSimulcastOn(v)}
+          value={isSimulcastOn}
+        />
+      </View>
       <Pressable onPress={connect}>
         <Text style={styles.button}>Connect!</Text>
       </Pressable>
@@ -133,5 +147,9 @@ const styles = StyleSheet.create({
     padding: 10,
     textAlign: 'center',
     backgroundColor: '#b5d2ff',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

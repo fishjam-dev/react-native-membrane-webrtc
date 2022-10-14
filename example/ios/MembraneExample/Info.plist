@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AppGroupName</key>
-	<string>group.example.reactnativemembrane</string>
+	<string>group.com.example.reactnativemembrane</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
