@@ -1,7 +1,7 @@
 {
   "name": "react-native-membrane-example",
   "description": "Example app for react-native-membrane",
-  "version": "0.0.1",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "android": "NODE_ENV=development react-native run-android",
