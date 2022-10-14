@@ -20,13 +20,40 @@ public extension RPSystemBroadcastPickerView {
 
 public extension NSDictionary {
   func toMetadata() -> Metadata {
-    var res: Metadata = [:]
+    var res: Metadata = .init()
     self.forEach { entry in
       if let key = entry.key as? String, let value = entry.value as? String {
         res[key] = value
       }
     }
     return res
+  }
+}
+
+public extension AnyJson {
+  func toDict() -> [String: Any] {
+    var res: [String: Any] = [:]
+    self.keys.forEach { key in
+        res[key] = self[key]
+    }
+    return res
+  }
+}
+
+extension String: Error {}
+
+public extension String {
+  func toTrackEncoding() -> TrackEncoding? {
+    switch(self) {
+    case "l":
+      return TrackEncoding.l
+    case "m":
+      return TrackEncoding.m
+    case "h":
+      return TrackEncoding.h
+    default:
+      return nil
+    }
   }
 }
 
@@ -71,9 +98,9 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var localVideoTrack: LocalVideoTrack?
   var localAudioTrack: LocalAudioTrack?
   var localScreencastTrack: LocalScreenBroadcastTrack?
-  var localUserMetadata: Metadata = [:]
-  var videoTrackMetadata: Metadata = [:]
-  var audioTrackMetadata: Metadata = [:]
+  var localUserMetadata: Metadata = .init()
+  var videoTrackMetadata: Metadata = .init()
+  var audioTrackMetadata: Metadata = .init()
   
   var errorMessage: String?
   var isMicEnabled: Bool = true
@@ -93,26 +120,56 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var joinReject: RCTPromiseRejectBlock? = nil
   var videoQuality: String? = nil
   var flipVideo: Bool = true
+  var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
+  var videoBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
+  var screenshareSimulcastConfig: SimulcastConfig = SimulcastConfig()
+  var screenshareBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
   
   @objc static override func requiresMainQueueSetup() -> Bool {
       return false
+  }
+  
+  private func getSimulcastConfigFrom(options: NSDictionary) -> SimulcastConfig {
+    let simulcastConfig = options["simulcastConfig"] as? NSDictionary ?? [:]
+    var activeEncodings: [TrackEncoding] = []
+    (simulcastConfig["activeEncodings"] as? [String] ?? []).forEach {
+      e in activeEncodings.append(e.toTrackEncoding()!)
+    }
+    return SimulcastConfig(
+      enabled: simulcastConfig["enabled"] as? Bool ?? false,
+      activeEncodings: activeEncodings
+    )
+  }
+  
+  private func getBandwidthLimitFrom(options: NSDictionary) -> TrackBandwidthLimit {
+    let maxBandwidth = options["maxBandwidth"]
+    if(maxBandwidth == nil) {
+      return .BandwidthLimit(0)
+    } else if(maxBandwidth as? NSDictionary != nil) {
+      return .SimulcastBandwidthLimit(maxBandwidth as! SimulcastBandwidthLimit)
+    } else {
+      return .BandwidthLimit(maxBandwidth as! Int)
+    }
   }
   
     @objc(connect:withRoomName:withConnectionOptions:withResolver:withRejecter:)
     func connect(url: String, roomName: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
     connectResolve = resolve
     connectReject = reject
-    self.videoQuality = connectionOptions["videoQuality"] as? String ?? ""
+    self.videoQuality = connectionOptions["quality"] as? String ?? ""
     self.flipVideo = connectionOptions["flipVideo"] as? Bool ?? true
     self.localUserMetadata = (connectionOptions["userMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
         
     let socketConnectionParams = (connectionOptions["connectionParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
+      
+    self.videoSimulcastConfig = getSimulcastConfigFrom(options: connectionOptions)
+    self.videoBandwidthLimit = getBandwidthLimitFrom(options: connectionOptions)
         
     room = MembraneRTC.connect(
       with: MembraneRTC.ConnectOptions(
-        transport: PhoenixTransport(url: url, topic: "room:\(roomName)", params: socketConnectionParams),
+        transport: PhoenixTransport(url: url, topic: "room:\(roomName)", params: socketConnectionParams.toDict()),
         config: self.localUserMetadata
       ),
       delegate: self
@@ -174,7 +231,14 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
           return VideoParameters.presetScreenShareHD15
       }
     }()
-    let videoParameters = VideoParameters(dimensions: preset.dimensions.flip(), encoding: preset.encoding)
+    screenshareSimulcastConfig = getSimulcastConfigFrom(options: screencastOptions)
+    screenshareBandwidthLimit = getBandwidthLimitFrom(options: screencastOptions)
+    let videoParameters = VideoParameters(
+      dimensions: preset.dimensions.flip(),
+      maxBandwidth: screenshareBandwidthLimit,
+      maxFps: preset.maxFps,
+      simulcastConfig: screenshareSimulcastConfig
+    )
     
     var screencastMetadata = (screencastOptions["screencastMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     screencastMetadata["type"] = "screensharing"
@@ -236,12 +300,20 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       } else {
         participantType = "Remote"
       }
+        
       return [
         "id": p.id,
-        "metadata": p.metadata,
+        "metadata": p.metadata.toDict(),
         "type": participantType
       ]
     }]
+  }
+  
+  func getSimulcastConfigAsRNMap(simulcastConfig: SimulcastConfig) -> [String: Any] {
+    return [
+      "enabled": simulcastConfig.enabled,
+      "activeEncodings": simulcastConfig.activeEncodings.map { e in e.description },
+    ]
   }
   
   @objc(getParticipants:withRejecter:)
@@ -331,6 +403,95 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         resolve(nil)
     }
   
+  private func toggleTrackEncoding(encoding: String, trackId: String, simulcastConfig: SimulcastConfig) -> SimulcastConfig? {
+    guard let room = room, let trackEncoding = (encoding as String).toTrackEncoding() else {
+      return nil
+    }
+    if(simulcastConfig.activeEncodings.contains(trackEncoding)) {
+      room.disableTrackEncoding(trackId: trackId, encoding: trackEncoding)
+      return SimulcastConfig(
+        enabled: true,
+        activeEncodings: simulcastConfig.activeEncodings.filter { e in e != trackEncoding}
+      )
+    } else {
+      room.enableTrackEncoding(trackId: trackId, encoding: trackEncoding)
+      return SimulcastConfig(
+        enabled: true,
+        activeEncodings: simulcastConfig.activeEncodings + [trackEncoding]
+      )
+    }
+  }
+  
+  @objc(toggleScreencastTrackEncoding:withResolver:withRejecter:)
+  func toggleScreencastTrackEncoding(encoding: NSString, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    guard
+      let trackId = localScreencastTrack?.trackId(),
+      let simulcastConfig = toggleTrackEncoding(encoding: encoding as String, trackId: trackId, simulcastConfig: screenshareSimulcastConfig) else {
+      return
+    }
+    self.screenshareSimulcastConfig = simulcastConfig
+    resolve(getSimulcastConfigAsRNMap(simulcastConfig: simulcastConfig))
+  }
+  
+  @objc(setScreencastTrackBandwidth:withResolver:withRejecter:)
+  func setScreencastTrackBandwidth(bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    guard let room = room, let trackId = localScreencastTrack?.trackId() else {
+      return
+    }
+    room.setTrackBandwidth(trackId: trackId, bandwidth: BandwidthLimit(truncating: bandwidth))
+    resolve(nil)
+  }
+  
+  @objc(setScreencastTrackEncodingBandwidth:withBandwidth:withResolver:withRejecter:)
+  func setScreencastTrackEncodingBandwidth(encoding: NSString, bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    guard let room = room, let trackId = localScreencastTrack?.trackId() else {
+      return
+    }
+    room.setEncodingBandwidth(trackId: trackId, encoding: encoding as String, bandwidth: BandwidthLimit(truncating: bandwidth))
+    resolve(nil)
+  }
+  
+  @objc(setTargetTrackEncoding:withEncoding:withResolver:withRejecter:)
+  func setTargetTrackEncoding(peerId: NSString, encoding: NSString, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    guard
+      let room = room,
+      let trackId = MembraneRoom.sharedInstance.participantVideos.first(where: { $0.participant.id == peerId as String })?.id,
+      let trackEncoding = (encoding as String).toTrackEncoding()
+    else {
+      return
+    }
+    room.setTargetTrackEncoding(trackId: trackId, encoding: trackEncoding)
+    resolve(nil)
+  }
+  
+  @objc(toggleVideoTrackEncoding:withResolver:withRejecter:)
+  func toggleVideoTrackEncoding(encoding: NSString, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    guard
+      let trackId = localVideoTrack?.trackId(),
+      let simulcastConfig = toggleTrackEncoding(encoding: encoding as String, trackId: trackId, simulcastConfig: videoSimulcastConfig) else {
+      return
+    }
+    self.videoSimulcastConfig = simulcastConfig
+    resolve(getSimulcastConfigAsRNMap(simulcastConfig: simulcastConfig))
+  }
+  
+  @objc(setVideoTrackEncodingBandwidth:withBandwidth:withResolver:withRejecter:)
+  func setVideoTrackEncodingBandwidth(encoding: NSString, bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    guard let room = room, let trackId = localVideoTrack?.trackId() else {
+      return
+    }
+    room.setEncodingBandwidth(trackId: trackId, encoding: encoding as String, bandwidth: BandwidthLimit(truncating: bandwidth))
+    resolve(nil)
+  }
+  
+  @objc(setVideoTrackBandwidth:withResolver:withRejecter:)
+  func setVideoTrackBandwidth(bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) {
+    guard let room = room, let trackId = localVideoTrack?.trackId() else {
+      return
+    }
+    room.setTrackBandwidth(trackId: trackId, bandwidth: BandwidthLimit(truncating: bandwidth))
+  }
+  
   override func supportedEvents() -> [String]! {
     return [
       "ParticipantsUpdate",
@@ -403,7 +564,11 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         return VideoParameters.presetVGA169
       }
     }()
-    let videoParameters = VideoParameters(dimensions: flipVideo ? preset.dimensions.flip() : preset.dimensions, encoding: preset.encoding)
+    let videoParameters = VideoParameters(
+      dimensions: flipVideo ? preset.dimensions.flip() : preset.dimensions,
+      maxBandwidth: self.videoBandwidthLimit,
+      simulcastConfig: self.videoSimulcastConfig
+    )
     
     localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata)
     localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
@@ -462,7 +627,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     
-    if ctx.metadata["type"] == "screensharing" {
+    if ctx.metadata["type"] as? String == "screensharing" {
       // add a fake screencasting participant
       let screensharingParticipant = Participant(id: ctx.trackId, metadata: ctx.metadata)
       MembraneRoom.sharedInstance.participants[screensharingParticipant.id] = screensharingParticipant
@@ -480,7 +645,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   func onTrackRemoved(ctx: TrackContext) {
-    if (ctx.metadata["type"] == "screensharing") {
+    if (ctx.metadata["type"] as? String == "screensharing") {
       if let video = MembraneRoom.sharedInstance.participantVideos.first(where: { $0.id == ctx.trackId }) {
         MembraneRoom.sharedInstance.participants.removeValue(forKey: video.participant.id)
         remove(video: video)

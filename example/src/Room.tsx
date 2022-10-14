@@ -1,7 +1,10 @@
+import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
-import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
+
 import { Controls } from './Controls';
+import { Settings } from './Settings';
+import { SettingsIcon } from './icons';
 
 export const Room = ({ disconnect }: { disconnect: () => void }) => {
   const participants = Membrane.useRoomParticipants();
@@ -19,6 +22,8 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
     }
   }, [participants, focusedParticipant]);
 
+  const [areSettingsOpen, setAreSettingsOpen] = useState<boolean>(false);
+
   return (
     <View style={styles.flex}>
       <View style={styles.flex}>
@@ -32,6 +37,17 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
             <Text style={styles.displayName}>
               {focusedParticipant.metadata.displayName}
             </Text>
+            {!!areSettingsOpen && (
+              <View style={styles.settingsWrapper}>
+                <Settings participant={focusedParticipant} />
+              </View>
+            )}
+            <Pressable
+              style={styles.settingsButton}
+              onPress={() => setAreSettingsOpen((o) => !o)}
+            >
+              <SettingsIcon width={48} height={48} />
+            </Pressable>
           </View>
         )}
         <View style={styles.otherParticipantsContainer}>
@@ -91,5 +107,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     bottom: 0,
+  },
+  settingsButton: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+  },
+  settingsWrapper: {
+    position: 'absolute',
+    right: 4,
+    bottom: 48,
   },
 });

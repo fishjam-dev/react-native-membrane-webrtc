@@ -6,7 +6,7 @@ import WebRTC
 
 
 /// App Group used by the extension to exchange buffers with the target application
-let appGroup = "group.example.reactnativemembrane"
+let appGroup = "group.com.example.reactnativemembrane"
 
 let logger = OSLog(subsystem: "com.example.reactnativemembrane.ScreenBroadcast", category: "Broadcaster")
 

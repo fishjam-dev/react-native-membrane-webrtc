@@ -1,7 +1,6 @@
 package com.reactnativemembrane
 
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
@@ -10,10 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import kotlinx.coroutines.Dispatchers
-import org.membraneframework.rtc.ConnectOptions
-import org.membraneframework.rtc.MembraneRTC
-import org.membraneframework.rtc.MembraneRTCError
-import org.membraneframework.rtc.MembraneRTCListener
+import org.membraneframework.rtc.*
 import org.membraneframework.rtc.media.*
 import org.membraneframework.rtc.models.Peer
 import org.membraneframework.rtc.models.TrackContext
@@ -46,11 +42,20 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   var videoQuality: String? = null
   var flipVideo: Boolean = true
-  var screencastQuality: String? = null
+  var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
+  var videoMaxBandwidth: TrackBandwidthLimit = TrackBandwidthLimit.BandwidthLimit(0)
+
   private var localUserMetadata: MutableMap<String, String> = mutableMapOf()
+
+  var screencastQuality: String? = null
+  var screencastSimulcastConfig: SimulcastConfig = SimulcastConfig()
+  var screencastMaxBandwidth: TrackBandwidthLimit = TrackBandwidthLimit.BandwidthLimit(0)
+
   var screencastMetadata: MutableMap<String, String> = mutableMapOf()
+
   var videoTrackMetadata: MutableMap<String, String> = mutableMapOf()
   var audioTrackMetadata: MutableMap<String, String> = mutableMapOf()
+
 
   companion object {
     val participants = LinkedHashMap<String, Participant>()
@@ -93,9 +98,46 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     return res
   }
 
+  private fun String.toTrackEncoding(): TrackEncoding {
+    return when(this) {
+      "l" -> TrackEncoding.L
+      "m" -> TrackEncoding.M
+      "h" -> TrackEncoding.H
+      else -> throw Error("Invalid encoding specified: $this")
+    }
+  }
+
+  private fun getSimulcastConfigFromOptions(options: ReadableMap): SimulcastConfig {
+    val simulcastConfigMap = options.getMap("simulcastConfig")
+    val simulcastEnabled = simulcastConfigMap?.getBoolean("enabled") ?: false
+    val activeEncodings = simulcastConfigMap?.getArray("activeEncodings")?.toArrayList()?.map { e ->  (e as String).toTrackEncoding() } ?: emptyList()
+    return SimulcastConfig(
+      enabled = simulcastEnabled,
+      activeEncodings = activeEncodings
+    )
+  }
+
+  private fun getMaxBandwidthFromOptions(options: ReadableMap): TrackBandwidthLimit {
+    return if(!options.hasKey("maxBandwidth")) {
+      TrackBandwidthLimit.BandwidthLimit(0)
+    } else if(options.getMap("maxBandwidth") != null) {
+      val maxBandwidthSimulcast = mutableMapOf<String, TrackBandwidthLimit.BandwidthLimit>()
+      options.getMap("maxBandwidth")?.entryIterator?.forEach {
+        maxBandwidthSimulcast[it.key] = it.value as TrackBandwidthLimit.BandwidthLimit
+      }
+      TrackBandwidthLimit.SimulcastBandwidthLimit(maxBandwidthSimulcast)
+    } else {
+      TrackBandwidthLimit.BandwidthLimit(options.getInt("maxBandwidth"))
+    }
+  }
+
+  private fun getGlobalTrackId(localTrackId: String): String {
+    return globalToLocalTrackId.filterValues { it == localTrackId }.keys.first()
+  }
+
   @ReactMethod
   fun connect(url: String, roomName: String, connectionOptions: ReadableMap, promise: Promise) {
-    this.videoQuality = connectionOptions.getString("videoQuality")
+    this.videoQuality = connectionOptions.getString("quality")
     if(connectionOptions.hasKey("flipVideo"))
       this.flipVideo = connectionOptions.getBoolean("flipVideo")
     this.localUserMetadata = connectionOptions.getMap("userMetadata")?.toMetadata() ?: mutableMapOf()
@@ -103,6 +145,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMetadata() ?: mutableMapOf()
 
     val socketConnectionParams = connectionOptions.getMap("connectionParams")?.toMetadata() ?: mutableMapOf()
+    this.videoSimulcastConfig = getSimulcastConfigFromOptions(connectionOptions)
+    this.videoMaxBandwidth = getMaxBandwidthFromOptions(connectionOptions)
 
     val audioManager =  reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     audioManager.isSpeakerphoneOn = true
@@ -173,6 +217,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.screencastMetadata = screencastOptions.getMap("screencastMetadata")?.toMetadata() ?: mutableMapOf()
     this.screencastMetadata["type"] = "screensharing"
     this.screencastQuality = screencastOptions.getString("quality")
+    this.screencastSimulcastConfig = getSimulcastConfigFromOptions(screencastOptions)
+    this.screencastMaxBandwidth = getMaxBandwidthFromOptions(screencastOptions)
     screencastPromise = promise
     if(!isScreenCastOn) {
       val currentActivity = currentActivity
@@ -229,6 +275,72 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     promise.resolve(null)
   }
 
+  private fun toggleTrackEncoding(encoding: String, trackId: String, simulcastConfig: SimulcastConfig): SimulcastConfig {
+    val trackEncoding = encoding.toTrackEncoding()
+    if(simulcastConfig.activeEncodings.contains(trackEncoding)) {
+      room?.disableTrackEncoding(trackId, trackEncoding)
+      return SimulcastConfig(
+        enabled = true,
+        activeEncodings = simulcastConfig.activeEncodings.filter { e -> e != trackEncoding }
+      )
+    } else {
+      room?.enableTrackEncoding(trackId, trackEncoding)
+      return SimulcastConfig(
+        enabled = true,
+        activeEncodings = simulcastConfig.activeEncodings + listOf(trackEncoding)
+      )
+    }
+  }
+
+  @ReactMethod
+  fun toggleScreencastTrackEncoding(encoding: String, promise: Promise) {
+    val trackId = localScreencastTrack?.id() ?: return
+    screencastSimulcastConfig = toggleTrackEncoding(encoding, trackId, screencastSimulcastConfig)
+    promise.resolve(getSimulcastConfigAsRNMap(screencastSimulcastConfig))
+  }
+
+  @ReactMethod
+  fun setScreencastTrackBandwidth(bandwidth: Int, promise: Promise) {
+    val trackId = localScreencastTrack?.id() ?: return
+    room?.setTrackBandwidth(trackId, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun setScreencastTrackEncodingBandwidth(encoding: String, bandwidth: Int, promise: Promise) {
+    val trackId = localScreencastTrack?.id() ?: return
+    room?.setEncodingBandwidth(trackId, encoding, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun setTargetTrackEncoding(peerId: String, encoding: String, promise: Promise) {
+    val trackId = participants.get(peerId)?.videoTrack?.id()?.let { getGlobalTrackId(it) } ?: return
+    room?.setTargetTrackEncoding(trackId, encoding.toTrackEncoding())
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun toggleVideoTrackEncoding(encoding: String, promise: Promise) {
+    val trackId = localVideoTrack?.id() ?: return
+    videoSimulcastConfig = toggleTrackEncoding(encoding, trackId, videoSimulcastConfig)
+    promise.resolve(getSimulcastConfigAsRNMap(videoSimulcastConfig))
+  }
+
+  @ReactMethod
+  fun setVideoTrackEncodingBandwidth(encoding: String, bandwidth: Int, promise: Promise) {
+    val trackId = localVideoTrack?.id() ?: return
+    room?.setEncodingBandwidth(trackId, encoding, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun setVideoTrackBandwidth(bandwidth: Int, promise: Promise) {
+    val trackId = localVideoTrack?.id() ?: return
+    room?.setTrackBandwidth(trackId, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+    promise.resolve(null)
+  }
+
   @ReactMethod
   fun addListener(eventName: String?) {}
 
@@ -251,7 +363,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       else -> VideoParameters.presetScreenShareHD15
     }
     val dimensions = videoParameters.dimensions.flip()
-    videoParameters = videoParameters.copy(dimensions = dimensions)
+    videoParameters = videoParameters.copy(
+      dimensions = dimensions,
+      simulcastConfig = screencastSimulcastConfig,
+      maxBitrate = screencastMaxBandwidth,
+    )
 
     localScreencastTrack = room?.createScreencastTrack(mediaProjectionPermission, videoParameters, screencastMetadata) {
       stopScreencast()
@@ -313,6 +429,17 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     emitEvent("ParticipantsUpdate", getParticipantsAsRNMap())
   }
 
+  private fun getSimulcastConfigAsRNMap(simulcastConfig: SimulcastConfig): WritableMap? {
+    val map = Arguments.createMap()
+    val activeEncodings = Arguments.createArray()
+    simulcastConfig.activeEncodings.forEach {
+      activeEncodings.pushString(it.rid)
+    }
+    map.putBoolean("enabled", simulcastConfig.enabled)
+    map.putArray("activeEncodings", activeEncodings)
+    return map
+  }
+
   override fun onConnected() {
     room?.let {
       localAudioTrack = it.createAudioTrack(audioTrackMetadata)
@@ -330,7 +457,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         "FHD43" -> VideoParameters.presetFHD43
         else -> VideoParameters.presetVGA169
       }
-      videoParameters = videoParameters.copy(dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions)
+      videoParameters = videoParameters.copy(
+        dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions,
+        simulcastConfig = videoSimulcastConfig,
+        maxBitrate = videoMaxBandwidth
+      )
 
       localVideoTrack = it.createVideoTrack(videoParameters, videoTrackMetadata)
 
