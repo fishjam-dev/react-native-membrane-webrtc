@@ -129,11 +129,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.reactnativemembrane"
+        applicationId "com.membrane.reactnativemembrane"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.1.3"
     }
     splits {
         abi {
@@ -144,6 +144,12 @@ android {
         }
     }
     signingConfigs {
+        release {
+            storeFile file(MEMBRANE_UPLOAD_STORE_FILE)
+            storePassword MEMBRANE_UPLOAD_STORE_PASSWORD
+            keyAlias MEMBRANE_UPLOAD_KEY_ALIAS
+            keyPassword MEMBRANE_UPLOAD_KEY_PASSWORD
+        }
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -156,9 +162,7 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }

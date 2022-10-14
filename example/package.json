@@ -4,13 +4,14 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start"
+    "android": "NODE_ENV=development react-native run-android",
+    "ios": "NODE_ENV=development react-native run-ios",
+    "start": "NODE_ENV=development react-native start"
   },
   "dependencies": {
     "react": "17.0.2",
     "react-native": "0.68.2",
+    "react-native-dotenv": "^3.3.1",
     "react-native-svg": "^12.3.0"
   },
   "devDependencies": {

@@ -477,6 +477,18 @@ A type describing bandwidth limitation of a track, including simulcast and non-s
 - `type BandwidthLimit` - Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
 - `type SimulcastBandwidthLimit` - Type describing bandwidth limit for simulcast track. It is a mapping `encoding -> BandwidthLimit`. If encoding isn't present in this mapping, it will be assumed that this particular encoding shouldn't have any bandwidth limit.
 
+### Developing
+To release a new version of the lib just run `yarn release`, follow the prompts to bump version, make tags, commits and upload to npm
+To release a new version of the example app install fastlane, get upload key password and firebase auth json from the devs, update `~/.gradle/gradle.properties` like this:
+```
+MEMBRANE_UPLOAD_STORE_FILE=my-upload-key.keystore
+MEMBRANE_UPLOAD_KEY_ALIAS=my-key-alias
+MEMBRANE_UPLOAD_STORE_PASSWORD=********
+MEMBRANE_UPLOAD_KEY_PASSWORD=********
+```
+and run `yarn releaseApp` from the main directory.
+Pro tip: when developing set backend url in `.env.development`.
+
 ## Credits
 
 This project has been built and is maintained thanks to the support from [dscout](https://dscout.com/) and [Software Mansion](https://swmansion.com).
