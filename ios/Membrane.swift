@@ -451,8 +451,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     resolve(nil)
   }
   
-  @objc(selectReceivedTrackTargetEncoding:withEncoding:withResolver:withRejecter:)
-  func selectReceivedTrackTargetEncoding(peerId: NSString, encoding: NSString, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  @objc(setTargetTrackEncoding:withEncoding:withResolver:withRejecter:)
+  func setTargetTrackEncoding(peerId: NSString, encoding: NSString, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
     guard
       let room = room,
       let trackId = MembraneRoom.sharedInstance.participantVideos.first(where: { $0.participant.id == peerId as String })?.id,

@@ -22,7 +22,7 @@ export const Settings = ({
   participant: Participant;
 }) => {
   const {
-    selectReceivedTrackTargetEncoding,
+    setTargetTrackEncoding,
     toggleVideoTrackEncoding,
     simulcastConfig: { activeEncodings },
   } = useSimulcast();
@@ -102,9 +102,7 @@ export const Settings = ({
       <Text>Encoding to receive:</Text>
       <View style={styles.row}>
         {allEncodings.map((e) => (
-          <TouchableOpacity
-            onPress={() => selectReceivedTrackTargetEncoding(id, e)}
-          >
+          <TouchableOpacity onPress={() => setTargetTrackEncoding(id, e)}>
             <Text style={styles.button}>{e}</Text>
           </TouchableOpacity>
         ))}

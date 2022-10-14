@@ -26,6 +26,7 @@ expo install @membraneframework/react-native-membrane-webrtc
 ```
 
 Add plugin to your `app.json` if it's not already added:
+
 ```json
 {
   "expo": {
@@ -140,11 +141,12 @@ On iOS installation is a bit more complicated, because you need to setup a scree
    end
    ```
    > This new dependency should be added outside of your application target. Example
+   >
    > ```rb
    > target 'ReactNativeMembraneExample' do
    >  ...
    > end
-   > 
+   >
    > target 'MembraneScreenBroadcastExtension' do
    >  pod 'MembraneRTC/Broadcast'
    > end
@@ -186,16 +188,14 @@ Connect to the server using the `connect` function and then join the room. Use u
 ```ts
 const startServerConnection = () => {
   try {
-    await connect('https://example.com', "Annie's room", 
-      {
-        userMetadata: {
-          displayName: 'Annie',
-        },
-        connectionParams: {
-          token: "TOKEN",
-        }
+    await connect('https://example.com', "Annie's room", {
+      userMetadata: {
+        displayName: 'Annie',
       },
-    );
+      connectionParams: {
+        token: 'TOKEN',
+      },
+    });
     await joinRoom();
   } catch (e) {
     console.log('error!');
@@ -383,7 +383,7 @@ This hook manages user's metadata. Use it to for example update when user is mut
 
 An object containing:
 
-- `updatePeerMetadata(metatada: Metadata)` -  a function that updates user's metadata on the server. Arguments:
+- `updatePeerMetadata(metatada: Metadata)` - a function that updates user's metadata on the server. Arguments:
   - `metatada: Metadata` - a map `string -> string` containing user's track metadata to be sent to the server.
 
 ## `useVideoTrackMetadata()`
@@ -394,7 +394,7 @@ This hook manages video track metadata.
 
 An object containing:
 
-- `updateVideoTrackMetadata(metatada: Metadata)` -  a function that updates video metadata on the server. Arguments:
+- `updateVideoTrackMetadata(metatada: Metadata)` - a function that updates video metadata on the server. Arguments:
   - `metatada: Metadata` - a map `string -> string` containing video track metadata to be sent to the server.
 
 ## `useAudioTrackMetadata()`
@@ -405,7 +405,7 @@ This hook manages audio track metadata.
 
 An object containing:
 
-- `updateAudioTrackMetadata(metatada: Metadata)` -  a function that updates audio metadata on the server. Arguments:
+- `updateAudioTrackMetadata(metatada: Metadata)` - a function that updates audio metadata on the server. Arguments:
   - `metatada: Metadata` - a map `string -> string` containing audio track metadata to be sent to the server.
 
 ## `useAudioSettings()`
@@ -437,8 +437,8 @@ This hook manages the simulcast configuration of a video track.
 An object containing:
 
 - `simulcastConfig` - current [SimulcastConfig](#SimulcastConfig) of a video track
-- `selectReceivedTrackTargetEncoding(peerId: string, encoding: TrackEncoding)` - selects track encoding that server should send to the client library. The encoding will be sent whenever it is available. If choosen encoding is temporarily unavailable, some other encoding will be sent until choosen encoding becomes active again. Arguments:
-  - `peerId: string` - id of a peer whose track encoding you want to select 
+- `setTargetTrackEncoding(peerId: string, encoding: TrackEncoding)` - sets track encoding that server should send to the client library. The encoding will be sent whenever it is available. If choosen encoding is temporarily unavailable, some other encoding will be sent until choosen encoding becomes active again. Arguments:
+  - `peerId: string` - id of a peer whose track encoding you want to select
   - `encoding: TrackEncoding` - encoding to select
 - `toggleVideoTrackEncoding(encoding: TrackEncoding)` - toggles encoding of a video track on/off. Arguments:
   - `encoding: TrackEncoding` - encoding to toggle
