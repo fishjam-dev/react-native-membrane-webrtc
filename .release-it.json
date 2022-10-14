@@ -9,9 +9,11 @@
           "file": "example/android/app/build.gradle",
           "type": "text/plain"
         },
-        "package.json",
         "example/package.json"
       ]
     }
+  },
+  "github": {
+    "release": true
   }
 }
