@@ -1,0 +1,587 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@membraneframework/react-native-membrane-webrtc</title><meta name="description" content="Documentation for @membraneframework/react-native-membrane-webrtc"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script><script>
+    window.addEventListener("load", () => {
+        // aux function to get function name from element
+        const elem2functionName = (elem) => (elem.innerText.match(/^[^\s\(:<]*/) ?? [])[0];
+        const querySelectorAll = (arg, elem = document.body) => Array.from(elem.querySelectorAll(arg));
+        const addReactComponent = (elem) => {
+            elem.classList.add("react-functional-component");
+        };
+        const addReactHook = (elem) => {
+            elem.classList.add("react-hook");
+        };
+        // elements containing return types of all functions
+        const returns = querySelectorAll("h4.tsd-returns-title .tsd-signature-type");
+        // filter reactReturn
+        const reactReturnTypes = [""];
+        const reactReturns = returns.filter(e => reactReturnTypes.some(r => e.innerText === r));
+        var names = [];
+        reactReturns.forEach(reactReturn => {
+            // closest section, for ordinary functions it contains function definitions
+            var elem = reactReturn.closest("section");
+            if (elem.classList.contains("tsd-kind-variable")) {
+                // section is object, get "closer" function definition
+                elem = reactReturn.closest("li.tsd-parameter");
+                const fundef = elem.querySelector("ul li.tsd-signature.tsd-kind-icon");
+                // add react class directly
+                addReactComponent(fundef);
+            }
+            else {
+                const name = elem2functionName(elem);
+                // only "remember" name
+                names.push(name);
+            }
+        });
+        const reactComponents = new Set(names);
+        const notReactHook = new Set([]);
+        const markReactHooks = true;
+        //
+        // select all relevant possible elements
+        const ifuns = querySelectorAll(".tsd-index-panel li.tsd-kind-function a.tsd-kind-icon");
+        const cfuns = querySelectorAll(".col-content section.tsd-kind-function ul li.tsd-signature.tsd-kind-icon");
+        const mfuns = querySelectorAll(".col-menu ul li.tsd-kind-function a.tsd-kind-icon");
+        const funs = [...ifuns, ...cfuns, ...mfuns];
+        // for each, get function name and if present in relevant names, add react class
+        funs.forEach(fun => {
+            const name = elem2functionName(fun);
+            if (reactComponents.has(name))
+                addReactComponent(fun);
+            if (markReactHooks && name.match(/^use[A-Z]/) && !notReactHook.has(name))
+                addReactHook(fun);
+        });
+        // legend
+        const legendFunction = document.body.querySelector("footer div.container div.tsd-legend-group ul.tsd-legend li.tsd-kind-function");
+        if (legendFunction) {
+            let span;
+            let ul = legendFunction.parentElement;
+            //
+            const extraLegend = [
+                ["React functional component", addReactComponent],
+                ["React hook", addReactHook],
+            ];
+            extraLegend.forEach(([label, addClass]) => {
+                let li = document.createElement("li");
+                span = document.createElement("span");
+                li.appendChild(span);
+                span.classList.add("tsd-kind-icon");
+                span.innerText = label;
+                addClass(span);
+                ul.appendChild(li);
+            });
+        }
+    });
+</script><style>.react-functional-component::before, .react-hook::before {
+	background-position: 0 0 !important;
+	background-repeat: no-repeat;
+}
+.react-functional-component::before {
+	background-image: url("data:image/svg+xml;base64,PCEtLWRlY29kZWQgYmFzZTY0IGZyb20gcmVhY3Rqcy5vcmctLT4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9Ii0xMS43IC0xMC4yNSAyMy40IDIwLjUiPgoJPGNpcmNsZSByPSIyLjA1IiBmaWxsPSIjNjFkYWZiIi8+Cgk8ZyBzdHJva2U9IiM2MWRhZmIiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSI+CgkJPGVsbGlwc2Ugcng9IjExIiByeT0iNC4yIi8+CgkJPGVsbGlwc2Ugcng9IjExIiByeT0iNC4yIiB0cmFuc2Zvcm09InJvdGF0ZSg2MCkiLz4KCQk8ZWxsaXBzZSByeD0iMTEiIHJ5PSI0LjIiIHRyYW5zZm9ybT0icm90YXRlKDEyMCkiLz4KCTwvZz4KPC9zdmc+Cg==");
+}
+.react-hook::before {
+	background-image: url("data:image/svg+xml;base64,PCEtLWRlY29kZWQgYmFzZTY0IGZyb20gcmVhY3Rqcy5vcmctLT4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9Ii0xNyAtMjMgMzQuMSA0MCI+Cgk8Y2lyY2xlIHI9IjIuMDUiIGZpbGw9IiM2MWRhZmIiLz4KCTxnIHN0cm9rZT0iIzYxZGFmYiIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIj4KCQk8ZWxsaXBzZSByeD0iMTEiIHJ5PSI0LjIiLz4KCQk8ZWxsaXBzZSByeD0iMTEiIHJ5PSI0LjIiIHRyYW5zZm9ybT0icm90YXRlKDYwKSIvPgoJCTxlbGxpcHNlIHJ4PSIxMSIgcnk9IjQuMiIgdHJhbnNmb3JtPSJyb3RhdGUoMTIwKSIvPgoJCTxwYXRoIGQ9Ik0gMCAtMjMgTCAwIC0xNSBBIDE1IDE1IDAgMSAwIDE1IDAgbCAtMyA0IiBzdHJva2Utd2lkdGg9IjQiLz4KCTwvZz4KPC9zdmc+Cg==");
+}
+.tsd-index-content .react-functional-component,
+.tsd-index-content .react-hook {
+	color: #61dafb !important;
+}
+</style></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base=".">
+<div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">@membraneframework/react-native-membrane-webrtc</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-8 col-content">
+<div class="tsd-page-title">
+<h2>@membraneframework/react-native-membrane-webrtc</h2></div>
+<div class="tsd-panel tsd-typography">
+<a href="#react-native-membrane-webrtc" id="react-native-membrane-webrtc" style="color: inherit; text-decoration: none;">
+  <h1>react-native-membrane-webrtc</h1>
+</a>
+<p>react-native-membrane-webrtc is a React Native wrapper for <a href="https://github.com/membraneframework/membrane-webrtc-android">membrane-webrtc-android</a> and <a href="https://github.com/membraneframework/membrane-webrtc-ios">membrane-webrtc-ios</a>. It allows you to quickly and easily create a mobile client app in React Native for Membrane server.</p>
+
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h1>Installation</h1>
+</a>
+<p>Firstly install react-native-membrane with <code>yarn</code> or <code>npm</code></p>
+<pre><code><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-0">add</span><span class="hl-1"> @</span><span class="hl-0">membraneframework</span><span class="hl-1">/</span><span class="hl-0">react</span><span class="hl-1">-</span><span class="hl-0">native</span><span class="hl-1">-</span><span class="hl-0">membrane</span><span class="hl-1">-</span><span class="hl-0">webrtc</span>
+</code></pre>
+<p>or</p>
+<pre><code><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-0">install</span><span class="hl-1"> --</span><span class="hl-0">save</span><span class="hl-1"> @</span><span class="hl-0">membraneframework</span><span class="hl-1">/</span><span class="hl-0">react</span><span class="hl-1">-</span><span class="hl-0">native</span><span class="hl-1">-</span><span class="hl-0">membrane</span><span class="hl-1">-</span><span class="hl-0">webrtc</span>
+</code></pre>
+
+<a href="#expo-plugin" id="expo-plugin" style="color: inherit; text-decoration: none;">
+  <h3>Expo plugin</h3>
+</a>
+<p>If you&#39;re using development builds with <code>eas build</code> or bare workflow you can try using expo plugin to do the configuration below for you.
+Simply run:</p>
+<pre><code><span class="hl-0">expo</span><span class="hl-1"> </span><span class="hl-0">install</span><span class="hl-1"> @</span><span class="hl-0">membraneframework</span><span class="hl-1">/</span><span class="hl-0">react</span><span class="hl-1">-</span><span class="hl-0">native</span><span class="hl-1">-</span><span class="hl-0">membrane</span><span class="hl-1">-</span><span class="hl-0">webrtc</span>
+</code></pre>
+<p>Add plugin to your <code>app.json</code> if it&#39;s not already added:</p>
+<pre><code class="language-json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-2">&quot;expo&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-2">&quot;name&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;example&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">...</span><br/><span class="hl-1">    </span><span class="hl-2">&quot;plugins&quot;</span><span class="hl-1">: [</span><br/><span class="hl-1">      </span><span class="hl-3">&quot;@membraneframework/react-native-membrane-webrtc&quot;</span><br/><span class="hl-1">    ]</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span>
+</code></pre>
+<p>On bare workflow run <code>expo prebuild</code> to configure the app, then run <code>pod install</code>.
+On development build <code>eas build</code> should take care of it.</p>
+
+<a href="#android" id="android" style="color: inherit; text-decoration: none;">
+  <h3>Android</h3>
+</a>
+<ol>
+<li>Add camera and microphone permissions to your <code>AndroidManifest.xml</code>.</li>
+<li>Rebuild the app. That&#39;s it!</li>
+</ol>
+
+<a href="#ios" id="ios" style="color: inherit; text-decoration: none;">
+  <h3>iOS</h3>
+</a>
+<p>On iOS installation is a bit more complicated, because you need to setup a screen broadcast app extension for screensharing.</p>
+<ol>
+<li><p>Add camera and microphone permissions to your main <code>Info.plist</code>.</p>
+<pre><code class="language-xml"><span class="hl-5">&lt;</span><span class="hl-6">key</span><span class="hl-5">&gt;</span><span class="hl-1">NSCameraUsageDescription</span><span class="hl-5">&lt;/</span><span class="hl-6">key</span><span class="hl-5">&gt;</span><br/><span class="hl-5">&lt;</span><span class="hl-6">string</span><span class="hl-5">&gt;</span><span class="hl-1">Allow $(PRODUCT_NAME) to use the camera</span><span class="hl-5">&lt;/</span><span class="hl-6">string</span><span class="hl-5">&gt;</span><br/><span class="hl-5">&lt;</span><span class="hl-6">key</span><span class="hl-5">&gt;</span><span class="hl-1">NSMicrophoneUsageDescription</span><span class="hl-5">&lt;/</span><span class="hl-6">key</span><span class="hl-5">&gt;</span><br/><span class="hl-5">&lt;</span><span class="hl-6">string</span><span class="hl-5">&gt;</span><span class="hl-1">Allow $(PRODUCT_NAME) to use the microphone</span><span class="hl-5">&lt;/</span><span class="hl-6">string</span><span class="hl-5">&gt;</span>
+</code></pre>
+</li>
+<li><p>Open your <code>&lt;your-project&gt;.xcworkspace</code> in Xcode</p>
+</li>
+<li><p>Create new Broadcast Upload Extension. Select File → New → Target... → Broadcast Upload Extension → Next. Choose the name for the new target, select Swift language and deselect &quot;Include UI Extension&quot;.</p>
+<p><img src="/.github/xcode1.png" alt="New target config"></p>
+<p>Press Finish. In the next alert xcode will ask you if you want to activate the new scheme - press Cancel.</p>
+</li>
+<li><p>Configure app group. Go to &quot;Signing &amp; Capabilities&quot; tab, click &quot;+ Capability&quot; button in upper left corner and select &quot;App Groups&quot;.</p>
+<p><img src="/.github/xcode2.png" alt="App groups config"></p>
+<p>Then in the &quot;App Groups&quot; add a new group or select existing. Usually group name has format <code>group.&lt;your-bundle-identifier&gt;</code>. Verify that both app and extension targets have app group and dev team set correctly.</p>
+</li>
+<li><p>A new folder with app extension should appear on the left with contents like this:</p>
+<p><img src="/.github/xcode3.png" alt="App extension files"></p>
+<p>Replace <code>SampleHandler.swift</code> with <code>MembraneBroadcastSampleHandler.swift</code> and this code:</p>
+<pre><code class="language-swift"><span class="hl-7">import</span><span class="hl-1"> </span><span class="hl-8">Foundation</span><br/><span class="hl-7">import</span><span class="hl-1"> </span><span class="hl-8">MembraneRTC</span><br/><span class="hl-7">import</span><span class="hl-1"> </span><span class="hl-8">os</span><span class="hl-1">.</span><span class="hl-8">log</span><br/><span class="hl-7">import</span><span class="hl-1"> </span><span class="hl-8">ReplayKit</span><br/><span class="hl-7">import</span><span class="hl-1"> </span><span class="hl-8">WebRTC</span><br/><br/><br/><span class="hl-9">/// App Group used by the extension to exchange buffers with the target application</span><br/><span class="hl-10">let</span><span class="hl-1"> appGroup = </span><span class="hl-3">&quot;{{GROUP_IDENTIFIER}}&quot;</span><br/><br/><span class="hl-10">let</span><span class="hl-1"> logger = </span><span class="hl-11">OSLog</span><span class="hl-1">(</span><span class="hl-11">subsystem</span><span class="hl-1">: </span><span class="hl-3">&quot;{{BUNDLE_IDENTIFIER}}.MembraneBroadcastSampleHandler&quot;</span><span class="hl-1">, </span><span class="hl-11">category</span><span class="hl-1">: </span><span class="hl-3">&quot;Broadcaster&quot;</span><span class="hl-1">)</span><br/><br/><span class="hl-9">/// An example `SampleHandler` utilizing `BroadcastSampleSource` from `MembraneRTC` sending broadcast samples and necessary notification enabling device&#39;s screencast.</span><br/><span class="hl-10">class</span><span class="hl-1"> </span><span class="hl-8">MembraneBroadcastSampleHandler</span><span class="hl-1">: RPBroadcastSampleHandler {</span><br/><span class="hl-1">    </span><span class="hl-10">let</span><span class="hl-1"> broadcastSource = </span><span class="hl-11">BroadcastSampleSource</span><span class="hl-1">(</span><span class="hl-11">appGroup</span><span class="hl-1">: appGroup)</span><br/><span class="hl-1">    </span><span class="hl-10">var</span><span class="hl-1"> started: </span><span class="hl-8">Bool</span><span class="hl-1"> = </span><span class="hl-10">false</span><br/><br/><br/><span class="hl-1">    </span><span class="hl-10">override</span><span class="hl-1"> </span><span class="hl-10">func</span><span class="hl-1"> </span><span class="hl-11">broadcastStarted</span><span class="hl-1">(</span><span class="hl-11">withSetupInfo</span><span class="hl-1"> </span><span class="hl-0">_</span><span class="hl-1">: [</span><span class="hl-8">String</span><span class="hl-1">: NSObject]?) {</span><br/><span class="hl-1">        started = broadcastSource.</span><span class="hl-11">connect</span><span class="hl-1">()</span><br/><br/><span class="hl-1">        </span><span class="hl-7">guard</span><span class="hl-1"> started </span><span class="hl-7">else</span><span class="hl-1"> {</span><br/><span class="hl-1">            </span><span class="hl-11">os_log</span><span class="hl-1">(</span><span class="hl-3">&quot;failed to connect with ipc server&quot;</span><span class="hl-1">, </span><span class="hl-11">log</span><span class="hl-1">: logger, </span><span class="hl-11">type</span><span class="hl-1">: .</span><span class="hl-0">debug</span><span class="hl-1">)</span><br/><br/><span class="hl-1">            </span><span class="hl-10">super</span><span class="hl-1">.</span><span class="hl-11">finishBroadcastWithError</span><span class="hl-1">(</span><span class="hl-11">NSError</span><span class="hl-1">(</span><span class="hl-11">domain</span><span class="hl-1">: </span><span class="hl-3">&quot;&quot;</span><span class="hl-1">, </span><span class="hl-11">code</span><span class="hl-1">: </span><span class="hl-12">0</span><span class="hl-1">, </span><span class="hl-11">userInfo</span><span class="hl-1">: </span><span class="hl-10">nil</span><span class="hl-1">))</span><br/><br/><span class="hl-1">            </span><span class="hl-7">return</span><br/><span class="hl-1">        }</span><br/><br/><span class="hl-1">        broadcastSource.</span><span class="hl-11">started</span><span class="hl-1">()</span><br/><span class="hl-1">    }</span><br/><br/><span class="hl-1">    </span><span class="hl-10">override</span><span class="hl-1"> </span><span class="hl-10">func</span><span class="hl-1"> </span><span class="hl-11">broadcastPaused</span><span class="hl-1">() {</span><br/><span class="hl-1">        broadcastSource.</span><span class="hl-11">paused</span><span class="hl-1">()</span><br/><span class="hl-1">    }</span><br/><br/><span class="hl-1">    </span><span class="hl-10">override</span><span class="hl-1"> </span><span class="hl-10">func</span><span class="hl-1"> </span><span class="hl-11">broadcastResumed</span><span class="hl-1">() {</span><br/><span class="hl-1">        broadcastSource.</span><span class="hl-11">resumed</span><span class="hl-1">()</span><br/><span class="hl-1">    }</span><br/><br/><span class="hl-1">    </span><span class="hl-10">override</span><span class="hl-1"> </span><span class="hl-10">func</span><span class="hl-1"> </span><span class="hl-11">broadcastFinished</span><span class="hl-1">() {</span><br/><span class="hl-1">        broadcastSource.</span><span class="hl-11">finished</span><span class="hl-1">()</span><br/><span class="hl-1">    }</span><br/><br/><span class="hl-1">    </span><span class="hl-10">override</span><span class="hl-1"> </span><span class="hl-10">func</span><span class="hl-1"> </span><span class="hl-11">processSampleBuffer</span><span class="hl-1">(</span><span class="hl-11">_</span><span class="hl-1"> </span><span class="hl-0">sampleBuffer</span><span class="hl-1">: CMSampleBuffer, </span><span class="hl-11">with</span><span class="hl-1"> </span><span class="hl-0">sampleBufferType</span><span class="hl-1">: RPSampleBufferType) {</span><br/><span class="hl-1">        </span><span class="hl-7">guard</span><span class="hl-1"> started </span><span class="hl-7">else</span><span class="hl-1"> {</span><br/><span class="hl-1">            </span><span class="hl-7">return</span><br/><span class="hl-1">        }</span><br/><br/><span class="hl-1">        broadcastSource.</span><span class="hl-11">processFrame</span><span class="hl-1">(</span><span class="hl-11">sampleBuffer</span><span class="hl-1">: sampleBuffer, </span><span class="hl-11">ofType</span><span class="hl-1">: sampleBufferType)</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">}</span>
+</code></pre>
+<p>Replace <code>{{GROUP_IDENTIFIER}}</code> and <code>{{BUNDLE_IDENTIFIER}}</code> with your group identifier and bundle identifier respectively.</p>
+</li>
+<li><p>In project&#39;s Podfile add the following code:</p>
+<pre><code class="language-rb"><span class="hl-1">target </span><span class="hl-3">&#39;MembraneScreenBroadcastExtension&#39;</span><span class="hl-1"> </span><span class="hl-7">do</span><br/><span class="hl-1">  pod </span><span class="hl-3">&#39;MembraneRTC/Broadcast&#39;</span><br/><span class="hl-7">end</span>
+</code></pre>
+<blockquote>
+<p>This new dependency should be added outside of your application target. Example</p>
+<pre><code class="language-rb"><span class="hl-1">target </span><span class="hl-3">&#39;ReactNativeMembraneExample&#39;</span><span class="hl-1"> </span><span class="hl-7">do</span><br/><span class="hl-1"> ...</span><br/><span class="hl-7">end</span><br/><br/><span class="hl-1">target </span><span class="hl-3">&#39;MembraneScreenBroadcastExtension&#39;</span><span class="hl-1"> </span><span class="hl-7">do</span><br/><span class="hl-1"> pod </span><span class="hl-3">&#39;MembraneRTC/Broadcast&#39;</span><br/><span class="hl-7">end</span>
+</code></pre>
+</blockquote>
+</li>
+<li><p>Run <code>pod install</code> in your <code>ios/</code> directory</p>
+</li>
+<li><p>Add the following constants in your Info.plist:</p>
+<pre><code class="language-xml"><span class="hl-5">&lt;</span><span class="hl-6">key</span><span class="hl-5">&gt;</span><span class="hl-1">AppGroupName</span><span class="hl-5">&lt;/</span><span class="hl-6">key</span><span class="hl-5">&gt;</span><br/><span class="hl-5">&lt;</span><span class="hl-6">string</span><span class="hl-5">&gt;</span><span class="hl-1">{{GROUP_IDENTIFIER}}</span><span class="hl-5">&lt;/</span><span class="hl-6">string</span><span class="hl-5">&gt;</span><br/><span class="hl-5">&lt;</span><span class="hl-6">key</span><span class="hl-5">&gt;</span><span class="hl-1">ScreencastExtensionBundleId</span><span class="hl-5">&lt;/</span><span class="hl-6">key</span><span class="hl-5">&gt;</span><br/><span class="hl-5">&lt;</span><span class="hl-6">string</span><span class="hl-5">&gt;</span><span class="hl-1">{{BUNDLE_IDENTIFIER}}.MembraneBroadcastSampleHandler</span><span class="hl-5">&lt;/</span><span class="hl-6">string</span><span class="hl-5">&gt;</span>
+</code></pre>
+<p>Replace <code>{{GROUP_IDENTIFIER}}</code> and <code>{{BUNDLE_IDENTIFIER}}</code> with your group identifier and bundle identifier respectively.</p>
+</li>
+<li><p>Rebuild the app and enjoy!</p>
+</li>
+</ol>
+
+<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+  <h1>Example</h1>
+</a>
+<p>We strongly recommend checking out our example app that implements a basic video room client. To run the app:</p>
+<ol>
+<li>Go to Membrane&#39;s server demo repo: <a href="https://github.com/membraneframework/membrane_videoroom">https://github.com/membraneframework/membrane_videoroom</a>. Follow instructions there to setup and run demo server.</li>
+<li>Clone the repo</li>
+<li><pre><code><span class="hl-0">$</span><span class="hl-1"> </span><span class="hl-0">cd</span><span class="hl-1"> </span><span class="hl-0">example</span><br/><span class="hl-0">$</span><span class="hl-1"> </span><span class="hl-0">yarn</span>
+</code></pre>
+</li>
+<li>In App.ts replace server url with your server&#39;s url.</li>
+<li><code>yarn run android</code> or <code>yarn run ios</code> or run project from Android Studio / Xcode just like every RN project. Note that simulators won&#39;t work, you have to test on real device for camera and screensharing to run.</li>
+</ol>
+
+<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+  <h1>Usage</h1>
+</a>
+<p>Start with connecting to the membrane server. Use <code>useMembraneServer()</code> hook to manage connection:</p>
+<pre><code class="language-ts"><span class="hl-10">const</span><span class="hl-1"> { </span><span class="hl-13">connect</span><span class="hl-1">, </span><span class="hl-13">joinRoom</span><span class="hl-1">, </span><span class="hl-13">disconnect</span><span class="hl-1">, </span><span class="hl-13">error</span><span class="hl-1"> } = </span><span class="hl-11">useMembraneServer</span><span class="hl-1">();</span>
+</code></pre>
+<p>Connect to the server using the <code>connect</code> function and then join the room. Use user metadata to pass things like usernames etc. to the server. After joining the room the user is visible to their peers and vice-versa. You can also pass connection params that will be sent to the socket when establishing the connection tries.</p>
+<pre><code class="language-ts"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">startServerConnection</span><span class="hl-1"> = () </span><span class="hl-10">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-7">try</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-7">await</span><span class="hl-1"> </span><span class="hl-11">connect</span><span class="hl-1">(</span><span class="hl-3">&#39;https://example.com&#39;</span><span class="hl-1">, </span><span class="hl-3">&quot;Annie&#39;s room&quot;</span><span class="hl-1">, {</span><br/><span class="hl-1">      </span><span class="hl-0">userMetadata:</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><span class="hl-0">displayName:</span><span class="hl-1"> </span><span class="hl-3">&#39;Annie&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">      },</span><br/><span class="hl-1">      </span><span class="hl-0">connectionParams:</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><span class="hl-0">token:</span><span class="hl-1"> </span><span class="hl-3">&#39;TOKEN&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">      },</span><br/><span class="hl-1">    });</span><br/><span class="hl-1">    </span><span class="hl-7">await</span><span class="hl-1"> </span><span class="hl-11">joinRoom</span><span class="hl-1">();</span><br/><span class="hl-1">  } </span><span class="hl-7">catch</span><span class="hl-1"> (</span><span class="hl-0">e</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-11">log</span><span class="hl-1">(</span><span class="hl-3">&#39;error!&#39;</span><span class="hl-1">);</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">};</span>
+</code></pre>
+<p>Remember to gracefully disconnect from the server using the <code>disconnect()</code> function:</p>
+<pre><code class="language-ts"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-11">stopServerConnection</span><span class="hl-1"> = () </span><span class="hl-10">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-7">await</span><span class="hl-1"> </span><span class="hl-11">disconnect</span><span class="hl-1">();</span><br/><span class="hl-1">};</span>
+</code></pre>
+<p>Also handle errors properly, for example when internet connection fails or server is down:</p>
+<pre><code class="language-ts"><span class="hl-11">useEffect</span><span class="hl-1">(() </span><span class="hl-10">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-7">if</span><span class="hl-1"> (</span><span class="hl-0">error</span><span class="hl-1">) </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-11">log</span><span class="hl-1">(</span><span class="hl-3">&#39;error: &#39;</span><span class="hl-1">, </span><span class="hl-0">e</span><span class="hl-1">);</span><br/><span class="hl-1">}, [</span><span class="hl-0">error</span><span class="hl-1">]);</span>
+</code></pre>
+<p>If you have the connection set up, then use <code>useParticipants()</code> hook to track the participants. One of the participants will be a local participant (the one who&#39;s using the device). When peer joins or leaves the room, the participants will be updated automatically. Simply call the hook like this:</p>
+<pre><code class="language-ts"><span class="hl-10">const</span><span class="hl-1"> </span><span class="hl-13">participants</span><span class="hl-1"> = </span><span class="hl-11">useParticipants</span><span class="hl-1">();</span>
+</code></pre>
+<p>When you have the participants all that&#39;s left is to render them. Use <code>&lt;VideoRendererView /&gt;</code> component like this:</p>
+<pre><code class="language-ts"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-0">participants</span><span class="hl-1">.</span><span class="hl-11">map</span><span class="hl-1">((</span><span class="hl-0">participant</span><span class="hl-1">) </span><span class="hl-10">=&gt;</span><span class="hl-1"> (</span><br/><span class="hl-1">    &lt;</span><span class="hl-0">VideoRendererView</span><span class="hl-1"> </span><span class="hl-0">participantId</span><span class="hl-1">={participant.</span><span class="hl-0">id</span><span class="hl-1">} /&gt;</span><br/><span class="hl-1">  ));</span><br/><span class="hl-1">}</span>
+</code></pre>
+<p>You can style the views to lay out them however you&#39;d like, basic animations should work too.</p>
+<p>There are also some simple hooks for toggling camera, microphone and screensharing. Use them like this:</p>
+<pre><code class="language-ts"><span class="hl-10">const</span><span class="hl-1"> { </span><span class="hl-13">isCameraOn</span><span class="hl-1">, </span><span class="hl-13">toggleCamera</span><span class="hl-1"> } = </span><span class="hl-11">useCameraState</span><span class="hl-1">();</span><br/><span class="hl-10">const</span><span class="hl-1"> { </span><span class="hl-13">isMicrophoneOn</span><span class="hl-1">, </span><span class="hl-13">toggleMicrophone</span><span class="hl-1"> } = </span><span class="hl-11">useMicrophoneState</span><span class="hl-1">();</span>
+</code></pre>
+<p>For screencasting use <code>useScreencast()</code> hook. A new participant will be added with type <code>LocalScreencasting</code> and you can render it just like any other participant with <VideoRendererView />:</p>
+<pre><code class="language-ts"><span class="hl-10">const</span><span class="hl-1"> { </span><span class="hl-13">isScreencastOn</span><span class="hl-1">, </span><span class="hl-13">toggleScreencast</span><span class="hl-1"> } = </span><span class="hl-11">useScreencast</span><span class="hl-1">();</span><br/><span class="hl-1">...</span><br/><span class="hl-11">toggleScreencast</span><span class="hl-1">({</span><span class="hl-0">screencastMetadata:</span><span class="hl-1"> { </span><span class="hl-0">displayName:</span><span class="hl-1"> </span><span class="hl-3">&quot;Annie&#39;s desktop&quot;</span><span class="hl-1"> }});</span>
+</code></pre>
+
+<a href="#api" id="api" style="color: inherit; text-decoration: none;">
+  <h1>API</h1>
+</a>
+
+<a href="#usemembraneserver" id="usemembraneserver" style="color: inherit; text-decoration: none;">
+  <h2><code>useMembraneServer()</code></h2>
+</a>
+<p>The hook used to manage a connection with membrane server.</p>
+
+<a href="#returns" id="returns" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object with functions to manage membrane server connection:</p>
+
+<a href="#connecturl-string-roomname-string-connectionoptions-connectionoptions" id="connecturl-string-roomname-string-connectionoptions-connectionoptions" style="color: inherit; text-decoration: none;">
+  <h3><code>connect(url: string, roomName: string, connectionOptions: ConnectionOptions)</code></h3>
+</a>
+<p>Connects to a room.</p>
+<p>Arguments:</p>
+<ul>
+<li><code>url: string</code> -- server url</li>
+<li><code>roomName: string</code> -- room name</li>
+<li><code>connectionOptions</code><ul>
+<li><code>quality: VideoQuality</code> -- resolution + aspect ratio of local video track, one of: <code>QVGA_169</code>, <code>VGA_169</code>, <code>QHD_169</code>, <code>HD_169</code>, <code>FHD_169</code>, <code>QVGA_43</code>, <code>VGA_43</code>, <code>QHD_43</code>, <code>HD_43</code>, <code>FHD_43</code>. Note that quality might be worse than specified due to device capabilities, internet connection etc. Default: <code>VGA_169</code>.</li>
+<li><code>flipVideo: boolean</code> -- whether to flip the dimensions of the video, that is whether to film in vertical orientation. Default: <code>true</code></li>
+<li><code>userMetadata: Metadata</code> -- a map <code>string -&gt; string</code> containing user metadata to be sent to the server. Use it to send for example user display name or other options.</li>
+<li><code>videoTrackMetadata: Metadata</code> -- a map <code>string -&gt; string</code> containing video track metadata to be sent to the server.</li>
+<li><code>audioTrackMetadata: Metadata</code> -- a map <code>string -&gt; string</code> containing audio track metadata to be sent to the server.</li>
+<li><code>connectionParams: SocketConnectionParams</code> -- a map <code>string -&gt; string</code> containing connection params passed to the socket.</li>
+<li><code>simulcastConfig: SimulcastConfig</code> - <a href="#SimulcastConfig">SimulcastConfig</a> of a video track. By default simulcast is disabled.</li>
+<li><code>maxBandwidth: TrackBandwidthLimit</code> - <a href="#TrackBandwidthLimit">bandwidth limit</a> of a video track. By default there is no bandwidth limit.</li>
+</ul>
+</li>
+</ul>
+<p>Returns:
+A promise that resolves on success or rejects in case of an error.</p>
+
+<a href="#joinroom" id="joinroom" style="color: inherit; text-decoration: none;">
+  <h3><code>joinRoom()</code></h3>
+</a>
+<p>Call this after successfully connecting with the server to join the room. Other participants&#39; tracks will be sent and the user will be visible to other room participants.</p>
+<p>Returns:
+A promise that resolves on success or rejects in case of an error.</p>
+
+<a href="#disconnect" id="disconnect" style="color: inherit; text-decoration: none;">
+  <h3><code>disconnect()</code></h3>
+</a>
+<p>Call this to gracefully disconnect from the server. After that you can connect again.</p>
+<p>Returns:
+A promise that resolves on success or rejects in case of an error.</p>
+
+<a href="#error" id="error" style="color: inherit; text-decoration: none;">
+  <h3><code>error</code></h3>
+</a>
+<p>This variable will contain an error when user failed to connect, join or during a conversation (for example internet connection is lost).</p>
+
+<a href="#useroomparticipants" id="useroomparticipants" style="color: inherit; text-decoration: none;">
+  <h2><code>useRoomParticipants()</code></h2>
+</a>
+<p>This hook provides live updates of room participants.</p>
+
+<a href="#returns-1" id="returns-1" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An array of room participants.</p>
+<p><code>type Participant</code></p>
+<ul>
+<li><code>id: string</code> -- id used to identify a participant</li>
+<li><code>type: ParticipantType</code> -- used to indicate participant type. Possible values: <code>Remote</code>, <code>Local</code>, <code>LocalScreencasting</code>. When user is screencasting, a new fake participant is created.</li>
+<li><code>metadata: Metadata</code> -- a map string -&gt; string containing participant metadata from the server</li>
+</ul>
+
+<a href="#usecamerastate" id="usecamerastate" style="color: inherit; text-decoration: none;">
+  <h2><code>useCameraState()</code></h2>
+</a>
+<p>This hook can toggle camera on/off and provides current camera state.</p>
+
+<a href="#returns-2" id="returns-2" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object containig:</p>
+<ul>
+<li><code>isCameraOn: boolean</code></li>
+<li><code>toggleCamera: () =&gt; Promise&lt;void&gt;</code></li>
+</ul>
+
+<a href="#usemicrophonestate" id="usemicrophonestate" style="color: inherit; text-decoration: none;">
+  <h2><code>useMicrophoneState()</code></h2>
+</a>
+<p>This hook can toggle microphone on/off and provides current microphone state.</p>
+
+<a href="#returns-3" id="returns-3" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object containig:</p>
+<ul>
+<li><code>isMicrophoneOn: boolean</code></li>
+<li><code>toggleMicrophone: () =&gt; Promise&lt;void&gt;</code></li>
+</ul>
+
+<a href="#flipcamera" id="flipcamera" style="color: inherit; text-decoration: none;">
+  <h2><code>flipCamera()</code></h2>
+</a>
+<p>Function that&#39;s toggles between front and back camera. By default the front camera is used.</p>
+
+<a href="#returns-4" id="returns-4" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>A promise that resolves when camera is toggled.</p>
+
+<a href="#usescreencast" id="usescreencast" style="color: inherit; text-decoration: none;">
+  <h2><code>useScreencast()</code></h2>
+</a>
+<p>This hook can toggle screen sharing on/off and provides current screencast state.</p>
+
+<a href="#returns-5" id="returns-5" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object containing:</p>
+<ul>
+<li><p><code>isScreencastOn: boolean</code></p>
+</li>
+<li><p><code>toggleScreencast(screencastOptions: ScreencastOptions)</code> - toggles the screencast on/off. Arguments:</p>
+<ul>
+<li><code>screencastOptions: ScreencastOptions</code><ul>
+<li><code>quality: ScreencastQuality</code> - resolution + fps of screencast track, one of: <code>VGA</code>, <code>HD5</code>, <code>HD15</code>, <code>FHD15</code>, <code>FHD30</code>. Note that quality might be worse than specified due to device capabilities, internet connection etc. Default: <code>HD15</code>.</li>
+<li><code>screencastMetadata: Metadata</code> - a map <code>string -&gt; string</code> containing screencast track metadata to be sent to the server.</li>
+<li><code>simulcastConfig: SimulcastConfig</code> - <a href="#simulcastconfig">SimulcastConfig</a> of a screencast track. By default simulcast is disabled.</li>
+<li><code>maxBandwidth: TrackBandwidthLimit</code> - <a href="#trackbandwidthlimit">bandwidth limit</a> of a screencast track. By default there is no bandwidth limit.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>updateScreencastTrackMetadata(metatada: Metadata)</code> - a function that updates screencast track metadata on the server. Arguments:</p>
+<ul>
+<li><code>metatada: Metadata</code> - a map <code>string -&gt; string</code> containing screencast track metadata to be sent to the server.</li>
+</ul>
+</li>
+<li><p><code>simulcastConfig</code> - current <a href="#SimulcastConfig">SimulcastConfig</a> of a screencast track</p>
+</li>
+<li><p><code>toggleScreencastTrackEncoding(encoding: TrackEncoding)</code> - toggles simulcast encoding of a screencast track on/off. Arguments:</p>
+<ul>
+<li><code>encoding: TrackEncoding</code> - encoding to toggle</li>
+</ul>
+</li>
+<li><p><code>setScreencastTrackEncodingBandwidth(encoding: TrackEncoding, bandwidth: BandwidthLimit)</code> - updates maximum bandwidth for the given simulcast encoding of the screencast track. Arguments:</p>
+<ul>
+<li><code>encoding: TrackEncoding</code> - encoding to update</li>
+<li><code>bandwidth: BandwidthLimit</code> - <a href="#trackbandwidthlimit">BandwidthLimit</a> to set</li>
+</ul>
+</li>
+<li><p><code>setScreencastTrackBandwidth(bandwidth: BandwidthLimit)</code> - updates maximum bandwidth for the screencast track. This value directly translates to quality of the stream and the amount of RTP packets being sent. In case simulcast is enabled bandwidth is split between all of the variant streams proportionally to their resolution. Arguments:</p>
+<ul>
+<li><code>bandwidth: BandwidthLimit</code> - <a href="#trackbandwidthlimit">BandwidthLimit</a> to set</li>
+</ul>
+</li>
+</ul>
+<p>Under the hood the screencast is just given participant&#39;s another video track. However for convenience the library creates a fake screencasting participant. The library recognizes a screencast track by <code>type: &quot;screencasting&quot;</code> metadata in screencasting video track.</p>
+
+<a href="#usepeermetadata" id="usepeermetadata" style="color: inherit; text-decoration: none;">
+  <h2><code>usePeerMetadata()</code></h2>
+</a>
+<p>This hook manages user&#39;s metadata. Use it to for example update when user is muted etc.</p>
+
+<a href="#returns-6" id="returns-6" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object containing:</p>
+<ul>
+<li><code>updatePeerMetadata(metatada: Metadata)</code> - a function that updates user&#39;s metadata on the server. Arguments:<ul>
+<li><code>metatada: Metadata</code> - a map <code>string -&gt; string</code> containing user&#39;s track metadata to be sent to the server.</li>
+</ul>
+</li>
+</ul>
+
+<a href="#usevideotrackmetadata" id="usevideotrackmetadata" style="color: inherit; text-decoration: none;">
+  <h2><code>useVideoTrackMetadata()</code></h2>
+</a>
+<p>This hook manages video track metadata.</p>
+
+<a href="#returns-7" id="returns-7" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object containing:</p>
+<ul>
+<li><code>updateVideoTrackMetadata(metatada: Metadata)</code> - a function that updates video metadata on the server. Arguments:<ul>
+<li><code>metatada: Metadata</code> - a map <code>string -&gt; string</code> containing video track metadata to be sent to the server.</li>
+</ul>
+</li>
+</ul>
+
+<a href="#useaudiotrackmetadata" id="useaudiotrackmetadata" style="color: inherit; text-decoration: none;">
+  <h2><code>useAudioTrackMetadata()</code></h2>
+</a>
+<p>This hook manages audio track metadata.</p>
+
+<a href="#returns-8" id="returns-8" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object containing:</p>
+<ul>
+<li><code>updateAudioTrackMetadata(metatada: Metadata)</code> - a function that updates audio metadata on the server. Arguments:<ul>
+<li><code>metatada: Metadata</code> - a map <code>string -&gt; string</code> containing audio track metadata to be sent to the server.</li>
+</ul>
+</li>
+</ul>
+
+<a href="#useaudiosettings" id="useaudiosettings" style="color: inherit; text-decoration: none;">
+  <h2><code>useAudioSettings()</code></h2>
+</a>
+<p>This hook manages audio settings.</p>
+
+<a href="#returns-9" id="returns-9" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object containing:</p>
+<ul>
+<li><code>toggleSpeakerphone()</code> - a function that toggles the speakerphone on/off. Supported only on Android</li>
+<li><code>isSpeakerphoneOn</code> - <code>boolean</code>, <code>true</code> if the speakerphone is on. The speakerphone is on by default.</li>
+</ul>
+
+<a href="#ltvideorendererview-gt" id="ltvideorendererview-gt" style="color: inherit; text-decoration: none;">
+  <h2><code>&lt;VideoRendererView /&gt;</code></h2>
+</a>
+<p>A component used for rendering participant&#39;s video and audio. You can add some basic View styling.</p>
+<p>Props:</p>
+<ul>
+<li><code>participantId: string</code> -- id of the participant which you want to render.</li>
+<li><code>videoLayout: VideoLayout</code> -- <code>FILL</code> or <code>FIT</code> - it works just like RN <code>Image</code> component. <code>FILL</code> fills the whole view with video and it may cut some parts of the video. <code>FIT</code> scales the video so the whole video is visible, but it may leave some empty space in the view. Default: <code>FILL</code>.</li>
+</ul>
+
+<a href="#usesimulcast" id="usesimulcast" style="color: inherit; text-decoration: none;">
+  <h2><code>useSimulcast()</code></h2>
+</a>
+<p>This hook manages the simulcast configuration of a video track.</p>
+
+<a href="#returns-10" id="returns-10" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object containing:</p>
+<ul>
+<li><code>simulcastConfig</code> - current <a href="#SimulcastConfig">SimulcastConfig</a> of a video track</li>
+<li><code>setTargetTrackEncoding(peerId: string, encoding: TrackEncoding)</code> - sets track encoding that server should send to the client library. The encoding will be sent whenever it is available. If choosen encoding is temporarily unavailable, some other encoding will be sent until choosen encoding becomes active again. Arguments:<ul>
+<li><code>peerId: string</code> - id of a peer whose track encoding you want to select</li>
+<li><code>encoding: TrackEncoding</code> - encoding to select</li>
+</ul>
+</li>
+<li><code>toggleVideoTrackEncoding(encoding: TrackEncoding)</code> - toggles encoding of a video track on/off. Arguments:<ul>
+<li><code>encoding: TrackEncoding</code> - encoding to toggle</li>
+</ul>
+</li>
+<li><code>setVideoTrackEncodingBandwidth(encoding: TrackEncoding, bandwidth: BandwidthLimit)</code> - updates maximum bandwidth for the given simulcast encoding of the video track. Arguments:<ul>
+<li><code>encoding: TrackEncoding</code> - encoding to update</li>
+<li><code>bandwidth: BandwidthLimit</code> - <a href="#trackbandwidthlimit">BandwidthLimit</a> to set</li>
+</ul>
+</li>
+</ul>
+
+<a href="#usebandwidthlimit" id="usebandwidthlimit" style="color: inherit; text-decoration: none;">
+  <h2><code>useBandwidthLimit()</code></h2>
+</a>
+<p>This hook manages the bandwidth limit of a video track.</p>
+
+<a href="#returns-11" id="returns-11" style="color: inherit; text-decoration: none;">
+  <h3>Returns</h3>
+</a>
+<p>An object containing:</p>
+<ul>
+<li><code>setVideoTrackBandwidth(bandwidth: BandwidthLimit)</code> - updates maximum bandwidth for the video track. This value directly translates to quality of the stream and the amount of RTP packets being sent. In case simulcast is enabled bandwidth is split between all of the variant streams proportionally to their resolution. Arguments:
+-- <code>bandwidth: BandwidthLimit</code> - <a href="#trackbandwidthlimit">BandwidthLimit</a> to set</li>
+</ul>
+
+<a href="#simulcastconfig" id="simulcastconfig" style="color: inherit; text-decoration: none;">
+  <h2><code>SimulcastConfig</code></h2>
+</a>
+<p>A type describing simulcast configuration.</p>
+<p>At the moment, simulcast track is initialized in three versions - low, medium and high.
+High resolution is the original track resolution, while medium and low resolutions
+are the original track resolution scaled down by 2 and 4 respectively.</p>
+<p><code>type SimulcastConfig</code></p>
+<ul>
+<li><code>enabled: boolean</code> -- whether to simulcast track or not. By default simulcast is disabled.</li>
+<li><code>activeEncodings: TrackEncoding[]</code> -- list of active encodings. Encoding can be one of <code>&quot;h&quot;</code> (original encoding), <code>&quot;m&quot;</code> (scaled down x2), <code>&quot;l&quot;</code> (scaled down x4).</li>
+</ul>
+
+<a href="#trackbandwidthlimit" id="trackbandwidthlimit" style="color: inherit; text-decoration: none;">
+  <h2><code>TrackBandwidthLimit</code></h2>
+</a>
+<p>A type describing bandwidth limitation of a track, including simulcast and non-simulcast tracks. Can be <code>BandwidthLimit</code> or <code>SimulcastBandwidthLimit</code>.</p>
+<ul>
+<li><code>type BandwidthLimit</code> - Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.</li>
+<li><code>type SimulcastBandwidthLimit</code> - Type describing bandwidth limit for simulcast track. It is a mapping <code>encoding -&gt; BandwidthLimit</code>. If encoding isn&#39;t present in this mapping, it will be assumed that this particular encoding shouldn&#39;t have any bandwidth limit.</li>
+</ul>
+
+<a href="#developing" id="developing" style="color: inherit; text-decoration: none;">
+  <h3>Developing</h3>
+</a>
+<p>To release a new version of the lib just run <code>yarn release</code>, follow the prompts to bump version, make tags, commits and upload to npm
+To release a new version of the example app install fastlane, get upload key password and firebase auth json from the devs, update <code>~/.gradle/gradle.properties</code> like this:</p>
+<pre><code><span class="hl-13">MEMBRANE_UPLOAD_STORE_FILE</span><span class="hl-1">=</span><span class="hl-0">my</span><span class="hl-1">-</span><span class="hl-0">upload</span><span class="hl-1">-</span><span class="hl-0">key</span><span class="hl-1">.</span><span class="hl-0">keystore</span><br/><span class="hl-13">MEMBRANE_UPLOAD_KEY_ALIAS</span><span class="hl-1">=</span><span class="hl-0">my</span><span class="hl-1">-</span><span class="hl-0">key</span><span class="hl-1">-</span><span class="hl-0">alias</span><br/><span class="hl-13">MEMBRANE_UPLOAD_STORE_PASSWORD</span><span class="hl-1">=********</span><br/><span class="hl-13">MEMBRANE_UPLOAD_KEY_PASSWORD</span><span class="hl-1">=********</span>
+</code></pre>
+<p>and run <code>yarn releaseApp</code> from the main directory.
+Pro tip: when developing set backend url in <code>.env.development</code>.</p>
+
+<a href="#credits" id="credits" style="color: inherit; text-decoration: none;">
+  <h2>Credits</h2>
+</a>
+<p>This project has been built and is maintained thanks to the support from <a href="https://dscout.com/">dscout</a> and <a href="https://swmansion.com">Software Mansion</a>.</p>
+<img alt="dscout" height="100" src="./.github/dscout_logo.png"/>
+<img alt="Software Mansion" src="https://logo.swmansion.com/logo?color=white&variant=desktop&width=150&tag=react-native-reanimated-github"/></div></div>
+<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<nav class="tsd-navigation primary">
+<details class="tsd-index-accordion" open><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li class="current selected"><a href="modules.html">@membraneframework/react-<wbr/>native-<wbr/>membrane-<wbr/>webrtc</a>
+<ul></ul></li></ul></div></details></nav>
+<nav class="tsd-navigation secondary menu-sticky">
+<ul>
+<li class="tsd-kind-enum"><a href="enums/ParticipantType.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-enum)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-8-path"></rect><path d="M9.45 16V7.24H14.49V8.224H10.518V10.936H14.07V11.908H10.518V15.016H14.49V16H9.45Z" fill="var(--color-text)" id="icon-8-text"></path></svg>Participant<wbr/>Type</a></li>
+<li class="tsd-kind-enum"><a href="enums/ScreencastQuality.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-8-path"></use><use href="#icon-8-text"></use></svg>Screencast<wbr/>Quality</a></li>
+<li class="tsd-kind-enum"><a href="enums/VideoLayout.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-8-path"></use><use href="#icon-8-text"></use></svg>Video<wbr/>Layout</a></li>
+<li class="tsd-kind-enum"><a href="enums/VideoQuality.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-8-path"></use><use href="#icon-8-text"></use></svg>Video<wbr/>Quality</a></li>
+<li class="tsd-kind-type-alias"><a href="types/BandwidthLimit.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-4194304-path"></rect><path d="M11.31 16V8.224H8.91V7.24H14.79V8.224H12.39V16H11.31Z" fill="var(--color-text)" id="icon-4194304-text"></path></svg>Bandwidth<wbr/>Limit</a></li>
+<li class="tsd-kind-type-alias"><a href="types/ConnectionOptions.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Connection<wbr/>Options</a></li>
+<li class="tsd-kind-type-alias"><a href="types/Metadata.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Metadata</a></li>
+<li class="tsd-kind-type-alias"><a href="types/Participant.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Participant</a></li>
+<li class="tsd-kind-type-alias"><a href="types/ScreencastOptions.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Screencast<wbr/>Options</a></li>
+<li class="tsd-kind-type-alias"><a href="types/SimulcastBandwidthLimit.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Simulcast<wbr/>Bandwidth<wbr/>Limit</a></li>
+<li class="tsd-kind-type-alias"><a href="types/SimulcastConfig.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Simulcast<wbr/>Config</a></li>
+<li class="tsd-kind-type-alias"><a href="types/SocketConnectionParams.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Socket<wbr/>Connection<wbr/>Params</a></li>
+<li class="tsd-kind-type-alias"><a href="types/TrackBandwidthLimit.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Track<wbr/>Bandwidth<wbr/>Limit</a></li>
+<li class="tsd-kind-type-alias"><a href="types/TrackEncoding.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Track<wbr/>Encoding</a></li>
+<li class="tsd-kind-type-alias"><a href="types/VideoRendererProps.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Video<wbr/>Renderer<wbr/>Props</a></li>
+<li class="tsd-kind-variable"><a href="variables/VideoRendererView.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-variable)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-32-path"></rect><path d="M11.106 16L8.85 7.24H9.966L11.454 13.192C11.558 13.608 11.646 13.996 11.718 14.356C11.79 14.708 11.842 14.976 11.874 15.16C11.906 14.976 11.954 14.708 12.018 14.356C12.09 13.996 12.178 13.608 12.282 13.192L13.758 7.24H14.85L12.582 16H11.106Z" fill="var(--color-text)" id="icon-32-text"></path></svg>Video<wbr/>Renderer<wbr/>View</a></li>
+<li class="tsd-kind-function"><a href="functions/flipCamera.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-function)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-64-path"></rect><path d="M9.39 16V7.24H14.55V8.224H10.446V11.128H14.238V12.112H10.47V16H9.39Z" fill="var(--color-text)" id="icon-64-text"></path></svg>flip<wbr/>Camera</a></li>
+<li class="tsd-kind-function"><a href="functions/useAudioSettings.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Audio<wbr/>Settings</a></li>
+<li class="tsd-kind-function"><a href="functions/useAudioTrackMetadata.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Audio<wbr/>Track<wbr/>Metadata</a></li>
+<li class="tsd-kind-function"><a href="functions/useBandwidthLimit.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Bandwidth<wbr/>Limit</a></li>
+<li class="tsd-kind-function"><a href="functions/useCameraState.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Camera<wbr/>State</a></li>
+<li class="tsd-kind-function"><a href="functions/useMembraneServer.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Membrane<wbr/>Server</a></li>
+<li class="tsd-kind-function"><a href="functions/useMicrophoneState.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Microphone<wbr/>State</a></li>
+<li class="tsd-kind-function"><a href="functions/usePeerMetadata.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Peer<wbr/>Metadata</a></li>
+<li class="tsd-kind-function"><a href="functions/useRoomParticipants.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Room<wbr/>Participants</a></li>
+<li class="tsd-kind-function"><a href="functions/useScreencast.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Screencast</a></li>
+<li class="tsd-kind-function"><a href="functions/useSimulcast.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Simulcast</a></li>
+<li class="tsd-kind-function"><a href="functions/useVideoTrackMetadata.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>use<wbr/>Video<wbr/>Track<wbr/>Metadata</a></li></ul></nav></div></div>
+<div class="container tsd-generator">
+<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
+<div class="overlay"></div><script src="assets/main.js"></script></body></html>
