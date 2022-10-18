@@ -78,7 +78,14 @@ export default function App() {
       console.warn(err);
     }
     setConnected(true);
-  }, [requestPermissions, mbConnect, joinRoom, roomName, isSimulcastOn]);
+  }, [
+    requestPermissions,
+    mbConnect,
+    joinRoom,
+    roomName,
+    isSimulcastOn,
+    displayName,
+  ]);
 
   const disconnect = useCallback(() => {
     setConnected(false);
