@@ -150,6 +150,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
     val audioManager =  reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     audioManager.isSpeakerphoneOn = true
+    audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
 
     connectPromise = promise
     room = MembraneRTC.connect(
