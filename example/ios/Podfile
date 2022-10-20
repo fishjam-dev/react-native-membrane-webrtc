@@ -9,6 +9,7 @@ target 'MembraneExample' do
   use_react_native!(:path => config["reactNativePath"])
 
   pod 'react-native-membrane', :path => '../..'
+  pod 'MembraneRTC', :git => 'https://github.com/membraneframework/membrane-webrtc-ios.git', :branch => 'graszka22/mute-no-camera-indicators'
 
   # Enables Flipper.
   #
@@ -22,5 +23,6 @@ target 'MembraneExample' do
 end
 
 target 'ScreenBroadcast' do
-  pod 'MembraneRTC/Broadcast'
+  #pod 'MembraneRTC/Broadcast'
+  pod 'MembraneRTC/Broadcast', :git => 'https://github.com/membraneframework/membrane-webrtc-ios.git', :branch => 'graszka22/mute-no-camera-indicators'
 end

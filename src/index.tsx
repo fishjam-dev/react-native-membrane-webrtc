@@ -32,13 +32,15 @@ export enum ParticipantType {
   LocalScreencasting = 'LocalScreencasting',
 }
 
-export type Metadata = { [key: string]: string };
+export type Metadata = { [key: string]: any };
 export type SocketConnectionParams = { [key: string]: any };
 
 export type Participant = {
   id: string;
   type: ParticipantType;
   metadata: Metadata;
+  videoTrackMetadata: Metadata;
+  audioTrackMetadata: Metadata;
 };
 
 export enum VideoLayout {
