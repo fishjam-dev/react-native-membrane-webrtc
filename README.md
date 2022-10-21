@@ -2,6 +2,9 @@
 
 react-native-membrane-webrtc is a React Native wrapper for [membrane-webrtc-android](https://github.com/membraneframework/membrane-webrtc-android) and [membrane-webrtc-ios](https://github.com/membraneframework/membrane-webrtc-ios). It allows you to quickly and easily create a mobile client app in React Native for Membrane server.
 
+# Documentation
+API documentation is available [here](https://docs.membrane.stream/react-native-membrane-webrtc/)
+
 # Installation
 
 Firstly install react-native-membrane with `yarn` or `npm`
@@ -61,19 +64,19 @@ On iOS installation is a bit more complicated, because you need to setup a scree
 2. Open your `<your-project>.xcworkspace` in Xcode
 3. Create new Broadcast Upload Extension. Select File → New → Target... → Broadcast Upload Extension → Next. Choose the name for the new target, select Swift language and deselect "Include UI Extension".
 
-   ![New target config](/.github/xcode1.png)
+   ![New target config](/.github/images/xcode1.png)
 
    Press Finish. In the next alert xcode will ask you if you want to activate the new scheme - press Cancel.
 
 4. Configure app group. Go to "Signing & Capabilities" tab, click "+ Capability" button in upper left corner and select "App Groups".
 
-   ![App groups config](/.github/xcode2.png)
+   ![App groups config](/.github/images/xcode2.png)
 
    Then in the "App Groups" add a new group or select existing. Usually group name has format `group.<your-bundle-identifier>`. Verify that both app and extension targets have app group and dev team set correctly.
 
 5. A new folder with app extension should appear on the left with contents like this:
 
-   ![App extension files](/.github/xcode3.png)
+   ![App extension files](/.github/images/xcode3.png)
 
    Replace `SampleHandler.swift` with `MembraneBroadcastSampleHandler.swift` and this code:
 
@@ -268,5 +271,5 @@ Pro tip: when developing set backend url in `.env.development`.
 
 This project has been built and is maintained thanks to the support from [dscout](https://dscout.com/) and [Software Mansion](https://swmansion.com).
 
-<img alt="dscout" height="100" src="./.github/dscout_logo.png"/>
+<img alt="dscout" height="100" src="./.github/images/dscout_logo.png"/>
 <img alt="Software Mansion" src="https://logo.swmansion.com/logo?color=white&variant=desktop&width=150&tag=react-native-reanimated-github"/>

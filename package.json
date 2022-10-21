@@ -14,7 +14,7 @@
     "expo-module": "expo-module",
     "release": "release-it",
     "releaseApp": "cd example/android && fastlane deploy",
-    "docs": "typedoc src/index.tsx"
+    "docs": "sed 's/\\.github\\/images/media/g' README.md > README_docs.md && typedoc src/index.tsx --media ./.github/images --readme README_docs.md && rm README_docs.md"
   },
   "keywords": [
     "react-native",
