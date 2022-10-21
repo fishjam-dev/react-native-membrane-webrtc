@@ -30,6 +30,6 @@ platform :android do
         service_credentials_file: 'firebase-admin.json',
         groups: 'membrane-testers'
     )
-    reset_git_repo
+    reset_git_repo(skip_clean: true)
   end
 end

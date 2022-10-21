@@ -303,7 +303,7 @@ PODS:
   - React-jsinspector (0.68.2)
   - React-logger (0.68.2):
     - glog
-  - react-native-membrane (1.1.3):
+  - react-native-membrane (2.0.0):
     - MembraneRTC (~> 3.0.0)
     - React-Core
   - React-perflogger (0.68.2)
@@ -578,7 +578,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: b7b553412f2ec768fe6c8f27cd6bafdb9d8719e6
   React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
-  react-native-membrane: e50d6c7102bdbe68d60bcf4c62b776485000190c
+  react-native-membrane: 5e77572283eddf104cb1e135f80a2ce32b56a708
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
   React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162
   React-RCTAnimation: bc9440a1c37b06ae9ebbb532d244f607805c6034
