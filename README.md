@@ -2,6 +2,9 @@
 
 react-native-membrane-webrtc is a React Native wrapper for [membrane-webrtc-android](https://github.com/membraneframework/membrane-webrtc-android) and [membrane-webrtc-ios](https://github.com/membraneframework/membrane-webrtc-ios). It allows you to quickly and easily create a mobile client app in React Native for Membrane server.
 
+# Documentation
+API documentation is available [here](https://docs.membrane.stream/react-native-membrane-webrtc/)
+
 # Installation
 
 Firstly install react-native-membrane with `yarn` or `npm`
