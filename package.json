@@ -13,7 +13,8 @@
     "prepublishOnly": "expo-module prepublishOnly",
     "expo-module": "expo-module",
     "release": "release-it",
-    "releaseApp": "cd example/android && fastlane deploy"
+    "releaseApp": "cd example/android && fastlane deploy",
+    "docs": "sed 's/\\.github\\/images/media/g' README.md > README_docs.md && typedoc src/index.tsx --media ./.github/images --readme README_docs.md && rm README_docs.md"
   },
   "keywords": [
     "react-native",
@@ -51,6 +52,8 @@
     "react": "16.13.1",
     "react-native": "0.67.3",
     "release-it": "^15.2.0",
+    "typedoc": "^0.23.16",
+    "typedoc-plugin-mark-react-functional-components": "^0.2.2",
     "typescript": "^4.1.3"
   },
   "peerDependencies": {

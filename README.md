@@ -2,6 +2,9 @@
 
 react-native-membrane-webrtc is a React Native wrapper for [membrane-webrtc-android](https://github.com/membraneframework/membrane-webrtc-android) and [membrane-webrtc-ios](https://github.com/membraneframework/membrane-webrtc-ios). It allows you to quickly and easily create a mobile client app in React Native for Membrane server.
 
+# Documentation
+API documentation is available [here](https://docs.membrane.stream/react-native-membrane-webrtc/)
+
 # Installation
 
 Firstly install react-native-membrane with `yarn` or `npm`
@@ -61,19 +64,19 @@ On iOS installation is a bit more complicated, because you need to setup a scree
 2. Open your `<your-project>.xcworkspace` in Xcode
 3. Create new Broadcast Upload Extension. Select File → New → Target... → Broadcast Upload Extension → Next. Choose the name for the new target, select Swift language and deselect "Include UI Extension".
 
-   ![New target config](/.github/xcode1.png)
+   ![New target config](./.github/images/xcode1.png)
 
    Press Finish. In the next alert xcode will ask you if you want to activate the new scheme - press Cancel.
 
 4. Configure app group. Go to "Signing & Capabilities" tab, click "+ Capability" button in upper left corner and select "App Groups".
 
-   ![App groups config](/.github/xcode2.png)
+   ![App groups config](./.github/images/xcode2.png)
 
    Then in the "App Groups" add a new group or select existing. Usually group name has format `group.<your-bundle-identifier>`. Verify that both app and extension targets have app group and dev team set correctly.
 
 5. A new folder with app extension should appear on the left with contents like this:
 
-   ![App extension files](/.github/xcode3.png)
+   ![App extension files](./.github/images/xcode3.png)
 
    Replace `SampleHandler.swift` with `MembraneBroadcastSampleHandler.swift` and this code:
 
@@ -252,231 +255,6 @@ const { isScreencastOn, toggleScreencast } = useScreencast();
 toggleScreencast({screencastMetadata: { displayName: "Annie's desktop" }});
 ```
 
-# API
-
-## `useMembraneServer()`
-
-The hook used to manage a connection with membrane server.
-
-### Returns
-
-An object with functions to manage membrane server connection:
-
-### `connect(url: string, roomName: string, connectionOptions: ConnectionOptions)`
-
-Connects to a room.
-
-Arguments:
-
-- `url: string` -- server url
-- `roomName: string` -- room name
-- `connectionOptions`
-  - `quality: VideoQuality` -- resolution + aspect ratio of local video track, one of: `QVGA_169`, `VGA_169`, `QHD_169`, `HD_169`, `FHD_169`, `QVGA_43`, `VGA_43`, `QHD_43`, `HD_43`, `FHD_43`. Note that quality might be worse than specified due to device capabilities, internet connection etc. Default: `VGA_169`.
-  - `flipVideo: boolean` -- whether to flip the dimensions of the video, that is whether to film in vertical orientation. Default: `true`
-  - `userMetadata: Metadata` -- a map `string -> string` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
-  - `videoTrackMetadata: Metadata` -- a map `string -> string` containing video track metadata to be sent to the server.
-  - `audioTrackMetadata: Metadata` -- a map `string -> string` containing audio track metadata to be sent to the server.
-  - `connectionParams: SocketConnectionParams` -- a map `string -> string` containing connection params passed to the socket.
-  - `simulcastConfig: SimulcastConfig` - [SimulcastConfig](#SimulcastConfig) of a video track. By default simulcast is disabled.
-  - `maxBandwidth: TrackBandwidthLimit` - [bandwidth limit](#TrackBandwidthLimit) of a video track. By default there is no bandwidth limit.
-
-Returns:
-A promise that resolves on success or rejects in case of an error.
-
-### `joinRoom()`
-
-Call this after successfully connecting with the server to join the room. Other participants' tracks will be sent and the user will be visible to other room participants.
-
-Returns:
-A promise that resolves on success or rejects in case of an error.
-
-### `disconnect()`
-
-Call this to gracefully disconnect from the server. After that you can connect again.
-
-Returns:
-A promise that resolves on success or rejects in case of an error.
-
-### `error`
-
-This variable will contain an error when user failed to connect, join or during a conversation (for example internet connection is lost).
-
-## `useRoomParticipants()`
-
-This hook provides live updates of room participants.
-
-### Returns
-
-An array of room participants.
-
-`type Participant`
-
-- `id: string` -- id used to identify a participant
-- `type: ParticipantType` -- used to indicate participant type. Possible values: `Remote`, `Local`, `LocalScreencasting`. When user is screencasting, a new fake participant is created.
-- `metadata: Metadata` -- a map string -> string containing participant metadata from the server
-
-## `useCameraState()`
-
-This hook can toggle camera on/off and provides current camera state.
-
-### Returns
-
-An object containig:
-
-- `isCameraOn: boolean`
-- `toggleCamera: () => Promise<void>`
-
-## `useMicrophoneState()`
-
-This hook can toggle microphone on/off and provides current microphone state.
-
-### Returns
-
-An object containig:
-
-- `isMicrophoneOn: boolean`
-- `toggleMicrophone: () => Promise<void>`
-
-## `flipCamera()`
-
-Function that's toggles between front and back camera. By default the front camera is used.
-
-### Returns
-
-A promise that resolves when camera is toggled.
-
-## `useScreencast()`
-
-This hook can toggle screen sharing on/off and provides current screencast state.
-
-### Returns
-
-An object containing:
-
-- `isScreencastOn: boolean`
-- `toggleScreencast(screencastOptions: ScreencastOptions)` - toggles the screencast on/off. Arguments:
-
-  - `screencastOptions: ScreencastOptions`
-    - `quality: ScreencastQuality` - resolution + fps of screencast track, one of: `VGA`, `HD5`, `HD15`, `FHD15`, `FHD30`. Note that quality might be worse than specified due to device capabilities, internet connection etc. Default: `HD15`.
-    - `screencastMetadata: Metadata` - a map `string -> string` containing screencast track metadata to be sent to the server.
-    - `simulcastConfig: SimulcastConfig` - [SimulcastConfig](#simulcastconfig) of a screencast track. By default simulcast is disabled.
-    - `maxBandwidth: TrackBandwidthLimit` - [bandwidth limit](#trackbandwidthlimit) of a screencast track. By default there is no bandwidth limit.
-
-- `updateScreencastTrackMetadata(metatada: Metadata)` - a function that updates screencast track metadata on the server. Arguments:
-  - `metatada: Metadata` - a map `string -> string` containing screencast track metadata to be sent to the server.
-- `simulcastConfig` - current [SimulcastConfig](#SimulcastConfig) of a screencast track
-- `toggleScreencastTrackEncoding(encoding: TrackEncoding)` - toggles simulcast encoding of a screencast track on/off. Arguments:
-  - `encoding: TrackEncoding` - encoding to toggle
-- `setScreencastTrackEncodingBandwidth(encoding: TrackEncoding, bandwidth: BandwidthLimit)` - updates maximum bandwidth for the given simulcast encoding of the screencast track. Arguments:
-  - `encoding: TrackEncoding` - encoding to update
-  - `bandwidth: BandwidthLimit` - [BandwidthLimit](#trackbandwidthlimit) to set
-- `setScreencastTrackBandwidth(bandwidth: BandwidthLimit)` - updates maximum bandwidth for the screencast track. This value directly translates to quality of the stream and the amount of RTP packets being sent. In case simulcast is enabled bandwidth is split between all of the variant streams proportionally to their resolution. Arguments:
-  - `bandwidth: BandwidthLimit` - [BandwidthLimit](#trackbandwidthlimit) to set
-
-Under the hood the screencast is just given participant's another video track. However for convenience the library creates a fake screencasting participant. The library recognizes a screencast track by `type: "screencasting"` metadata in screencasting video track.
-
-## `usePeerMetadata()`
-
-This hook manages user's metadata. Use it to for example update when user is muted etc.
-
-### Returns
-
-An object containing:
-
-- `updatePeerMetadata(metatada: Metadata)` - a function that updates user's metadata on the server. Arguments:
-  - `metatada: Metadata` - a map `string -> string` containing user's track metadata to be sent to the server.
-
-## `useVideoTrackMetadata()`
-
-This hook manages video track metadata.
-
-### Returns
-
-An object containing:
-
-- `updateVideoTrackMetadata(metatada: Metadata)` - a function that updates video metadata on the server. Arguments:
-  - `metatada: Metadata` - a map `string -> string` containing video track metadata to be sent to the server.
-
-## `useAudioTrackMetadata()`
-
-This hook manages audio track metadata.
-
-### Returns
-
-An object containing:
-
-- `updateAudioTrackMetadata(metatada: Metadata)` - a function that updates audio metadata on the server. Arguments:
-  - `metatada: Metadata` - a map `string -> string` containing audio track metadata to be sent to the server.
-
-## `useAudioSettings()`
-
-This hook manages audio settings.
-
-### Returns
-
-An object containing:
-
-- `toggleSpeakerphone()` - a function that toggles the speakerphone on/off. Supported only on Android
-- `isSpeakerphoneOn` - `boolean`, `true` if the speakerphone is on. The speakerphone is on by default.
-
-## `<VideoRendererView />`
-
-A component used for rendering participant's video and audio. You can add some basic View styling.
-
-Props:
-
-- `participantId: string` -- id of the participant which you want to render.
-- `videoLayout: VideoLayout` -- `FILL` or `FIT` - it works just like RN `Image` component. `FILL` fills the whole view with video and it may cut some parts of the video. `FIT` scales the video so the whole video is visible, but it may leave some empty space in the view. Default: `FILL`.
-
-## `useSimulcast()`
-
-This hook manages the simulcast configuration of a video track.
-
-### Returns
-
-An object containing:
-
-- `simulcastConfig` - current [SimulcastConfig](#SimulcastConfig) of a video track
-- `setTargetTrackEncoding(peerId: string, encoding: TrackEncoding)` - sets track encoding that server should send to the client library. The encoding will be sent whenever it is available. If choosen encoding is temporarily unavailable, some other encoding will be sent until choosen encoding becomes active again. Arguments:
-  - `peerId: string` - id of a peer whose track encoding you want to select
-  - `encoding: TrackEncoding` - encoding to select
-- `toggleVideoTrackEncoding(encoding: TrackEncoding)` - toggles encoding of a video track on/off. Arguments:
-  - `encoding: TrackEncoding` - encoding to toggle
-- `setVideoTrackEncodingBandwidth(encoding: TrackEncoding, bandwidth: BandwidthLimit)` - updates maximum bandwidth for the given simulcast encoding of the video track. Arguments:
-  - `encoding: TrackEncoding` - encoding to update
-  - `bandwidth: BandwidthLimit` - [BandwidthLimit](#trackbandwidthlimit) to set
-
-## `useBandwidthLimit()`
-
-This hook manages the bandwidth limit of a video track.
-
-### Returns
-
-An object containing:
-
-- `setVideoTrackBandwidth(bandwidth: BandwidthLimit)` - updates maximum bandwidth for the video track. This value directly translates to quality of the stream and the amount of RTP packets being sent. In case simulcast is enabled bandwidth is split between all of the variant streams proportionally to their resolution. Arguments:
-  -- `bandwidth: BandwidthLimit` - [BandwidthLimit](#trackbandwidthlimit) to set
-
-## `SimulcastConfig`
-
-A type describing simulcast configuration.
-
-At the moment, simulcast track is initialized in three versions - low, medium and high.
-High resolution is the original track resolution, while medium and low resolutions
-are the original track resolution scaled down by 2 and 4 respectively.
-
-`type SimulcastConfig`
-
-- `enabled: boolean` -- whether to simulcast track or not. By default simulcast is disabled.
-- `activeEncodings: TrackEncoding[]` -- list of active encodings. Encoding can be one of `"h"` (original encoding), `"m"` (scaled down x2), `"l"` (scaled down x4).
-
-## `TrackBandwidthLimit`
-
-A type describing bandwidth limitation of a track, including simulcast and non-simulcast tracks. Can be `BandwidthLimit` or `SimulcastBandwidthLimit`.
-
-- `type BandwidthLimit` - Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
-- `type SimulcastBandwidthLimit` - Type describing bandwidth limit for simulcast track. It is a mapping `encoding -> BandwidthLimit`. If encoding isn't present in this mapping, it will be assumed that this particular encoding shouldn't have any bandwidth limit.
-
 ### Developing
 To release a new version of the lib just run `yarn release`, follow the prompts to bump version, make tags, commits and upload to npm
 To release a new version of the example app install fastlane, get upload key password and firebase auth json from the devs, update `~/.gradle/gradle.properties` like this:
@@ -493,5 +271,5 @@ Pro tip: when developing set backend url in `.env.development`.
 
 This project has been built and is maintained thanks to the support from [dscout](https://dscout.com/) and [Software Mansion](https://swmansion.com).
 
-<img alt="dscout" height="100" src="./.github/dscout_logo.png"/>
+<img alt="dscout" height="100" src="./.github/images/dscout_logo.png"/>
 <img alt="Software Mansion" src="https://logo.swmansion.com/logo?color=white&variant=desktop&width=150&tag=react-native-reanimated-github"/>
