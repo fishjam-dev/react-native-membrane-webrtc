@@ -32,7 +32,7 @@ export enum ParticipantType {
   LocalScreencasting = 'LocalScreencasting',
 }
 
-export type Metadata = { [key: string]: string };
+export type Metadata = { [key: string]: any };
 export type SocketConnectionParams = { [key: string]: any };
 
 export type Participant = {
@@ -45,9 +45,17 @@ export type Participant = {
    */
   type: ParticipantType;
   /**
-   * a map `string -> string` containing participant metadata from the server
+   * a map `string -> any` containing participant metadata from the server
    */
   metadata: Metadata;
+  /**
+   * a map `string -> any` containing video track metadata from the server
+   */
+  videoTrackMetadata: Metadata;
+  /**
+   * a map `string -> any` containing audio track metadata from the server
+   */
+  audioTrackMetadata: Metadata;
 };
 
 export enum VideoLayout {
@@ -126,15 +134,15 @@ export type ConnectionOptions = {
    */
   flipVideo: boolean;
   /**
-   * a map `string -> string` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
+   * a map `string -> any` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
    */
   userMetadata: Metadata;
   /**
-   * a map `string -> string` containing video track metadata to be sent to the server.
+   * a map `string -> any` containing video track metadata to be sent to the server.
    */
   videoTrackMetadata: Metadata;
   /**
-   * a map `string -> string` containing audio track metadata to be sent to the server.
+   * a map `string -> any` containing audio track metadata to be sent to the server.
    */
   audioTrackMetadata: Metadata;
   /**
@@ -160,7 +168,7 @@ export type ScreencastOptions = {
    */
   quality: ScreencastQuality;
   /**
-   * a map `string -> string` containing screencast track metadata to be sent to the server
+   * a map `string -> any` containing screencast track metadata to be sent to the server
    */
   screencastMetadata: Metadata;
   /**
@@ -389,7 +397,7 @@ export function useScreencast() {
 
   /**
    * a function that updates screencast track metadata on the server
-   * @param metadata a map `string -> string` containing screencast track metadata to be sent to the server
+   * @param metadata a map `string -> any` containing screencast track metadata to be sent to the server
    */
   const updateScreencastTrackMetadata = useCallback(
     async (metadata: Metadata) => {
@@ -455,7 +463,7 @@ export function useScreencast() {
 export function usePeerMetadata() {
   /**
    * a function that updates user's metadata on the server
-   * @param metadata a map `string -> string` containing user's track metadata to be sent to the server
+   * @param metadata a map `string -> any` containing user's track metadata to be sent to the server
    */
   const updatePeerMetadata = useCallback(async (metadata: Metadata) => {
     await Membrane.updatePeerMetadata(metadata);
@@ -469,7 +477,7 @@ export function usePeerMetadata() {
 export function useVideoTrackMetadata() {
   /**
    * a function that updates video metadata on the server.
-   * @param metadata a map string -> string containing video track metadata to be sent to the server
+   * @param metadata a map string -> any containing video track metadata to be sent to the server
    */
   const updateVideoTrackMetadata = useCallback(async (metadata: Metadata) => {
     await Membrane.updateVideoTrackMetadata(metadata);
@@ -483,7 +491,7 @@ export function useVideoTrackMetadata() {
 export function useAudioTrackMetadata() {
   /**
    * a function that updates audio metadata on the server
-   * @param metadata a map `string -> string` containing audio track metadata to be sent to the server
+   * @param metadata a map `string -> any` containing audio track metadata to be sent to the server
    */
   const updateAudioTrackMetadata = useCallback(async (metadata: Metadata) => {
     await Membrane.updateAudioTrackMetadata(metadata);

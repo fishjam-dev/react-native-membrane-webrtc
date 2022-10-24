@@ -4,7 +4,11 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 
 import { Controls } from './Controls';
 import { Settings } from './Settings';
-import { SettingsIcon } from './icons';
+import {
+  CameraDisabledIcon,
+  MicrophoneDisabledIcon,
+  SettingsIcon,
+} from './icons';
 
 export const Room = ({ disconnect }: { disconnect: () => void }) => {
   const participants = Membrane.useRoomParticipants();
@@ -42,6 +46,14 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
                 <Settings participant={focusedParticipant} />
               </View>
             )}
+            <View style={styles.disabledIconsContainer}>
+              {!focusedParticipant.audioTrackMetadata.active && (
+                <MicrophoneDisabledIcon width={24} height={24} />
+              )}
+              {!focusedParticipant.videoTrackMetadata.active && (
+                <CameraDisabledIcon width={24} height={24} />
+              )}
+            </View>
             <Pressable
               style={styles.settingsButton}
               onPress={() => setAreSettingsOpen((o) => !o)}
@@ -64,6 +76,14 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
                   style={styles.flex}
                 />
                 <Text style={styles.displayName}>{p.metadata.displayName}</Text>
+                <View style={styles.disabledIconsContainer}>
+                  {!p.audioTrackMetadata.active && (
+                    <MicrophoneDisabledIcon width={24} height={24} />
+                  )}
+                  {!p.videoTrackMetadata.active && (
+                    <CameraDisabledIcon width={24} height={24} />
+                  )}
+                </View>
               </Pressable>
             ))}
         </View>
@@ -117,5 +137,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 4,
     bottom: 48,
+  },
+  disabledIconsContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
 });

@@ -72,6 +72,8 @@ export default function App() {
           activeEncodings: ['l', 'm', 'h'],
         },
         quality: Membrane.VideoQuality.HD_169,
+        videoTrackMetadata: { active: true },
+        audioTrackMetadata: { active: true },
       });
       await joinRoom();
     } catch (err) {
