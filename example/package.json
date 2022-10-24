@@ -9,8 +9,8 @@
     "start": "NODE_ENV=development react-native start"
   },
   "dependencies": {
-    "react": "17.0.2",
-    "react-native": "0.68.2",
+    "react": "18.1.0",
+    "react-native": "0.70.3",
     "react-native-dotenv": "^3.3.1",
     "react-native-svg": "^12.3.0"
   },
