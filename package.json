@@ -13,7 +13,8 @@
     "prepublishOnly": "expo-module prepublishOnly",
     "expo-module": "expo-module",
     "release": "release-it",
-    "releaseApp": "cd example/android && fastlane deploy",
+    "releaseAppAndroid": "cd example/android && fastlane deploy",
+    "releaseAppIos": "cd example/ios && fastlane deploy",
     "docs": "sed 's/\\.github\\/images/media/g' README.md > README_docs.md && typedoc src/index.tsx --media ./.github/images --readme README_docs.md && rm README_docs.md"
   },
   "keywords": [

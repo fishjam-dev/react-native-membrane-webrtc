@@ -9,6 +9,10 @@
           "file": "example/android/app/build.gradle",
           "type": "text/plain"
         },
+        {
+          "file": "example/ios/MembraneExample.xcodeproj/project.pbxproj",
+          "type": "text/plain"
+        },
         "example/package.json"
       ]
     }

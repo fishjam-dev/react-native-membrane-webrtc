@@ -1,0 +1,60 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Deploy a new version to Firebase"
+  lane :deploy do
+    ensure_git_status_clean
+    get_certificates()
+    get_provisioning_profile(adhoc: true, force: true)
+    get_provisioning_profile(
+      adhoc: true,
+      force: true,
+      app_identifier: "com.membrane.reactnativemembrane.ScreenBroadcast",
+      provisioning_name: "com.membrane.reactnativemembrane.ScreenBroadcast AdHoc"
+    )
+    latest_release = firebase_app_distribution_get_latest_release(
+      app: "1:524233830532:ios:958665fe0e08cc58cc52d1",
+      service_credentials_file: 'firebase-admin.json',
+    )
+    increment_build_number({ build_number: latest_release[:buildVersion].to_i + 1 })
+    build_ios_app(
+      scheme: "MembraneExample",
+      workspace: "MembraneExample.xcworkspace",
+      export_method: "ad-hoc",
+      export_options: {
+     		provisioningProfiles: { 
+        		"com.membrane.reactnativemembrane" => "com.membrane.reactnativemembrane AdHoc",
+        		"com.membrane.reactnativemembrane.ScreenBroadcast" => "com.membrane.reactnativemembrane.ScreenBroadcast AdHoc"
+      		}
+    	})
+      firebase_app_distribution(
+        app: "1:524233830532:ios:958665fe0e08cc58cc52d1",
+        service_credentials_file: 'firebase-admin.json',
+        groups: 'ios-membrane-testers'
+    )
+    reset_git_repo(skip_clean: true)
+  end
+
+  lane :download_udids do
+    firebase_app_distribution_get_udids(
+      app: "1:524233830532:ios:958665fe0e08cc58cc52d1",
+      service_credentials_file: 'firebase-admin.json',
+      output_file: "/Users/angelikaserwa/Downloads/uuids.csv",
+    )
+  end
+end

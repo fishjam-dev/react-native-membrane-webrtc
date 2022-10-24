@@ -65,3 +65,10 @@ android/keystores/debug.keystore
 lib/
 
 .env.development
+firebase-admin.json
+*.cer
+*.certSigningRequest
+*.p12
+*.dSym.zip
+*.mobileprovision
+report.xml

@@ -257,14 +257,17 @@ toggleScreencast({screencastMetadata: { displayName: "Annie's desktop" }});
 
 ### Developing
 To release a new version of the lib just run `yarn release`, follow the prompts to bump version, make tags, commits and upload to npm
-To release a new version of the example app install fastlane, get upload key password and firebase auth json from the devs, update `~/.gradle/gradle.properties` like this:
+To release a new version of the example app on Android install fastlane, get upload key password and firebase auth json from the devs, update `~/.gradle/gradle.properties` like this:
 ```
 MEMBRANE_UPLOAD_STORE_FILE=my-upload-key.keystore
 MEMBRANE_UPLOAD_KEY_ALIAS=my-key-alias
 MEMBRANE_UPLOAD_STORE_PASSWORD=********
 MEMBRANE_UPLOAD_KEY_PASSWORD=********
 ```
-and run `yarn releaseApp` from the main directory.
+and run `yarn releaseAppAndroid` from the main directory.
+
+To release a new version of the example app on iOS install fastlane, get added to swmansion app store account and run `yarn releaseAppIos` from the main directory.
+
 Pro tip: when developing set backend url in `.env.development`.
 
 ## Credits
