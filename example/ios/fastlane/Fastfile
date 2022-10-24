@@ -45,6 +45,7 @@ platform :ios do
       firebase_app_distribution(
         app: "1:524233830532:ios:958665fe0e08cc58cc52d1",
         service_credentials_file: 'firebase-admin.json',
+        groups: 'ios-membrane-testers'
     )
     reset_git_repo(skip_clean: true)
   end
