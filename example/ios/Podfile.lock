@@ -76,15 +76,15 @@ PODS:
   - glog (0.3.5)
   - libevent (2.1.12)
   - Logging (1.4.0)
-  - MembraneRTC (3.0.0):
+  - MembraneRTC (3.1.0):
     - Logging
-    - MembraneRTC/Broadcast (= 3.0.0)
+    - MembraneRTC/Broadcast (= 3.1.0)
     - PromisesSwift
     - SwiftCollection
     - SwiftPhoenixClient
     - SwiftProtobuf
     - WebRTC-SDK
-  - MembraneRTC/Broadcast (3.0.0):
+  - MembraneRTC/Broadcast (3.1.0):
     - Logging
     - PromisesSwift
     - SwiftCollection
@@ -304,7 +304,7 @@ PODS:
   - React-logger (0.68.2):
     - glog
   - react-native-membrane (2.0.0):
-    - MembraneRTC (~> 3.0.0)
+    - MembraneRTC (~> 3.1.0)
     - React-Core
   - React-perflogger (0.68.2)
   - React-RCTActionSheet (0.68.2):
@@ -379,7 +379,7 @@ PODS:
     - OrderedObjectSet (~> 5.0.0)
   - SwiftPhoenixClient (5.1.0)
   - SwiftProtobuf (1.20.2)
-  - WebRTC-SDK (104.5112.04)
+  - WebRTC-SDK (104.5112.05)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -560,7 +560,7 @@ SPEC CHECKSUMS:
   glog: 476ee3e89abb49e07f822b48323c51c57124b572
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
-  MembraneRTC: 64b76cdc059e7bc2ac62f2cada703c72a63809f2
+  MembraneRTC: 588a5b4ee08c21047dcbb29cc85408fdb46014a5
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   OrderedObjectSet: 7eb2d546c515a9dc5ac321ce5605d4e96f5d4c3c
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
@@ -578,7 +578,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: b7b553412f2ec768fe6c8f27cd6bafdb9d8719e6
   React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
-  react-native-membrane: 5e77572283eddf104cb1e135f80a2ce32b56a708
+  react-native-membrane: 72f67fcdfdd94ea8b8acd1a03c99a7ef165f7cae
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
   React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162
   React-RCTAnimation: bc9440a1c37b06ae9ebbb532d244f607805c6034
@@ -596,7 +596,7 @@ SPEC CHECKSUMS:
   SwiftCollection: 9f83c97b993bfad6298d7765631b409a00f57779
   SwiftPhoenixClient: 8eb658cd2b94a5fe7e26ffcaedb9bef694461979
   SwiftProtobuf: 9f458aaa7844a2fc0b910053e66578bc4e2da9c1
-  WebRTC-SDK: 3f688dd6e2fd2d5282c7c643e328c21e62ab10e7
+  WebRTC-SDK: 557f12d3145df7187df3aae5336cb4086ceea40b
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

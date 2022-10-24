@@ -22,8 +22,8 @@ public extension NSDictionary {
   func toMetadata() -> Metadata {
     var res: Metadata = .init()
     self.forEach { entry in
-      if let key = entry.key as? String, let value = entry.value as? String {
-        res[key] = value
+      if let key = entry.key as? String {
+        res[key] = entry.value
       }
     }
     return res
@@ -61,13 +61,18 @@ struct Participant {
   let id: String
   let metadata: Metadata
   let order: Int
+  var videoTrackMetadata: Metadata?
+  var audioTrackMetadata: Metadata?
   
   static var participantCounter = 0
   
-  init(id: String, metadata: Metadata) {
+  init(id: String, metadata: Metadata, videoTrackMetadata: Metadata? = nil,
+       audioTrackMetadata: Metadata? = nil) {
     self.id = id
     self.metadata = metadata
     self.order = Participant.participantCounter
+    self.videoTrackMetadata = videoTrackMetadata
+    self.audioTrackMetadata = audioTrackMetadata
     Participant.participantCounter += 1
   }
 }
@@ -304,6 +309,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return [
         "id": p.id,
         "metadata": p.metadata.toDict(),
+        "videoTrackMetadata": p.videoTrackMetadata?.toDict() ?? [:],
+        "audioTrackMetadata": p.audioTrackMetadata?.toDict() ?? [:],
         "type": participantType
       ]
     }]
@@ -375,21 +382,25 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     
     @objc(updateVideoTrackMetadata:withResolver:withRejecter:)
     func updateVideoTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-        guard let room = room, let trackId = localVideoTrack?.trackId() else {
+        guard let room = room, let trackId = localVideoTrack?.trackId(), let peerId = localParticipantId else {
             return
         }
 
         room.updateTrackMetadata(trackId: trackId, trackMetadata: metadata.toMetadata())
+        MembraneRoom.sharedInstance.participants[peerId]?.videoTrackMetadata = metadata.toMetadata()
+        emitParticipants()
         resolve(nil)
     }
     
     @objc(updateAudioTrackMetadata:withResolver:withRejecter:)
     func updateAudioTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-        guard let room = room, let trackId = localAudioTrack?.trackId() else {
+        guard let room = room, let trackId = localAudioTrack?.trackId(), let peerId = localParticipantId else {
             return
         }
 
         room.updateTrackMetadata(trackId: trackId, trackMetadata: metadata.toMetadata())
+        MembraneRoom.sharedInstance.participants[peerId]?.audioTrackMetadata = metadata.toMetadata()
+        emitParticipants()
         resolve(nil)
     }
     
@@ -400,6 +411,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         }
 
         room.updateTrackMetadata(trackId: trackId, trackMetadata: metadata.toMetadata())
+        MembraneRoom.sharedInstance.participants[trackId]?.audioTrackMetadata = metadata.toMetadata()
+        emitParticipants()
         resolve(nil)
     }
   
@@ -581,7 +594,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   func onJoinSuccess(peerID: String, peersInRoom: [Peer]) {
     localParticipantId = peerID
     
-    let localParticipant = Participant(id: peerID, metadata: localUserMetadata)
+    let localParticipant = Participant(
+      id: peerID,
+      metadata: localUserMetadata,
+      videoTrackMetadata: videoTrackMetadata,
+      audioTrackMetadata: audioTrackMetadata
+    )
     
     let participants = peersInRoom.map { peer in
       Participant(id: peer.id, metadata: peer.metadata)
@@ -611,6 +629,11 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   func onTrackReady(ctx: TrackContext) {
+    if ctx.track is AudioTrack {
+      MembraneRoom.sharedInstance.participants[ctx.peer.id]?.audioTrackMetadata = ctx.metadata
+      return
+    }
+    
     guard let participant = MembraneRoom.sharedInstance.participants[ctx.peer.id],
           let videoTrack = ctx.track as? VideoTrack
     else {
@@ -629,13 +652,22 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     
     if ctx.metadata["type"] as? String == "screensharing" {
       // add a fake screencasting participant
-      let screensharingParticipant = Participant(id: ctx.trackId, metadata: ctx.metadata)
+      let screensharingParticipant = Participant(id: ctx.trackId, metadata: ctx.metadata, videoTrackMetadata: ctx.metadata)
       MembraneRoom.sharedInstance.participants[screensharingParticipant.id] = screensharingParticipant
-      let video = ParticipantVideo(id: ctx.trackId, participant: screensharingParticipant, videoTrack: videoTrack)
+      let video = ParticipantVideo(
+        id: ctx.trackId,
+        participant: screensharingParticipant,
+        videoTrack: videoTrack
+      )
       add(video: video)
     } else {
-      let video = ParticipantVideo(id: ctx.trackId, participant: participant, videoTrack: videoTrack)
+      let video = ParticipantVideo(
+        id: ctx.trackId,
+        participant: participant,
+        videoTrack: videoTrack
+      )
       add(video: video)
+      MembraneRoom.sharedInstance.participants[ctx.peer.id]?.videoTrackMetadata = ctx.metadata
     }
     emitParticipants()
   }
@@ -658,7 +690,14 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   func onTrackUpdated(ctx: TrackContext) {
-    
+    if ctx.track is AudioTrack {
+      MembraneRoom.sharedInstance.participants[ctx.peer.id]?.audioTrackMetadata = ctx.metadata
+    } else if (ctx.metadata["type"] as? String == "screensharing") {
+      MembraneRoom.sharedInstance.participants[ctx.trackId]?.videoTrackMetadata = ctx.metadata
+    } else {
+      MembraneRoom.sharedInstance.participants[ctx.peer.id]?.videoTrackMetadata = ctx.metadata
+    }
+    self.emitParticipants()
   }
   
   func onPeerJoined(peer: Peer) {

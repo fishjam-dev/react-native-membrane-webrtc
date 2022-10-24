@@ -1,0 +1,29 @@
+name: Deploy Docs
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          # the same as in our docker_membrane repository
+          node-version: 16
+      
+      - name: Install yarn Dependencies
+        run: yarn
+
+      - name: Build Docs
+        run: yarn docs
+
+      - name: Deploy
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: gh-pages
+          FOLDER: docs
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

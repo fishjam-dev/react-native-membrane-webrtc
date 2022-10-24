@@ -19,17 +19,33 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
   const { isCameraOn, toggleCamera } = Membrane.useCameraState();
   const { isMicrophoneOn, toggleMicrophone } = Membrane.useMicrophoneState();
   const { isScreencastOn, toggleScreencast } = Membrane.useScreencast();
+  const { updateVideoTrackMetadata } = Membrane.useVideoTrackMetadata();
+  const { updateAudioTrackMetadata } = Membrane.useAudioTrackMetadata();
+
+  const toggleMicrophoneAndUpdateMetadata = () => {
+    toggleMicrophone();
+    updateAudioTrackMetadata({
+      active: !isMicrophoneOn,
+    });
+  };
+
+  const toggleCameraAndUpdateMetadata = () => {
+    toggleCamera();
+    updateVideoTrackMetadata({
+      active: !isCameraOn,
+    });
+  };
 
   return (
     <View style={styles.iconsContainer}>
-      <Pressable onPress={toggleMicrophone}>
+      <Pressable onPress={toggleMicrophoneAndUpdateMetadata}>
         {!isMicrophoneOn ? (
           <MicrophoneDisabledIcon width={iconSize} height={iconSize} />
         ) : (
           <MicrophoneIcon width={iconSize} height={iconSize} />
         )}
       </Pressable>
-      <Pressable onPress={toggleCamera}>
+      <Pressable onPress={toggleCameraAndUpdateMetadata}>
         {!isCameraOn ? (
           <CameraDisabledIcon width={iconSize} height={iconSize} />
         ) : (
