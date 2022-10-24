@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AppGroupName</key>
-	<string>group.com.example.reactnativemembrane</string>
+	<string>group.com.membrane.reactnativemembrane</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -60,7 +60,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app requires a microphone</string>
 	<key>ScreencastExtensionBundleId</key>
-	<string>com.example.reactnativemembrane.ScreenBroadcast</string>
+	<string>com.membrane.reactnativemembrane.ScreenBroadcast</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

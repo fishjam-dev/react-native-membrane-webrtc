@@ -6,9 +6,9 @@ import WebRTC
 
 
 /// App Group used by the extension to exchange buffers with the target application
-let appGroup = "group.com.example.reactnativemembrane"
+let appGroup = "group.com.membrane.reactnativemembrane"
 
-let logger = OSLog(subsystem: "com.example.reactnativemembrane.ScreenBroadcast", category: "Broadcaster")
+let logger = OSLog(subsystem: "com.membrane.reactnativemembrane.ScreenBroadcast", category: "Broadcaster")
 
 /// An example `SampleHandler` utilizing `BroadcastSampleSource` from `MembraneRTC` sending broadcast samples and necessary notification enabling device's screencast.
 class SampleHandler: RPBroadcastSampleHandler {
