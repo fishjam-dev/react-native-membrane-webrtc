@@ -11,7 +11,7 @@ class VideoRendererWrapper(context: Context) {
   var view: VideoTextureViewRenderer = VideoTextureViewRenderer(context)
   var isInitialized = false
   var activeVideoTrack: VideoTrack? = null
-  var participantId: String? = null
+  var trackId: String? = null
 
   fun setupTrack(videoTrack: VideoTrack) {
     if (activeVideoTrack == videoTrack) return
@@ -23,18 +23,18 @@ class VideoRendererWrapper(context: Context) {
 
   fun update() {
     CoroutineScope(Dispatchers.Main).launch {
-      val participant = MembraneModule.participants[participantId] ?: return@launch
-      if(participant.videoTrack == null) return@launch;
+      val participant = MembraneModule.participants.values.firstOrNull { it.videoTracks[trackId] != null }
+      val videoTrack = participant?.videoTracks?.get(trackId) ?: return@launch
       if(!isInitialized) {
         isInitialized = true
-        view.init(participant.videoTrack.eglContext, null)
+        view.init(videoTrack.eglContext, null)
       }
-      setupTrack(participant.videoTrack)
+      setupTrack(videoTrack)
     }
   }
 
-  fun init(participantId: String) {
-    this.participantId = participantId
+  fun init(trackId: String) {
+    this.trackId = trackId
     update()
   }
 

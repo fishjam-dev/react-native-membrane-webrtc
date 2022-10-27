@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		44DE31EF2909C56B0032DFBC /* Participant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DE31EE2909C56B0032DFBC /* Participant.swift */; };
 		F4FF95D7245B92E800C19C63 /* Membrane.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /* Membrane.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libMembrane.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMembrane.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		44DE31EE2909C56B0032DFBC /* Participant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Participant.swift; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* Membrane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Membrane.m; sourceTree = "<group>"; };
 		F4FF95D5245B92E700C19C63 /* Membrane-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Membrane-Bridging-Header.h"; sourceTree = "<group>"; };
 		F4FF95D6245B92E800C19C63 /* Membrane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Membrane.swift; sourceTree = "<group>"; };
@@ -53,6 +55,7 @@
 			children = (
 				F4FF95D6245B92E800C19C63 /* Membrane.swift */,
 				B3E7B5891CC2AC0600A0062D /* Membrane.m */,
+				44DE31EE2909C56B0032DFBC /* Participant.swift */,
 				F4FF95D5245B92E700C19C63 /* Membrane-Bridging-Header.h */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
@@ -116,6 +119,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4FF95D7245B92E800C19C63 /* Membrane.swift in Sources */,
+				44DE31EF2909C56B0032DFBC /* Participant.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

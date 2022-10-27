@@ -12,29 +12,31 @@ import {
 
 export const Room = ({ disconnect }: { disconnect: () => void }) => {
   const participants = Membrane.useRoomParticipants();
+  const tracks = participants
+    .map((p) => p.tracks.filter((t) => t.type === 'Video'))
+    .flat();
 
-  const [focusedParticipantId, setFocusedParticipantId] = useState<
-    string | null
-  >(null);
+  const [focusedTrackId, setFocusedTrackId] = useState<string | null>(null);
+  const focusedTrack = tracks.find((t) => t.id === focusedTrackId);
   const focusedParticipant = participants.find(
-    (p) => p.id === focusedParticipantId
+    (p) => p.tracks.find((t) => t.id === focusedTrackId) != null
   );
 
   useEffect(() => {
-    if (!focusedParticipant && participants[0]) {
-      setFocusedParticipantId(participants[0].id);
+    if (!focusedTrack && tracks[0]) {
+      setFocusedTrackId(tracks[0].id);
     }
-  }, [participants, focusedParticipant]);
+  }, [tracks, focusedTrack]);
 
   const [areSettingsOpen, setAreSettingsOpen] = useState<boolean>(false);
 
   return (
     <View style={styles.flex}>
       <View style={styles.flex}>
-        {!!focusedParticipant && (
+        {!!focusedTrack && !!focusedParticipant && (
           <View style={styles.focusedParticipantContainer}>
             <Membrane.VideoRendererView
-              participantId={focusedParticipant.id}
+              trackId={focusedTrack.id}
               style={styles.focusedParticipant}
               videoLayout={Membrane.VideoLayout.FIT}
             />
@@ -43,14 +45,18 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
             </Text>
             {!!areSettingsOpen && (
               <View style={styles.settingsWrapper}>
-                <Settings participant={focusedParticipant} />
+                <Settings
+                  participant={focusedParticipant}
+                  track={focusedTrack}
+                />
               </View>
             )}
             <View style={styles.disabledIconsContainer}>
-              {!focusedParticipant.audioTrackMetadata.active && (
+              {!focusedParticipant.tracks.find((t) => t.type === 'Audio')
+                ?.metadata.active && (
                 <MicrophoneDisabledIcon width={24} height={24} />
               )}
-              {!focusedParticipant.videoTrackMetadata.active && (
+              {!focusedTrack.metadata.active && (
                 <CameraDisabledIcon width={24} height={24} />
               )}
             </View>
@@ -64,28 +70,36 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
         )}
         <View style={styles.otherParticipantsContainer}>
           {participants
-            .filter((p) => p.id !== focusedParticipant?.id)
-            .map((p) => (
-              <Pressable
-                onPress={() => setFocusedParticipantId(p.id)}
-                key={p.id}
-                style={styles.participant}
-              >
-                <Membrane.VideoRendererView
-                  participantId={p.id}
-                  style={styles.flex}
-                />
-                <Text style={styles.displayName}>{p.metadata.displayName}</Text>
-                <View style={styles.disabledIconsContainer}>
-                  {!p.audioTrackMetadata.active && (
-                    <MicrophoneDisabledIcon width={24} height={24} />
-                  )}
-                  {!p.videoTrackMetadata.active && (
-                    <CameraDisabledIcon width={24} height={24} />
-                  )}
-                </View>
-              </Pressable>
-            ))}
+            .map((p) =>
+              p.tracks
+                .filter((t) => t.id !== focusedTrack?.id)
+                .filter((t) => t.type === 'Video')
+                .map((t) => (
+                  <Pressable
+                    onPress={() => setFocusedTrackId(t.id)}
+                    key={t.id}
+                    style={styles.participant}
+                  >
+                    <Membrane.VideoRendererView
+                      trackId={t.id}
+                      style={styles.flex}
+                    />
+                    <Text style={styles.displayName}>
+                      {p.metadata.displayName}
+                    </Text>
+                    <View style={styles.disabledIconsContainer}>
+                      {!p.tracks.find((t) => t.type === 'Audio')?.metadata
+                        .active && (
+                        <MicrophoneDisabledIcon width={24} height={24} />
+                      )}
+                      {!t.metadata.active && (
+                        <CameraDisabledIcon width={24} height={24} />
+                      )}
+                    </View>
+                  </Pressable>
+                ))
+            )
+            .flat()}
         </View>
       </View>
       <Controls disconnect={disconnect} />

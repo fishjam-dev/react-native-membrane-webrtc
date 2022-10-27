@@ -25,7 +25,7 @@ RCT_EXTERN_METHOD(updateScreencastTrackMetadata:(NSDictionary)metadata withResol
 RCT_EXTERN_METHOD(toggleScreencastTrackEncoding:(NSString)encoding withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(setScreencastTrackBandwidth:(nonnull NSNumber)bandwidth withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(setScreencastTrackEncodingBandwidth:(NSString)encoding withBandwidth:(nonnull NSNumber)bandwidth withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
-RCT_EXTERN_METHOD(setTargetTrackEncoding:(NSString)peerId withEncoding:(NSString)encoding withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(setTargetTrackEncoding:(NSString)trackId withEncoding:(NSString)encoding withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(toggleVideoTrackEncoding:(NSString)encoding withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(setVideoTrackEncodingBandwidth:(NSString)encoding withBandwidth:(nonnull NSNumber)bandwidth withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(setVideoTrackBandwidth:(nonnull NSNumber)bandwidth withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
