@@ -236,7 +236,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       }
       
       let localParticipant = MembraneRoom.sharedInstance.participants[localParticipantId]
-      MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant?.removeVideoTrack(trackId: screencastTrackId)
+      MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant?.removeTrack(trackId: screencastTrackId)
       room.removeTrack(trackId: screencastTrackId)
       self.localScreencastTrack = nil
       
@@ -600,10 +600,10 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     if let audioTrack = ctx.track as? RemoteAudioTrack {
-      participant = participant.removeAudioTrack(trackId: audioTrack.track.trackId)
+      participant = participant.removeTrack(trackId: audioTrack.track.trackId)
     }
     if let videoTrack = ctx.track as? RemoteVideoTrack {
-      participant = participant.removeVideoTrack(trackId: videoTrack.track.trackId)
+      participant = participant.removeTrack(trackId: videoTrack.track.trackId)
     }
     globalToLocalTrackId.removeValue(forKey: ctx.trackId)
     MembraneRoom.sharedInstance.participants[ctx.peer.id] = participant

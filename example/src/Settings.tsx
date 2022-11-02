@@ -69,7 +69,7 @@ export const Settings = ({
       </View>
     );
   }
-  if (track.metadata.type === 'screencasting') {
+  if (track.metadata.type === 'screensharing') {
     return (
       <View style={styles.container}>
         <Text>Encodings to send:</Text>

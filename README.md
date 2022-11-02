@@ -233,7 +233,7 @@ When you have the participants all that's left is to render their video tracks. 
 ```ts
 {
   participant.videoTracks.map((track) => (
-    <VideoRendererView participantId={track.id} />
+    <VideoRendererView trackId={track.id} />
   ));
 }
 ```

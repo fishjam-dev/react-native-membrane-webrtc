@@ -26,15 +26,9 @@ struct Participant {
     Participant.participantCounter += 1
   }
   
-  func removeVideoTrack(trackId: String) -> Participant {
+  func removeTrack(trackId: String) -> Participant {
     var newParticipant = self
     newParticipant.videoTracks.removeValue(forKey: trackId)
-    newParticipant.tracksMetadata.removeValue(forKey: trackId)
-    return newParticipant
-  }
-  
-  func removeAudioTrack(trackId: String) -> Participant {
-    var newParticipant = self
     newParticipant.audioTracks.removeValue(forKey: trackId)
     newParticipant.tracksMetadata.removeValue(forKey: trackId)
     return newParticipant
