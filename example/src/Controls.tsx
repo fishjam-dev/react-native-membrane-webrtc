@@ -61,7 +61,11 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
       <Pressable
         onPress={() =>
           toggleScreencast({
-            screencastMetadata: { displayName: 'presenting' },
+            screencastMetadata: {
+              displayName: 'presenting',
+              type: 'screensharing',
+              active: 'true',
+            },
             simulcastConfig: {
               enabled: true,
               activeEncodings: ['l', 'm', 'h'],

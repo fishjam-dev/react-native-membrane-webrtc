@@ -14,6 +14,7 @@ import org.membraneframework.rtc.media.*
 import org.membraneframework.rtc.models.Peer
 import org.membraneframework.rtc.models.TrackContext
 import org.membraneframework.rtc.transport.PhoenixTransport
+import org.membraneframework.rtc.utils.Metadata
 import java.util.*
 
 
@@ -199,7 +200,6 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun toggleScreencast(screencastOptions: ReadableMap, promise: Promise) {
     this.screencastMetadata = screencastOptions.getMap("screencastMetadata")?.toMap() ?: mutableMapOf()
-    this.screencastMetadata["type"] = "screensharing"
     this.screencastQuality = screencastOptions.getString("quality")
     this.screencastSimulcastConfig = getSimulcastConfigFromOptions(screencastOptions)
     this.screencastMaxBandwidth = getMaxBandwidthFromOptions(screencastOptions)
@@ -231,42 +231,38 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     promise.resolve(null)
   }
 
+  private fun updateTrackMetadata(trackId: String, metadata: Metadata) {
+    room?.updateTrackMetadata(trackId, metadata)
+    val id = localParticipantId ?: return
+    val participant = participants[id] ?: return
+    participant.tracksMetadata[trackId] = metadata
+    emitParticipants()
+  }
+
   @ReactMethod
   fun updateVideoTrackMetadata(metadata: ReadableMap, promise: Promise) {
     val trackId = localVideoTrack?.rtcTrack()?.id() ?: return
-    room?.updateTrackMetadata(trackId, metadata.toMap())
-    val id = localParticipantId ?: return
-    val participant = participants[id] ?: return
-    participants[id] = participant.copy(videoTrackMetadata = metadata.toMap())
-    emitParticipants()
+    updateTrackMetadata(trackId, metadata.toMap())
     promise.resolve(null)
   }
 
   @ReactMethod
   fun updateAudioTrackMetadata(metadata: ReadableMap, promise: Promise) {
     val trackId = localAudioTrack?.rtcTrack()?.id() ?: return
-    room?.updateTrackMetadata(trackId, metadata.toMap())
-    val id = localParticipantId ?: return
-    val participant = participants[id] ?: return
-    participants[id] = participant.copy(audioTrackMetadata = metadata.toMap())
-    emitParticipants()
+    updateTrackMetadata(trackId, metadata.toMap())
     promise.resolve(null)
   }
 
   @ReactMethod
   fun updateScreencastTrackMetadata(metadata: ReadableMap, promise: Promise) {
     val trackId = localScreencastTrack?.rtcTrack()?.id() ?: return
-    room?.updateTrackMetadata(trackId, metadata.toMap())
-    val id = localScreencastId ?: return
-    val participant = participants[id] ?: return
-    participants[id] = participant.copy(videoTrackMetadata = metadata.toMap())
-    emitParticipants()
+    updateTrackMetadata(trackId, metadata.toMap())
     promise.resolve(null)
   }
 
   @ReactMethod
   fun toggleSpeakerphone(promise: Promise) {
-    val audioManager =  reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    val audioManager = reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     audioManager.isSpeakerphoneOn = !audioManager.isSpeakerphoneOn
     promise.resolve(null)
   }
@@ -310,9 +306,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setTargetTrackEncoding(peerId: String, encoding: String, promise: Promise) {
-    val trackId = participants.get(peerId)?.videoTrack?.id()?.let { getGlobalTrackId(it) } ?: return
-    room?.setTargetTrackEncoding(trackId, encoding.toTrackEncoding())
+  fun setTargetTrackEncoding(trackId: String, encoding: String, promise: Promise) {
+    room?.setTargetTrackEncoding(getGlobalTrackId(trackId), encoding.toTrackEncoding())
     promise.resolve(null)
   }
 
@@ -370,7 +365,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     }
 
     localScreencastTrack?.let {
-      participants[localScreencastId!!] = Participant(id = localScreencastId!!, metadata = screencastMetadata, videoTrack = it)
+      val participant = participants[localParticipantId]
+      participant!!.addOrUpdateTrack(it, screencastMetadata)
       emitParticipants()
     }
     screencastPromise?.resolve(isScreenCastOn)
@@ -381,15 +377,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
     localScreencastTrack?.let {
       room?.removeTrack(it.id())
-
-      localScreencastId?.let {
-        participants.remove(it)
-
-        emitParticipants()
-      }
-
+      participants[localParticipantId]?.removeTrack(it)
+      emitParticipants()
       localScreencastTrack = null
     }
+    emitParticipants()
     screencastPromise?.resolve(isScreenCastOn)
     screencastPromise = null
   }
@@ -407,14 +399,32 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       val participantMap = Arguments.createMap()
       participantMap.putString("id", it.id)
       val participantType = when (it.id) {
-          localScreencastId -> "LocalScreencasting"
           localParticipantId -> "Local"
           else -> "Remote"
       }
       participantMap.putString("type", participantType)
       participantMap.putMap("metadata", mapToRNMap(it.metadata))
-      participantMap.putMap("videoTrackMetadata",  mapToRNMap(it.videoTrackMetadata ?: emptyMap()))
-      participantMap.putMap("audioTrackMetadata", mapToRNMap(it.audioTrackMetadata ?: emptyMap()))
+
+      val tracksArray = Arguments.createArray()
+
+      it.videoTracks.values.forEach { videoTrack ->
+        val track = Arguments.createMap()
+        track.putString("id", videoTrack.id())
+        track.putString("type", "Video")
+        track.putMap("metadata", mapToRNMap(it.tracksMetadata[videoTrack.id()] ?: emptyMap()))
+        tracksArray.pushMap(track)
+      }
+
+      it.audioTracks.values.forEach { audioTrack ->
+        val track = Arguments.createMap()
+        track.putString("id", audioTrack.id())
+        track.putString("type", "Audio")
+        track.putMap("metadata", mapToRNMap(it.tracksMetadata[audioTrack.id()] ?: emptyMap()))
+        tracksArray.pushMap(track)
+      }
+
+      participantMap.putArray("tracks", tracksArray)
+
       participantsArray.pushMap(participantMap)
     }
     params.putArray("participants", participantsArray)
@@ -468,15 +478,18 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       emitEvent("IsMicrophoneOn", isMicrophoneOn)
 
       localParticipantId = UUID.randomUUID().toString()
-      participants[localParticipantId!!] =
-        Participant(
-          id = localParticipantId!!,
-          metadata = localUserMetadata,
-          videoTrack = localVideoTrack,
-          videoTrackMetadata = videoTrackMetadata,
-          audioTrack = localAudioTrack,
-          audioTrackMetadata = audioTrackMetadata,
-        )
+      var participant = Participant(
+        id = localParticipantId!!,
+        metadata = localUserMetadata,
+      )
+      if(localVideoTrack != null) {
+        participant.addOrUpdateTrack(localVideoTrack!!, videoTrackMetadata)
+      }
+      if(localAudioTrack != null) {
+        participant.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
+      }
+      participants[localParticipantId!!] = participant
+
       connectPromise?.resolve(null)
       connectPromise = null
       emitParticipants()
@@ -486,8 +499,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   override fun onJoinSuccess(peerID: String, peersInRoom: List<Peer>) {
     participants.remove(peerID)
     peersInRoom.forEach {
-      participants[it.id] =
-        Participant(it.id, it.metadata, null, null)
+      participants[it.id] = Participant(it.id, it.metadata)
     }
     joinPromise?.resolve(null)
     joinPromise = null
@@ -499,105 +511,49 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     joinPromise = null
   }
 
-  override fun onTrackReady(ctx: TrackContext) {
+  private fun addOrUpdateTrack(ctx: TrackContext) {
     val participant = participants[ctx.peer.id] ?: return
 
-    val (id, newParticipant) = when (ctx.track) {
+    when (ctx.track) {
       is RemoteVideoTrack -> {
         globalToLocalTrackId[ctx.trackId] = (ctx.track as RemoteVideoTrack).id()
-
-        if (ctx.metadata["type"] == "screensharing") {
-          Pair(
-            ctx.trackId,
-            participant.copy(
-              id = ctx.trackId,
-              metadata = ctx.metadata,
-              videoTrack = ctx.track as RemoteVideoTrack,
-              videoTrackMetadata = ctx.metadata,
-            )
-          )
-        } else {
-          Pair(ctx.peer.id, participant.copy(videoTrack = ctx.track as RemoteVideoTrack, videoTrackMetadata = ctx.metadata))
-        }
+        participant.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata)
       }
       is RemoteAudioTrack -> {
         globalToLocalTrackId[ctx.trackId] = (ctx.track as RemoteAudioTrack).id()
-
-        Pair(ctx.peer.id, participant.copy(audioTrack = ctx.track as RemoteAudioTrack, audioTrackMetadata = ctx.metadata))
+        participant.addOrUpdateTrack(ctx.track as RemoteAudioTrack, ctx.metadata)
       }
       else ->
         throw IllegalArgumentException("invalid type of incoming remote track")
     }
 
-    participants[id] = newParticipant
-
     emitParticipants()
     onTracksUpdate?.let { it1 -> it1() }
+  }
+
+  override fun onTrackReady(ctx: TrackContext) {
+    addOrUpdateTrack(ctx)
   }
 
   override fun onTrackAdded(ctx: TrackContext) {
   }
 
   override fun onTrackRemoved(ctx: TrackContext) {
-    if (ctx.metadata["type"] == "screensharing") {
-      // screencast is a throw-away type of participant so remove it and emit participants once again
-      participants.remove(ctx.trackId)
-      globalToLocalTrackId.remove(ctx.trackId)
+    val participant = participants[ctx.peer.id] ?: return
 
-      emitParticipants()
-    } else {
-      val participant = participants[ctx.peer.id] ?: return
-
-      val localTrackId = globalToLocalTrackId[ctx.trackId]
-      val audioTrackId = participant.audioTrack?.id()
-      val videoTrackId = participant.videoTrack?.id()
-
-      val newParticipant = when {
-        localTrackId == videoTrackId ->
-          participant.copy(videoTrack = null, videoTrackMetadata = null)
-
-        localTrackId == audioTrackId ->
-          participant.copy(audioTrack = null, audioTrackMetadata = null)
-
-        else ->
-          throw IllegalArgumentException("track has not been found for given peer")
-      }
-
-      globalToLocalTrackId.remove(ctx.trackId)
-
-      participants[ctx.peer.id] = newParticipant
-
-      emitParticipants()
-      onTracksUpdate?.let { it1 -> it1() }
+    when (ctx.track) {
+      is RemoteVideoTrack -> participant.removeTrack(ctx.track as RemoteVideoTrack)
+      is RemoteAudioTrack -> participant.removeTrack(ctx.track as RemoteAudioTrack)
+      else -> throw IllegalArgumentException("invalid type of incoming remote track")
     }
+
+    globalToLocalTrackId.remove(ctx.trackId)
+    emitParticipants()
+    onTracksUpdate?.let { it1 -> it1() }
   }
 
   override fun onTrackUpdated(ctx: TrackContext) {
-    val participant = participants[ctx.peer.id] ?: return
-
-    val (id, newParticipant) = when (ctx.track) {
-      is RemoteVideoTrack -> {
-        if (ctx.metadata["type"] == "screensharing") {
-          Pair(
-            ctx.trackId,
-            participant.copy(
-              id = ctx.trackId,
-              videoTrackMetadata = ctx.metadata,
-            )
-          )
-        } else {
-          Pair(ctx.peer.id, participant.copy(videoTrackMetadata = ctx.metadata))
-        }
-      }
-      is RemoteAudioTrack -> {
-        globalToLocalTrackId[ctx.trackId] = (ctx.track as RemoteAudioTrack).id()
-        Pair(ctx.peer.id, participant.copy(audioTrackMetadata = ctx.metadata))
-      }
-      else ->
-        throw IllegalArgumentException("invalid type of incoming remote track")
-    }
-    participants[id] = newParticipant
-    emitParticipants()
+    addOrUpdateTrack(ctx)
   }
 
   override fun onPeerJoined(peer: Peer) {

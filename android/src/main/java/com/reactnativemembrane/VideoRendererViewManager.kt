@@ -28,9 +28,9 @@ class VideoRendererViewManager : SimpleViewManager<View>() {
     viewsWrappers.remove(view)
   }
 
-  @ReactProp(name = "participantId")
-  fun setParticipantId(view: VideoTextureViewRenderer, participantId: String) {
-    viewsWrappers[view]?.init(participantId)
+  @ReactProp(name = "trackId")
+  fun setParticipantId(view: VideoTextureViewRenderer, trackId: String) {
+    viewsWrappers[view]?.init(trackId)
   }
 
   @ReactProp(name = "videoLayout")

@@ -29,8 +29,18 @@ const eventEmitter = new NativeEventEmitter(Membrane);
 export enum ParticipantType {
   Remote = 'Remote',
   Local = 'Local',
-  LocalScreencasting = 'LocalScreencasting',
 }
+
+export enum TrackType {
+  Audio = 'Audio',
+  Video = 'Video',
+}
+
+export type Track = {
+  id: string;
+  type: TrackType;
+  metadata: Metadata;
+};
 
 export type Metadata = { [key: string]: any };
 export type SocketConnectionParams = { [key: string]: any };
@@ -49,13 +59,9 @@ export type Participant = {
    */
   metadata: Metadata;
   /**
-   * a map `string -> any` containing video track metadata from the server
+   * a list of participant's video and audio tracks
    */
-  videoTrackMetadata: Metadata;
-  /**
-   * a map `string -> any` containing audio track metadata from the server
-   */
-  audioTrackMetadata: Metadata;
+  tracks: Track[];
 };
 
 export enum VideoLayout {
@@ -535,12 +541,12 @@ export function useSimulcast() {
    * temporarily unavailable, some other encoding will be sent until choosen encoding
    *  becomes active again.
    *
-   * @param peerId id of a peer whose track encoding you want to select
+   * @param trackId id of a track which encoding you want to select
    * @param encoding encoding to select
    */
   const setTargetTrackEncoding = useCallback(
-    async (peerId: string, encoding: TrackEncoding) => {
-      await Membrane.setTargetTrackEncoding(peerId, encoding);
+    async (trackId: string, encoding: TrackEncoding) => {
+      await Membrane.setTargetTrackEncoding(trackId, encoding);
     },
     []
   );
@@ -603,9 +609,9 @@ export function useBandwidthLimit() {
 
 export type VideoRendererProps = {
   /**
-   * id of the participant which you want to render.
+   * id of the video track which you want to render.
    */
-  participantId: string;
+  trackId: string;
   /**
    * `FILL` or `FIT` - it works just like RN Image component. `FILL` fills the whole view
    * with video and it may cut some parts of the video. `FIT` scales the video so the whole

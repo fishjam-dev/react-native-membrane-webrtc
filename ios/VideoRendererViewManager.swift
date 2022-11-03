@@ -15,14 +15,14 @@ class VideoRendererViewManager: RCTViewManager {
 
 class VideoRendererView : UIView {
   var videoView: VideoView? = nil
-  var cancellableParticipantVideos: Cancellable? = nil
+  var cancellableParticipants: Cancellable? = nil
   
   override init(frame: CGRect) {
     super.init(frame: frame)
     videoView = VideoView()
     videoView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     addSubview(videoView!)
-    cancellableParticipantVideos = MembraneRoom.sharedInstance.$participantVideos
+    cancellableParticipants = MembraneRoom.sharedInstance.$participants
       .sink { _ in
         self.updateVideoTrack()
       }
@@ -35,12 +35,14 @@ class VideoRendererView : UIView {
   
   func updateVideoTrack() {
     DispatchQueue.main.async {
-      let video = MembraneRoom.sharedInstance.participantVideos.first(where: {$0.participant.id == self.participantId})
-      self.videoView?.track = video?.videoTrack
+      let newTrack = MembraneRoom.sharedInstance.getVideoTrackById(trackId: self.trackId)
+      if(newTrack != self.videoView?.track) {
+        self.videoView?.track = newTrack
+      }
     }
   }
   
-  @objc var participantId: String = "" {
+  @objc var trackId: String = "" {
     didSet {
       updateVideoTrack()
     }

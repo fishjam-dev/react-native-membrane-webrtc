@@ -1,8 +1,10 @@
 import {
   Participant,
+  Track,
   useSimulcast,
   useBandwidthLimit,
   useScreencast,
+  TrackEncoding,
 } from '@membraneframework/react-native-membrane-webrtc';
 import React, { useState } from 'react';
 import {
@@ -14,12 +16,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-const allEncodings = ['h', 'm', 'l'];
+const allEncodings: TrackEncoding[] = ['h', 'm', 'l'];
 
 export const Settings = ({
   participant: { type, id },
+  track,
 }: {
   participant: Participant;
+  track: Track;
 }) => {
   const {
     setTargetTrackEncoding,
@@ -65,7 +69,7 @@ export const Settings = ({
       </View>
     );
   }
-  if (type === 'LocalScreencasting') {
+  if (track.metadata.type === 'screensharing') {
     return (
       <View style={styles.container}>
         <Text>Encodings to send:</Text>
@@ -102,7 +106,7 @@ export const Settings = ({
       <Text>Encoding to receive:</Text>
       <View style={styles.row}>
         {allEncodings.map((e) => (
-          <TouchableOpacity onPress={() => setTargetTrackEncoding(id, e)}>
+          <TouchableOpacity onPress={() => setTargetTrackEncoding(track.id, e)}>
             <Text style={styles.button}>{e}</Text>
           </TouchableOpacity>
         ))}

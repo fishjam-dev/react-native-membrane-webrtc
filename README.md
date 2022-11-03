@@ -228,12 +228,12 @@ If you have the connection set up, then use `useParticipants()` hook to track th
 const participants = useParticipants();
 ```
 
-When you have the participants all that's left is to render them. Use `<VideoRendererView />` component like this:
+When you have the participants all that's left is to render their video tracks. Use `<VideoRendererView />` component like this:
 
 ```ts
 {
-  participants.map((participant) => (
-    <VideoRendererView participantId={participant.id} />
+  participant.videoTracks.map((track) => (
+    <VideoRendererView trackId={track.id} />
   ));
 }
 ```
