@@ -96,9 +96,14 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return false
   }
   
-  private func getSimulcastConfigFrom(options: NSDictionary) -> SimulcastConfig {
+  private func getSimulcastConfigFrom(options: NSDictionary, reject: RCTPromiseRejectBlock) -> SimulcastConfig? {
     let simulcastConfig = options["simulcastConfig"] as? NSDictionary ?? [:]
     var activeEncodings: [TrackEncoding] = []
+    if((simulcastConfig["activeEncodings"] as? [String] ?? []).contains(where: {
+      e in validateEncoding(encoding: e, reject) == nil
+    })) {
+      return nil
+    }
     (simulcastConfig["activeEncodings"] as? [String] ?? []).forEach {
       e in activeEncodings.append(e.toTrackEncoding()!)
     }
@@ -119,6 +124,47 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
   }
   
+  private func ensureConnected(_ reject: RCTPromiseRejectBlock) -> Bool {
+    if(room == nil) {
+      reject("E_NOT_CONNECTED", "Client not connected to server yet. Make sure to call connect() first!", nil)
+      return false
+    }
+    return true
+  }
+  
+  private func ensureVideoTrack(_ reject: RCTPromiseRejectBlock) -> Bool {
+    if(room == nil) {
+      reject("E_NO_LOCAL_VIDEO_TRACK", "No local video track. Make sure to call connect() first!", nil)
+      return false
+    }
+    return true
+  }
+  
+  private func ensureAudioTrack(_ reject: RCTPromiseRejectBlock) -> Bool {
+    if(room == nil) {
+      reject("E_NO_LOCAL_AUDIO_TRACK", "No local audio track. Make sure to call connect() first!", nil)
+      return false
+    }
+    return true
+  }
+  
+  private func ensureScreencastTrack(_ reject: RCTPromiseRejectBlock) -> Bool {
+    if(room == nil) {
+      reject("E_NO_LOCAL_SCREENCAST_TRACK", "No local screencast track. Make sure to toggle screencast on first!", nil)
+      return false
+    }
+    return true
+  }
+  
+  private func validateEncoding(encoding: String, _ reject: RCTPromiseRejectBlock) -> TrackEncoding? {
+    let trackEncoding = encoding.toTrackEncoding()
+    if(trackEncoding == nil) {
+      reject("E_INVALID_ENCODING", "Invalid track encoding specified: \(encoding)", nil)
+      return nil
+    }
+    return trackEncoding
+  }
+  
     @objc(connect:withRoomName:withConnectionOptions:withResolver:withRejecter:)
     func connect(url: String, roomName: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
     connectResolve = resolve
@@ -131,7 +177,10 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         
     let socketConnectionParams = (connectionOptions["connectionParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
       
-    self.videoSimulcastConfig = getSimulcastConfigFrom(options: connectionOptions)
+    guard let videoSimulcastConfig = getSimulcastConfigFrom(options: connectionOptions, reject: reject) else {
+      return
+    }
+    self.videoSimulcastConfig = videoSimulcastConfig
     self.videoBandwidthLimit = getBandwidthLimitFrom(options: connectionOptions)
         
     room = MembraneRTC.connect(
@@ -145,6 +194,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   @objc(join:withRejecter:)
   func join(resolve:@escaping RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureConnected(reject)) { return }
     joinResolve = resolve
     joinReject = reject
     room?.join()
@@ -160,12 +210,20 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc(toggleScreencast:withResolver:withRejecter:)
-  func toggleScreencast(screencastOptions: NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-    let screencastExtensionBundleId = Bundle.main.infoDictionary!["ScreencastExtensionBundleId"] as? String
-    let appGroupName = Bundle.main.infoDictionary!["AppGroupName"] as? String
+  func toggleScreencast(screencastOptions: NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    let screencastExtensionBundleId = Bundle.main.infoDictionary?["ScreencastExtensionBundleId"] as? String
+    if(screencastExtensionBundleId == nil) {
+      reject("E_NO_BUNDLE_ID_SET", "No screencast extension bundle id set. Please set ScreencastExtensionBundleId in Info.plist", nil)
+      return
+    }
+    let appGroupName = Bundle.main.infoDictionary?["AppGroupName"] as? String
+    if(appGroupName == nil) {
+      reject("E_NO_APP_GROUP_SET", "No app group name set. Please set AppGroupName in Info.plist", nil)
+      return
+    }
     guard let screencastExtensionBundleId = screencastExtensionBundleId,
           let appGroupName = appGroupName else {
-            fatalError("ScreencastExtensionBundleId or AppGroupName not set")
+            return
           }
     
     // if screensharing is enabled it must be closed by the Broadcast Extension, not by our application
@@ -177,6 +235,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       resolve(nil)
       return
     }
+    if(!ensureConnected(reject)) { return }
     guard let room = room else {
         return
     }
@@ -197,7 +256,10 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
           return VideoParameters.presetScreenShareHD15
       }
     }()
-    screenshareSimulcastConfig = getSimulcastConfigFrom(options: screencastOptions)
+    guard let screenshareSimulcastConfig = getSimulcastConfigFrom(options: screencastOptions, reject: reject) else {
+      return
+    }
+    self.screenshareSimulcastConfig = screenshareSimulcastConfig
     screenshareBandwidthLimit = getBandwidthLimitFrom(options: screencastOptions)
     let videoParameters = VideoParameters(
       dimensions: preset.dimensions.flip(),
@@ -294,7 +356,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc(toggleCamera:withRejecter:)
-  func toggleCamera(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  func toggleCamera(resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureVideoTrack(reject)) { return }
     isCameraEnabled = !isCameraEnabled
     localVideoTrack?.setEnabled(isCameraEnabled)
     resolve(isCameraEnabled)
@@ -306,7 +369,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc(toggleMicrophone:withRejecter:)
-  func toggleMicrophone(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  func toggleMicrophone(resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureAudioTrack(reject)) { return }
     isMicEnabled = !isMicEnabled
     localAudioTrack?.setEnabled(isMicEnabled)
     resolve(isMicEnabled)
@@ -318,7 +382,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc(flipCamera:withRejecter:)
-  func flipCamera(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  func flipCamera(resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureVideoTrack(reject)) { return }
     guard let cameraTrack = localVideoTrack as? LocalCameraVideoTrack else {
         return
     }
@@ -329,7 +394,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
     
     @objc(updatePeerMetadata:withResolver:withRejecter:)
-    func updatePeerMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  func updatePeerMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+        if(!ensureConnected(reject)) { return }
         room?.updatePeerMetadata(peerMetadata: metadata.toMetadata())
         resolve(nil)
     }
@@ -345,7 +411,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
     
     @objc(updateVideoTrackMetadata:withResolver:withRejecter:)
-    func updateVideoTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    func updateVideoTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+        if(!ensureVideoTrack(reject)) { return }
         guard let trackId = localVideoTrack?.trackId() else {
             return
         }
@@ -355,7 +422,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     
     @objc(updateAudioTrackMetadata:withResolver:withRejecter:)
-    func updateAudioTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    func updateAudioTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+      if(!ensureAudioTrack(reject)) { return }
         guard let trackId = localAudioTrack?.trackId() else {
             return
         }
@@ -365,7 +433,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     
     @objc(updateScreencastTrackMetadata:withResolver:withRejecter:)
-    func updateScreencastTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    func updateScreencastTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+      if(!ensureScreencastTrack(reject)) { return }
         guard let trackId = localScreencastTrack?.trackId() else {
             return
         }
@@ -374,30 +443,32 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         resolve(nil)
     }
   
-  private func toggleTrackEncoding(encoding: String, trackId: String, simulcastConfig: SimulcastConfig) -> SimulcastConfig? {
-    guard let room = room, let trackEncoding = (encoding as String).toTrackEncoding() else {
+  private func toggleTrackEncoding(encoding: TrackEncoding, trackId: String, simulcastConfig: SimulcastConfig) -> SimulcastConfig? {
+    guard let room = room else {
       return nil
     }
-    if(simulcastConfig.activeEncodings.contains(trackEncoding)) {
-      room.disableTrackEncoding(trackId: trackId, encoding: trackEncoding)
+    if(simulcastConfig.activeEncodings.contains(encoding)) {
+      room.disableTrackEncoding(trackId: trackId, encoding: encoding)
       return SimulcastConfig(
         enabled: true,
-        activeEncodings: simulcastConfig.activeEncodings.filter { e in e != trackEncoding}
+        activeEncodings: simulcastConfig.activeEncodings.filter { e in e != encoding}
       )
     } else {
-      room.enableTrackEncoding(trackId: trackId, encoding: trackEncoding)
+      room.enableTrackEncoding(trackId: trackId, encoding: encoding)
       return SimulcastConfig(
         enabled: true,
-        activeEncodings: simulcastConfig.activeEncodings + [trackEncoding]
+        activeEncodings: simulcastConfig.activeEncodings + [encoding]
       )
     }
   }
   
   @objc(toggleScreencastTrackEncoding:withResolver:withRejecter:)
-  func toggleScreencastTrackEncoding(encoding: NSString, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  func toggleScreencastTrackEncoding(encoding: NSString, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureScreencastTrack(reject)) { return }
     guard
       let trackId = localScreencastTrack?.trackId(),
-      let simulcastConfig = toggleTrackEncoding(encoding: encoding as String, trackId: trackId, simulcastConfig: screenshareSimulcastConfig) else {
+      let trackEncoding = validateEncoding(encoding: encoding as String, reject),
+      let simulcastConfig = toggleTrackEncoding(encoding: trackEncoding, trackId: trackId, simulcastConfig: screenshareSimulcastConfig) else {
       return
     }
     self.screenshareSimulcastConfig = simulcastConfig
@@ -405,7 +476,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc(setScreencastTrackBandwidth:withResolver:withRejecter:)
-  func setScreencastTrackBandwidth(bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  func setScreencastTrackBandwidth(bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureScreencastTrack(reject)) { return }
     guard let room = room, let trackId = localScreencastTrack?.trackId() else {
       return
     }
@@ -414,23 +486,28 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc(setScreencastTrackEncodingBandwidth:withBandwidth:withResolver:withRejecter:)
-  func setScreencastTrackEncodingBandwidth(encoding: NSString, bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-    guard let room = room, let trackId = localScreencastTrack?.trackId() else {
+  func setScreencastTrackEncodingBandwidth(encoding: NSString, bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureScreencastTrack(reject)) { return }
+    guard let room = room, let trackId = localScreencastTrack?.trackId(), let trackEncoding = validateEncoding(encoding: encoding as String, reject) else {
       return
     }
-    room.setEncodingBandwidth(trackId: trackId, encoding: encoding as String, bandwidth: BandwidthLimit(truncating: bandwidth))
+    room.setEncodingBandwidth(trackId: trackId, encoding: trackEncoding.description, bandwidth: BandwidthLimit(truncating: bandwidth))
     resolve(nil)
   }
   
   @objc(setTargetTrackEncoding:withEncoding:withResolver:withRejecter:)
-  func setTargetTrackEncoding(trackId: NSString, encoding: NSString, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  func setTargetTrackEncoding(trackId: NSString, encoding: NSString, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureConnected(reject)) { return }
     guard
       let room = room,
       let videoTrack = MembraneRoom.sharedInstance.getVideoTrackById(trackId: trackId as String),
       let trackId = (videoTrack as? RemoteVideoTrack)?.track.trackId ?? (videoTrack as? LocalVideoTrack)?.trackId(),
-      let globalTrackId = getGlobalTrackId(localTrackId: trackId as String),
-      let trackEncoding = (encoding as String).toTrackEncoding()
+      let globalTrackId = getGlobalTrackId(localTrackId: trackId as String)
     else {
+      reject("E_INVALID_TRACK_ID", "Remote track with id=\(trackId) not found", nil)
+      return
+    }
+    guard let trackEncoding = validateEncoding(encoding: encoding as String, reject) else {
       return
     }
     room.setTargetTrackEncoding(trackId: globalTrackId, encoding: trackEncoding)
@@ -438,10 +515,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc(toggleVideoTrackEncoding:withResolver:withRejecter:)
-  func toggleVideoTrackEncoding(encoding: NSString, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  func toggleVideoTrackEncoding(encoding: NSString, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureVideoTrack(reject)) { return }
     guard
       let trackId = localVideoTrack?.trackId(),
-      let simulcastConfig = toggleTrackEncoding(encoding: encoding as String, trackId: trackId, simulcastConfig: videoSimulcastConfig) else {
+      let trackEncoding = validateEncoding(encoding: encoding as String, reject),
+      let simulcastConfig = toggleTrackEncoding(encoding: trackEncoding, trackId: trackId, simulcastConfig: videoSimulcastConfig) else {
       return
     }
     self.videoSimulcastConfig = simulcastConfig
@@ -449,7 +528,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc(setVideoTrackEncodingBandwidth:withBandwidth:withResolver:withRejecter:)
-  func setVideoTrackEncodingBandwidth(encoding: NSString, bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+  func setVideoTrackEncodingBandwidth(encoding: NSString, bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureVideoTrack(reject)) { return }
     guard let room = room, let trackId = localVideoTrack?.trackId() else {
       return
     }
@@ -458,7 +538,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc(setVideoTrackBandwidth:withResolver:withRejecter:)
-  func setVideoTrackBandwidth(bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) {
+  func setVideoTrackBandwidth(bandwidth: NSNumber, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) {
+    if(!ensureVideoTrack(reject)) { return }
     guard let room = room, let trackId = localVideoTrack?.trackId() else {
       return
     }
