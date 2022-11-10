@@ -66,6 +66,6 @@ internal fun String.toTrackEncoding(): TrackEncoding {
     "l" -> TrackEncoding.L
     "m" -> TrackEncoding.M
     "h" -> TrackEncoding.H
-    else -> throw Error("Invalid encoding specified: $this")
+    else -> throw IllegalArgumentException("Invalid encoding specified: $this")
   }
 }

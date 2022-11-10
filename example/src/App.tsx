@@ -11,6 +11,7 @@ import {
   Platform,
   Pressable,
   Switch,
+  Alert,
 } from 'react-native';
 
 import { Room } from './Room';
@@ -36,6 +37,7 @@ export default function App() {
   useEffect(() => {
     if (error) {
       console.log(error);
+      Alert.alert('Error when connecting to server:', error);
     }
   }, [error]);
 
