@@ -88,6 +88,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var screenshareBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
   var globalToLocalTrackId: [String:String] = [:]
   
+  var isSpeakersphoneOn = true
+  
   private func getGlobalTrackId(localTrackId: String) -> String? {
     return globalToLocalTrackId.filter { $0.value == localTrackId }.first?.key
   }
@@ -544,6 +546,17 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     room.setTrackBandwidth(trackId: trackId, bandwidth: BandwidthLimit(truncating: bandwidth))
+  }
+  
+  @objc(toggleSpeakerphone:withRejecter:)
+  func toggleSpeakerphone(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    if(isSpeakersphoneOn) {
+      localAudioTrack?.setVoiceChatMode()
+    } else {
+      localAudioTrack?.setVideoChatMode()
+    }
+    isSpeakersphoneOn = !isSpeakersphoneOn
+    resolve(nil)
   }
   
   override func supportedEvents() -> [String]! {

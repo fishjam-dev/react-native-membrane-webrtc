@@ -512,15 +512,9 @@ export function useAudioSettings() {
   const [isSpeakerphoneOn, setIsSpeakerphoneOn] = useState<boolean>(true);
 
   /**
-   *  function that toggles the speakerphone on/off. Supported only on Android
+   *  function that toggles the speakerphone on/off.
    */
   const toggleSpeakerphone = useCallback(async () => {
-    if (Platform.OS !== 'android') {
-      console.warn(
-        'react-native-membrane: toggleSpeakerphone is available only on Android'
-      );
-      return;
-    }
     await Membrane.toggleSpeakerphone();
     setIsSpeakerphoneOn((isSpeakerphoneOn) => !isSpeakerphoneOn);
   }, []);
