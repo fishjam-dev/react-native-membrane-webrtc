@@ -21,7 +21,6 @@ target 'MembraneExample' do
   )
 
   pod 'react-native-membrane', :path => '../..'
-  pod "MembraneRTC", :git => "https://github.com/membraneframework/membrane-webrtc-ios.git", :branch => "graszka22/toggle-video-voice-chat-mode"
 
   # Enables Flipper.
   #
@@ -40,5 +39,5 @@ target 'MembraneExample' do
 end
 
 target 'ScreenBroadcast' do
-  pod 'MembraneRTC/Broadcast', :git => "https://github.com/membraneframework/membrane-webrtc-ios.git", :branch => "graszka22/toggle-video-voice-chat-mode"
+  pod 'MembraneRTC/Broadcast'
 end
