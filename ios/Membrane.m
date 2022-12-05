@@ -29,4 +29,5 @@ RCT_EXTERN_METHOD(setTargetTrackEncoding:(NSString)trackId withEncoding:(NSStrin
 RCT_EXTERN_METHOD(toggleVideoTrackEncoding:(NSString)encoding withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(setVideoTrackEncodingBandwidth:(NSString)encoding withBandwidth:(nonnull NSNumber)bandwidth withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(setVideoTrackBandwidth:(nonnull NSNumber)bandwidth withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(toggleSpeakerphone:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 @end
