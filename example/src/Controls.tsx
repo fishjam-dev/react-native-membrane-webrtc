@@ -26,6 +26,7 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
     toggleMicrophone();
     updateAudioTrackMetadata({
       active: !isMicrophoneOn,
+      type: 'audio',
     });
   };
 
@@ -33,6 +34,7 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
     toggleCamera();
     updateVideoTrackMetadata({
       active: !isCameraOn,
+      type: 'camera',
     });
   };
 
