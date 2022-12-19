@@ -176,6 +176,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.localUserMetadata = (connectionOptions["userMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    self.isSpeakersphoneOn = connectionOptions["isSpeakersphoneOn"] as? Bool ?? true
         
     let socketConnectionParams = (connectionOptions["connectionParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
       
@@ -619,6 +620,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     
     localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata)
     localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
+    
+    if(isSpeakersphoneOn) {
+      localAudioTrack?.setVideoChatMode()
+    } else {
+      localAudioTrack?.setVoiceChatMode()
+    }
     
     var localParticipant = Participant(
       id: localParticipantId,

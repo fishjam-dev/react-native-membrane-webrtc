@@ -163,6 +163,11 @@ export type ConnectionOptions = {
    *  a map `string -> string` containing connection params passed to the socket.
    */
   connectionParams: SocketConnectionParams;
+  /**
+   * whether to turn the speakersphone on/off.
+   * @default `true`
+   */
+  isSpeakerphoneOn: boolean;
 };
 
 export type ScreencastOptions = {

@@ -76,6 +76,7 @@ export default function App() {
         quality: Membrane.VideoQuality.HD_169,
         videoTrackMetadata: { active: true, type: 'camera' },
         audioTrackMetadata: { active: true, type: 'audio' },
+        isSpeakerphoneOn: false,
       });
       await joinRoom();
     } catch (err) {
