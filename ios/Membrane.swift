@@ -88,7 +88,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var screenshareBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
   var globalToLocalTrackId: [String:String] = [:]
   
-  var isSpeakersphoneOn = true
+  var isSpeakersphoneOn
   
   private func getGlobalTrackId(localTrackId: String) -> String? {
     return globalToLocalTrackId.filter { $0.value == localTrackId }.first?.key
@@ -176,6 +176,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.localUserMetadata = (connectionOptions["userMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    self.isSpeakersphoneOn = connectionOptions["loudSpeaker"] as? Bool ?? true
         
     let socketConnectionParams = (connectionOptions["connectionParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
       

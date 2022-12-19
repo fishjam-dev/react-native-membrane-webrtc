@@ -133,7 +133,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.videoMaxBandwidth = getMaxBandwidthFromOptions(connectionOptions)
 
     val audioManager =  reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    audioManager.isSpeakerphoneOn = true
+    audioManager.isSpeakerphoneOn = connectionOptions.getBoolean("loudSpeaker") ?: true
     audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
 
     connectPromise = promise
