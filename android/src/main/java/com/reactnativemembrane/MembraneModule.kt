@@ -129,11 +129,17 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMap() ?: mutableMapOf()
 
     val socketConnectionParams = connectionOptions.getMap("connectionParams")?.toMap() ?: mutableMapOf()
+
+    var isSpeakerphoneOn = true
+    if(connectionOptions.hasKey("isSpeakerphoneOn")) {
+      isSpeakerphoneOn = connectionOptions.getBoolean("isSpeakerphoneOn")
+    }
+
     this.videoSimulcastConfig = getSimulcastConfigFromOptions(connectionOptions)
     this.videoMaxBandwidth = getMaxBandwidthFromOptions(connectionOptions)
 
     val audioManager =  reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    audioManager.isSpeakerphoneOn = true
+    audioManager.isSpeakerphoneOn = isSpeakerphoneOn
     audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
 
     connectPromise = promise
