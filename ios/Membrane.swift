@@ -176,7 +176,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.localUserMetadata = (connectionOptions["userMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
-    self.isSpeakersphoneOn = connectionOptions["isSpeakersphoneOn"] as? Bool ?? true
+    self.isSpeakersphoneOn = connectionOptions["isSpeakerphoneOn"] as? Bool ?? true
         
     let socketConnectionParams = (connectionOptions["connectionParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
       
