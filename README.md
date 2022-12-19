@@ -222,10 +222,10 @@ useEffect(() => {
 }, [error]);
 ```
 
-If you have the connection set up, then use `useParticipants()` hook to track the participants. One of the participants will be a local participant (the one who's using the device). When peer joins or leaves the room, the participants will be updated automatically. Simply call the hook like this:
+If you have the connection set up, then use `useRoomParticipants()` hook to track the participants. One of the participants will be a local participant (the one who's using the device). When peer joins or leaves the room, the participants will be updated automatically. Simply call the hook like this:
 
 ```ts
-const participants = useParticipants();
+const participants = useRoomParticipants();
 ```
 
 When you have the participants all that's left is to render their video tracks. Use `<VideoRendererView />` component like this:
