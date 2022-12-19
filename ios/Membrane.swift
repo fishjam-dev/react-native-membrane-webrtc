@@ -88,7 +88,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var screenshareBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
   var globalToLocalTrackId: [String:String] = [:]
   
-    var isSpeakersphoneOn: Bool?
+  var isSpeakersphoneOn: Bool?
   
   private func getGlobalTrackId(localTrackId: String) -> String? {
     return globalToLocalTrackId.filter { $0.value == localTrackId }.first?.key
