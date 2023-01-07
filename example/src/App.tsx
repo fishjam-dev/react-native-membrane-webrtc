@@ -1,5 +1,5 @@
 import { SERVER_URL } from '@env';
-import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
+import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,

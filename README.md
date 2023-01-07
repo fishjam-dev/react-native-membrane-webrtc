@@ -10,13 +10,13 @@ API documentation is available [here](https://jellyfish-dev.github.io/react-nati
 Firstly install react-native-membrane with `yarn` or `npm`
 
 ```
-yarn add @membraneframework/react-native-membrane-webrtc
+yarn add @jellyfish-dev/react-native-membrane-webrtc
 ```
 
 or
 
 ```
-npm install --save @membraneframework/react-native-membrane-webrtc
+npm install --save @jellyfish-dev/react-native-membrane-webrtc
 ```
 
 ### Expo plugin
@@ -25,7 +25,7 @@ If you're using development builds with `eas build` or bare workflow you can try
 Simply run:
 
 ```
-expo install @membraneframework/react-native-membrane-webrtc
+expo install @jellyfish-dev/react-native-membrane-webrtc
 ```
 
 Add plugin to your `app.json` if it's not already added:
@@ -36,7 +36,7 @@ Add plugin to your `app.json` if it's not already added:
     "name": "example",
     ...
     "plugins": [
-      "@membraneframework/react-native-membrane-webrtc"
+      "@jellyfish-dev/react-native-membrane-webrtc"
     ]
   }
 }

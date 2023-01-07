@@ -1,4 +1,4 @@
 {
-  "name": "@membraneframework/react-native-membrane-webrtc",
+  "name": "@jellyfish-dev/react-native-membrane-webrtc",
   "platforms": ["ios", "android"]
 }
