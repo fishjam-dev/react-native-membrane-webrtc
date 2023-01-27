@@ -30,11 +30,20 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
 
   const [areSettingsOpen, setAreSettingsOpen] = useState<boolean>(false);
 
+  const isFocusedParticipantSpeaking =
+    focusedParticipant?.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
+    Membrane.VadStatus.Speech;
+
   return (
     <View style={styles.flex}>
       <View style={styles.flex}>
         {!!focusedTrack && !!focusedParticipant && (
-          <View style={styles.focusedParticipantContainer}>
+          <View
+            style={[
+              styles.focusedParticipantContainer,
+              isFocusedParticipantSpeaking ? styles.vadSpeech : {},
+            ]}
+          >
             <Membrane.VideoRendererView
               trackId={focusedTrack.id}
               style={styles.focusedParticipant}
@@ -78,7 +87,13 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
                   <Pressable
                     onPress={() => setFocusedTrackId(t.id)}
                     key={t.id}
-                    style={styles.participant}
+                    style={[
+                      styles.participant,
+                      p.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
+                      Membrane.VadStatus.Speech
+                        ? styles.vadSpeech
+                        : {},
+                    ]}
                   >
                     <Membrane.VideoRendererView
                       trackId={t.id}
@@ -157,5 +172,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
+  },
+  vadSpeech: {
+    borderWidth: 6,
+    borderColor: '#001A72',
   },
 });

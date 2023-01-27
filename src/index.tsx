@@ -35,11 +35,39 @@ export enum TrackType {
   Audio = 'Audio',
   Video = 'Video',
 }
+/**
+ * Type describing Voice Activity Detection statuses.
+ *
+ * SPEECH - voice activity has been detected
+ * SILENCE - lack of voice activity has been detected
+ */
+export enum VadStatus {
+  Silence = 'silence',
+  Speech = 'speech',
+}
+
+/**
+ * Type describing possible reasons of currently selected encoding.
+ *
+ * - OTHER - the exact reason couldn't be determined
+ * - ENCODING_INACTIVE - previously selected encoding became inactive
+ * - LOW_BANDWIDTH - there is no longer enough bandwidth to maintain previously selected encoding
+ */
+export enum EncodingReason {
+  Other = 'other',
+  EncodingInactive = 'encodingInactive',
+  LowBandwidth = 'lowBandwidth',
+}
 
 export type Track = {
   id: string;
   type: TrackType;
   metadata: Metadata;
+  vadStatus: VadStatus;
+  // Encoding that is currently received. Only present for remote tracks.
+  encoding: TrackEncoding | null;
+  // The reason of currently selected encoding. Only present for remote tracks.
+  encodingReason: EncodingReason | null;
 };
 
 export type Metadata = { [key: string]: any };
@@ -604,6 +632,25 @@ export function useBandwidthLimit() {
   );
 
   return { setVideoTrackBandwidth };
+}
+
+/**
+ * This hook provides current bandwidth estimation
+ * estimation - client's available incoming bitrate estimated
+ * by the server. It's measured in bits per second.
+ */
+export function useBandwidthEstimation() {
+  const [estimation, setEstimation] = useState<number | null>(null);
+
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener(
+      'BandwidthEstimation',
+      (estimation) => setEstimation(estimation)
+    );
+    return () => eventListener.remove();
+  }, []);
+
+  return { estimation };
 }
 
 export type VideoRendererProps = {

@@ -90,6 +90,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   var isSpeakersphoneOn = true
   
+  var tracksContexts: [String: TrackContext] = [:]
+  
   private func getGlobalTrackId(localTrackId: String) -> String? {
     return globalToLocalTrackId.filter { $0.value == localTrackId }.first?.key
   }
@@ -328,13 +330,16 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       let videoTracks = p.videoTracks.keys.map { trackId in [
         "id": trackId,
         "type": "Video",
-        "metadata": p.tracksMetadata[trackId]?.toDict() ?? [:]
+        "metadata": p.tracksMetadata[trackId]?.toDict() ?? [:],
+        "encoding": tracksContexts[trackId]?.encoding?.description as Any,
+        "encodingReason": tracksContexts[trackId]?.encodingReason?.rawValue as Any,
       ]}
       
       let audioTracks = p.audioTracks.keys.map { trackId in [
         "id": trackId,
         "type": "Audio",
-        "metadata": p.tracksMetadata[trackId]?.toDict() ?? [:]
+        "metadata": p.tracksMetadata[trackId]?.toDict() ?? [:],
+        "vadStatus": tracksContexts[trackId]?.vadStatus.rawValue as Any,
       ]}
         
       return [
@@ -567,6 +572,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       "IsMicrophoneOn",
       "IsCameraOn",
       "IsScreencastOn",
+      "BandwidthEstimation",
     ]
   }
   
@@ -674,15 +680,31 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     if let audioTrack = ctx.track as? RemoteAudioTrack {
-      globalToLocalTrackId[ctx.trackId] = (ctx.track as? RemoteAudioTrack)?.track.trackId
+      let localTrackId = (ctx.track as? RemoteAudioTrack)?.track.trackId
+      globalToLocalTrackId[ctx.trackId] = localTrackId
       participant.audioTracks[audioTrack.track.trackId] = audioTrack
       participant.tracksMetadata[audioTrack.track.trackId] = ctx.metadata
+      if let localTrackId = localTrackId,
+         tracksContexts[localTrackId] == nil {
+        tracksContexts[localTrackId] = ctx
+        ctx.setOnVoiceActivityChangedListener { ctx in
+          self.emitParticipants()
+        }
+      }
     }
     
     if let videoTrack = ctx.track as? RemoteVideoTrack {
-      globalToLocalTrackId[ctx.trackId] = (ctx.track as? RemoteVideoTrack)?.track.trackId
+      let localTrackId = (ctx.track as? RemoteVideoTrack)?.track.trackId
+      globalToLocalTrackId[ctx.trackId] = localTrackId
       participant.videoTracks[videoTrack.track.trackId] = videoTrack
       participant.tracksMetadata[videoTrack.track.trackId] = ctx.metadata
+      if let localTrackId = localTrackId,
+         tracksContexts[localTrackId] == nil {
+        tracksContexts[localTrackId] = ctx
+        ctx.setOnEncodingChangedListener { ctx in
+          self.emitParticipants()
+        }
+      }
     }
     MembraneRoom.sharedInstance.participants[ctx.peer.id] = participant
     emitParticipants()
@@ -752,6 +774,10 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         errorMessage = message
     }
     emitEvent(name: "MembraneError", data: errorMessage)
+  }
+  
+  func onBandwidthEstimationChanged(estimation: Int) {
+    emitEvent(name: "BandwidthEstimation", data: estimation)
   }
   
 }
