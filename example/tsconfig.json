@@ -3,7 +3,7 @@
     "compilerOptions": {
       "outDir": "./build",
       "paths": {
-        "@membraneframework/react-native-membrane-webrtc": [
+        "@jellyfish-dev/react-native-membrane-webrtc": [
           "../src/index.tsx"
         ]
       }
