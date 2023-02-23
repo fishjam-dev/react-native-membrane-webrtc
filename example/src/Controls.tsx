@@ -1,4 +1,4 @@
-import * as Membrane from '@membraneframework/react-native-membrane-webrtc';
+import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 

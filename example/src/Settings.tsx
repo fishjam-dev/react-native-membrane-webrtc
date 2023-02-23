@@ -5,7 +5,7 @@ import {
   useBandwidthLimit,
   useScreencast,
   TrackEncoding,
-} from '@membraneframework/react-native-membrane-webrtc';
+} from '@jellyfish-dev/react-native-membrane-webrtc';
 import React, { useState } from 'react';
 import {
   StyleSheet,
