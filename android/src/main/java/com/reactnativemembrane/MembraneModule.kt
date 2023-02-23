@@ -57,6 +57,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   var videoTrackMetadata: MutableMap<String, Any> = mutableMapOf()
   var audioTrackMetadata: MutableMap<String, Any> = mutableMapOf()
 
+  var trackContexts: MutableMap<String, TrackContext> = mutableMapOf()
+
 
   companion object {
     val participants = LinkedHashMap<String, Participant>()
@@ -471,6 +473,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         track.putString("id", videoTrack.id())
         track.putString("type", "Video")
         track.putMap("metadata", mapToRNMap(it.tracksMetadata[videoTrack.id()] ?: emptyMap()))
+        track.putString("encoding", trackContexts[videoTrack.id()]?.encoding?.rid)
+        track.putString("encodingReason", trackContexts[videoTrack.id()]?.encodingReason?.value)
         tracksArray.pushMap(track)
       }
 
@@ -479,6 +483,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         track.putString("id", audioTrack.id())
         track.putString("type", "Audio")
         track.putMap("metadata", mapToRNMap(it.tracksMetadata[audioTrack.id()] ?: emptyMap()))
+        track.putString("vadStatus", trackContexts[audioTrack.id()]?.vadStatus?.value)
         tracksArray.pushMap(track)
       }
 
@@ -575,12 +580,26 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
     when (ctx.track) {
       is RemoteVideoTrack -> {
-        globalToLocalTrackId[ctx.trackId] = (ctx.track as RemoteVideoTrack).id()
+        val localTrackId = (ctx.track as RemoteVideoTrack).id()
+        globalToLocalTrackId[ctx.trackId] = localTrackId
         participant.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata)
+        if(trackContexts[localTrackId] == null) {
+          trackContexts[localTrackId] = ctx
+          ctx.setOnEncodingChangedListener {
+            emitParticipants()
+          }
+        }
       }
       is RemoteAudioTrack -> {
-        globalToLocalTrackId[ctx.trackId] = (ctx.track as RemoteAudioTrack).id()
+        val localTrackId = (ctx.track as RemoteAudioTrack).id()
+        globalToLocalTrackId[ctx.trackId] = localTrackId
         participant.addOrUpdateTrack(ctx.track as RemoteAudioTrack, ctx.metadata)
+        if(trackContexts[localTrackId] == null) {
+          trackContexts[localTrackId] = ctx
+          ctx.setOnVoiceActivityChangedListener {
+            emitParticipants()
+          }
+        }
       }
       else ->
         throw IllegalArgumentException("invalid type of incoming remote track")
@@ -607,6 +626,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     }
 
     globalToLocalTrackId.remove(ctx.trackId)
+    ctx.setOnEncodingChangedListener(null)
+    ctx.setOnVoiceActivityChangedListener(null)
+    trackContexts.remove(ctx.trackId)
     emitParticipants()
     onTracksUpdate?.let { it1 -> it1() }
   }
@@ -627,6 +649,10 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onPeerUpdated(peer: Peer) {
+  }
+
+  override fun onBandwidthEstimationChanged(estimation: Long) {
+    emitEvent("BandwidthEstimation", estimation.toFloat())
   }
 
   override fun onError(error: MembraneRTCError) {
