@@ -72,6 +72,7 @@ export type Track = {
 
 export type Metadata = { [key: string]: any };
 export type SocketConnectionParams = { [key: string]: any };
+export type SocketChannelParams = { [key: string]: any };
 
 export type Participant = {
   /**
@@ -188,7 +189,7 @@ export type ConnectionOptions = {
    */
   maxBandwidth: TrackBandwidthLimit;
   /**
-   *  a map `string -> string` containing connection params passed to the socket.
+   *  a map `string -> any` containing connection params passed to the socket.
    */
   connectionParams: SocketConnectionParams;
   /**
@@ -196,6 +197,10 @@ export type ConnectionOptions = {
    * @default `true`
    */
   isSpeakerphoneOn: boolean;
+  /**
+   * a map `string -> any` containing params passed to the socket channel.
+   */
+  socketChannelParams: SocketChannelParams;
 };
 
 export type ScreencastOptions = {

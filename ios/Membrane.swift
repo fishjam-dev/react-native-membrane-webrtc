@@ -181,6 +181,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.isSpeakersphoneOn = connectionOptions["isSpeakerphoneOn"] as? Bool ?? true
         
     let socketConnectionParams = (connectionOptions["connectionParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    let socketChannelParams = (connectionOptions["socketChannelParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
       
     guard let videoSimulcastConfig = getSimulcastConfigFrom(options: connectionOptions, reject: reject) else {
       return
@@ -190,7 +191,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         
     room = MembraneRTC.connect(
       with: MembraneRTC.ConnectOptions(
-        transport: PhoenixTransport(url: url, topic: "room:\(roomName)", params: socketConnectionParams.toDict()),
+        transport: PhoenixTransport(url: url, topic: "room:\(roomName)", params: socketConnectionParams.toDict(), channelParams: socketChannelParams.toDict()),
         config: self.localUserMetadata
       ),
       delegate: self

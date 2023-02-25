@@ -132,6 +132,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
     val socketConnectionParams = connectionOptions.getMap("connectionParams")?.toMap() ?: mutableMapOf()
 
+    val socketChannelParams = connectionOptions.getMap("socketChannelParams")?.toMap() ?: mutableMapOf()
+
     var isSpeakerphoneOn = true
     if(connectionOptions.hasKey("isSpeakerphoneOn")) {
       isSpeakerphoneOn = connectionOptions.getBoolean("isSpeakerphoneOn")
@@ -148,7 +150,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     room = MembraneRTC.connect(
       appContext = reactApplicationContext,
       options = ConnectOptions(
-        transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO, socketConnectionParams),
+        transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO, socketConnectionParams, socketChannelParams),
         config = this.localUserMetadata
       ),
       listener = this@MembraneModule
