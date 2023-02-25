@@ -69,6 +69,9 @@ export default function App() {
       await mbConnect(SERVER_URL, roomName, {
         userMetadata: { displayName },
         connectionParams: params,
+        socketChannelParams: {
+          isSimulcastOn,
+        },
         simulcastConfig: {
           enabled: isSimulcastOn,
           activeEncodings: ['l', 'm', 'h'],
