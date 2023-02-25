@@ -1,6 +1,6 @@
 {
   "name": "@jellyfish-dev/react-native-membrane-webrtc",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "A React Native client for Membrane WebRTC server.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
