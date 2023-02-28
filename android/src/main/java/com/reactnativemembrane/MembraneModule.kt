@@ -109,7 +109,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     } else if(options.getMap("maxBandwidth") != null) {
       val maxBandwidthSimulcast = mutableMapOf<String, TrackBandwidthLimit.BandwidthLimit>()
       options.getMap("maxBandwidth")?.entryIterator?.forEach {
-        maxBandwidthSimulcast[it.key] = it.value as TrackBandwidthLimit.BandwidthLimit
+        maxBandwidthSimulcast[it.key] = TrackBandwidthLimit.BandwidthLimit((it.value as Double).toInt())
       }
       TrackBandwidthLimit.SimulcastBandwidthLimit(maxBandwidthSimulcast)
     } else {
