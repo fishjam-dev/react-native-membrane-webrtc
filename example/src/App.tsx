@@ -77,6 +77,7 @@ export default function App() {
           activeEncodings: ['l', 'm', 'h'],
         },
         quality: Membrane.VideoQuality.HD_169,
+        maxBandwidth: { l: 150, m: 500, h: 1500 },
         videoTrackMetadata: { active: true, type: 'camera' },
         audioTrackMetadata: { active: true, type: 'audio' },
         isSpeakerphoneOn: false,

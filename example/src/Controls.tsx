@@ -68,10 +68,7 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
               type: 'screensharing',
               active: 'true',
             },
-            simulcastConfig: {
-              enabled: true,
-              activeEncodings: ['l', 'm', 'h'],
-            },
+            quality: Membrane.ScreencastQuality.FHD30,
           })
         }
       >
