@@ -15,7 +15,7 @@
 		441A418A27D8E06700BC0BA9 /* SampleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 441A418927D8E06700BC0BA9 /* SampleHandler.swift */; };
 		441A419D27D8E06700BC0BA9 /* ScreenBroadcast.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 441A418527D8E06600BC0BA9 /* ScreenBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4C39C56BAD484C67AA576FFA /* libPods-MembraneExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CA3E69C5B9553B26FBA2DF04 /* libPods-MembraneExample.a */; };
-		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		81AB9BB824.1.11600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB724.1.11600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,7 +62,7 @@
 		441A41A627D8E57200BC0BA9 /* ScreenBroadcast.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScreenBroadcast.entitlements; sourceTree = "<group>"; };
 		47F7ED3B7971BE374F7B8635 /* Pods-MembraneExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MembraneExample.debug.xcconfig"; path = "Target Support Files/Pods-MembraneExample/Pods-MembraneExample.debug.xcconfig"; sourceTree = "<group>"; };
 		51DA263AA30EC230E7A0C5E1 /* libPods-ScreenBroadcast.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScreenBroadcast.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = MembraneExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		81AB9BB724.1.11600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = MembraneExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CA3E69C5B9553B26FBA2DF04 /* libPods-MembraneExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MembraneExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E00ACF0FDA8BF921659E2F9A /* Pods-MembraneExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MembraneExample.release.xcconfig"; path = "Target Support Files/Pods-MembraneExample/Pods-MembraneExample.release.xcconfig"; sourceTree = "<group>"; };
 		E5E8471FA694C5AA9A03073D /* Pods-ScreenBroadcast.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.debug.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.debug.xcconfig"; sourceTree = "<group>"; };
@@ -116,7 +116,7 @@
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
+				81AB9BB724.1.11600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
 			name = MembraneExample;
@@ -195,7 +195,7 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "MembraneExample" */;
 			buildPhases = (
 				4F0A6FC082772762E3E4C96C /* [CP] Check Pods Manifest.lock */,
-				FD10A7F022414.1.0027D42C /* Start Packager */,
+				FD10A7F022414.1.1027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
@@ -277,7 +277,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				81AB9BB824.1.11600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -394,7 +394,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MembraneExample/Pods-MembraneExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		FD10A7F022414.1.0027D42C /* Start Packager */ = {
+		FD10A7F022414.1.1027D42C /* Start Packager */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -460,7 +460,7 @@
 				INFOPLIST_FILE = MembraneExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 4.1.0;
+				MARKETING_VERSION = 4.1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -490,7 +490,7 @@
 				INFOPLIST_FILE = MembraneExample/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 4.1.0;
+				MARKETING_VERSION = 4.1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
