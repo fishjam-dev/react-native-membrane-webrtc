@@ -61,6 +61,13 @@ On iOS installation is a bit more complicated, because you need to setup a scree
    <key>NSMicrophoneUsageDescription</key>
    <string>Allow $(PRODUCT_NAME) to use the microphone</string>
    ```
+2. We recommend adding `audio` background mode in `Info.plist` so that the app doesn't disconnect when it's in background:
+  ```xml
+  	<key>UIBackgroundModes</key>
+    <array>
+      <string>audio</string>
+    </array>
+  ```
 2. Open your `<your-project>.xcworkspace` in Xcode
 3. Create new Broadcast Upload Extension. Select File → New → Target... → Broadcast Upload Extension → Next. Choose the name for the new target, select Swift language and deselect "Include UI Extension".
 

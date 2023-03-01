@@ -59,6 +59,15 @@ const withMediaPermissions: ConfigPlugin<MembranePluginOptions> = (
       config.modResults.NSMicrophoneUsageDescription ||
       MICROPHONE_USAGE;
 
+    if (!config.modResults.UIBackgroundModes) {
+      config.modResults.UIBackgroundModes = ['audio'];
+    } else {
+      config.modResults.UIBackgroundModes = [
+        ...config.modResults.UIBackgroundModes,
+        'audio',
+      ];
+    }
+
     return config;
   });
 };
