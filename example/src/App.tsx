@@ -25,10 +25,11 @@ export default function App() {
   } = Membrane.useMembraneServer();
   const [connected, setConnected] = useState<boolean>(false);
   const [roomName, setRoomName] = useState<string>('room');
+  const [serverUrl, setServerUrl] = useState<string>(SERVER_URL);
   const [displayName, setDisplayName] = useState<string>(
     `mobile ${Platform.OS}`
   );
-  const [isSimulcastOn, setIsSimulcastOn] = useState<boolean>(false);
+  const [isSimulcastOn, setIsSimulcastOn] = useState<boolean>(true);
 
   const params = {
     token: 'NOW_YOU_CAN_SEND_PARAMS',
@@ -66,7 +67,7 @@ export default function App() {
   const connect = useCallback(async () => {
     await requestPermissions();
     try {
-      await mbConnect(SERVER_URL, roomName, {
+      await mbConnect(serverUrl, roomName, {
         userMetadata: { displayName },
         connectionParams: params,
         socketChannelParams: {
@@ -94,6 +95,7 @@ export default function App() {
     roomName,
     isSimulcastOn,
     displayName,
+    serverUrl,
   ]);
 
   const disconnect = useCallback(() => {
@@ -121,6 +123,12 @@ export default function App() {
       <TextInput
         value={displayName}
         onChangeText={setDisplayName}
+        style={styles.textInput}
+      />
+      <Text>Server URL:</Text>
+      <TextInput
+        value={serverUrl}
+        onChangeText={setServerUrl}
         style={styles.textInput}
       />
       <View style={styles.row}>
