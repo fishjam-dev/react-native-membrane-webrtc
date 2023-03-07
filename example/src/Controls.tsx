@@ -7,10 +7,10 @@ import {
   CameraDisabledIcon,
   MicrophoneDisabledIcon,
   MicrophoneIcon,
-  PhoneDownIcon,
+  HangupIcon,
   FlipCameraIcon,
-  ScreencastIcon,
-  ScreencastDisabledIcon,
+  ScreenshareIcon,
+  ScreenshareDisabledIcon,
 } from './icons';
 
 const iconSize = 32;
@@ -55,7 +55,7 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
         )}
       </Pressable>
       <Pressable onPress={disconnect}>
-        <PhoneDownIcon width={iconSize} height={iconSize} />
+        <HangupIcon width={iconSize} height={iconSize} />
       </Pressable>
       <Pressable onPress={Membrane.flipCamera}>
         <FlipCameraIcon width={iconSize} height={iconSize} />
@@ -73,9 +73,9 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
         }
       >
         {isScreencastOn ? (
-          <ScreencastIcon width={iconSize} height={iconSize} />
+          <ScreenshareIcon width={iconSize} height={iconSize} />
         ) : (
-          <ScreencastDisabledIcon width={iconSize} height={iconSize} />
+          <ScreenshareDisabledIcon width={iconSize} height={iconSize} />
         )}
       </Pressable>
     </View>

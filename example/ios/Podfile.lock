@@ -74,7 +74,7 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
   - glog (0.3.5)
-  - hermes-engine (0.70.3)
+  - hermes-engine (0.70.5)
   - libevent (2.1.12)
   - Logging (1.4.0)
   - MembraneRTC (4.1.1):
@@ -323,7 +323,7 @@ PODS:
   - React-jsinspector (0.70.5)
   - React-logger (0.70.5):
     - glog
-  - react-native-membrane (4.1.0):
+  - react-native-membrane (4.1.1):
     - MembraneRTC (~> 4.1.1)
     - React-Core
   - React-perflogger (0.70.5)
@@ -591,7 +591,7 @@ SPEC CHECKSUMS:
   FlipperKit: cbdee19bdd4e7f05472a66ce290f1b729ba3cb86
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
-  hermes-engine: bb344d89a0d14c2c91ad357480a79698bb80e186
+  hermes-engine: 7fe5fc6ef707b7fdcb161b63898ec500e285653d
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
   MembraneRTC: 1d6f48c35a86338b3cd68d769b0de7741b3bceea
@@ -614,7 +614,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 31564fa6912459921568e8b0e49024285a4d584b
   React-jsinspector: badd81696361249893a80477983e697aab3c1a34
   React-logger: fdda34dd285bdb0232e059b19d9606fa0ec3bb9c
-  react-native-membrane: d932c570ed4612690e720eb83175c0a770abc9ed
+  react-native-membrane: 87163f07545e30709aecf25d5da4b56b1b24a760
   React-perflogger: e68d3795cf5d247a0379735cbac7309adf2fb931
   React-RCTActionSheet: 05452c3b281edb27850253db13ecd4c5a65bc247
   React-RCTAnimation: 578eebac706428e68466118e84aeacf3a282b4da
@@ -638,4 +638,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: cbf46d09cff1521c4cc623641bd2e0c952078cd6
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.0
