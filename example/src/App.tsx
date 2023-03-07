@@ -13,6 +13,7 @@ import {
   Switch,
   Alert,
 } from 'react-native';
+import Fonts from './fonts/fonts';
 
 import { Room } from './Room';
 
@@ -113,33 +114,33 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Room name:</Text>
+      <Text style={Fonts.Headlines.h5}>Room name:</Text>
       <TextInput
         value={roomName}
         onChangeText={setRoomName}
         style={styles.textInput}
       />
-      <Text>Display name:</Text>
+      <Text style={Fonts.Headlines.h5}>Display name:</Text>
       <TextInput
         value={displayName}
         onChangeText={setDisplayName}
         style={styles.textInput}
       />
-      <Text>Server URL:</Text>
+      <Text style={Fonts.Headlines.h5}>Server URL:</Text>
       <TextInput
         value={serverUrl}
         onChangeText={setServerUrl}
         style={styles.textInput}
       />
       <View style={styles.row}>
-        <Text>Simulcast:</Text>
+        <Text style={Fonts.Headlines.h5}>Simulcast:</Text>
         <Switch
           onValueChange={(v) => setIsSimulcastOn(v)}
           value={isSimulcastOn}
         />
       </View>
       <Pressable onPress={connect}>
-        <Text style={styles.button}>Connect!</Text>
+        <Text style={[styles.button, Fonts.TextStyles.button]}>Connect!</Text>
       </Pressable>
     </View>
   );
