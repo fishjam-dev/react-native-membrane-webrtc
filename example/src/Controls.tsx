@@ -2,6 +2,7 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 
+import { Icon } from './fonts/Icon';
 import { FlipCameraIcon } from './icons';
 
 const iconSize = 32;
@@ -33,20 +34,20 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
     <View style={styles.iconsContainer}>
       <Pressable onPress={toggleMicrophoneAndUpdateMetadata}>
         {!isMicrophoneOn ? (
-          <MicrophoneDisabledIcon width={iconSize} height={iconSize} />
+          <Icon name="Microphone-off" size={iconSize} />
         ) : (
-          <MicrophoneIcon width={iconSize} height={iconSize} />
+          <Icon name="Microphone" size={iconSize} />
         )}
       </Pressable>
       <Pressable onPress={toggleCameraAndUpdateMetadata}>
         {!isCameraOn ? (
-          <CameraDisabledIcon width={iconSize} height={iconSize} />
+          <Icon name="Cam-disabled" size={iconSize} />
         ) : (
-          <CameraIcon width={iconSize} height={iconSize} />
+          <Icon name="Cam" size={iconSize} />
         )}
       </Pressable>
       <Pressable onPress={disconnect}>
-        <HangupIcon width={iconSize} height={iconSize} />
+        <Icon name="Hangup" size={iconSize} />
       </Pressable>
       <Pressable onPress={Membrane.flipCamera}>
         <FlipCameraIcon width={iconSize} height={iconSize} />
@@ -64,9 +65,9 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
         }
       >
         {isScreencastOn ? (
-          <ScreenshareIcon width={iconSize} height={iconSize} />
+          <Icon name="Screenshare" size={iconSize} />
         ) : (
-          <ScreenshareDisabledIcon width={iconSize} height={iconSize} />
+          <Icon name="Screen-off" size={iconSize} />
         )}
       </Pressable>
     </View>

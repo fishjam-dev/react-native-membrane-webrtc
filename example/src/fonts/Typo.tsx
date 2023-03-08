@@ -1,5 +1,7 @@
 import React, { useEffect, useState, ReactNode } from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, Dimensions } from 'react-native';
+
+const SMALL_WINDOW_BREAKPOINT = 640;
 
 const Headlines = StyleSheet.create({
   h1: {
@@ -159,8 +161,24 @@ const TextStylesCustom = StyleSheet.create({
   },
 });
 
+type VariantName =
+  | 'h1'
+  | 'h2'
+  | 'h3'
+  | 'h4'
+  | 'h5'
+  | 'body-big'
+  | 'body-small'
+  | 'label'
+  | 'caption'
+  | 'button'
+  | 'video-label'
+  | 'chat-regular'
+  | 'chat-semibold'
+  | 'chat-title';
+
 type TypoProps = {
-  variant: string;
+  variant: VariantName;
   children: ReactNode;
 };
 
@@ -183,42 +201,32 @@ export const Typo = (props: TypoProps) => {
 
   const GetStyleForVariant = (variant: string) => {
     const HeadlineStylesDynamic =
-      dimensions.window.width > 640 ? Headlines : HeadlinesSmall;
+      dimensions.window.width > SMALL_WINDOW_BREAKPOINT
+        ? Headlines
+        : HeadlinesSmall;
     const TextStylesDynamic =
-      dimensions.window.width > 640 ? TextStyles : TextStylesSmall;
+      dimensions.window.width > SMALL_WINDOW_BREAKPOINT
+        ? TextStyles
+        : TextStylesSmall;
 
-    switch (variant) {
-      case 'h1':
-        return HeadlineStylesDynamic.h1;
-      case 'h2':
-        return HeadlineStylesDynamic.h2;
-      case 'h3':
-        return HeadlineStylesDynamic.h3;
-      case 'h4':
-        return HeadlineStylesDynamic.h4;
-      case 'h5':
-        return HeadlineStylesDynamic.h5;
-      case 'body-big':
-        return TextStylesDynamic.bodyBig;
-      case 'body-small':
-        return TextStylesDynamic.bodySmall;
-      case 'label':
-        return TextStylesDynamic.label;
-      case 'caption':
-        return TextStylesDynamic.caption;
-      case 'button':
-        return TextStylesDynamic.button;
-      case 'video-label':
-        return TextStylesCustom.videoLabel;
-      case 'chat-regular':
-        return TextStylesCustom.chatRegular;
-      case 'chat-semibold':
-        return TextStylesCustom.chatSemibold;
-      case 'chat-title':
-        return TextStylesCustom.chatTitle;
-      default:
-        return StyleSheet.create({});
-    }
+    const variantMap = {
+      'h1': HeadlineStylesDynamic.h1,
+      'h2': HeadlineStylesDynamic.h2,
+      'h3': HeadlineStylesDynamic.h3,
+      'h4': HeadlineStylesDynamic.h4,
+      'h5': HeadlineStylesDynamic.h5,
+      'body-big': TextStylesDynamic.bodyBig,
+      'body-small': TextStylesDynamic.bodySmall,
+      'label': TextStylesDynamic.label,
+      'caption': TextStylesDynamic.caption,
+      'button': TextStylesDynamic.button,
+      'video-label': TextStylesCustom.videoLabel,
+      'chat-regular': TextStylesCustom.chatRegular,
+      'chat-semibold': TextStylesCustom.chatSemibold,
+      'chat-title': TextStylesCustom.chatTitle,
+    };
+
+    return variantMap[variant];
   };
 
   return (

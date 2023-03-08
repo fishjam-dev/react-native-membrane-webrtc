@@ -1,5 +1,7 @@
 import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
@@ -13,11 +15,9 @@ import {
   Switch,
   Alert,
 } from 'react-native';
-import { Typo, TypoTextVariants } from './fonts/Typo';
-import { createIconSetFromIcoMoon } from '@expo/vector-icons';
-import { useFonts } from 'expo-font';
+
 import { Room } from './Room';
-import * as SplashScreen from 'expo-splash-screen';
+import { Typo } from './fonts/Typo';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -45,16 +45,8 @@ export default function App() {
     IcoMoon: require('../assets/fonts/icomoon/icomoon.ttf'),
   });
 
-  const Icon = createIconSetFromIcoMoon(
-    require('../assets/fonts/icomoon/selection.json'),
-    'IcoMoon',
-    'icomoon.ttf'
-  );
-
   useEffect(() => {
-    console.log(fontsLoaded);
     if (fontsLoaded) {
-      console.log(fontsLoaded);
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
@@ -163,12 +155,8 @@ export default function App() {
         />
       </View>
       <Pressable onPress={connect}>
-        <Text style={styles.button}>
-          Connect!
-          <Icon name="Bulb" size={20} />
-        </Text>
+        <Text style={styles.button}>Connect!</Text>
       </Pressable>
-      <Typo variant="h1">GIGANT</Typo>
     </View>
   );
 }
