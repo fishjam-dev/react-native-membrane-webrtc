@@ -144,12 +144,14 @@ android {
         }
     }
     signingConfigs {
-//        release {
-//            storeFile file(MEMBRANE_UPLOAD_STORE_FILE)
-//            storePassword MEMBRANE_UPLOAD_STORE_PASSWORD
-//            keyAlias MEMBRANE_UPLOAD_KEY_ALIAS
-//            keyPassword MEMBRANE_UPLOAD_KEY_PASSWORD
-//        }
+        if (project.hasProperty('MEMBRANE_UPLOAD_STORE_FILE')) {
+          release {
+            storeFile file(MEMBRANE_UPLOAD_STORE_FILE)
+            storePassword MEMBRANE_UPLOAD_STORE_PASSWORD
+            keyAlias MEMBRANE_UPLOAD_KEY_ALIAS
+            keyPassword MEMBRANE_UPLOAD_KEY_PASSWORD
+          }
+        }
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -162,7 +164,9 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            //signingConfig signingConfigs.release
+            if (project.hasProperty('MEMBRANE_UPLOAD_STORE_FILE')) {
+              signingConfig signingConfigs.release
+            }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
