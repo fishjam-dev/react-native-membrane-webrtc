@@ -17,7 +17,6 @@ import {
 import { Room } from './Room';
 
 export default function App() {
-
   const {
     connect: mbConnect,
     disconnect: mbDisconnect,
@@ -35,7 +34,6 @@ export default function App() {
   const params = {
     token: 'NOW_YOU_CAN_SEND_PARAMS',
   };
-  const a = 5;
 
   useEffect(() => {
     if (error) {
