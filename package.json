@@ -15,7 +15,8 @@
     "release": "release-it",
     "releaseAppAndroid": "cd example/android && fastlane deploy",
     "releaseAppIos": "cd example/ios && fastlane deploy",
-    "docs": "sed 's/\\.github\\/images/media/g' README.md > README_docs.md && typedoc src/index.tsx --media ./.github/images --readme README_docs.md && rm README_docs.md"
+    "docs": "sed 's/\\.github\\/images/media/g' README.md > README_docs.md && typedoc src/index.tsx --media ./.github/images --readme README_docs.md && rm README_docs.md",
+    "typecheck": "yarn tsc --noEmit && cd example && yarn tsc --noEmit"
   },
   "keywords": [
     "react-native",
@@ -103,8 +104,8 @@
   },
   "lint-staged": {
     "*.(js|ts|tsx)": [
-      "eslint --ext '.js,.ts,.tsx'",
-      "prettier --write"
+      "prettier --write",
+      "eslint --ext '.js,.ts,.tsx' --max-warnings=0 src/ example/src/"
     ]
   }
 }
