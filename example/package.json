@@ -24,10 +24,5 @@
     "babel-plugin-module-resolver": "^4.0.0",
     "metro-react-native-babel-preset": "^0.64.0",
     "react-native-svg-transformer": "^1.0.0"
-  },
-  "rnpm": {
-    "assets": [
-      "fonts"
-    ]
   }
 }
