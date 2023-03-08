@@ -9,9 +9,12 @@
     "start": "NODE_ENV=development react-native start"
   },
   "dependencies": {
+    "@expo/vector-icons": "^13.0.0",
+    "expo": "^47.0.0",
+    "expo-font": "^11.1.1",
+    "expo-splash-screen": "^0.18.1",
     "react": "18.1.0",
     "react-native": "0.70.5",
-    "react-native-asset": "^2.1.0",
     "react-native-dotenv": "^3.3.1",
     "react-native-svg": "^12.3.0"
   },
@@ -21,5 +24,10 @@
     "babel-plugin-module-resolver": "^4.0.0",
     "metro-react-native-babel-preset": "^0.64.0",
     "react-native-svg-transformer": "^1.0.0"
+  },
+  "rnpm": {
+    "assets": [
+      "fonts"
+    ]
   }
 }

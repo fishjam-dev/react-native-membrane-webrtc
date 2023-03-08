@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import React, { useEffect, useState, ReactNode } from 'react';
+import { StyleSheet, Text, View, Dimensions } from 'react-native';
 
 const Headlines = StyleSheet.create({
   h1: {
@@ -158,10 +159,69 @@ const TextStylesCustom = StyleSheet.create({
   },
 });
 
-export default {
-  Headlines,
-  HeadlinesSmall,
-  TextStyles,
-  TextStylesSmall,
-  TextStylesCustom,
+type TypoProps = {
+  variant: string;
+  children: ReactNode;
+};
+
+export const Typo = (props: TypoProps) => {
+  const windowDimensions = Dimensions.get('window');
+
+  const [dimensions, setDimensions] = useState({
+    window: windowDimensions,
+  });
+
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener(
+      'change',
+      ({ window, screen }) => {
+        setDimensions({ window });
+      }
+    );
+    return () => subscription?.remove();
+  });
+
+  const GetStyleForVariant = (variant: string) => {
+    const HeadlineStylesDynamic =
+      dimensions.window.width > 640 ? Headlines : HeadlinesSmall;
+    const TextStylesDynamic =
+      dimensions.window.width > 640 ? TextStyles : TextStylesSmall;
+
+    switch (variant) {
+      case 'h1':
+        return HeadlineStylesDynamic.h1;
+      case 'h2':
+        return HeadlineStylesDynamic.h2;
+      case 'h3':
+        return HeadlineStylesDynamic.h3;
+      case 'h4':
+        return HeadlineStylesDynamic.h4;
+      case 'h5':
+        return HeadlineStylesDynamic.h5;
+      case 'body-big':
+        return TextStylesDynamic.bodyBig;
+      case 'body-small':
+        return TextStylesDynamic.bodySmall;
+      case 'label':
+        return TextStylesDynamic.label;
+      case 'caption':
+        return TextStylesDynamic.caption;
+      case 'button':
+        return TextStylesDynamic.button;
+      case 'video-label':
+        return TextStylesCustom.videoLabel;
+      case 'chat-regular':
+        return TextStylesCustom.chatRegular;
+      case 'chat-semibold':
+        return TextStylesCustom.chatSemibold;
+      case 'chat-title':
+        return TextStylesCustom.chatTitle;
+      default:
+        return StyleSheet.create({});
+    }
+  };
+
+  return (
+    <Text style={GetStyleForVariant(props.variant)}>{props.children}</Text>
+  );
 };

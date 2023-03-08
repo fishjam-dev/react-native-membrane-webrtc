@@ -13,9 +13,13 @@ import {
   Switch,
   Alert,
 } from 'react-native';
-import Fonts from './fonts/fonts';
-
+import { Typo, TypoTextVariants } from './fonts/Typo';
+import { createIconSetFromIcoMoon } from '@expo/vector-icons';
+import { useFonts } from 'expo-font';
 import { Room } from './Room';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const {
@@ -35,6 +39,25 @@ export default function App() {
   const params = {
     token: 'NOW_YOU_CAN_SEND_PARAMS',
   };
+
+  const [fontsLoaded] = useFonts({
+    Inter: require('../assets/fonts/Inter-Medium.ttf'),
+    IcoMoon: require('../assets/fonts/icomoon/icomoon.ttf'),
+  });
+
+  const Icon = createIconSetFromIcoMoon(
+    require('../assets/fonts/icomoon/selection.json'),
+    'IcoMoon',
+    'icomoon.ttf'
+  );
+
+  useEffect(() => {
+    console.log(fontsLoaded);
+    if (fontsLoaded) {
+      console.log(fontsLoaded);
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
 
   useEffect(() => {
     if (error) {
@@ -114,34 +137,38 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={Fonts.Headlines.h5}>Room name:</Text>
+      <Typo variant="h3">Room name:</Typo>
       <TextInput
         value={roomName}
         onChangeText={setRoomName}
         style={styles.textInput}
       />
-      <Text style={Fonts.Headlines.h5}>Display name:</Text>
+      <Text>Display name:</Text>
       <TextInput
         value={displayName}
         onChangeText={setDisplayName}
         style={styles.textInput}
       />
-      <Text style={Fonts.Headlines.h5}>Server URL:</Text>
+      <Text>Server URL:</Text>
       <TextInput
         value={serverUrl}
         onChangeText={setServerUrl}
         style={styles.textInput}
       />
       <View style={styles.row}>
-        <Text style={Fonts.Headlines.h5}>Simulcast:</Text>
+        <Text>Simulcast:</Text>
         <Switch
           onValueChange={(v) => setIsSimulcastOn(v)}
           value={isSimulcastOn}
         />
       </View>
       <Pressable onPress={connect}>
-        <Text style={[styles.button, Fonts.TextStyles.button]}>Connect!</Text>
+        <Text style={styles.button}>
+          Connect!
+          <Icon name="Bulb" size={20} />
+        </Text>
       </Pressable>
+      <Typo variant="h1">GIGANT</Typo>
     </View>
   );
 }

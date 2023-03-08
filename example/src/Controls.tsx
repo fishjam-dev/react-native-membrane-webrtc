@@ -2,16 +2,7 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 
-import {
-  CameraIcon,
-  CameraDisabledIcon,
-  MicrophoneDisabledIcon,
-  MicrophoneIcon,
-  HangupIcon,
-  FlipCameraIcon,
-  ScreenshareIcon,
-  ScreenshareDisabledIcon,
-} from './icons';
+import { FlipCameraIcon } from './icons';
 
 const iconSize = 32;
 
