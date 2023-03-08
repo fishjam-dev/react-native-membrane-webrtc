@@ -1,0 +1,24 @@
+name: Lint & Types
+on:
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+      - name: Install node dependencies
+        run: yarn && cd example && yarn
+      - name: Check types
+        run: yarn typecheck
+      - name: Lint
+        run: yarn eslint --ext '.js,.ts,.tsx' --max-warnings=0 src/ example/src/
+      - name: Build
+        run: EXPO_NONINTERACTIVE=true yarn build
+      - name: Build plugin
+        run: EXPO_NONINTERACTIVE=true yarn build plugin
