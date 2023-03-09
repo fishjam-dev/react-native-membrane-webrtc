@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 
-import { AdditionalColors, BrandColors } from '../colors/colors';
+import { AdditionalColors, BrandColors } from '../../shared/colors';
 
 const IconSize = 25;
 
