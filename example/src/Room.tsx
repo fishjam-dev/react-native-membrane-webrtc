@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 
 import { Controls } from './Controls';
 import { Settings } from './Settings';
-import { Icon } from './fonts/Icon';
+import { Icon } from './components/Icon';
 
 export const Room = ({ disconnect }: { disconnect: () => void }) => {
   const participants = Membrane.useRoomParticipants();

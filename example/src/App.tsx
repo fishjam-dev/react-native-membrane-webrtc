@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 
 import { Room } from './Room';
-import { Typo } from './fonts/Typo';
+import { Typo } from './components/Typo';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,8 +41,8 @@ export default function App() {
   };
 
   const [fontsLoaded] = useFonts({
-    Inter: require('../assets/fonts/Inter-Medium.ttf'),
-    IcoMoon: require('../assets/fonts/icomoon/icomoon.ttf'),
+    'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
+    'IcoMoon': require('../assets/fonts/icomoon/icomoon.ttf'),
   });
 
   useEffect(() => {
