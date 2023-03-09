@@ -1,7 +1,7 @@
-import React, { ReactNode } from 'react';
+import { AdditionalColors, BrandColors } from '@colors';
+import { Icon } from '@components/Icon';
+import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-
-import { AdditionalColors, BrandColors } from '../../shared/colors';
 
 const IconSize = 25;
 
@@ -19,16 +19,17 @@ const InCallButtonStyles = StyleSheet.create({
     borderStyle: 'solid',
     backgroundColor: AdditionalColors.white,
   },
-  danger: {
+  disconnect: {
     backgroundColor: AdditionalColors.red80,
   },
 });
 
-type ButtonTypeName = 'primary' | 'danger';
+type ButtonTypeName = 'primary' | 'disconnect';
 
 type InCallButtonProps = {
   type: ButtonTypeName;
-  children: ReactNode;
+  onPress: Function;
+  iconName: string;
 };
 
 export const InCallButton = (props: InCallButtonProps) => {
@@ -37,7 +38,7 @@ export const InCallButton = (props: InCallButtonProps) => {
       InCallButtonStyles.common,
       type === 'primary'
         ? InCallButtonStyles.primary
-        : InCallButtonStyles.danger,
+        : InCallButtonStyles.disconnect,
     ];
   };
 
@@ -45,18 +46,23 @@ export const InCallButton = (props: InCallButtonProps) => {
     switch (type) {
       case 'primary':
         return BrandColors.darkBlue100;
-      case 'danger':
+      case 'disconnect':
         return AdditionalColors.white;
     }
   };
 
   return (
-    <Pressable onPress={() => {}}>
+    <Pressable
+      onPress={() => {
+        props.onPress();
+      }}
+    >
       <View style={GetStylesForButtonType(props.type)}>
-        {React.cloneElement(props.children as React.ReactElement<any>, {
-          size: IconSize,
-          color: GetIconColorForButtonType(props.type),
-        })}
+        <Icon
+          name={props.iconName}
+          size={IconSize}
+          color={GetIconColorForButtonType(props.type)}
+        />
       </View>
     </Pressable>
   );

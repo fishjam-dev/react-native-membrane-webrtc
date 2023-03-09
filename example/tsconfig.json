@@ -5,7 +5,8 @@
     "outDir": "./build",
     "paths": {
       "@jellyfish-dev/react-native-membrane-webrtc": ["../src/index.tsx"],
-      "@components/*": ["./src/components/*"]
+      "@components/*": ["./src/components/*"],
+      "@colors": ["./src/shared/colors.ts"]
     }
   },
   "include": ["./src"],

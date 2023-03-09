@@ -1,9 +1,7 @@
-import { Icon } from '@components/Icon';
+import { InCallButton } from '@components/buttons/InCallButton';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
-
-const iconSize = 32;
+import { StyleSheet, View } from 'react-native';
 
 export const Controls = ({ disconnect }: { disconnect: () => void }) => {
   const { isCameraOn, toggleCamera } = Membrane.useCameraState();
@@ -28,43 +26,60 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
     });
   };
 
+  const toggleScreencastAndUpdateMetadata = () => {
+    toggleScreencast({
+      screencastMetadata: {
+        displayName: 'presenting',
+        type: 'screensharing',
+        active: 'true',
+      },
+      quality: Membrane.ScreencastQuality.FHD30,
+    });
+  };
+
   return (
     <View style={styles.iconsContainer}>
-      <Pressable onPress={toggleMicrophoneAndUpdateMetadata}>
-        {!isMicrophoneOn ? (
-          <Icon name="Microphone-off" size={iconSize} />
-        ) : (
-          <Icon name="Microphone" size={iconSize} />
-        )}
-      </Pressable>
-      <Pressable onPress={toggleCameraAndUpdateMetadata}>
-        {!isCameraOn ? (
-          <Icon name="Cam-disabled" size={iconSize} />
-        ) : (
-          <Icon name="Cam" size={iconSize} />
-        )}
-      </Pressable>
-      <Pressable onPress={disconnect}>
-        <Icon name="Hangup" size={iconSize} />
-      </Pressable>
-      <Pressable
-        onPress={() =>
-          toggleScreencast({
-            screencastMetadata: {
-              displayName: 'presenting',
-              type: 'screensharing',
-              active: 'true',
-            },
-            quality: Membrane.ScreencastQuality.FHD30,
-          })
-        }
-      >
-        {isScreencastOn ? (
-          <Icon name="Screenshare" size={iconSize} />
-        ) : (
-          <Icon name="Screen-off" size={iconSize} />
-        )}
-      </Pressable>
+      {!isMicrophoneOn ? (
+        <InCallButton
+          type="primary"
+          iconName="Microphone-off"
+          onPress={toggleMicrophoneAndUpdateMetadata}
+        />
+      ) : (
+        <InCallButton
+          type="primary"
+          iconName="Microphone"
+          onPress={toggleMicrophoneAndUpdateMetadata}
+        />
+      )}
+      {!isCameraOn ? (
+        <InCallButton
+          type="primary"
+          iconName="Cam-disabled"
+          onPress={toggleCameraAndUpdateMetadata}
+        />
+      ) : (
+        <InCallButton
+          type="primary"
+          iconName="Cam"
+          onPress={toggleCameraAndUpdateMetadata}
+        />
+      )}
+      <InCallButton type="disconnect" iconName="Hangup" onPress={disconnect} />
+
+      {isScreencastOn ? (
+        <InCallButton
+          type="primary"
+          iconName="Screenshare"
+          onPress={toggleScreencastAndUpdateMetadata}
+        />
+      ) : (
+        <InCallButton
+          type="primary"
+          iconName="Screen-off"
+          onPress={toggleScreencastAndUpdateMetadata}
+        />
+      )}
     </View>
   );
 };
