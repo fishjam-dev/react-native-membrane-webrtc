@@ -1,14 +1,10 @@
+import { Icon } from '@components/Icon';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 
 import { Controls } from './Controls';
 import { Settings } from './Settings';
-import {
-  CameraDisabledIcon,
-  MicrophoneDisabledIcon,
-  SettingsIcon,
-} from './icons';
 
 export const Room = ({ disconnect }: { disconnect: () => void }) => {
   const participants = Membrane.useRoomParticipants();
@@ -62,18 +58,16 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
             )}
             <View style={styles.disabledIconsContainer}>
               {!focusedParticipant.tracks.find((t) => t.type === 'Audio')
-                ?.metadata.active && (
-                <MicrophoneDisabledIcon width={24} height={24} />
-              )}
+                ?.metadata.active && <Icon name="Microphone-off" size={24} />}
               {!focusedTrack.metadata.active && (
-                <CameraDisabledIcon width={24} height={24} />
+                <Icon name="Cam-disabled" size={24} />
               )}
             </View>
             <Pressable
               style={styles.settingsButton}
               onPress={() => setAreSettingsOpen((o) => !o)}
             >
-              <SettingsIcon width={48} height={48} />
+              <Icon name="Settings" size={48} />
             </Pressable>
           </View>
         )}
@@ -104,11 +98,9 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
                     </Text>
                     <View style={styles.disabledIconsContainer}>
                       {!p.tracks.find((t) => t.type === 'Audio')?.metadata
-                        .active && (
-                        <MicrophoneDisabledIcon width={24} height={24} />
-                      )}
+                        .active && <Icon name="Microphone-off" size={24} />}
                       {!t.metadata.active && (
-                        <CameraDisabledIcon width={24} height={24} />
+                        <Icon name="Cam-disabled" size={24} />
                       )}
                     </View>
                   </Pressable>

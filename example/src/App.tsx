@@ -1,5 +1,8 @@
+import { Typo } from '@components/Typo';
 import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
@@ -15,6 +18,8 @@ import {
 } from 'react-native';
 
 import { Room } from './Room';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const {
@@ -34,6 +39,17 @@ export default function App() {
   const params = {
     token: 'NOW_YOU_CAN_SEND_PARAMS',
   };
+
+  const [fontsLoaded] = useFonts({
+    'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
+    'IcoMoon': require('../assets/fonts/icomoon/icomoon.ttf'),
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
 
   useEffect(() => {
     if (error) {
@@ -113,7 +129,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Room name:</Text>
+      <Typo variant="h3">Room name:</Typo>
       <TextInput
         value={roomName}
         onChangeText={setRoomName}

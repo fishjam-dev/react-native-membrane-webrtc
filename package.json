@@ -76,6 +76,11 @@
       "@react-native-community",
       "prettier"
     ],
+    "settings": {
+      "import/resolver": {
+        "babel-module": {}
+      }
+    },
     "rules": {
       "prettier/prettier": [
         "error",

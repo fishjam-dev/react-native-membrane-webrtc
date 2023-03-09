@@ -1,17 +1,7 @@
+import { Icon } from '@components/Icon';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-
-import {
-  CameraIcon,
-  CameraDisabledIcon,
-  MicrophoneDisabledIcon,
-  MicrophoneIcon,
-  PhoneDownIcon,
-  FlipCameraIcon,
-  ScreencastIcon,
-  ScreencastDisabledIcon,
-} from './icons';
 
 const iconSize = 32;
 
@@ -42,23 +32,20 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
     <View style={styles.iconsContainer}>
       <Pressable onPress={toggleMicrophoneAndUpdateMetadata}>
         {!isMicrophoneOn ? (
-          <MicrophoneDisabledIcon width={iconSize} height={iconSize} />
+          <Icon name="Microphone-off" size={iconSize} />
         ) : (
-          <MicrophoneIcon width={iconSize} height={iconSize} />
+          <Icon name="Microphone" size={iconSize} />
         )}
       </Pressable>
       <Pressable onPress={toggleCameraAndUpdateMetadata}>
         {!isCameraOn ? (
-          <CameraDisabledIcon width={iconSize} height={iconSize} />
+          <Icon name="Cam-disabled" size={iconSize} />
         ) : (
-          <CameraIcon width={iconSize} height={iconSize} />
+          <Icon name="Cam" size={iconSize} />
         )}
       </Pressable>
       <Pressable onPress={disconnect}>
-        <PhoneDownIcon width={iconSize} height={iconSize} />
-      </Pressable>
-      <Pressable onPress={Membrane.flipCamera}>
-        <FlipCameraIcon width={iconSize} height={iconSize} />
+        <Icon name="Hangup" size={iconSize} />
       </Pressable>
       <Pressable
         onPress={() =>
@@ -73,9 +60,9 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
         }
       >
         {isScreencastOn ? (
-          <ScreencastIcon width={iconSize} height={iconSize} />
+          <Icon name="Screenshare" size={iconSize} />
         ) : (
-          <ScreencastDisabledIcon width={iconSize} height={iconSize} />
+          <Icon name="Screen-off" size={iconSize} />
         )}
       </Pressable>
     </View>
