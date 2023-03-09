@@ -1,8 +1,8 @@
+import { Icon } from '@components/Icon';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 
-import { Icon } from './components/Icon';
 import { FlipCameraIcon } from './icons';
 
 const iconSize = 32;

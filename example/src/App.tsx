@@ -1,3 +1,4 @@
+import { Typo } from '@components/Typo';
 import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useFonts } from 'expo-font';
@@ -17,7 +18,6 @@ import {
 } from 'react-native';
 
 import { Room } from './Room';
-import { Typo } from './components/Typo';
 
 SplashScreen.preventAutoHideAsync();
 

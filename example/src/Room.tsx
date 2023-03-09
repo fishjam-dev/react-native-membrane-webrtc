@@ -1,10 +1,10 @@
+import { Icon } from '@components/Icon';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 
 import { Controls } from './Controls';
 import { Settings } from './Settings';
-import { Icon } from './components/Icon';
 
 export const Room = ({ disconnect }: { disconnect: () => void }) => {
   const participants = Membrane.useRoomParticipants();
