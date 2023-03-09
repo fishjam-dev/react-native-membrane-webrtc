@@ -3,8 +3,6 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 
-import { FlipCameraIcon } from './icons';
-
 const iconSize = 32;
 
 export const Controls = ({ disconnect }: { disconnect: () => void }) => {
@@ -48,9 +46,6 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
       </Pressable>
       <Pressable onPress={disconnect}>
         <Icon name="Hangup" size={iconSize} />
-      </Pressable>
-      <Pressable onPress={Membrane.flipCamera}>
-        <FlipCameraIcon width={iconSize} height={iconSize} />
       </Pressable>
       <Pressable
         onPress={() =>
