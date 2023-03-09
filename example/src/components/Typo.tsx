@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { StyleSheet, Text, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, Dimensions } from 'react-native';
 
 const SMALL_WINDOW_BREAKPOINT = 640;
 
@@ -183,13 +183,13 @@ type TypoProps = {
 };
 
 export const Typo = (props: TypoProps) => {
-  const { width } = useWindowDimensions();
+  const windowWidth = Dimensions.get('window').width;
 
   const GetStyleForVariant = (variant: string) => {
     const HeadlineStylesDynamic =
-      width > SMALL_WINDOW_BREAKPOINT ? Headlines : HeadlinesSmall;
+      windowWidth > SMALL_WINDOW_BREAKPOINT ? Headlines : HeadlinesSmall;
     const TextStylesDynamic =
-      width > SMALL_WINDOW_BREAKPOINT ? TextStyles : TextStylesSmall;
+      windowWidth > SMALL_WINDOW_BREAKPOINT ? TextStyles : TextStylesSmall;
 
     const variantMap = {
       'h1': HeadlineStylesDynamic.h1,
