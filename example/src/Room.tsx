@@ -1,12 +1,12 @@
 import { Icon } from '@components/Icon';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 
 import { Controls } from './Controls';
 import { Settings } from './Settings';
 
-export const Room = ({ disconnect }: { disconnect: () => void }) => {
+export const Room = ({ navigation }) => {
   const participants = Membrane.useRoomParticipants();
   const tracks = participants
     .map((p) => p.tracks.filter((t) => t.type === 'Video'))
@@ -29,6 +29,11 @@ export const Room = ({ disconnect }: { disconnect: () => void }) => {
   const isFocusedParticipantSpeaking =
     focusedParticipant?.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
     Membrane.VadStatus.Speech;
+
+  const disconnect = useCallback(() => {
+    // setConnected(false);
+    // mbDisconnect();
+  }, []);
 
   return (
     <View style={styles.flex}>
