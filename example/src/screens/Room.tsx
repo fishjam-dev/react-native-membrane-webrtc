@@ -3,8 +3,8 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 
-import { Controls } from './Controls';
-import { Settings } from './Settings';
+import { Controls } from '../Controls';
+import { Settings } from '../Settings';
 
 export const Room = ({ navigation }) => {
   const participants = Membrane.useRoomParticipants();

@@ -1,39 +1,42 @@
-import { SERVER_URL } from '@env';
 import * as React from 'react';
-import { useState, Dispatch, SetStateAction } from 'react';
-import { Platform } from 'react-native';
 
-type VideoroomContextType = {
-  roomNameState: [string, Dispatch<SetStateAction<string>>];
-  serverUrlState: [string, Dispatch<SetStateAction<string>>];
-  displayNameState: [string, Dispatch<SetStateAction<string>>];
-  isSimulcastOnState: [boolean, Dispatch<SetStateAction<boolean>>];
-};
+type Action = { type: 'set'; val: string };
+type Dispatch = (action: Action) => void;
+type State = { roomName: string };
 
-const VideoroomContext = React.createContext<VideoroomContextType | undefined>(
-  undefined
-);
+const VideoroomContext = React.createContext<
+  { state: State; dispatch: Dispatch } | undefined
+>(undefined);
+
+function VideoroomReader(state, action) {
+  switch (action.type) {
+    case 'set':
+      return { roomName: action.val };
+    default:
+      throw new Error(`Unhandled action type: ${action.type}`);
+  }
+}
 
 const VideoroomContextProvider = (props) => {
-  const [roomName, setRoomName] = useState<string>('room');
-  const [serverUrl, setServerUrl] = useState<string>(SERVER_URL);
-  const [displayName, setDisplayName] = useState<string>(
-    `mobile ${Platform.OS}`
-  );
-  const [isSimulcastOn, setIsSimulcastOn] = useState<boolean>(true);
+  const [state, dispatch] = React.useReducer(VideoroomReader, {
+    roomName: 'room',
+  });
+  const value = { state, dispatch };
 
   return (
-    <VideoroomContext.Provider
-      value={{
-        roomNameState: [roomName, setRoomName],
-        serverUrlState: [serverUrl, setServerUrl],
-        displayNameState: [displayName, setDisplayName],
-        isSimulcastOnState: [isSimulcastOn, setIsSimulcastOn],
-      }}
-    >
+    <VideoroomContext.Provider value={value}>
       {props.children}
     </VideoroomContext.Provider>
   );
 };
 
-export { VideoroomContext, VideoroomContextProvider };
+function useRoomName() {
+  const context = React.useContext(VideoroomContext);
+  if (context === undefined) {
+    throw new Error('useRoomName must be used within a VideoroomContext');
+  }
+  console.log(context.dispatch);
+  return context;
+}
+
+export { VideoroomContextProvider, useRoomName };

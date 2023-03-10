@@ -1,6 +1,7 @@
 import { Typo } from '@components/Typo';
+import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,15 +14,18 @@ import {
   Alert,
 } from 'react-native';
 
-import { VideoroomContext } from './VideoroomContext';
+import { useRoomName } from '../VideoroomContext';
 
 export const Home = ({ navigation }) => {
-  const videoroomContext = useContext(VideoroomContext);
-  const [roomName, setRoomName] = videoroomContext!.roomNameState;
-  const [serverUrl, setServerUrl] = videoroomContext!.serverUrlState;
-  const [displayName, setDisplayName] = videoroomContext!.displayNameState;
-  const [isSimulcastOn, setIsSimulcastOn] =
-    videoroomContext!.isSimulcastOnState;
+  const {
+    state: { roomName },
+  } = useRoomName();
+
+  const [serverUrl, setServerUrl] = useState<string>(SERVER_URL);
+  const [displayName, setDisplayName] = useState<string>(
+    `mobile ${Platform.OS}`
+  );
+  const [isSimulcastOn, setIsSimulcastOn] = useState<boolean>(true);
 
   const { connect: mbConnect, joinRoom, error } = Membrane.useMembraneServer();
 
@@ -92,12 +96,16 @@ export const Home = ({ navigation }) => {
     serverUrl,
   ]);
 
+  const { dispatch } = useRoomName();
+
   return (
     <View style={styles.container}>
       <Typo variant="h3">Room name:</Typo>
       <TextInput
         value={roomName}
-        onChangeText={setRoomName}
+        onChangeText={(v) => {
+          dispatch({ type: 'set', val: v });
+        }}
         style={styles.textInput}
       />
       <Text>Display name:</Text>

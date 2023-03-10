@@ -1,11 +1,11 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Home } from '@screens/Home';
+import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
 
-import { Home } from './Home';
-import { Room } from './Room';
 import { VideoroomContextProvider } from './VideoroomContext';
 
 SplashScreen.preventAutoHideAsync();
@@ -27,7 +27,12 @@ export default function App() {
   return (
     <VideoroomContextProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Room" component={Room} />
         </Stack.Navigator>
