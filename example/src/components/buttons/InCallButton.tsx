@@ -1,7 +1,12 @@
 import { AdditionalColors, BrandColors } from '@colors';
 import { Icon } from '@components/Icon';
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Pressable,
+  GestureResponderEvent,
+} from 'react-native';
 
 const IconSize = 25;
 
@@ -27,12 +32,16 @@ const InCallButtonStyles = StyleSheet.create({
 type ButtonTypeName = 'primary' | 'disconnect';
 
 type InCallButtonProps = {
-  type: ButtonTypeName;
-  onPress: Function;
+  type?: ButtonTypeName;
+  onPress: (event: GestureResponderEvent) => void;
   iconName: string;
 };
 
-export const InCallButton = (props: InCallButtonProps) => {
+export const InCallButton = ({
+  type = 'primary',
+  onPress,
+  iconName,
+}: InCallButtonProps) => {
   const GetStylesForButtonType = (type: ButtonTypeName) => {
     return [
       InCallButtonStyles.common,
@@ -52,16 +61,12 @@ export const InCallButton = (props: InCallButtonProps) => {
   };
 
   return (
-    <Pressable
-      onPress={() => {
-        props.onPress();
-      }}
-    >
-      <View style={GetStylesForButtonType(props.type)}>
+    <Pressable onPress={onPress}>
+      <View style={GetStylesForButtonType(type)}>
         <Icon
-          name={props.iconName}
+          name={iconName}
           size={IconSize}
-          color={GetIconColorForButtonType(props.type)}
+          color={GetIconColorForButtonType(type)}
         />
       </View>
     </Pressable>

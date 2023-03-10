@@ -41,41 +41,32 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
     <View style={styles.iconsContainer}>
       {!isMicrophoneOn ? (
         <InCallButton
-          type="primary"
           iconName="Microphone-off"
           onPress={toggleMicrophoneAndUpdateMetadata}
         />
       ) : (
         <InCallButton
-          type="primary"
           iconName="Microphone"
           onPress={toggleMicrophoneAndUpdateMetadata}
         />
       )}
       {!isCameraOn ? (
         <InCallButton
-          type="primary"
           iconName="Cam-disabled"
           onPress={toggleCameraAndUpdateMetadata}
         />
       ) : (
-        <InCallButton
-          type="primary"
-          iconName="Cam"
-          onPress={toggleCameraAndUpdateMetadata}
-        />
+        <InCallButton iconName="Cam" onPress={toggleCameraAndUpdateMetadata} />
       )}
       <InCallButton type="disconnect" iconName="Hangup" onPress={disconnect} />
 
       {isScreencastOn ? (
         <InCallButton
-          type="primary"
           iconName="Screenshare"
           onPress={toggleScreencastAndUpdateMetadata}
         />
       ) : (
         <InCallButton
-          type="primary"
           iconName="Screen-off"
           onPress={toggleScreencastAndUpdateMetadata}
         />
