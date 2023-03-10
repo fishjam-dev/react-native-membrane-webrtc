@@ -17,19 +17,13 @@ import { VideoroomContext } from './VideoroomContext';
 
 export const Home = ({ navigation }) => {
   const videoroomContext = useContext(VideoroomContext);
-  const [connected, setConnected] = videoroomContext!.connectedState;
   const [roomName, setRoomName] = videoroomContext!.roomNameState;
   const [serverUrl, setServerUrl] = videoroomContext!.serverUrlState;
   const [displayName, setDisplayName] = videoroomContext!.displayNameState;
   const [isSimulcastOn, setIsSimulcastOn] =
     videoroomContext!.isSimulcastOnState;
 
-  const {
-    connect: mbConnect,
-    // disconnect: mbDisconnect,
-    joinRoom,
-    error,
-  } = Membrane.useMembraneServer();
+  const { connect: mbConnect, joinRoom, error } = Membrane.useMembraneServer();
 
   const params = {
     token: 'NOW_YOU_CAN_SEND_PARAMS',
@@ -84,12 +78,10 @@ export const Home = ({ navigation }) => {
         isSpeakerphoneOn: false,
       });
       await joinRoom();
+      navigation.navigate('Room');
     } catch (err) {
       console.warn(err);
     }
-    setConnected(true);
-    console.log(connected);
-    navigation.navigate('Room');
   }, [
     requestPermissions,
     mbConnect,
@@ -99,11 +91,6 @@ export const Home = ({ navigation }) => {
     displayName,
     serverUrl,
   ]);
-
-  // const disconnect = useCallback(() => {
-  //   setConnected(false);
-  //   mbDisconnect();
-  // }, [mbDisconnect]);
 
   return (
     <View style={styles.container}>

@@ -18,6 +18,8 @@ export const Room = ({ navigation }) => {
     (p) => p.tracks.find((t) => t.id === focusedTrackId) != null
   );
 
+  const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
+
   useEffect(() => {
     if (!focusedTrack && tracks[0]) {
       setFocusedTrackId(tracks[0].id);
@@ -31,8 +33,8 @@ export const Room = ({ navigation }) => {
     Membrane.VadStatus.Speech;
 
   const disconnect = useCallback(() => {
-    // setConnected(false);
-    // mbDisconnect();
+    mbDisconnect();
+    navigation.navigate('Home');
   }, []);
 
   return (

@@ -4,7 +4,6 @@ import { useState, Dispatch, SetStateAction } from 'react';
 import { Platform } from 'react-native';
 
 type VideoroomContextType = {
-  connectedState: [boolean, Dispatch<SetStateAction<boolean>>];
   roomNameState: [string, Dispatch<SetStateAction<string>>];
   serverUrlState: [string, Dispatch<SetStateAction<string>>];
   displayNameState: [string, Dispatch<SetStateAction<string>>];
@@ -16,7 +15,6 @@ const VideoroomContext = React.createContext<VideoroomContextType | undefined>(
 );
 
 const VideoroomContextProvider = (props) => {
-  const [connected, setConnected] = useState<boolean>(false);
   const [roomName, setRoomName] = useState<string>('room');
   const [serverUrl, setServerUrl] = useState<string>(SERVER_URL);
   const [displayName, setDisplayName] = useState<string>(
@@ -27,7 +25,6 @@ const VideoroomContextProvider = (props) => {
   return (
     <VideoroomContext.Provider
       value={{
-        connectedState: [connected, setConnected],
         roomNameState: [roomName, setRoomName],
         serverUrlState: [serverUrl, setServerUrl],
         displayNameState: [displayName, setDisplayName],
