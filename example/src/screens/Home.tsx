@@ -103,8 +103,8 @@ export const Home = ({ navigation }) => {
       <Typo variant="h3">Room name:</Typo>
       <TextInput
         value={roomName}
-        onChangeText={(v) => {
-          dispatch({ type: 'set', val: v });
+        onChangeText={(val) => {
+          dispatch({ type: 'set', val });
         }}
         style={styles.textInput}
       />

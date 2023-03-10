@@ -35,7 +35,6 @@ function useRoomName() {
   if (context === undefined) {
     throw new Error('useRoomName must be used within a VideoroomContext');
   }
-  console.log(context.dispatch);
   return context;
 }
 
