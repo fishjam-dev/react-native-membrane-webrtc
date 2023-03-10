@@ -2,20 +2,20 @@ import MembraneRTC
 import UIKit
 import Combine
 
-@objc(VideoRendererViewManager)
-class VideoRendererViewManager: RCTViewManager {
-  override func view() -> (VideoRendererView) {
-    return VideoRendererView()
+@objc(VideoPreviewViewManager)
+class VideoPreviewViewManager: RCTViewManager {
+  override func view() -> (VideoPreviewView) {
+    return VideoPreviewView()
   }
   
   @objc static override func requiresMainQueueSetup() -> Bool {
-      return false
+    return false
   }
 }
 
-class VideoRendererView : UIView {
+class VideoPreviewView : UIView {
   var videoView: VideoView? = nil
-  var cancellableParticipants: Cancellable? = nil
+  private var localVideoTrack: LocalVideoTrack? = nil
   
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -23,30 +23,19 @@ class VideoRendererView : UIView {
     videoView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     videoView?.clipsToBounds = true
     addSubview(videoView!)
-    cancellableParticipants = MembraneRoom.sharedInstance.$participants
-      .sink { _ in
-        self.updateVideoTrack()
-      }
+   
+    localVideoTrack = LocalVideoTrack.create(videoParameters: VideoParameters.presetFHD169)
+    localVideoTrack?.start()
+    videoView?.track = localVideoTrack
+  }
+  
+  override func removeFromSuperview() {
+    localVideoTrack?.stop()
   }
   
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
-  }
-  
-  func updateVideoTrack() {
-    DispatchQueue.main.async {
-      let newTrack = MembraneRoom.sharedInstance.getVideoTrackById(trackId: self.trackId)
-      if(newTrack != self.videoView?.track) {
-        self.videoView?.track = newTrack
-      }
-    }
-  }
-  
-  @objc var trackId: String = "" {
-    didSet {
-      updateVideoTrack()
-    }
   }
   
   @objc var videoLayout: String = "FILL" {
@@ -59,7 +48,6 @@ class VideoRendererView : UIView {
       default:
         self.videoView?.layout = .fill
       }
-      
     }
   }
   

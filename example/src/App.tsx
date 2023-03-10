@@ -130,6 +130,16 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Typo variant="h3">Room name:</Typo>
+      <Membrane.VideoPreviewView
+        videoLayout={Membrane.VideoLayout.FILL}
+        mirrorVideo
+        style={{
+          width: 200,
+          height: 200,
+          borderWidth: 2,
+          borderColor: 'red',
+        }}
+      />
       <TextInput
         value={roomName}
         onChangeText={setRoomName}
