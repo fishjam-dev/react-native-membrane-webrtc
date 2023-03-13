@@ -1,11 +1,11 @@
 import { Typo } from '@components/Typo';
+import { StandardButton } from '@components/buttons/StandardButton';
 import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
-  Pressable,
   TextInput,
   StyleSheet,
   Platform,
@@ -123,9 +123,9 @@ export const Home = ({ navigation }) => {
           value={isSimulcastOn}
         />
       </View>
-      <Pressable onPress={connect}>
-        <Text style={styles.button}>Connect!</Text>
-      </Pressable>
+      <StandardButton type="primary" onPress={connect}>
+        Connect!
+      </StandardButton>
     </View>
   );
 };

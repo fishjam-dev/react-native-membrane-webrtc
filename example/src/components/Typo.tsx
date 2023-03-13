@@ -1,5 +1,6 @@
+import { TextColors } from '@colors';
 import React, { ReactNode } from 'react';
-import { StyleSheet, Text, Dimensions } from 'react-native';
+import { StyleSheet, Text, Dimensions, TextStyle } from 'react-native';
 
 const SMALL_WINDOW_BREAKPOINT = 640;
 
@@ -179,13 +180,18 @@ type VariantName =
 
 type TypoProps = {
   variant: VariantName;
+  color?: string;
   children: ReactNode;
 };
 
-export const Typo = (props: TypoProps) => {
+export const Typo = ({
+  variant = 'body-big',
+  color = TextColors.darkText,
+  children,
+}: TypoProps) => {
   const windowWidth = Dimensions.get('window').width;
 
-  const GetStyleForVariant = (variant: string) => {
+  const GetStyleForVariant = (variant: string, textColor: string) => {
     const HeadlineStylesDynamic =
       windowWidth > SMALL_WINDOW_BREAKPOINT ? Headlines : HeadlinesSmall;
     const TextStylesDynamic =
@@ -208,10 +214,11 @@ export const Typo = (props: TypoProps) => {
       'chat-title': TextStylesCustom.chatTitle,
     };
 
-    return variantMap[variant];
+    return [
+      StyleSheet.create({ color: textColor as TextStyle }),
+      variantMap[variant],
+    ];
   };
 
-  return (
-    <Text style={GetStyleForVariant(props.variant)}>{props.children}</Text>
-  );
+  return <Text style={GetStyleForVariant(variant, color)}>{children}</Text>;
 };
