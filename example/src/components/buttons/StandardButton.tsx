@@ -22,7 +22,7 @@ const StandardButtonStyles = StyleSheet.create({
   danger: {
     backgroundColor: AdditionalColors.red100,
   },
-  info: {
+  secondary: {
     backgroundColor: AdditionalColors.white,
   },
   disabled: {
@@ -30,7 +30,7 @@ const StandardButtonStyles = StyleSheet.create({
   },
 });
 
-type StandardButtonTypeName = 'primary' | 'danger' | 'info';
+type StandardButtonTypeName = 'primary' | 'danger' | 'secondary';
 type OnPressFunctionType = (event: GestureResponderEvent) => void;
 
 type StandardButtonProps = {
@@ -58,8 +58,8 @@ export const StandardButton = ({
         return StandardButtonStyles.primary;
       case 'danger':
         return StandardButtonStyles.danger;
-      case 'info':
-        return StandardButtonStyles.info;
+      case 'secondary':
+        return StandardButtonStyles.secondary;
     }
   };
 
@@ -82,7 +82,7 @@ export const StandardButton = ({
         return TextColors.white;
       case 'danger':
         return TextColors.white;
-      case 'info':
+      case 'secondary':
         return TextColors.darkText;
     }
   };
