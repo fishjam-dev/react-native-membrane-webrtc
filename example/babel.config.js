@@ -14,6 +14,7 @@ module.exports = {
           [pak.name]: path.join(__dirname, '..', 'src/index.tsx'),
           '@components': './src/components/',
           '@colors': './src/shared/colors.ts',
+          '@screens': './src/screens/',
         },
       },
     ],

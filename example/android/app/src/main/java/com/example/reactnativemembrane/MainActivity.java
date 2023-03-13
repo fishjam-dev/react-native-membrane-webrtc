@@ -1,4 +1,5 @@
 package com.membrane.reactnativemembrane;
+import android.os.Bundle;
 import expo.modules.ReactActivityDelegateWrapper;
 import com.facebook.react.ReactActivityDelegate;
 
@@ -20,5 +21,10 @@ public class MainActivity extends ReactActivity {
     return new ReactActivityDelegateWrapper(this, BuildConfig.IS_NEW_ARCHITECTURE_ENABLED,
       new ReactActivityDelegate(this, getMainComponentName())
     );
+  }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(null);
   }
 }

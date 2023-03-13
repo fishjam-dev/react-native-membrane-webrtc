@@ -6,7 +6,8 @@
     "paths": {
       "@jellyfish-dev/react-native-membrane-webrtc": ["../src/index.tsx"],
       "@components/*": ["./src/components/*"],
-      "@colors": ["./src/shared/colors.ts"]
+      "@colors": ["./src/shared/colors.ts"],
+      "@screens/*": ["./src/screens/*"]
     }
   },
   "include": ["./src"],
