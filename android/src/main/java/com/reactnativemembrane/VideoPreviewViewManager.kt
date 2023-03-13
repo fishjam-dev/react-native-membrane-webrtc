@@ -1,4 +1,3 @@
-package com.reactnativemembrane
 import android.view.View
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
@@ -6,31 +5,16 @@ import com.facebook.react.uimanager.annotations.ReactProp
 import org.membraneframework.rtc.ui.VideoTextureViewRenderer
 import org.webrtc.RendererCommon
 
-class VideoRendererViewManager : SimpleViewManager<View>() {
-  override fun getName() = "VideoRendererView"
+class VideoPreviewViewManager : SimpleViewManager<View>() {
+  override fun getName() = "VideoPreviewView"
 
-  private val viewsWrappers = HashMap<VideoTextureViewRenderer, VideoRendererWrapper>();
-
-  init {
-    MembraneModule.onTracksUpdate = {
-      viewsWrappers.values.forEach { it.update() }
-    }
-  }
+  private val viewsWrappers = HashMap<VideoTextureViewRenderer, VideoPreviewView>()
 
   override fun createViewInstance(reactContext: ThemedReactContext): View {
-    val wrapper = VideoRendererWrapper(reactContext)
+    val wrapper = VideoPreviewView(reactContext)
+    wrapper.init()
     viewsWrappers[wrapper.view] = wrapper
     return wrapper.view
-  }
-
-  override fun onDropViewInstance(view: View) {
-    viewsWrappers[view]?.dispose()
-    viewsWrappers.remove(view)
-  }
-
-  @ReactProp(name = "trackId")
-  fun setParticipantId(view: VideoTextureViewRenderer, trackId: String) {
-    viewsWrappers[view]?.init(trackId)
   }
 
   @ReactProp(name = "videoLayout")
@@ -47,5 +31,10 @@ class VideoRendererViewManager : SimpleViewManager<View>() {
   @ReactProp(name = "mirrorVideo")
   fun setMirrorVideo(view: VideoTextureViewRenderer, mirror: Boolean) {
     view.setMirror(mirror)
+  }
+
+  override fun onDropViewInstance(view: View) {
+    viewsWrappers[view]?.dispose()
+    viewsWrappers.remove(view)
   }
 }

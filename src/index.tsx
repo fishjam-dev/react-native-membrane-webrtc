@@ -670,17 +670,50 @@ export type VideoRendererProps = {
    * @default `FILL`
    */
   videoLayout?: VideoLayout;
+  /**
+   * whether to mirror video
+   * @default false
+   */
+  mirrorVideo?: boolean;
   style?: ViewStyle;
 };
 
-const ComponentName = 'VideoRendererView';
+const VideoRendererViewComponentName = 'VideoRendererView';
 
 /**
  * A component used for rendering participant's video and audio. You can add some basic View styling.
  */
 export const VideoRendererView =
-  UIManager.getViewManagerConfig(ComponentName) != null
-    ? requireNativeComponent<VideoRendererProps>(ComponentName)
+  UIManager.getViewManagerConfig(VideoRendererViewComponentName) != null
+    ? requireNativeComponent<VideoRendererProps>(VideoRendererViewComponentName)
+    : () => {
+        throw new Error(LINKING_ERROR);
+      };
+
+const VideoPreviewViewName = 'VideoPreviewView';
+
+export type VideoPreviewViewProps = {
+  /**
+   * `FILL` or `FIT` - it works just like RN Image component. `FILL` fills the whole view
+   * with video and it may cut some parts of the video. `FIT` scales the video so the whole
+   * video is visible, but it may leave some empty space in the view.
+   * @default `FILL`
+   */
+  videoLayout?: VideoLayout;
+  /**
+   * whether to mirror video
+   * @default false
+   */
+  mirrorVideo?: boolean;
+  style?: ViewStyle;
+};
+
+/**
+ * A component used for preview of the user's video.
+ */
+export const VideoPreviewView =
+  UIManager.getViewManagerConfig(VideoPreviewViewName) != null
+    ? requireNativeComponent<VideoPreviewViewProps>(VideoPreviewViewName)
     : () => {
         throw new Error(LINKING_ERROR);
       };

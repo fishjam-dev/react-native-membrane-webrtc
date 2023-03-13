@@ -128,7 +128,6 @@ const styles = StyleSheet.create({
   focusedParticipantContainer: {
     flex: 1,
     borderRadius: 4,
-    overflow: 'hidden',
     borderWidth: 2,
     borderColor: '#001A72',
     margin: 20,
@@ -146,7 +145,6 @@ const styles = StyleSheet.create({
     height: 100,
     width: 100,
     borderRadius: 4,
-    overflow: 'hidden',
     borderWidth: 2,
     borderColor: '#001A72',
   },
