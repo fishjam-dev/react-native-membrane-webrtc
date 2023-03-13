@@ -14,7 +14,9 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
+    'NotoSans-Medium': require('../assets/fonts/NotoSans-Medium.ttf'),
+    'NotoSans-Regular': require('../assets/fonts/NotoSans-Regular.ttf'),
+    'NotoSans-SemiBold': require('../assets/fonts/NotoSans-SemiBold.ttf'),
     'IcoMoon': require('../assets/fonts/icomoon/icomoon.ttf'),
   });
 
