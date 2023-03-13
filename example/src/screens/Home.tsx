@@ -14,12 +14,10 @@ import {
   Alert,
 } from 'react-native';
 
-import { useRoomName } from '../VideoroomContext';
+import { useVideoroomState } from '../VideoroomContext';
 
 export const Home = ({ navigation }) => {
-  const {
-    state: { roomName },
-  } = useRoomName();
+  const { roomName, setRoomName } = useVideoroomState();
 
   const [serverUrl, setServerUrl] = useState<string>(SERVER_URL);
   const [displayName, setDisplayName] = useState<string>(
@@ -96,15 +94,13 @@ export const Home = ({ navigation }) => {
     serverUrl,
   ]);
 
-  const { dispatch } = useRoomName();
-
   return (
     <View style={styles.container}>
       <Typo variant="h3">Room name:</Typo>
       <TextInput
         value={roomName}
         onChangeText={(val) => {
-          dispatch({ type: 'set', val });
+          setRoomName(val);
         }}
         style={styles.textInput}
       />

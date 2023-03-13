@@ -1,27 +1,17 @@
 import * as React from 'react';
-
-type Action = { type: 'set'; val: string };
-type Dispatch = (action: Action) => void;
-type State = { roomName: string };
+import { useState } from 'react';
 
 const VideoroomContext = React.createContext<
-  { state: State; dispatch: Dispatch } | undefined
+  | {
+      roomName: string;
+      setRoomName: React.Dispatch<React.SetStateAction<string>>;
+    }
+  | undefined
 >(undefined);
 
-function VideoroomReader(state, action) {
-  switch (action.type) {
-    case 'set':
-      return { roomName: action.val };
-    default:
-      throw new Error(`Unhandled action type: ${action.type}`);
-  }
-}
-
 const VideoroomContextProvider = (props) => {
-  const [state, dispatch] = React.useReducer(VideoroomReader, {
-    roomName: 'room',
-  });
-  const value = { state, dispatch };
+  const [roomName, setRoomName] = useState('');
+  const value = { roomName, setRoomName };
 
   return (
     <VideoroomContext.Provider value={value}>
@@ -30,7 +20,7 @@ const VideoroomContextProvider = (props) => {
   );
 };
 
-function useRoomName() {
+function useVideoroomState() {
   const context = React.useContext(VideoroomContext);
   if (context === undefined) {
     throw new Error('useRoomName must be used within a VideoroomContext');
@@ -38,4 +28,4 @@ function useRoomName() {
   return context;
 }
 
-export { VideoroomContextProvider, useRoomName };
+export { VideoroomContextProvider, useVideoroomState };
