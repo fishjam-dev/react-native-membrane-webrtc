@@ -17,7 +17,6 @@
 		4C39C56BAD484C67AA576FFA /* libPods-MembraneExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CA3E69C5B9553B26FBA2DF04 /* libPods-MembraneExample.a */; };
 		81AB9BB824.1.11600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB724.1.11600AC10FF /* LaunchScreen.storyboard */; };
 		BDA61D35D484541A6FF19B2A /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 008142433A7406F7AD72BFF3 /* ExpoModulesProvider.swift */; };
-		EB2C99953824479C8C4CE583 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 806A80A3D7E5408090D80432 /* Inter-Medium.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,7 +64,6 @@
 		441A41A627D8E57200BC0BA9 /* ScreenBroadcast.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScreenBroadcast.entitlements; sourceTree = "<group>"; };
 		47F7ED3B7971BE374F7B8635 /* Pods-MembraneExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MembraneExample.debug.xcconfig"; path = "Target Support Files/Pods-MembraneExample/Pods-MembraneExample.debug.xcconfig"; sourceTree = "<group>"; };
 		51DA263AA30EC230E7A0C5E1 /* libPods-ScreenBroadcast.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScreenBroadcast.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		806A80A3D7E5408090D80432 /* Inter-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Medium.ttf"; path = "../assets/fonts/Inter-Medium.ttf"; sourceTree = "<group>"; };
 		81AB9BB724.1.11600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = MembraneExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CA3E69C5B9553B26FBA2DF04 /* libPods-MembraneExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MembraneExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E00ACF0FDA8BF921659E2F9A /* Pods-MembraneExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MembraneExample.release.xcconfig"; path = "Target Support Files/Pods-MembraneExample/Pods-MembraneExample.release.xcconfig"; sourceTree = "<group>"; };
@@ -167,7 +165,6 @@
 		62C3AAEC2DFC472AB1E98D30 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				806A80A3D7E5408090D80432 /* Inter-Medium.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -309,7 +306,6 @@
 			files = (
 				81AB9BB824.1.11600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				EB2C99953824479C8C4CE583 /* Inter-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

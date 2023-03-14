@@ -1068,6 +1068,11 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
+"@expo-google-fonts/noto-sans@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/noto-sans/-/noto-sans-0.2.3.tgz#8168003c435a5d7de24b651fb27ab6f8fafb78de"
+  integrity sha512-W/KyYHSclbPF/M2Grm4vRLGebo+qrgij2avlosDRpO5ymORfhhrBxdA+C1duPd2K0OC6Gg61uwe8AER2DwDzEQ==
+
 "@expo/bunyan@4.0.0", "@expo/bunyan@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@expo/bunyan/-/bunyan-4.0.0.tgz#be0c1de943c7987a9fbd309ea0b1acd605890c7b"

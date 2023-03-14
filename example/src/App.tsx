@@ -1,3 +1,8 @@
+import {
+  NotoSans_400Regular,
+  NotoSans_500Medium,
+  NotoSans_600SemiBold,
+} from '@expo-google-fonts/noto-sans';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Home } from '@screens/Home';
@@ -14,8 +19,10 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
-    'IcoMoon': require('../assets/fonts/icomoon/icomoon.ttf'),
+    NotoSans_400Regular,
+    NotoSans_500Medium,
+    NotoSans_600SemiBold,
+    IcoMoon: require('../assets/fonts/icomoon/icomoon.ttf'),
   });
 
   useEffect(() => {
@@ -23,6 +30,8 @@ export default function App() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
 
   return (
     <VideoroomContextProvider>

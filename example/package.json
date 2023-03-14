@@ -9,6 +9,7 @@
     "start": "NODE_ENV=development react-native start"
   },
   "dependencies": {
+    "@expo-google-fonts/noto-sans": "^0.2.3",
     "@expo/vector-icons": "^13.0.0",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
