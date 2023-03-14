@@ -162,6 +162,13 @@ const TextStylesCustom = StyleSheet.create({
   },
 });
 
+export const TextInputTextStyle = StyleSheet.create({
+  body: {
+    fontFamily: TextStylesSmall.bodySmall.fontFamily,
+    fontSize: TextStylesSmall.bodySmall.fontSize,
+  },
+});
+
 type VariantName =
   | 'h1'
   | 'h2'
