@@ -1,3 +1,8 @@
+import {
+  NotoSans_400Regular,
+  NotoSans_500Medium,
+  NotoSans_600SemiBold,
+} from '@expo-google-fonts/noto-sans';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Home } from '@screens/Home';
@@ -14,10 +19,10 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    'NotoSans-Medium': require('../assets/fonts/NotoSans-Medium.ttf'),
-    'NotoSans-Regular': require('../assets/fonts/NotoSans-Regular.ttf'),
-    'NotoSans-SemiBold': require('../assets/fonts/NotoSans-SemiBold.ttf'),
-    'IcoMoon': require('../assets/fonts/icomoon/icomoon.ttf'),
+    NotoSans_400Regular,
+    NotoSans_500Medium,
+    NotoSans_600SemiBold,
+    IcoMoon: require('../assets/fonts/icomoon/icomoon.ttf'),
   });
 
   useEffect(() => {
