@@ -18,13 +18,12 @@ SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [fontsLoaded, error] = useFonts({
+  const [fontsLoaded] = useFonts({
     NotoSans_400Regular,
     NotoSans_500Medium,
     NotoSans_600SemiBold,
     IcoMoon: require('../assets/fonts/icomoon/icomoon.ttf'),
   });
-  console.log('EJJ', fontsLoaded, error);
 
   useEffect(() => {
     if (fontsLoaded) {
