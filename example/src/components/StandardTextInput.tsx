@@ -3,7 +3,7 @@ import { TextInputTextStyle } from '@components/Typo';
 import React, { useState } from 'react';
 import { StyleSheet, TextInput } from 'react-native';
 
-const StandardTextInputStyles = StyleSheet.create({
+const TextInputStyles = StyleSheet.create({
   main: {
     width: '100%',
     height: 56,
@@ -30,7 +30,7 @@ const StandardTextInputStyles = StyleSheet.create({
 
 type OnChangeTextType = (text: string) => void;
 
-type StandardTextInputProps = {
+type TextInputProps = {
   placeholder?: string;
   value?: string;
   editable?: boolean;
@@ -39,39 +39,33 @@ type StandardTextInputProps = {
 
 export const StandardTextInput = ({
   placeholder = '',
-  value = undefined,
+  value,
   editable = true,
   onChangeText = () => {},
-}: StandardTextInputProps) => {
-  const [focusStyle, setFocusStyle] = useState(
-    StandardTextInputStyles.offFocus
-  );
+}: TextInputProps) => {
+  const [focusStyle, setFocusStyle] = useState(TextInputStyles.offFocus);
   const placeholderTextColor = AdditionalColors.grey80;
   const fontStyle = TextInputTextStyle.body;
 
   const onFocus = () => {
-    setFocusStyle(StandardTextInputStyles.onFocus);
+    setFocusStyle(TextInputStyles.onFocus);
   };
 
   const offFocus = () => {
-    setFocusStyle(StandardTextInputStyles.offFocus);
+    setFocusStyle(TextInputStyles.offFocus);
   };
 
   const GetStyleForTextInput = () => {
     if (editable) {
       return [
-        StandardTextInputStyles.main,
-        StandardTextInputStyles.active,
+        TextInputStyles.main,
+        TextInputStyles.active,
         focusStyle,
         fontStyle,
       ];
     }
 
-    return [
-      StandardTextInputStyles.main,
-      StandardTextInputStyles.notActive,
-      fontStyle,
-    ];
+    return [TextInputStyles.main, TextInputStyles.notActive, fontStyle];
   };
 
   return (
