@@ -78,6 +78,9 @@ export const StandardTextInput = ({
       onBlur={offFocus}
       editable={editable}
       onChangeText={onChangeText}
+      // @ts-ignore
+      colorCursor={TextColors.darkText}
+      selectionColor={TextColors.additionalLightText}
     />
   );
 };
