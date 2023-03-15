@@ -1,3 +1,4 @@
+import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
 import { SERVER_URL } from '@env';
@@ -6,7 +7,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   Platform,
   PermissionsAndroid,
@@ -98,24 +98,15 @@ export const Home = ({ navigation }) => {
     <View style={styles.container}>
       <Typo variant="h3">Room name:</Typo>
       <TextInput
-        value={roomName}
+        placeholder="Room name"
         onChangeText={(val) => {
           setRoomName(val);
         }}
-        style={styles.textInput}
       />
       <Text>Display name:</Text>
-      <TextInput
-        value={displayName}
-        onChangeText={setDisplayName}
-        style={styles.textInput}
-      />
+      <TextInput value={displayName} onChangeText={setDisplayName} />
       <Text>Server URL:</Text>
-      <TextInput
-        value={serverUrl}
-        onChangeText={setServerUrl}
-        style={styles.textInput}
-      />
+      <TextInput value={serverUrl} onChangeText={setServerUrl} />
       <View style={styles.row}>
         <Text>Simulcast:</Text>
         <Switch
