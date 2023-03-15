@@ -1,3 +1,4 @@
+import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
@@ -17,6 +18,8 @@ import {
 import { useVideoroomState } from '../VideoroomContext';
 
 export const Home = ({ navigation }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+
   const { roomName, setRoomName } = useVideoroomState();
 
   const [serverUrl, setServerUrl] = useState<string>(SERVER_URL);
@@ -117,6 +120,16 @@ export const Home = ({ navigation }) => {
       <StandardButton type="primary" onPress={connect}>
         Connect!
       </StandardButton>
+      <Modal
+        headline="HEAD"
+        body="TEST BODY"
+        visible={modalVisible}
+        setVisibility={setModalVisible}
+      >
+        <StandardButton type="danger" onPress={() => {}}>
+          Discard the meeting
+        </StandardButton>
+      </Modal>
     </View>
   );
 };

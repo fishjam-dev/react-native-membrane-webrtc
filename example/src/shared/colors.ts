@@ -64,3 +64,7 @@ export const TextColors = {
   lightText: '#DBE0F0',
   white: '#FFFFFF',
 };
+
+export const ShadowColors = {
+  modal: 'rgba(9,10,11,0.4)',
+};
