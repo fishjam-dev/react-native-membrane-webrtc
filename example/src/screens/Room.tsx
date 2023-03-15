@@ -1,12 +1,16 @@
 import { Icon } from '@components/Icon';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
+import { RootStack } from '@model/NavigationTypes';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 
 import { Controls } from '../Controls';
 import { Settings } from '../Settings';
 
-export const Room = ({ navigation }) => {
+type Props = NativeStackScreenProps<RootStack, 'Room'>;
+
+export const Room = ({ navigation }: Props) => {
   const participants = Membrane.useRoomParticipants();
   const tracks = participants
     .map((p) => p.tracks.filter((t) => t.type === 'Video'))

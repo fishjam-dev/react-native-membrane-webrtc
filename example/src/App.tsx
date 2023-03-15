@@ -3,6 +3,7 @@ import {
   NotoSans_500Medium,
   NotoSans_600SemiBold,
 } from '@expo-google-fonts/noto-sans';
+import { RootStack } from '@model/NavigationTypes';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Home } from '@screens/Home';
@@ -15,7 +16,21 @@ import { VideoroomContextProvider } from './VideoroomContext';
 
 SplashScreen.preventAutoHideAsync();
 
-const Stack = createNativeStackNavigator();
+const linking = {
+  prefixes: ['https://a2ae-83-142-186-98.eu.ngrok.io'],
+  config: {
+    screens: {
+      Home: {
+        path: 'room/:roomName',
+        parse: {
+          roomName: decodeURI,
+        },
+      },
+    },
+  },
+};
+
+const Stack = createNativeStackNavigator<RootStack>();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -35,7 +50,7 @@ export default function App() {
 
   return (
     <VideoroomContextProvider>
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         <Stack.Navigator
           initialRouteName="Home"
           screenOptions={{
