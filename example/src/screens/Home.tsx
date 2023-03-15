@@ -1,4 +1,4 @@
-import { StandardTextInput } from '@components/StandardTextInput';
+import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
 import { SERVER_URL } from '@env';
@@ -97,16 +97,16 @@ export const Home = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Typo variant="h3">Room name:</Typo>
-      <StandardTextInput
+      <TextInput
         placeholder="Room name"
         onChangeText={(val) => {
           setRoomName(val);
         }}
       />
       <Text>Display name:</Text>
-      <StandardTextInput value={displayName} onChangeText={setDisplayName} />
+      <TextInput value={displayName} onChangeText={setDisplayName} />
       <Text>Server URL:</Text>
-      <StandardTextInput value={serverUrl} onChangeText={setServerUrl} />
+      <TextInput value={serverUrl} onChangeText={setServerUrl} />
       <View style={styles.row}>
         <Text>Simulcast:</Text>
         <Switch

@@ -1,7 +1,7 @@
 import { AdditionalColors, BrandColors, TextColors } from '@colors';
 import { TextInputTextStyle } from '@components/Typo';
 import React, { useState } from 'react';
-import { StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput as RNTextInput } from 'react-native';
 
 const TextInputStyles = StyleSheet.create({
   main: {
@@ -37,7 +37,7 @@ type TextInputProps = {
   onChangeText?: OnChangeTextType;
 };
 
-export const StandardTextInput = ({
+export const TextInput = ({
   placeholder = '',
   value,
   editable = true,
@@ -69,7 +69,7 @@ export const StandardTextInput = ({
   };
 
   return (
-    <TextInput
+    <RNTextInput
       style={GetStyleForTextInput()}
       placeholder={placeholder}
       placeholderTextColor={placeholderTextColor}
