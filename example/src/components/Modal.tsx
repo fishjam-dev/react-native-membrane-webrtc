@@ -3,7 +3,7 @@ import { Typo } from '@components/Typo';
 import React, { ReactNode } from 'react';
 import { StyleSheet, Modal as RNModal, View } from 'react-native';
 
-import { StandardButton } from './buttons/StandardButton';
+import { StandardButton, OnPressFunctionType } from './buttons/StandardButton';
 
 const ModalStyles = StyleSheet.create({
   centeredView: {
@@ -42,8 +42,8 @@ type ModalProps = {
   headline?: string;
   body?: string;
   visible: boolean;
-  children: ReactNode;
-  setVisibility: Function;
+  children?: ReactNode;
+  onClose: OnPressFunctionType;
 };
 
 export const Modal = ({
@@ -51,7 +51,7 @@ export const Modal = ({
   body,
   visible,
   children,
-  setVisibility,
+  onClose,
 }: ModalProps) => {
   if (!visible) return null;
 
@@ -68,12 +68,7 @@ export const Modal = ({
             </View>
             <View style={ModalStyles.topButton}>{children}</View>
             <View style={ModalStyles.bottomButton}>
-              <StandardButton
-                type="secondary"
-                onPress={() => {
-                  setVisibility(false);
-                }}
-              >
+              <StandardButton type="secondary" onPress={onClose}>
                 Cancel
               </StandardButton>
             </View>

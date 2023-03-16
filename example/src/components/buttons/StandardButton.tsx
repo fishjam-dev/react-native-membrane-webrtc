@@ -31,7 +31,7 @@ const StandardButtonStyles = StyleSheet.create({
 });
 
 type StandardButtonTypeName = 'primary' | 'danger' | 'secondary';
-type OnPressFunctionType = (event: GestureResponderEvent) => void;
+export type OnPressFunctionType = (event: GestureResponderEvent) => void;
 
 type StandardButtonProps = {
   type?: StandardButtonTypeName;
