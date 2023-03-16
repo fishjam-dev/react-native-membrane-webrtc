@@ -6,7 +6,8 @@
         <item name="android:textColor">#000000</item>
         <item name="colorAccent">@color/darkText</item>
         <item name="android:windowBackground">@drawable/splashscreen</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splashscreen</item>
+      <item name="android:windowSplashScreenBackground">@color/splashscreen_background</item>
+      <item name="android:windowSplashScreenAnimatedIcon">@drawable/splashscreen</item>
     </style>
 
     <color name="darkText">#001A72</color>
