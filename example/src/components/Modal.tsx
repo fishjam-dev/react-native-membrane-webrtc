@@ -1,7 +1,8 @@
-import { AdditionalColors, ShadowColors } from '@colors';
+import { AdditionalColors } from '@colors';
 import { Typo } from '@components/Typo';
 import React, { ReactNode } from 'react';
-import { StyleSheet, Modal as RNModal, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { ReactNativeModal } from 'react-native-modal';
 
 import { StandardButton, OnPressFunctionType } from './buttons/StandardButton';
 
@@ -10,7 +11,6 @@ const ModalStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: ShadowColors.modal,
   },
   modal: {
     alignSelf: 'center',
@@ -56,7 +56,11 @@ export const Modal = ({
   if (!visible) return null;
 
   return (
-    <RNModal visible={visible}>
+    <ReactNativeModal
+      isVisible={visible}
+      backdropOpacity={0.4}
+      backdropColor={AdditionalColors.black}
+    >
       <View style={ModalStyles.centeredView}>
         <View style={ModalStyles.modal}>
           <View style={ModalStyles.content}>
@@ -75,6 +79,6 @@ export const Modal = ({
           </View>
         </View>
       </View>
-    </RNModal>
+    </ReactNativeModal>
   );
 };
