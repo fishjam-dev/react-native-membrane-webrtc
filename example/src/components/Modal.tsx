@@ -58,6 +58,7 @@ export const Modal = ({
       isVisible={visible}
       backdropOpacity={0.4}
       backdropColor={AdditionalColors.black}
+      backdropTransitionOutTiming={0}
     >
       <View style={ModalStyles.centeredView}>
         <View style={ModalStyles.modal}>
