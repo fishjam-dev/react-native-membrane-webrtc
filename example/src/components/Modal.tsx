@@ -53,8 +53,6 @@ export const Modal = ({
   children,
   onClose,
 }: ModalProps) => {
-  if (!visible) return null;
-
   return (
     <ReactNativeModal
       isVisible={visible}
