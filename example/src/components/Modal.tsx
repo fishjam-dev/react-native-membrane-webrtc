@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ReactNativeModal } from 'react-native-modal';
 
-import { StandardButton, OnPressFunctionType } from './buttons/StandardButton';
+import { StandardButton } from './buttons/StandardButton';
 
 const ModalStyles = StyleSheet.create({
   centeredView: {
@@ -43,7 +43,7 @@ type ModalProps = {
   body?: string;
   visible: boolean;
   children?: ReactNode;
-  onClose: OnPressFunctionType;
+  onClose: () => void;
 };
 
 export const Modal = ({

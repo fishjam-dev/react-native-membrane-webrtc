@@ -1,12 +1,7 @@
 import { AdditionalColors, BrandColors, TextColors } from '@colors';
 import { Typo } from '@components/Typo';
 import React, { ReactNode } from 'react';
-import {
-  StyleSheet,
-  View,
-  Pressable,
-  GestureResponderEvent,
-} from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 
 const StandardButtonStyles = StyleSheet.create({
   common: {
@@ -31,12 +26,11 @@ const StandardButtonStyles = StyleSheet.create({
 });
 
 type StandardButtonTypeName = 'primary' | 'danger' | 'secondary';
-export type OnPressFunctionType = (event: GestureResponderEvent) => void;
 
 type StandardButtonProps = {
   type?: StandardButtonTypeName;
   isEnabled?: boolean;
-  onPress: OnPressFunctionType;
+  onPress: () => void;
   children: ReactNode;
 };
 
