@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Membrane Videoroom</string>
+    <string name="expo_splash_screen_resize_mode">native</string>
 </resources>
