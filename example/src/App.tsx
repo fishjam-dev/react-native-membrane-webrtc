@@ -6,7 +6,8 @@ import {
 import { RootStack } from '@model/NavigationTypes';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Home } from '@screens/Home';
+import { CreateRoom } from '@screens/CreateRoom';
+// import { Home } from '@screens/Home';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -57,7 +58,7 @@ export default function App() {
             headerShown: false,
           }}
         >
-          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="New meeting" component={CreateRoom} />
           <Stack.Screen name="Room" component={Room} />
         </Stack.Navigator>
       </NavigationContainer>
