@@ -1,4 +1,5 @@
 import { BackgroundWrapper } from '@components/BackgroundWrapper';
+import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
@@ -12,6 +13,7 @@ function isEmpty(value) {
 
 export const CreateRoom = ({ navigation }) => {
   const [username, setUsername] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const { roomName, setRoomName } = useVideoroomState();
 
   useEffect(
@@ -25,7 +27,6 @@ export const CreateRoom = ({ navigation }) => {
         // Prevent default behavior of leaving the screen
         e.preventDefault();
 
-        // Prompt the user before leaving the screen
         Alert.alert(
           'Discard changes?',
           'You have unsaved changes. Are you sure to discard them and leave the screen?',
@@ -34,12 +35,13 @@ export const CreateRoom = ({ navigation }) => {
             {
               text: 'Discard',
               style: 'destructive',
-              // If the user confirmed, then we dispatch the action we blocked earlier
-              // This will continue the action that had triggered the removal of the screen
-              onPress: () => navigation.dispatch(e.data.action),
+              onPress: () => console.log('xD'),
             },
           ]
         );
+
+        // SHOW MODAL
+        //setIsModalVisible(true);
       }),
     [navigation, roomName, username]
   );
@@ -56,6 +58,13 @@ export const CreateRoom = ({ navigation }) => {
 
   return (
     <BackgroundWrapper>
+      <Modal
+        headline="Discard changes"
+        body="you sure???"
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+      />
+
       <View>
         <Typo variant="h4">Videoconferencing for everyone</Typo>
       </View>
