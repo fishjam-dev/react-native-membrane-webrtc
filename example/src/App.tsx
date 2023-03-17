@@ -17,7 +17,7 @@ import { VideoroomContextProvider } from './VideoroomContext';
 SplashScreen.preventAutoHideAsync();
 
 const linking = {
-  prefixes: ['https://a2ae-83-142-186-98.eu.ngrok.io'],
+  prefixes: ['https://videoroom.membrane.work'],
   config: {
     screens: {
       Home: {
