@@ -1,9 +1,9 @@
-import { BrandColors } from '@colors';
+import { BackgroundWrapper } from '@components/BackgroundWrapper';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, KeyboardAvoidingView, Alert } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 function isEmpty(value) {
@@ -14,13 +14,48 @@ export const CreateRoom = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const { roomName, setRoomName } = useVideoroomState();
 
+  useEffect(
+    () =>
+      navigation.addListener('beforeRemove', (e) => {
+        if (!roomName && !username) {
+          // If we don't have unsaved changes, then we don't need to do anything
+          return;
+        }
+
+        // Prevent default behavior of leaving the screen
+        e.preventDefault();
+
+        // Prompt the user before leaving the screen
+        Alert.alert(
+          'Discard changes?',
+          'You have unsaved changes. Are you sure to discard them and leave the screen?',
+          [
+            { text: "Don't leave", style: 'cancel', onPress: () => {} },
+            {
+              text: 'Discard',
+              style: 'destructive',
+              // If the user confirmed, then we dispatch the action we blocked earlier
+              // This will continue the action that had triggered the removal of the screen
+              onPress: () => navigation.dispatch(e.data.action),
+            },
+          ]
+        );
+      }),
+    [navigation, roomName, username]
+  );
+
   const ShouldEnableCreateRoomButton = () => {
     console.log(!isEmpty(username) && !isEmpty(roomName));
     return !isEmpty(username) && !isEmpty(roomName);
   };
 
+  const TrimTrailingSpacesForTextInputs = () => {
+    setRoomName(roomName.trimEnd());
+    setUsername(username.trimEnd());
+  };
+
   return (
-    <View style={styles.container}>
+    <BackgroundWrapper>
       <View>
         <Typo variant="h4">Videoconferencing for everyone</Typo>
       </View>
@@ -33,51 +68,47 @@ export const CreateRoom = ({ navigation }) => {
       <View style={styles.roomInputLabel}>
         <Typo variant="body-small">Room name</Typo>
       </View>
-      <View style={styles.roomInput}>
-        <TextInput
-          placeholder="Room name"
-          value={roomName}
-          onChangeText={(val) => {
-            setRoomName(val);
-          }}
-        />
-      </View>
-      <View style={styles.usernameInputLabel}>
-        <Typo variant="body-small">Your name</Typo>
-      </View>
-      <View style={styles.usernameInput}>
-        <TextInput
-          placeholder="Your name"
-          value={username}
-          onChangeText={(val) => {
-            setUsername(val);
-          }}
-        />
-      </View>
-      <View style={styles.createRoomButton}>
-        <StandardButton
-          onPress={() => {}}
-          isEnabled={ShouldEnableCreateRoomButton()}
-        >
-          Create a room
-        </StandardButton>
-      </View>
+      <KeyboardAvoidingView style={{ width: '100%' }}>
+        <View style={styles.roomInput}>
+          <TextInput
+            placeholder="Room name"
+            value={roomName}
+            onChangeText={(val) => {
+              setRoomName(val);
+            }}
+          />
+        </View>
+        <View style={styles.usernameInputLabel}>
+          <Typo variant="body-small">Your name</Typo>
+        </View>
+        <View style={styles.usernameInput}>
+          <TextInput
+            placeholder="Your name"
+            value={username}
+            onChangeText={(val) => {
+              setUsername(val);
+            }}
+          />
+        </View>
+        <View style={styles.createRoomButton}>
+          <StandardButton
+            onPress={() => {
+              TrimTrailingSpacesForTextInputs();
+            }}
+            isEnabled={ShouldEnableCreateRoomButton()}
+          >
+            Create a room
+          </StandardButton>
+        </View>
+      </KeyboardAvoidingView>
       <View style={styles.stepLabel}>
         <Typo variant="label">Step 1/2</Typo>
       </View>
-    </View>
+    </BackgroundWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: BrandColors.seaBlue40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingLeft: 16,
-    paddingRight: 16,
-  },
   smallTitle: {
     marginTop: 8,
   },

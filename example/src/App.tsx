@@ -8,6 +8,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { CreateRoom } from '@screens/CreateRoom';
 // import { Home } from '@screens/Home';
+import { InitialScreenStub } from '@screens/InitialScreenStub';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -53,13 +54,26 @@ export default function App() {
     <VideoroomContextProvider>
       <NavigationContainer linking={linking}>
         <Stack.Navigator
-          initialRouteName="Home"
+          initialRouteName="InitialScreen"
           screenOptions={{
-            headerShown: false,
+            headerBackTitle: 'Back',
           }}
         >
-          <Stack.Screen name="New meeting" component={CreateRoom} />
-          <Stack.Screen name="Room" component={Room} />
+          <Stack.Screen
+            name="New meeting"
+            component={CreateRoom}
+            options={{ headerBackTitle: 'Back' }}
+          />
+          <Stack.Screen
+            name="Room"
+            component={Room}
+            options={{ headerBackTitle: 'Back' }}
+          />
+          <Stack.Screen
+            name="InitialScreen"
+            component={InitialScreenStub}
+            options={{ headerBackTitle: 'Back' }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </VideoroomContextProvider>
