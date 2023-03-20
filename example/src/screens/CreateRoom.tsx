@@ -5,7 +5,9 @@ import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
 import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
+import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Alert,
@@ -22,11 +24,19 @@ function isEmpty(value) {
   return value == null || value.trim().length === 0;
 }
 
-export const CreateRoom = ({ navigation }) => {
+type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
+type GoBackAction = Readonly<{
+  type: string;
+  payload?: object | undefined;
+  source?: string | undefined;
+  target?: string | undefined;
+}>;
+
+export const CreateRoom = ({ navigation, route }: Props) => {
   const height = useHeaderHeight();
   const [username, setUsername] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalAction, setModalAction] = useState();
+  const [modalAction, setModalAction] = useState<GoBackAction>();
   const { roomName, setRoomName } = useVideoroomState();
   const isSimulcastOn = true;
 
@@ -42,6 +52,12 @@ export const CreateRoom = ({ navigation }) => {
       Alert.alert('Error when connecting to server:', error);
     }
   }, [error]);
+
+  useEffect(() => {
+    if (route.params?.roomName) {
+      setRoomName(route.params?.roomName);
+    }
+  }, []);
 
   useEffect(
     () =>
@@ -149,7 +165,9 @@ export const CreateRoom = ({ navigation }) => {
               type="danger"
               onPress={() => {
                 setIsModalVisible(false);
-                navigation.dispatch(modalAction);
+                setRoomName('');
+                setUsername('');
+                navigation.dispatch(modalAction!);
               }}
             >
               Yes, discard meeting

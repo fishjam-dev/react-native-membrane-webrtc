@@ -1,4 +1,5 @@
 export type RootStack = {
-  Home: { roomName: string } | undefined;
   Room: undefined;
+  CreateRoom: { roomName: string } | undefined;
+  InitialScreen: undefined;
 };

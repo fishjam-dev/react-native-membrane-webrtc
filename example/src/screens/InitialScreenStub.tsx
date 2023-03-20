@@ -9,7 +9,7 @@ export const InitialScreenStub = ({ navigation }) => {
       <Typo variant="h3">TBD initial screen</Typo>
       <StandardButton
         onPress={() => {
-          navigation.push('New meeting');
+          navigation.push('CreateRoom');
         }}
       >
         Create room

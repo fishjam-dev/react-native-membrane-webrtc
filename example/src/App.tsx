@@ -59,7 +59,11 @@ export default function App() {
             headerBackTitle: 'Back',
           }}
         >
-          <Stack.Screen name="New meeting" component={CreateRoom} />
+          <Stack.Screen
+            name="CreateRoom"
+            component={CreateRoom}
+            options={{ title: 'New meeting' }}
+          />
           <Stack.Screen name="Room" component={Room} />
           <Stack.Screen name="InitialScreen" component={InitialScreenStub} />
         </Stack.Navigator>
