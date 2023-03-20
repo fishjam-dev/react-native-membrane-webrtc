@@ -38,7 +38,7 @@ export const Room = ({ navigation }: Props) => {
 
   const disconnect = useCallback(() => {
     mbDisconnect();
-    navigation.navigate('Home');
+    navigation.goBack();
   }, []);
 
   return (

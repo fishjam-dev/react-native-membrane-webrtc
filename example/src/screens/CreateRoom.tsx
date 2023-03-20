@@ -3,8 +3,19 @@ import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Alert } from 'react-native';
+import { SERVER_URL } from '@env';
+import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
+import { useHeaderHeight } from '@react-navigation/elements';
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  Alert,
+  View,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  PermissionsAndroid,
+  ScrollView,
+} from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 function isEmpty(value) {
@@ -12,9 +23,25 @@ function isEmpty(value) {
 }
 
 export const CreateRoom = ({ navigation }) => {
+  const height = useHeaderHeight();
   const [username, setUsername] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalAction, setModalAction] = useState();
   const { roomName, setRoomName } = useVideoroomState();
+  const isSimulcastOn = true;
+
+  const { connect: mbConnect, joinRoom, error } = Membrane.useMembraneServer();
+
+  const params = {
+    token: 'NOW_YOU_CAN_SEND_PARAMS',
+  };
+
+  useEffect(() => {
+    if (error) {
+      console.log(error);
+      Alert.alert('Error when connecting to server:', error);
+    }
+  }, [error]);
 
   useEffect(
     () =>
@@ -23,31 +50,14 @@ export const CreateRoom = ({ navigation }) => {
           // If we don't have unsaved changes, then we don't need to do anything
           return;
         }
-
-        // Prevent default behavior of leaving the screen
         e.preventDefault();
-
-        Alert.alert(
-          'Discard changes?',
-          'You have unsaved changes. Are you sure to discard them and leave the screen?',
-          [
-            { text: "Don't leave", style: 'cancel', onPress: () => {} },
-            {
-              text: 'Discard',
-              style: 'destructive',
-              onPress: () => console.log('xD'),
-            },
-          ]
-        );
-
-        // SHOW MODAL
-        //setIsModalVisible(true);
+        setModalAction(e.data.action);
+        setIsModalVisible(true);
       }),
     [navigation, roomName, username]
   );
 
   const ShouldEnableCreateRoomButton = () => {
-    console.log(!isEmpty(username) && !isEmpty(roomName));
     return !isEmpty(username) && !isEmpty(roomName);
   };
 
@@ -56,64 +66,151 @@ export const CreateRoom = ({ navigation }) => {
     setUsername(username.trimEnd());
   };
 
+  const requestPermissions = useCallback(async () => {
+    if (Platform.OS === 'ios') return;
+    try {
+      const granted = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      ]);
+      if (
+        granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+        granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] ===
+          PermissionsAndroid.RESULTS.GRANTED
+      ) {
+        console.log('You can use the camera');
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  }, []);
+
+  const connect = useCallback(async () => {
+    await requestPermissions();
+    try {
+      await mbConnect(SERVER_URL, roomName, {
+        userMetadata: { username },
+        connectionParams: params,
+        socketChannelParams: {
+          isSimulcastOn,
+        },
+        simulcastConfig: {
+          enabled: isSimulcastOn,
+          activeEncodings: ['l', 'm', 'h'],
+        },
+        quality: Membrane.VideoQuality.HD_169,
+        maxBandwidth: { l: 150, m: 500, h: 1500 },
+        videoTrackMetadata: { active: true, type: 'camera' },
+        audioTrackMetadata: { active: true, type: 'audio' },
+        isSpeakerphoneOn: false,
+      });
+      await joinRoom();
+      navigation.navigate('Room');
+    } catch (err) {
+      console.warn(err);
+    }
+  }, [
+    requestPermissions,
+    mbConnect,
+    joinRoom,
+    roomName,
+    isSimulcastOn,
+    username,
+    SERVER_URL,
+  ]);
+
   return (
-    <BackgroundWrapper>
-      <Modal
-        headline="Discard changes"
-        body="you sure???"
-        visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-      />
-
-      <View>
-        <Typo variant="h4">Videoconferencing for everyone</Typo>
-      </View>
-
-      <View style={styles.smallTitle}>
-        <Typo variant="chat-regular">
-          Create a new room to start the meeting
-        </Typo>
-      </View>
-      <View style={styles.roomInputLabel}>
-        <Typo variant="body-small">Room name</Typo>
-      </View>
-      <KeyboardAvoidingView style={{ width: '100%' }}>
-        <View style={styles.roomInput}>
-          <TextInput
-            placeholder="Room name"
-            value={roomName}
-            onChangeText={(val) => {
-              setRoomName(val);
-            }}
-          />
-        </View>
-        <View style={styles.usernameInputLabel}>
-          <Typo variant="body-small">Your name</Typo>
-        </View>
-        <View style={styles.usernameInput}>
-          <TextInput
-            placeholder="Your name"
-            value={username}
-            onChangeText={(val) => {
-              setUsername(val);
-            }}
-          />
-        </View>
-        <View style={styles.createRoomButton}>
-          <StandardButton
-            onPress={() => {
-              TrimTrailingSpacesForTextInputs();
-            }}
-            isEnabled={ShouldEnableCreateRoomButton()}
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{
+          flex: 1,
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        enabled
+        keyboardVerticalOffset={height}
+      >
+        <BackgroundWrapper>
+          <Modal
+            headline="Discard meeting"
+            body="Are you sure you want to discard creation of this meeting?"
+            visible={isModalVisible}
+            onClose={() => setIsModalVisible(false)}
           >
-            Create a room
-          </StandardButton>
-        </View>
+            <StandardButton
+              type="danger"
+              onPress={() => {
+                setIsModalVisible(false);
+                navigation.dispatch(modalAction);
+              }}
+            >
+              Yes, discard meeting
+            </StandardButton>
+          </Modal>
+          <View style={styles.inner}>
+            <View>
+              <Typo variant="h4">Videoconferencing for everyone</Typo>
+            </View>
+
+            <View style={styles.smallTitle}>
+              <Typo variant="chat-regular">
+                Create a new room to start the meeting
+              </Typo>
+            </View>
+            <View style={styles.roomInputLabel}>
+              <Typo variant="body-small">Room name</Typo>
+            </View>
+
+            <View style={styles.roomInput}>
+              <TextInput
+                placeholder="Room name"
+                value={roomName}
+                onChangeText={(val) => {
+                  setRoomName(val);
+                }}
+              />
+            </View>
+            <View style={styles.usernameInputLabel}>
+              <Typo variant="body-small">Your name</Typo>
+            </View>
+            <View style={styles.usernameInput}>
+              <TextInput
+                placeholder="Your name"
+                value={username}
+                onChangeText={(val) => {
+                  setUsername(val);
+                }}
+              />
+            </View>
+          </View>
+          <View style={{ flex: 1 }} />
+
+          <View style={styles.createRoomButton}>
+            <StandardButton
+              onPress={() => {
+                TrimTrailingSpacesForTextInputs();
+                connect();
+              }}
+              isEnabled={ShouldEnableCreateRoomButton()}
+            >
+              Create a room
+            </StandardButton>
+          </View>
+
+          <View style={styles.stepLabel}>
+            <Typo variant="label">Step 1/2</Typo>
+          </View>
+        </BackgroundWrapper>
       </KeyboardAvoidingView>
-      <View style={styles.stepLabel}>
-        <Typo variant="label">Step 1/2</Typo>
-      </View>
-    </BackgroundWrapper>
+    </ScrollView>
   );
 };
 
@@ -143,5 +240,10 @@ const styles = StyleSheet.create({
   },
   stepLabel: {
     marginTop: 16,
+  },
+  inner: {
+    justifyContent: 'flex-end',
+    width: '100%',
+    alignItems: 'center',
   },
 });

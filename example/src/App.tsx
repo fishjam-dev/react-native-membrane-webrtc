@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import {
   NotoSans_400Regular,
   NotoSans_500Medium,
@@ -5,9 +6,8 @@ import {
 } from '@expo-google-fonts/noto-sans';
 import { RootStack } from '@model/NavigationTypes';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { CreateRoom } from '@screens/CreateRoom';
-// import { Home } from '@screens/Home';
 import { InitialScreenStub } from '@screens/InitialScreenStub';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
@@ -32,7 +32,7 @@ const linking = {
   },
 };
 
-const Stack = createNativeStackNavigator<RootStack>();
+const Stack = createStackNavigator<RootStack>();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -59,21 +59,9 @@ export default function App() {
             headerBackTitle: 'Back',
           }}
         >
-          <Stack.Screen
-            name="New meeting"
-            component={CreateRoom}
-            options={{ headerBackTitle: 'Back' }}
-          />
-          <Stack.Screen
-            name="Room"
-            component={Room}
-            options={{ headerBackTitle: 'Back' }}
-          />
-          <Stack.Screen
-            name="InitialScreen"
-            component={InitialScreenStub}
-            options={{ headerBackTitle: 'Back' }}
-          />
+          <Stack.Screen name="New meeting" component={CreateRoom} />
+          <Stack.Screen name="Room" component={Room} />
+          <Stack.Screen name="InitialScreen" component={InitialScreenStub} />
         </Stack.Navigator>
       </NavigationContainer>
     </VideoroomContextProvider>
