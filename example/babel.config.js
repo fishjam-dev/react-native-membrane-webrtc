@@ -15,6 +15,7 @@ module.exports = {
           '@components': './src/components/',
           '@colors': './src/shared/colors.ts',
           '@screens': './src/screens/',
+          '@model': './src/model/',
         },
       },
     ],

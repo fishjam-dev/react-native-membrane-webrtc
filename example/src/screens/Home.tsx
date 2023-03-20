@@ -3,6 +3,8 @@ import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
 import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
+import { RootStack } from '@model/NavigationTypes';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
@@ -16,7 +18,9 @@ import {
 
 import { useVideoroomState } from '../VideoroomContext';
 
-export const Home = ({ navigation }) => {
+type Props = NativeStackScreenProps<RootStack, 'Home'>;
+
+export const Home = ({ navigation, route }: Props) => {
   const { roomName, setRoomName } = useVideoroomState();
 
   const [serverUrl, setServerUrl] = useState<string>(SERVER_URL);
@@ -37,6 +41,12 @@ export const Home = ({ navigation }) => {
       Alert.alert('Error when connecting to server:', error);
     }
   }, [error]);
+
+  useEffect(() => {
+    if (route.params?.roomName) {
+      setRoomName(route.params?.roomName);
+    }
+  }, []);
 
   const requestPermissions = useCallback(async () => {
     if (Platform.OS === 'ios') return;
@@ -99,6 +109,7 @@ export const Home = ({ navigation }) => {
       <Typo variant="h3">Room name:</Typo>
       <TextInput
         placeholder="Room name"
+        value={roomName}
         onChangeText={(val) => {
           setRoomName(val);
         }}
