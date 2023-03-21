@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import {
   NotoSans_400Regular,
   NotoSans_500Medium,
@@ -5,8 +6,9 @@ import {
 } from '@expo-google-fonts/noto-sans';
 import { RootStack } from '@model/NavigationTypes';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Home } from '@screens/Home';
+import { createStackNavigator } from '@react-navigation/stack';
+import { CreateRoom } from '@screens/CreateRoom';
+import { InitialScreenStub } from '@screens/InitialScreenStub';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -20,7 +22,8 @@ const linking = {
   prefixes: ['https://videoroom.membrane.work'],
   config: {
     screens: {
-      Home: {
+      // TODO(@skyman503): When JoinRoom screen is finished, use it here.
+      CreateRoom: {
         path: 'room/:roomName',
         parse: {
           roomName: decodeURI,
@@ -30,7 +33,7 @@ const linking = {
   },
 };
 
-const Stack = createNativeStackNavigator<RootStack>();
+const Stack = createStackNavigator<RootStack>();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -52,13 +55,18 @@ export default function App() {
     <VideoroomContextProvider>
       <NavigationContainer linking={linking}>
         <Stack.Navigator
-          initialRouteName="Home"
+          initialRouteName="InitialScreen"
           screenOptions={{
-            headerShown: false,
+            headerBackTitle: 'Back',
           }}
         >
-          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen
+            name="CreateRoom"
+            component={CreateRoom}
+            options={{ title: 'New meeting' }}
+          />
           <Stack.Screen name="Room" component={Room} />
+          <Stack.Screen name="InitialScreen" component={InitialScreenStub} />
         </Stack.Navigator>
       </NavigationContainer>
     </VideoroomContextProvider>
