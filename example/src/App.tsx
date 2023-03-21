@@ -63,16 +63,16 @@ export default function App() {
           }}
         >
           <Stack.Screen
+            name="InitialScreen"
+            component={InitialScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
             name="CreateRoom"
             component={CreateRoom}
             options={{ title: 'New meeting' }}
           />
           <Stack.Screen name="Room" component={Room} />
-          <Stack.Screen
-            name="InitialScreen"
-            component={InitialScreen}
-            options={{ headerShown: false }}
-          />
           <Stack.Screen name="JoinRoom" component={JoinRoomStub} />
         </Stack.Navigator>
       </NavigationContainer>

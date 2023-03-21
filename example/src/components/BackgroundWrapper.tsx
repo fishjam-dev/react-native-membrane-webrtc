@@ -3,16 +3,16 @@ import React, { ReactNode } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 
 type BackgroundWrapperType = {
-  hasModal?: boolean;
+  hasHeader?: boolean;
   children: ReactNode;
 };
 
 export const BackgroundWrapper = ({
-  hasModal = false,
+  hasHeader = false,
   children,
 }: BackgroundWrapperType) => {
   const getTopOffsetForLeftImage = () => {
-    return { top: hasModal ? 24 : 112 };
+    return { top: hasHeader ? 24 : 112 };
   };
 
   return (
