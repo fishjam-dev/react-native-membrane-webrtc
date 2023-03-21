@@ -18,11 +18,14 @@ const CardButtonStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: BrandColors.seaBlue40,
     width: 358,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: BrandColors.darkBlue100,
+  },
+  animatedView: {
+    height: 179,
+    borderRadius: 16,
   },
 });
 
@@ -59,7 +62,9 @@ export const CardButton = ({
         onPressOut={() => (progress.value = 0)}
         onPress={onPress}
       >
-        <Animated.View style={[CardButtonStyles.wrapper, backgroundColorStyle]}>
+        <Animated.View
+          style={[CardButtonStyles.animatedView, backgroundColorStyle]}
+        >
           <View style={CardButtonStyles.content}>
             <Icon name={iconName} size={32} color={TextColors.darkText} />
             <Typo variant="h4">{children}</Typo>
