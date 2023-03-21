@@ -8,7 +8,7 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { isEmpty } from 'loadsh';
+import { isEmpty } from 'lodash';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Alert,
@@ -77,11 +77,6 @@ export const CreateRoom = ({ navigation, route }: Props) => {
     return !isEmpty(username) && !isEmpty(roomName);
   };
 
-  const trimTrailingSpacesForTextInputs = () => {
-    setRoomName(roomName.trimEnd());
-    setUsername(username.trimEnd());
-  };
-
   const requestPermissions = useCallback(async () => {
     if (Platform.OS === 'ios') return;
     try {
@@ -104,39 +99,42 @@ export const CreateRoom = ({ navigation, route }: Props) => {
     }
   }, []);
 
-  const connect = useCallback(async () => {
-    await requestPermissions();
-    try {
-      await mbConnect(SERVER_URL, roomName, {
-        userMetadata: { username },
-        connectionParams: params,
-        socketChannelParams: {
-          isSimulcastOn,
-        },
-        simulcastConfig: {
-          enabled: isSimulcastOn,
-          activeEncodings: ['l', 'm', 'h'],
-        },
-        quality: Membrane.VideoQuality.HD_169,
-        maxBandwidth: { l: 150, m: 500, h: 1500 },
-        videoTrackMetadata: { active: true, type: 'camera' },
-        audioTrackMetadata: { active: true, type: 'audio' },
-        isSpeakerphoneOn: false,
-      });
-      await joinRoom();
-      navigation.navigate('Room');
-    } catch (err) {
-      console.warn(err);
-    }
-  }, [
-    requestPermissions,
-    mbConnect,
-    joinRoom,
-    roomName,
-    isSimulcastOn,
-    username,
-    SERVER_URL,
-  ]);
+  const connect = useCallback(
+    async (roomName: string, username: string) => {
+      await requestPermissions();
+      try {
+        await mbConnect(SERVER_URL, roomName, {
+          userMetadata: { username },
+          connectionParams: params,
+          socketChannelParams: {
+            isSimulcastOn,
+          },
+          simulcastConfig: {
+            enabled: isSimulcastOn,
+            activeEncodings: ['l', 'm', 'h'],
+          },
+          quality: Membrane.VideoQuality.HD_169,
+          maxBandwidth: { l: 150, m: 500, h: 1500 },
+          videoTrackMetadata: { active: true, type: 'camera' },
+          audioTrackMetadata: { active: true, type: 'audio' },
+          isSpeakerphoneOn: false,
+        });
+        await joinRoom();
+        navigation.navigate('Room');
+      } catch (err) {
+        console.warn(err);
+      }
+    },
+    [
+      requestPermissions,
+      mbConnect,
+      joinRoom,
+      roomName,
+      isSimulcastOn,
+      username,
+      SERVER_URL,
+    ]
+  );
 
   return (
     <BackgroundWrapper>
@@ -205,10 +203,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             </View>
             <View style={styles.createRoomButton}>
               <StandardButton
-                onPress={async () => {
-                  await trimTrailingSpacesForTextInputs();
-                  connect();
-                }}
+                onPress={() => connect(roomName.trimEnd(), username.trimEnd())}
                 isEnabled={shouldEnableCreateRoomButton()}
               >
                 Create a room
