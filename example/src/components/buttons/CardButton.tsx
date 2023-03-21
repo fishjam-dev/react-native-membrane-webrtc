@@ -3,6 +3,12 @@ import { Icon } from '@components/Icon';
 import { Typo } from '@components/Typo';
 import React, { ReactNode } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  withTiming,
+  useSharedValue,
+} from 'react-native-reanimated';
 
 const CardButtonStyles = StyleSheet.create({
   wrapper: {
@@ -12,7 +18,7 @@ const CardButtonStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: BrandColors.seaBlue40,
+    // backgroundColor: BrandColors.seaBlue40,
     width: 358,
     borderRadius: 16,
     borderWidth: 1,
@@ -31,11 +37,34 @@ export const CardButton = ({
   onPress,
   children,
 }: CardButtonProps) => {
+  const progress = useSharedValue(0);
+
+  const backgroundColorStyle = useAnimatedStyle(
+    () => ({
+      backgroundColor: interpolateColor(
+        progress.value,
+        [0, 1],
+        [BrandColors.seaBlue40, BrandColors.seaBlue60]
+      ),
+    }),
+    [progress]
+  );
+
   return (
     <View style={CardButtonStyles.wrapper}>
-      <Pressable onPress={onPress} style={CardButtonStyles.content}>
-        <Icon name={iconName} size={32} color={TextColors.darkText} />
-        <Typo variant="h4">{children}</Typo>
+      <Pressable
+        onPressIn={() => {
+          progress.value = withTiming(1);
+        }}
+        onPressOut={() => (progress.value = 0)}
+        onPress={onPress}
+      >
+        <Animated.View style={[CardButtonStyles.wrapper, backgroundColorStyle]}>
+          <View style={CardButtonStyles.content}>
+            <Icon name={iconName} size={32} color={TextColors.darkText} />
+            <Typo variant="h4">{children}</Typo>
+          </View>
+        </Animated.View>
       </Pressable>
     </View>
   );
