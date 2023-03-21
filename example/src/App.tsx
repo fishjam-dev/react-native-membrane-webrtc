@@ -22,7 +22,8 @@ const linking = {
   prefixes: ['https://videoroom.membrane.work'],
   config: {
     screens: {
-      Home: {
+      // TODO(@skyman503): When JoinRoom screen is finished, use it here.
+      CreateRoom: {
         path: 'room/:roomName',
         parse: {
           roomName: decodeURI,

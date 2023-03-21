@@ -8,7 +8,8 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useState, useCallback } from 'react';
+import { isEmpty } from 'loadsh';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Alert,
   View,
@@ -19,10 +20,6 @@ import {
   ScrollView,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
-
-function isEmpty(value) {
-  return value == null || value.trim().length === 0;
-}
 
 type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
 type GoBackAction = Readonly<{
@@ -36,7 +33,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   const height = useHeaderHeight();
   const [username, setUsername] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalAction, setModalAction] = useState<GoBackAction>();
+  const modalAction = useRef<GoBackAction>();
   const { roomName, setRoomName } = useVideoroomState();
   const isSimulcastOn = true;
 
@@ -59,25 +56,28 @@ export const CreateRoom = ({ navigation, route }: Props) => {
     }
   }, []);
 
-  useEffect(
-    () =>
-      navigation.addListener('beforeRemove', (e) => {
-        if (!roomName && !username) {
-          // If we don't have unsaved changes, then we don't need to do anything
-          return;
-        }
-        e.preventDefault();
-        setModalAction(e.data.action);
-        setIsModalVisible(true);
-      }),
-    [navigation, roomName, username]
-  );
+  useEffect(() => {
+    const handleBeforeRemoveEvent = (e) => {
+      if (!roomName && !username) {
+        // If we don't have unsaved changes, then we don't need to do anything
+        return;
+      }
+      e.preventDefault();
+      modalAction.current = e.data.action;
+      setIsModalVisible(true);
+    };
 
-  const ShouldEnableCreateRoomButton = () => {
+    navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
+
+    return () =>
+      navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
+  }, [navigation, roomName, username]);
+
+  const shouldEnableCreateRoomButton = () => {
     return !isEmpty(username) && !isEmpty(roomName);
   };
 
-  const TrimTrailingSpacesForTextInputs = () => {
+  const trimTrailingSpacesForTextInputs = () => {
     setRoomName(roomName.trimEnd());
     setUsername(username.trimEnd());
   };
@@ -139,22 +139,21 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   ]);
 
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      keyboardShouldPersistTaps="handled"
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{
-          flex: 1,
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'center',
+    <BackgroundWrapper>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
         }}
-        enabled
-        keyboardVerticalOffset={height}
+        keyboardShouldPersistTaps="handled"
       >
-        <BackgroundWrapper>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{
+            flex: 1,
+          }}
+          enabled
+          keyboardVerticalOffset={height}
+        >
           <Modal
             headline="Discard meeting"
             body="Are you sure you want to discard creation of this meeting?"
@@ -167,7 +166,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
                 setIsModalVisible(false);
                 setRoomName('');
                 setUsername('');
-                navigation.dispatch(modalAction!);
+                navigation.dispatch(modalAction.current!);
               }}
             >
               Yes, discard meeting
@@ -191,9 +190,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
               <TextInput
                 placeholder="Room name"
                 value={roomName}
-                onChangeText={(val) => {
-                  setRoomName(val);
-                }}
+                onChangeText={setRoomName}
               />
             </View>
             <View style={styles.usernameInputLabel}>
@@ -203,32 +200,28 @@ export const CreateRoom = ({ navigation, route }: Props) => {
               <TextInput
                 placeholder="Your name"
                 value={username}
-                onChangeText={(val) => {
-                  setUsername(val);
-                }}
+                onChangeText={setUsername}
               />
             </View>
-          </View>
-          <View style={{ flex: 1 }} />
+            <View style={styles.createRoomButton}>
+              <StandardButton
+                onPress={async () => {
+                  await trimTrailingSpacesForTextInputs();
+                  connect();
+                }}
+                isEnabled={shouldEnableCreateRoomButton()}
+              >
+                Create a room
+              </StandardButton>
+            </View>
 
-          <View style={styles.createRoomButton}>
-            <StandardButton
-              onPress={() => {
-                TrimTrailingSpacesForTextInputs();
-                connect();
-              }}
-              isEnabled={ShouldEnableCreateRoomButton()}
-            >
-              Create a room
-            </StandardButton>
+            <View style={styles.stepLabel}>
+              <Typo variant="label">Step 1/2</Typo>
+            </View>
           </View>
-
-          <View style={styles.stepLabel}>
-            <Typo variant="label">Step 1/2</Typo>
-          </View>
-        </BackgroundWrapper>
-      </KeyboardAvoidingView>
-    </ScrollView>
+        </KeyboardAvoidingView>
+      </ScrollView>
+    </BackgroundWrapper>
   );
 };
 
@@ -260,8 +253,10 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   inner: {
-    justifyContent: 'flex-end',
-    width: '100%',
     alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+    flex: 1,
+    justifyContent: 'center',
   },
 });
