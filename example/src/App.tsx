@@ -8,7 +8,8 @@ import { RootStack } from '@model/NavigationTypes';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { CreateRoom } from '@screens/CreateRoom';
-import { InitialScreenStub } from '@screens/InitialScreenStub';
+import { InitialScreen } from '@screens/InitialScreen';
+import { JoinRoomStub } from '@screens/JoinRoomStub';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -41,6 +42,7 @@ export default function App() {
     NotoSans_500Medium,
     NotoSans_600SemiBold,
     IcoMoon: require('../assets/fonts/icomoon/icomoon.ttf'),
+    Logo: require('../assets/fonts/logo/logo.ttf'),
   });
 
   useEffect(() => {
@@ -66,7 +68,12 @@ export default function App() {
             options={{ title: 'New meeting' }}
           />
           <Stack.Screen name="Room" component={Room} />
-          <Stack.Screen name="InitialScreen" component={InitialScreenStub} />
+          <Stack.Screen
+            name="InitialScreen"
+            component={InitialScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="JoinRoom" component={JoinRoomStub} />
         </Stack.Navigator>
       </NavigationContainer>
     </VideoroomContextProvider>
