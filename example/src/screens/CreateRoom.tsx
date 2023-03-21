@@ -99,42 +99,45 @@ export const CreateRoom = ({ navigation, route }: Props) => {
     }
   }, []);
 
-  const connect = useCallback(
-    async (roomName: string, username: string) => {
-      await requestPermissions();
-      try {
-        await mbConnect(SERVER_URL, roomName, {
-          userMetadata: { username },
-          connectionParams: params,
-          socketChannelParams: {
-            isSimulcastOn,
-          },
-          simulcastConfig: {
-            enabled: isSimulcastOn,
-            activeEncodings: ['l', 'm', 'h'],
-          },
-          quality: Membrane.VideoQuality.HD_169,
-          maxBandwidth: { l: 150, m: 500, h: 1500 },
-          videoTrackMetadata: { active: true, type: 'camera' },
-          audioTrackMetadata: { active: true, type: 'audio' },
-          isSpeakerphoneOn: false,
-        });
-        await joinRoom();
-        navigation.navigate('Room');
-      } catch (err) {
-        console.warn(err);
-      }
-    },
-    [
-      requestPermissions,
-      mbConnect,
-      joinRoom,
-      roomName,
-      isSimulcastOn,
-      username,
-      SERVER_URL,
-    ]
-  );
+  const connect = useCallback(async () => {
+    const validRoomName = roomName.trimEnd();
+    const validUserName = username.trimEnd();
+
+    setRoomName(validRoomName);
+    setUsername(validUserName);
+
+    await requestPermissions();
+    try {
+      await mbConnect(SERVER_URL, validRoomName, {
+        userMetadata: { validUserName },
+        connectionParams: params,
+        socketChannelParams: {
+          isSimulcastOn,
+        },
+        simulcastConfig: {
+          enabled: isSimulcastOn,
+          activeEncodings: ['l', 'm', 'h'],
+        },
+        quality: Membrane.VideoQuality.HD_169,
+        maxBandwidth: { l: 150, m: 500, h: 1500 },
+        videoTrackMetadata: { active: true, type: 'camera' },
+        audioTrackMetadata: { active: true, type: 'audio' },
+        isSpeakerphoneOn: false,
+      });
+      await joinRoom();
+      navigation.navigate('Room');
+    } catch (err) {
+      console.warn(err);
+    }
+  }, [
+    requestPermissions,
+    mbConnect,
+    joinRoom,
+    roomName,
+    isSimulcastOn,
+    username,
+    SERVER_URL,
+  ]);
 
   return (
     <BackgroundWrapper>
@@ -203,7 +206,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             </View>
             <View style={styles.createRoomButton}>
               <StandardButton
-                onPress={() => connect(roomName.trimEnd(), username.trimEnd())}
+                onPress={connect}
                 isEnabled={shouldEnableCreateRoomButton()}
               >
                 Create a room
