@@ -42,7 +42,6 @@ export default function App() {
     NotoSans_500Medium,
     NotoSans_600SemiBold,
     IcoMoon: require('../assets/fonts/icomoon/icomoon.ttf'),
-    Logo: require('../assets/fonts/logo/logo.ttf'),
   });
 
   useEffect(() => {

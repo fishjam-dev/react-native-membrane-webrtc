@@ -1,20 +1,17 @@
-import { BrandColors } from '@colors';
 import { BackgroundWrapper } from '@components/BackgroundWrapper';
-import { Logo } from '@components/Icon';
 import { Typo } from '@components/Typo';
 import { CardButton } from '@components/buttons/CardButton';
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 
 export const InitialScreen = ({ navigation }) => {
   return (
     <BackgroundWrapper>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Logo
-            name="Horizontal-outline-dark"
-            size={49}
-            color={BrandColors.darkBlue100}
+          <Image
+            style={styles.logo}
+            source={require('../../assets/images/Logo.png')}
           />
           <View style={styles.subtitle}>
             <Typo variant="h5">Videoconferencing for everyone</Typo>
@@ -66,5 +63,10 @@ const styles = StyleSheet.create({
   },
   joinButton: {
     marginTop: 16,
+  },
+  logo: {
+    width: 223,
+    height: 49,
+    resizeMode: 'contain',
   },
 });
