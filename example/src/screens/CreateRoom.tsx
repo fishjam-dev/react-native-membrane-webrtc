@@ -140,7 +140,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   ]);
 
   return (
-    <BackgroundWrapper>
+    <BackgroundWrapper hasModal>
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
