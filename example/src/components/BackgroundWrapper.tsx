@@ -3,14 +3,22 @@ import React, { ReactNode } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 
 type BackgroundWrapperType = {
+  hasHeader?: boolean;
   children: ReactNode;
 };
 
-export const BackgroundWrapper = ({ children }: BackgroundWrapperType) => {
+export const BackgroundWrapper = ({
+  hasHeader = false,
+  children,
+}: BackgroundWrapperType) => {
+  const getTopOffsetForLeftImage = () => {
+    return { top: hasHeader ? 24 : 112 };
+  };
+
   return (
     <View style={styles.container}>
       <Image
-        style={styles.leftImage}
+        style={[styles.leftImage, getTopOffsetForLeftImage()]}
         source={require('../../assets/images/Left.png')}
       />
 
