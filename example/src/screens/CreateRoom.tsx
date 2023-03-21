@@ -109,7 +109,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
     await requestPermissions();
     try {
       await mbConnect(SERVER_URL, validRoomName, {
-        userMetadata: { validUserName },
+        userMetadata: { displayName: validUserName },
         connectionParams: params,
         socketChannelParams: {
           isSimulcastOn,
