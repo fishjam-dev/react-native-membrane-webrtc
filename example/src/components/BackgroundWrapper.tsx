@@ -38,9 +38,8 @@ const styles = StyleSheet.create({
   },
   leftImage: {
     width: 75,
-    height: 282,
+    height: 281.97,
     position: 'absolute',
-    top: 24,
   },
   rightImage: {
     width: 120,

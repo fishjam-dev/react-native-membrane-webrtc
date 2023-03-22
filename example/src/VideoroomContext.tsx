@@ -5,13 +5,16 @@ const VideoroomContext = React.createContext<
   | {
       roomName: string;
       setRoomName: React.Dispatch<React.SetStateAction<string>>;
+      username: string;
+      setUsername: React.Dispatch<React.SetStateAction<string>>;
     }
   | undefined
 >(undefined);
 
 const VideoroomContextProvider = (props) => {
   const [roomName, setRoomName] = useState('');
-  const value = { roomName, setRoomName };
+  const [username, setUsername] = useState('');
+  const value = { roomName, setRoomName, username, setUsername };
 
   return (
     <VideoroomContext.Provider value={value}>

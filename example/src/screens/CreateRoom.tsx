@@ -3,20 +3,16 @@ import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
-import { SERVER_URL } from '@env';
-import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { isEmpty } from 'lodash';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
-  Alert,
   View,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  PermissionsAndroid,
   ScrollView,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
@@ -31,24 +27,9 @@ type GoBackAction = Readonly<{
 
 export const CreateRoom = ({ navigation, route }: Props) => {
   const height = useHeaderHeight();
-  const [username, setUsername] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const modalAction = useRef<GoBackAction>();
-  const { roomName, setRoomName } = useVideoroomState();
-  const isSimulcastOn = true;
-
-  const { connect: mbConnect, joinRoom, error } = Membrane.useMembraneServer();
-
-  const params = {
-    token: 'NOW_YOU_CAN_SEND_PARAMS',
-  };
-
-  useEffect(() => {
-    if (error) {
-      console.log(error);
-      Alert.alert('Error when connecting to server:', error);
-    }
-  }, [error]);
+  const { roomName, setRoomName, username, setUsername } = useVideoroomState();
 
   useEffect(() => {
     if (route.params?.roomName) {
@@ -76,68 +57,6 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   const shouldEnableCreateRoomButton = () => {
     return !isEmpty(username) && !isEmpty(roomName);
   };
-
-  const requestPermissions = useCallback(async () => {
-    if (Platform.OS === 'ios') return;
-    try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      ]);
-      if (
-        granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
-        granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] ===
-          PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        console.log('You can use the camera');
-      } else {
-        console.log('Camera permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  }, []);
-
-  const connect = useCallback(async () => {
-    const validRoomName = roomName.trimEnd();
-    const validUserName = username.trimEnd();
-
-    setRoomName(validRoomName);
-    setUsername(validUserName);
-
-    await requestPermissions();
-    try {
-      await mbConnect(SERVER_URL, validRoomName, {
-        userMetadata: { displayName: validUserName },
-        connectionParams: params,
-        socketChannelParams: {
-          isSimulcastOn,
-        },
-        simulcastConfig: {
-          enabled: isSimulcastOn,
-          activeEncodings: ['l', 'm', 'h'],
-        },
-        quality: Membrane.VideoQuality.HD_169,
-        maxBandwidth: { l: 150, m: 500, h: 1500 },
-        videoTrackMetadata: { active: true, type: 'camera' },
-        audioTrackMetadata: { active: true, type: 'audio' },
-        isSpeakerphoneOn: false,
-      });
-      await joinRoom();
-      navigation.navigate('Room');
-    } catch (err) {
-      console.warn(err);
-    }
-  }, [
-    requestPermissions,
-    mbConnect,
-    joinRoom,
-    roomName,
-    isSimulcastOn,
-    username,
-    SERVER_URL,
-  ]);
 
   return (
     <BackgroundWrapper hasHeader>
@@ -206,7 +125,9 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             </View>
             <View style={styles.createRoomButton}>
               <StandardButton
-                onPress={connect}
+                onPress={() => {
+                  navigation.push('Preview', { prevScreen: 'CreateRoom' });
+                }}
                 isEnabled={shouldEnableCreateRoomButton()}
               >
                 Create a room

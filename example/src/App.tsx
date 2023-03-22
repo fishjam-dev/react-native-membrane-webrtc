@@ -10,6 +10,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { CreateRoom } from '@screens/CreateRoom';
 import { InitialScreen } from '@screens/InitialScreen';
 import { JoinRoomStub } from '@screens/JoinRoomStub';
+import { Preview } from '@screens/Preview';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -73,6 +74,7 @@ export default function App() {
           />
           <Stack.Screen name="Room" component={Room} />
           <Stack.Screen name="JoinRoom" component={JoinRoomStub} />
+          <Stack.Screen name="Preview" component={Preview} />
         </Stack.Navigator>
       </NavigationContainer>
     </VideoroomContextProvider>
