@@ -106,6 +106,18 @@ export const Preview = ({ navigation, route }: Props) => {
         </View>
 
         <View style={styles.cameraPreview}>
+          {isCameraOn ? (
+            <Membrane.VideoPreviewView style={styles.membraneVideoPreview} />
+          ) : (
+            <View style={styles.noCameraBackground}>
+              <View style={styles.noCameraContent}>
+                <Typo variant="h5" color={BrandColors.darkBlue80}>
+                  {getShortUsername()}
+                </Typo>
+              </View>
+            </View>
+          )}
+
           <View style={styles.iconsRow}>
             <InCallButton
               iconName={isCameraOn ? 'Cam' : 'Cam-disabled'}
@@ -124,17 +136,6 @@ export const Preview = ({ navigation, route }: Props) => {
             </View>
             <InCallButton iconName="Cam-switch" onPress={() => {}} />
           </View>
-          {isCameraOn ? (
-            <Membrane.VideoPreviewView style={styles.membraneVideoPreview} />
-          ) : (
-            <View style={styles.noCameraBackground}>
-              <View style={styles.noCameraContent}>
-                <Typo variant="h5" color={BrandColors.darkBlue80}>
-                  {getShortUsername()}
-                </Typo>
-              </View>
-            </View>
-          )}
         </View>
 
         <View style={styles.roomNameLabel}>
@@ -203,7 +204,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 16,
     justifyContent: 'center',
-    zIndex: 3,
   },
   microphoneButton: {
     paddingRight: 16,

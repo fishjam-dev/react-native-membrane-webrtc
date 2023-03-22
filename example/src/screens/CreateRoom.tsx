@@ -7,14 +7,14 @@ import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { isEmpty } from 'lodash';
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   PermissionsAndroid,
+  ScrollView,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
@@ -59,8 +59,15 @@ export const CreateRoom = ({ navigation, route }: Props) => {
     return !isEmpty(username) && !isEmpty(roomName);
   };
 
+  const openPreview = () => {
+    navigation.push('Preview', { prevScreen: 'CreateRoom' });
+  };
+
   const requestPermissionsAndOpenPreview = useCallback(async () => {
-    if (Platform.OS === 'ios') return;
+    if (Platform.OS === 'ios') {
+      openPreview();
+      return;
+    }
     try {
       const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -76,7 +83,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
       } else {
         console.log('Camera permission denied');
       }
-      navigation.push('Preview', { prevScreen: 'CreateRoom' });
+      openPreview();
     } catch (err) {
       console.warn(err);
     }
