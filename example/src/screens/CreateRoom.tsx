@@ -7,13 +7,14 @@ import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { isEmpty } from 'lodash';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  PermissionsAndroid,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
@@ -57,6 +58,29 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   const shouldEnableCreateRoomButton = () => {
     return !isEmpty(username) && !isEmpty(roomName);
   };
+
+  const requestPermissionsAndOpenPreview = useCallback(async () => {
+    if (Platform.OS === 'ios') return;
+    try {
+      const granted = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      ]);
+      if (
+        granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+        granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] ===
+          PermissionsAndroid.RESULTS.GRANTED
+      ) {
+        console.log('You can use the camera');
+      } else {
+        console.log('Camera permission denied');
+      }
+      navigation.push('Preview', { prevScreen: 'CreateRoom' });
+    } catch (err) {
+      console.warn(err);
+    }
+  }, []);
 
   return (
     <BackgroundWrapper hasHeader>
@@ -125,9 +149,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             </View>
             <View style={styles.createRoomButton}>
               <StandardButton
-                onPress={() => {
-                  navigation.push('Preview', { prevScreen: 'CreateRoom' });
-                }}
+                onPress={requestPermissionsAndOpenPreview}
                 isEnabled={shouldEnableCreateRoomButton()}
               >
                 Create a room

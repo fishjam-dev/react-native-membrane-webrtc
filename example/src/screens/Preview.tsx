@@ -13,13 +13,7 @@ import React, {
   useLayoutEffect,
   useState,
 } from 'react';
-import {
-  View,
-  StyleSheet,
-  Alert,
-  Platform,
-  PermissionsAndroid,
-} from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'Preview'>;
@@ -57,28 +51,6 @@ export const Preview = ({ navigation, route }: Props) => {
     });
   }, [navigation]);
 
-  const requestPermissions = useCallback(async () => {
-    if (Platform.OS === 'ios') return;
-    try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      ]);
-      if (
-        granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
-        granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] ===
-          PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        console.log('You can use the camera');
-      } else {
-        console.log('Camera permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  }, []);
-
   const getShortUsername = () => {
     return username
       .split(' ')
@@ -95,7 +67,6 @@ export const Preview = ({ navigation, route }: Props) => {
       setRoomName(validRoomName);
       setUsername(validUserName);
 
-      await requestPermissions();
       try {
         await mbConnect(SERVER_URL, validRoomName, {
           userMetadata: { displayName: validUserName },
@@ -121,15 +92,7 @@ export const Preview = ({ navigation, route }: Props) => {
         console.warn(err);
       }
     },
-    [
-      requestPermissions,
-      mbConnect,
-      joinRoom,
-      roomName,
-      isSimulcastOn,
-      username,
-      SERVER_URL,
-    ]
+    [mbConnect, joinRoom, roomName, isSimulcastOn, username, SERVER_URL]
   );
 
   return (
