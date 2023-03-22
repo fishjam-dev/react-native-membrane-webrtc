@@ -179,6 +179,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.isSpeakersphoneOn = connectionOptions["isSpeakerphoneOn"] as? Bool ?? true
+    self.isMicEnabled = connectionOptions["audioTrackEnabled"] as? Bool ?? true
+    self.isCameraEnabled = connectionOptions["videoTrackEnabled"] as? Bool ?? true
         
     let socketConnectionParams = (connectionOptions["connectionParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
     let socketChannelParams = (connectionOptions["socketChannelParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
@@ -626,7 +628,9 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.localParticipantId = localParticipantId
     
     localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata)
+    localVideoTrack?.setEnabled(isCameraEnabled)
     localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
+    localAudioTrack?.setEnabled(isMicEnabled)
     
     if(isSpeakersphoneOn) {
       localAudioTrack?.setVideoChatMode()
