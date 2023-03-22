@@ -32,8 +32,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   var isScreenCastOn = false
   private var localScreencastId: String? = null
 
-  var isMicrophoneOn = false
-  var isCameraOn = false
+  var isMicrophoneOn = true
+  var isCameraOn = true
 
   private val globalToLocalTrackId = HashMap<String, String>()
 
@@ -129,6 +129,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     this.localUserMetadata = connectionOptions.getMap("userMetadata")?.toMap() ?: mutableMapOf()
     this.videoTrackMetadata = connectionOptions.getMap("videoTrackMetadata")?.toMap() ?: mutableMapOf()
     this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMap() ?: mutableMapOf()
+
+    if(connectionOptions.hasKey("videoTrackEnabled"))
+      this.isCameraOn = connectionOptions.getBoolean("videoTrackEnabled")
+    if(connectionOptions.hasKey("audioTrackEnabled"))
+      this.isMicrophoneOn = connectionOptions.getBoolean("audioTrackEnabled")
 
     val socketConnectionParams = connectionOptions.getMap("connectionParams")?.toMap() ?: mutableMapOf()
 
@@ -515,6 +520,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   override fun onConnected() {
     room?.let {
       localAudioTrack = it.createAudioTrack(audioTrackMetadata)
+      localAudioTrack?.setEnabled(isMicrophoneOn)
 
       var videoParameters = when (videoQuality) {
         "QVGA169" -> VideoParameters.presetQVGA169
@@ -536,6 +542,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       )
 
       localVideoTrack = it.createVideoTrack(videoParameters, videoTrackMetadata)
+      localVideoTrack?.setEnabled(isCameraOn)
 
       isCameraOn = localVideoTrack?.enabled() ?: false
       isMicrophoneOn = localAudioTrack?.enabled() ?: false

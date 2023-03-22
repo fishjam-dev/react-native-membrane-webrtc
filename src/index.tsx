@@ -201,6 +201,16 @@ export type ConnectionOptions = {
    * a map `string -> any` containing params passed to the socket channel.
    */
   socketChannelParams: SocketChannelParams;
+  /**
+   * whether the video track is initially enabled
+   * @default `true`
+   */
+  videoTrackEnabled: boolean;
+  /**
+   * whether the audio track is initially enabled
+   * @default `true`
+   */
+  audioTrackEnabled: boolean;
 };
 
 export type ScreencastOptions = {
