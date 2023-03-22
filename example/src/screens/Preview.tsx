@@ -7,7 +7,12 @@ import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useCallback, useLayoutEffect } from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import {
   View,
   StyleSheet,
@@ -21,10 +26,10 @@ type Props = NativeStackScreenProps<RootStack, 'Preview'>;
 
 export const Preview = ({ navigation, route }: Props) => {
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
-  const { isCameraOn } = Membrane.useCameraState();
-  const { isMicrophoneOn } = Membrane.useMicrophoneState();
-  //   const { updateVideoTrackMetadata } = Membrane.useVideoTrackMetadata();
-  //   const { updateAudioTrackMetadata } = Membrane.useAudioTrackMetadata();
+  const [isCameraOn, setIsCameraOn] = useState(true);
+  const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
+  const isSimulcastOn = true;
+
   const { prevScreen } = route.params;
   const headerTitle =
     prevScreen === 'CreateRoom' ? 'New meeting' : 'Join meeting';
@@ -32,7 +37,6 @@ export const Preview = ({ navigation, route }: Props) => {
     prevScreen === 'CreateRoom'
       ? 'Create a new room to start the meeting'
       : 'Join an existing meeting';
-  const isSimulcastOn = true;
 
   const { connect: mbConnect, joinRoom, error } = Membrane.useMembraneServer();
 
@@ -52,22 +56,6 @@ export const Preview = ({ navigation, route }: Props) => {
       title: headerTitle,
     });
   }, [navigation]);
-
-  const toggleMicrophoneAndUpdateMetadata = () => {
-    // toggleMicrophone();
-    // updateAudioTrackMetadata({
-    //   active: !isMicrophoneOn,
-    //   type: 'audio',
-    // });
-  };
-
-  const toggleCameraAndUpdateMetadata = () => {
-    // toggleCamera();
-    // updateVideoTrackMetadata({
-    //   active: !isCameraOn,
-    //   type: 'camera',
-    // });
-  };
 
   const requestPermissions = useCallback(async () => {
     if (Platform.OS === 'ios') return;
@@ -91,45 +79,52 @@ export const Preview = ({ navigation, route }: Props) => {
     }
   }, []);
 
-  const connect = useCallback(async () => {
-    const validRoomName = roomName.trimEnd();
-    const validUserName = username.trimEnd();
+  const connect = useCallback(
+    async (isCameraOn, isMicrophoneOn) => {
+      const validRoomName = roomName.trimEnd();
+      const validUserName = username.trimEnd();
 
-    setRoomName(validRoomName);
-    setUsername(validUserName);
+      setRoomName(validRoomName);
+      setUsername(validUserName);
 
-    await requestPermissions();
-    try {
-      await mbConnect(SERVER_URL, validRoomName, {
-        userMetadata: { displayName: validUserName },
-        connectionParams: params,
-        socketChannelParams: {
-          isSimulcastOn,
-        },
-        simulcastConfig: {
-          enabled: isSimulcastOn,
-          activeEncodings: ['l', 'm', 'h'],
-        },
-        quality: Membrane.VideoQuality.HD_169,
-        maxBandwidth: { l: 150, m: 500, h: 1500 },
-        videoTrackMetadata: { active: true, type: 'camera' },
-        audioTrackMetadata: { active: true, type: 'audio' },
-        isSpeakerphoneOn: false,
-      });
-      await joinRoom();
-      navigation.navigate('Room');
-    } catch (err) {
-      console.warn(err);
-    }
-  }, [
-    requestPermissions,
-    mbConnect,
-    joinRoom,
-    roomName,
-    isSimulcastOn,
-    username,
-    SERVER_URL,
-  ]);
+      console.log(isCameraOn, isMicrophoneOn);
+
+      await requestPermissions();
+      try {
+        await mbConnect(SERVER_URL, validRoomName, {
+          userMetadata: { displayName: validUserName },
+          connectionParams: params,
+          socketChannelParams: {
+            isSimulcastOn,
+          },
+          simulcastConfig: {
+            enabled: isSimulcastOn,
+            activeEncodings: ['l', 'm', 'h'],
+          },
+          quality: Membrane.VideoQuality.HD_169,
+          maxBandwidth: { l: 150, m: 500, h: 1500 },
+          videoTrackMetadata: { active: true, type: 'camera' },
+          audioTrackMetadata: { active: true, type: 'audio' },
+          isSpeakerphoneOn: false,
+          videoTrackEnabled: isCameraOn,
+          audioTrackEnabled: isMicrophoneOn,
+        });
+        await joinRoom();
+        navigation.navigate('Room');
+      } catch (err) {
+        console.warn(err);
+      }
+    },
+    [
+      requestPermissions,
+      mbConnect,
+      joinRoom,
+      roomName,
+      isSimulcastOn,
+      username,
+      SERVER_URL,
+    ]
+  );
 
   return (
     <BackgroundWrapper hasHeader>
@@ -143,33 +138,32 @@ export const Preview = ({ navigation, route }: Props) => {
 
         <View style={styles.cameraPreview}>
           <View style={styles.iconsRow}>
-            {!isCameraOn ? (
-              <InCallButton
-                iconName="Cam-disabled"
-                onPress={toggleCameraAndUpdateMetadata}
-              />
-            ) : (
-              <InCallButton
-                iconName="Cam"
-                onPress={toggleCameraAndUpdateMetadata}
-              />
-            )}
+            <InCallButton
+              iconName={isCameraOn ? 'Cam' : 'Cam-disabled'}
+              onPress={() => {
+                setIsCameraOn(!isCameraOn);
+              }}
+            />
+
             <View style={styles.microphoneButton}>
-              {!isMicrophoneOn ? (
-                <InCallButton
-                  iconName="Microphone-off"
-                  onPress={toggleMicrophoneAndUpdateMetadata}
-                />
-              ) : (
-                <InCallButton
-                  iconName="Microphone"
-                  onPress={toggleMicrophoneAndUpdateMetadata}
-                />
-              )}
+              <InCallButton
+                iconName={isMicrophoneOn ? 'Microphone' : 'Microphone-off'}
+                onPress={() => {
+                  setIsMicrophoneOn(!isMicrophoneOn);
+                }}
+              />
             </View>
-            <InCallButton iconName="Settings" onPress={() => {}} />
+            <InCallButton iconName="Cam-switch" onPress={() => {}} />
           </View>
-          <Membrane.VideoPreviewView style={styles.membraneVideoPreview} />
+          {isCameraOn ? (
+            <Membrane.VideoPreviewView style={styles.membraneVideoPreview} />
+          ) : (
+            <View style={styles.noCameraBackground}>
+              <View style={styles.noCameraContent}>
+                <Typo variant="h4">H</Typo>
+              </View>
+            </View>
+          )}
         </View>
 
         <View style={styles.roomNameLabel}>
@@ -177,7 +171,9 @@ export const Preview = ({ navigation, route }: Props) => {
         </View>
 
         <View style={styles.joinButton}>
-          <StandardButton onPress={connect}>Join the room</StandardButton>
+          <StandardButton onPress={() => connect(isCameraOn, isMicrophoneOn)}>
+            Join the room
+          </StandardButton>
         </View>
 
         <View style={styles.stepLabel}>
@@ -241,5 +237,23 @@ const styles = StyleSheet.create({
   microphoneButton: {
     paddingRight: 16,
     paddingLeft: 16,
+  },
+  noCameraBackground: {
+    backgroundColor: BrandColors.seaBlue20,
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  noCameraContent: {
+    borderRadius: 100,
+    borderColor: BrandColors.darkBlue60,
+    borderWidth: 1,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    alignItems: 'center',
   },
 });
