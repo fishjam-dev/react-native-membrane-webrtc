@@ -79,6 +79,14 @@ export const Preview = ({ navigation, route }: Props) => {
     }
   }, []);
 
+  const getShortUsername = () => {
+    return username
+      .split(' ')
+      .map((i) => i.charAt(0))
+      .join('')
+      .toUpperCase();
+  };
+
   const connect = useCallback(
     async (isCameraOn, isMicrophoneOn) => {
       const validRoomName = roomName.trimEnd();
@@ -160,7 +168,9 @@ export const Preview = ({ navigation, route }: Props) => {
           ) : (
             <View style={styles.noCameraBackground}>
               <View style={styles.noCameraContent}>
-                <Typo variant="h4">H</Typo>
+                <Typo variant="h5" color={BrandColors.darkBlue80}>
+                  {getShortUsername()}
+                </Typo>
               </View>
             </View>
           )}
@@ -244,16 +254,14 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
   },
   noCameraContent: {
-    borderRadius: 100,
+    borderRadius: 5000,
     borderColor: BrandColors.darkBlue60,
     borderWidth: 1,
-    width: 50,
-    height: 50,
+    width: 132,
+    height: 132,
     justifyContent: 'center',
-    alignSelf: 'center',
     alignItems: 'center',
   },
 });
