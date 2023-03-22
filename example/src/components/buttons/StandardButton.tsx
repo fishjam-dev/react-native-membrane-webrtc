@@ -1,7 +1,7 @@
 import { AdditionalColors, BrandColors, TextColors } from '@colors';
 import { Typo } from '@components/Typo';
 import React, { ReactNode } from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 
 const StandardButtonStyles = StyleSheet.create({
   common: {
@@ -82,7 +82,12 @@ export const StandardButton = ({
   };
 
   return (
-    <Pressable onPress={onPress} disabled={!isEnabled}>
+    <TouchableOpacity
+      activeOpacity={!isEnabled ? 1 : 0.7}
+      onPress={() => {
+        if (isEnabled) onPress();
+      }}
+    >
       <View style={GetStylesForButtonType(type)}>
         <Typo
           variant="button"
@@ -91,6 +96,6 @@ export const StandardButton = ({
           {children}
         </Typo>
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 };

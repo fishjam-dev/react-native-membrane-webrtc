@@ -95,8 +95,6 @@ export const Preview = ({ navigation, route }: Props) => {
       setRoomName(validRoomName);
       setUsername(validUserName);
 
-      console.log(isCameraOn, isMicrophoneOn);
-
       await requestPermissions();
       try {
         await mbConnect(SERVER_URL, validRoomName, {
