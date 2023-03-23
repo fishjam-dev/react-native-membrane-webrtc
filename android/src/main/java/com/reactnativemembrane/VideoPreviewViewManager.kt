@@ -33,6 +33,11 @@ class VideoPreviewViewManager : SimpleViewManager<View>() {
     view.setMirror(mirror)
   }
 
+  @ReactProp(name = "captureDeviceId")
+  fun setCaptureDeviceId(view: VideoTextureViewRenderer, captureDeviceId: String) {
+    viewsWrappers[view]?.switchCamera(captureDeviceId)
+  }
+
   override fun onDropViewInstance(view: View) {
     viewsWrappers[view]?.dispose()
     viewsWrappers.remove(view)

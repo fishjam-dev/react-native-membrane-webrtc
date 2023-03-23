@@ -8,11 +8,13 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { getShortUsername } from '@utils';
+import { findIndex } from 'lodash';
 import React, {
   useEffect,
   useCallback,
   useLayoutEffect,
   useState,
+  useRef,
 } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
@@ -55,6 +57,17 @@ export const Preview = ({ navigation, route }: Props) => {
     }
   };
 
+  const [currentCamera, setCurrentCamera] =
+    useState<Membrane.CaptureDevice | null>(null);
+  const availableCameras = useRef<Membrane.CaptureDevice[]>([]);
+
+  useEffect(() => {
+    Membrane.getCaptureDevices().then((devices) => {
+      availableCameras.current = devices;
+      setCurrentCamera(devices.find((device) => device.isFrontFacing) || null);
+    });
+  }, []);
+
   const connect = useCallback(async () => {
     const validRoomName = roomName.trimEnd();
     const validUserName = username.trimEnd();
@@ -80,6 +93,7 @@ export const Preview = ({ navigation, route }: Props) => {
         isSpeakerphoneOn: false,
         videoTrackEnabled: isCameraOn,
         audioTrackEnabled: isMicrophoneOn,
+        captureDeviceId: currentCamera?.id,
       });
       await joinRoom();
       navigation.navigate('Room');
@@ -95,7 +109,16 @@ export const Preview = ({ navigation, route }: Props) => {
     SERVER_URL,
     isCameraOn,
     isMicrophoneOn,
+    currentCamera,
   ]);
+
+  const switchCamera = useCallback(() => {
+    const cameras = availableCameras.current;
+    setCurrentCamera(
+      (currentCamera) =>
+        cameras[(findIndex(cameras, currentCamera) + 1) % cameras.length]
+    );
+  }, []);
 
   return (
     <BackgroundAnimation>
@@ -112,6 +135,7 @@ export const Preview = ({ navigation, route }: Props) => {
             <Membrane.VideoPreviewView
               style={styles.membraneVideoPreview}
               mirrorVideo
+              captureDeviceId={currentCamera?.id}
             />
           ) : (
             <View style={styles.noCameraBackground}>
@@ -139,7 +163,7 @@ export const Preview = ({ navigation, route }: Props) => {
                 }}
               />
             </View>
-            <InCallButton iconName="Cam-switch" onPress={() => {}} />
+            <InCallButton iconName="Cam-switch" onPress={switchCamera} />
           </View>
         </View>
 

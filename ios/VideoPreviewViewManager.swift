@@ -15,7 +15,7 @@ class VideoPreviewViewManager: RCTViewManager {
 
 class VideoPreviewView : UIView {
   var videoView: VideoView? = nil
-  private var localVideoTrack: LocalVideoTrack? = nil
+  private var localVideoTrack: LocalCameraVideoTrack? = nil
   
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -24,7 +24,7 @@ class VideoPreviewView : UIView {
     videoView?.clipsToBounds = true
     addSubview(videoView!)
    
-    localVideoTrack = LocalVideoTrack.create(videoParameters: VideoParameters.presetFHD169)
+    localVideoTrack = LocalVideoTrack.create(videoParameters: VideoParameters.presetFHD169) as? LocalCameraVideoTrack
     localVideoTrack?.start()
     videoView?.track = localVideoTrack
   }
@@ -54,6 +54,14 @@ class VideoPreviewView : UIView {
   @objc var mirrorVideo: Bool = false {
     didSet {
       self.videoView?.mirror = mirrorVideo
+    }
+  }
+  
+  @objc var captureDeviceId: String? = nil {
+    didSet {
+      if let captureDeviceId = captureDeviceId {
+        localVideoTrack?.switchCamera(deviceId: captureDeviceId)
+      }
     }
   }
 }

@@ -23,6 +23,10 @@ class VideoPreviewView(private val context: Context) {
     localVideoTrack.addRenderer(view)
   }
 
+  fun switchCamera(captureDeviceId: String) {
+    localVideoTrack.switchCamera(captureDeviceId)
+  }
+
   fun dispose() {
     localVideoTrack.removeRenderer(view)
     localVideoTrack.stop()
