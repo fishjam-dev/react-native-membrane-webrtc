@@ -1,4 +1,3 @@
-import { BackgroundWrapper } from '@components/BackgroundWrapper';
 import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
@@ -6,6 +5,8 @@ import { StandardButton } from '@components/buttons/StandardButton';
 import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useCardAnimation } from '@react-navigation/stack';
+import { checkIfStringContainsOnlyWhitespaces } from '@utils';
 import { isEmpty } from 'lodash';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
@@ -15,6 +16,8 @@ import {
   Platform,
   PermissionsAndroid,
   ScrollView,
+  Animated,
+  Dimensions,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
@@ -26,11 +29,14 @@ type GoBackAction = Readonly<{
   target?: string | undefined;
 }>;
 
+const { width } = Dimensions.get('window');
+
 export const CreateRoom = ({ navigation, route }: Props) => {
   const height = useHeaderHeight();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const modalAction = useRef<GoBackAction>();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
+  const { next } = useCardAnimation();
 
   useEffect(() => {
     if (route.params?.roomName) {
@@ -55,8 +61,29 @@ export const CreateRoom = ({ navigation, route }: Props) => {
       navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
   }, [navigation, roomName, username]);
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerStyle: {
+        //@ts-ignore
+        opacity: next
+          ? 0
+          : current.progress.interpolate({
+              inputRange: [0, 0.99, 1],
+              outputRange: [0, 0, 1],
+            }),
+      },
+    });
+  }, []);
+
+  const { current } = useCardAnimation();
+
   const shouldEnableCreateRoomButton = () => {
-    return !isEmpty(username) && !isEmpty(roomName);
+    return (
+      !isEmpty(username) &&
+      !isEmpty(roomName) &&
+      !checkIfStringContainsOnlyWhitespaces(username) &&
+      !checkIfStringContainsOnlyWhitespaces(roomName)
+    );
   };
 
   const openPreview = () => {
@@ -90,7 +117,26 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   }, []);
 
   return (
-    <BackgroundWrapper hasHeader>
+    <Animated.View
+      style={{
+        flex: 1,
+        transform: [
+          {
+            translateX: next
+              ? next.progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, -width],
+                  extrapolate: 'clamp',
+                })
+              : current.progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [width, 0],
+                  extrapolate: 'clamp',
+                }),
+          },
+        ],
+      }}
+    >
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
@@ -169,7 +215,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-    </BackgroundWrapper>
+    </Animated.View>
   );
 };
 

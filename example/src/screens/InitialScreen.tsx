@@ -1,12 +1,30 @@
-import { BackgroundWrapper } from '@components/BackgroundWrapper';
 import { Typo } from '@components/Typo';
 import { CardButton } from '@components/buttons/CardButton';
+import { useCardAnimation } from '@react-navigation/stack';
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Dimensions, Animated } from 'react-native';
+
+const { width } = Dimensions.get('window');
 
 export const InitialScreen = ({ navigation }) => {
+  const { next } = useCardAnimation();
+
   return (
-    <BackgroundWrapper>
+    <Animated.View
+      style={{
+        flex: 1,
+        transform: [
+          {
+            translateX: next
+              ? next.progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, -width],
+                })
+              : 0,
+          },
+        ],
+      }}
+    >
       <View style={styles.content}>
         <View style={styles.header}>
           <Image
@@ -40,7 +58,7 @@ export const InitialScreen = ({ navigation }) => {
           </CardButton>
         </View>
       </View>
-    </BackgroundWrapper>
+    </Animated.View>
   );
 };
 
