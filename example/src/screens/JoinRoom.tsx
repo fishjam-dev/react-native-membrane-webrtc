@@ -161,12 +161,12 @@ export const JoinRoom = ({ navigation, route }: Props) => {
                 onChangeText={setUsername}
               />
             </View>
-            <View style={styles.createRoomButton}>
+            <View style={styles.joinRoomButton}>
               <StandardButton
                 onPress={requestPermissionsAndOpenPreview}
                 isEnabled={shouldEnableCreateRoomButton()}
               >
-                Create a room
+                Next
               </StandardButton>
             </View>
 
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     width: '100%',
   },
-  createRoomButton: {
+  joinRoomButton: {
     marginTop: 32,
     width: '100%',
   },
