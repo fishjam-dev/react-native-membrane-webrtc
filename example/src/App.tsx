@@ -25,7 +25,6 @@ const linking = {
   prefixes: ['https://videoroom.membrane.work'],
   config: {
     screens: {
-      // TODO(@skyman503): When JoinRoom screen is finished, use it here.
       JoinRoom: {
         path: 'room/:roomName',
         parse: {
@@ -88,13 +87,7 @@ export default function App() {
                 cardStyle: { backgroundColor: 'transparent' },
               }}
             />
-            <Stack.Screen
-              name="Room"
-              component={Room}
-              options={{
-                cardStyle: { backgroundColor: 'transparent' },
-              }}
-            />
+            <Stack.Screen name="Room" component={Room} />
             <Stack.Screen
               name="JoinRoom"
               component={JoinRoom}
