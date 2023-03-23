@@ -59,6 +59,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   var trackContexts: MutableMap<String, TrackContext> = mutableMapOf()
 
+  var captureDeviceId: String? = null
 
   companion object {
     val participants = LinkedHashMap<String, Participant>()
@@ -143,6 +144,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     if(connectionOptions.hasKey("isSpeakerphoneOn")) {
       isSpeakerphoneOn = connectionOptions.getBoolean("isSpeakerphoneOn")
     }
+
+    this.captureDeviceId = connectionOptions.getString("captureDeviceId")
 
     this.videoSimulcastConfig = getSimulcastConfigFromOptions(connectionOptions)
     this.videoMaxBandwidth = getMaxBandwidthFromOptions(connectionOptions)
@@ -246,6 +249,28 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     if(!ensureVideoTrack(promise)) return
     localVideoTrack?.flipCamera()
     promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun switchCamera(captureDeviceId: String, promise: Promise) {
+    if(!ensureVideoTrack(promise)) return
+    localVideoTrack?.switchCamera(captureDeviceId)
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun getCaptureDevices(promise: Promise) {
+    val devices = LocalVideoTrack.getCaptureDevices(reactApplicationContext)
+    val rnArray = Arguments.createArray()
+    devices.forEach { device ->
+      val rnMap = Arguments.createMap()
+      rnMap.putString("id", device.deviceName)
+      rnMap.putString("name", device.deviceName)
+      rnMap.putBoolean("isFrontFacing", device.isFrontFacing)
+      rnMap.putBoolean("isBackFacing", device.isBackFacing)
+      rnArray.pushMap(rnMap)
+    }
+    promise.resolve(rnArray)
   }
 
   @ReactMethod
@@ -541,7 +566,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         maxBitrate = videoMaxBandwidth
       )
 
-      localVideoTrack = it.createVideoTrack(videoParameters, videoTrackMetadata)
+      localVideoTrack = it.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
       localVideoTrack?.setEnabled(isCameraOn)
 
       isCameraOn = localVideoTrack?.enabled() ?: false

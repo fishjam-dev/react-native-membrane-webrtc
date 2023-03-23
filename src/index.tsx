@@ -211,6 +211,12 @@ export type ConnectionOptions = {
    * @default `true`
    */
   audioTrackEnabled: boolean;
+  /**
+   * id of the camera to start capture with. Get available cameras with `getCaptureDevices()`.
+   * You can switch the cameras later with `flipCamera`/`switchCamera` functions.
+   * @default the first front camera
+   */
+  captureDeviceId: string;
 };
 
 export type ScreencastOptions = {
@@ -233,6 +239,13 @@ export type ScreencastOptions = {
    *  bandwidth limit of a screencast track. By default there is no bandwidth limit.
    */
   maxBandwidth: TrackBandwidthLimit;
+};
+
+export type CaptureDevice = {
+  id: string;
+  name: string;
+  isFrontFacing: boolean;
+  isBackFacing: boolean;
 };
 
 const defaultSimulcastConfig = () => ({
@@ -400,11 +413,26 @@ export function useMicrophoneState() {
 }
 
 /**
- * Function that's toggles between front and back camera. By default the front camera is used.
+ * Function that toggles between front and back camera. By default the front camera is used.
  * @returns A promise that resolves when camera is toggled.
  */
 export function flipCamera(): Promise<void> {
   return Membrane.flipCamera();
+}
+
+/**
+ * Function that switches to the specified camera. By default the front camera is used.
+ * @returns A promise that resolves when camera is switched.
+ */
+export function switchCamera(captureDeviceId: string): Promise<void> {
+  return Membrane.switchCamera(captureDeviceId);
+}
+
+/** Function that queries available cameras.
+ * @returns A promise that resolves to the list of available cameras.
+ */
+export function getCaptureDevices(): Promise<CaptureDevice[]> {
+  return Membrane.getCaptureDevices();
 }
 
 /**
@@ -716,6 +744,11 @@ export type VideoPreviewViewProps = {
    */
   mirrorVideo?: boolean;
   style?: ViewStyle;
+  /**
+   * Id of the camera used for preview. Get available cameras with `getCaptureDevices()` function.
+   * @default the first front camera
+   */
+  captureDeviceId?: string;
 };
 
 /**

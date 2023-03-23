@@ -73,7 +73,6 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   
   var localParticipantId: String?
-  var isFrontCamera: Bool = true
   
   var room: MembraneRTC? = nil;
   var connectResolve: RCTPromiseResolveBlock? = nil
@@ -91,6 +90,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var isSpeakersphoneOn = true
   
   var tracksContexts: [String: TrackContext] = [:]
+  
+  var captureDeviceId: String? = nil
   
   private func getGlobalTrackId(localTrackId: String) -> String? {
     return globalToLocalTrackId.filter { $0.value == localTrackId }.first?.key
@@ -181,6 +182,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.isSpeakersphoneOn = connectionOptions["isSpeakerphoneOn"] as? Bool ?? true
     self.isMicEnabled = connectionOptions["audioTrackEnabled"] as? Bool ?? true
     self.isCameraEnabled = connectionOptions["videoTrackEnabled"] as? Bool ?? true
+    self.captureDeviceId = connectionOptions["captureDeviceId"] as? String
         
     let socketConnectionParams = (connectionOptions["connectionParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
     let socketChannelParams = (connectionOptions["socketChannelParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
@@ -400,11 +402,36 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
 
     cameraTrack.switchCamera()
-    isFrontCamera = !isFrontCamera
     resolve(nil)
   }
+  
+  @objc(switchCamera:withResolver:withRejecter:)
+  func switchCamera(captureDeviceId: NSString,resolve:RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureVideoTrack(reject)) { return }
+    guard let cameraTrack = localVideoTrack as? LocalCameraVideoTrack else {
+      return
+    }
     
-    @objc(updatePeerMetadata:withResolver:withRejecter:)
+    cameraTrack.switchCamera(deviceId: captureDeviceId as String)
+    resolve(nil)
+  }
+  
+  @objc(getCaptureDevices:withRejecter:)
+  func getCaptureDevices(resolve:RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
+    let devices = LocalCameraVideoTrack.getCaptureDevices()
+    var rnArray: [[String : Any]] = []
+    devices.forEach { device in
+      rnArray.append([
+        "id": device.uniqueID,
+        "name": device.localizedName,
+        "isFrontFacing": device.position == .front,
+        "isBackFacing": device.position == .back,
+      ])
+    }
+    resolve(rnArray)
+  }
+    
+  @objc(updatePeerMetadata:withResolver:withRejecter:)
   func updatePeerMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
         if(!ensureConnected(reject)) { return }
         room?.updatePeerMetadata(peerMetadata: metadata.toMetadata())
@@ -627,7 +654,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     let localParticipantId = UUID().uuidString
     self.localParticipantId = localParticipantId
     
-    localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata)
+    localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata, captureDeviceId: captureDeviceId)
     localVideoTrack?.setEnabled(isCameraEnabled)
     localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
     localAudioTrack?.setEnabled(isMicEnabled)

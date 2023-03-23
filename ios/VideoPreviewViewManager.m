@@ -4,5 +4,6 @@
 
 RCT_EXPORT_VIEW_PROPERTY(videoLayout, NSString)
 RCT_EXPORT_VIEW_PROPERTY(mirrorVideo, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(captureDeviceId, NSString)
 
 @end
