@@ -8,7 +8,8 @@
       "@components/*": ["./src/components/*"],
       "@colors": ["./src/shared/colors.ts"],
       "@screens/*": ["./src/screens/*"],
-      "@model/*": ["./src/model/*"]
+      "@model/*": ["./src/model/*"],
+      "@utils": ["./src/shared/utils.ts"]
     }
   },
   "include": ["./src"],

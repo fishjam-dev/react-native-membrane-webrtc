@@ -60,7 +60,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   };
 
   const openPreview = () => {
-    navigation.push('Preview', { prevScreen: 'CreateRoom' });
+    navigation.push('Preview', { title: 'New meeting' });
   };
 
   const requestPermissionsAndOpenPreview = useCallback(async () => {

@@ -7,6 +7,7 @@ import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { getShortUsername } from '@utils';
 import React, {
   useEffect,
   useCallback,
@@ -24,13 +25,7 @@ export const Preview = ({ navigation, route }: Props) => {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
   const isSimulcastOn = true;
 
-  const { prevScreen } = route.params;
-  const headerTitle =
-    prevScreen === 'CreateRoom' ? 'New meeting' : 'Join meeting';
-  const titleLabel =
-    prevScreen === 'CreateRoom'
-      ? 'Create a new room to start the meeting'
-      : 'Join an existing meeting';
+  const { title } = route.params;
 
   const { connect: mbConnect, joinRoom, error } = Membrane.useMembraneServer();
 
@@ -47,16 +42,17 @@ export const Preview = ({ navigation, route }: Props) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: headerTitle,
+      title,
     });
   }, [navigation]);
 
-  const getShortUsername = () => {
-    return username
-      .split(' ')
-      .map((i) => i.charAt(0))
-      .join('')
-      .toUpperCase();
+  const getTitleLabel = () => {
+    switch (title) {
+      case 'New meeting':
+        return 'Create a new room to start the meeting';
+      case 'Join meeting':
+        return 'Join an existing meeting';
+    }
   };
 
   const connect = useCallback(async () => {
@@ -108,17 +104,20 @@ export const Preview = ({ navigation, route }: Props) => {
           <Typo variant="h4">Videoconferencing for everyone</Typo>
         </View>
         <View style={styles.titleLabel}>
-          <Typo variant="chat-regular">{titleLabel}</Typo>
+          <Typo variant="chat-regular">{getTitleLabel()}</Typo>
         </View>
 
         <View style={styles.cameraPreview}>
           {isCameraOn ? (
-            <Membrane.VideoPreviewView style={styles.membraneVideoPreview} />
+            <Membrane.VideoPreviewView
+              style={styles.membraneVideoPreview}
+              mirrorVideo
+            />
           ) : (
             <View style={styles.noCameraBackground}>
               <View style={styles.noCameraContent}>
                 <Typo variant="h5" color={BrandColors.darkBlue80}>
-                  {getShortUsername()}
+                  {getShortUsername(username)}
                 </Typo>
               </View>
             </View>

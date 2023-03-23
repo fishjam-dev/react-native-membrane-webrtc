@@ -82,12 +82,7 @@ export const StandardButton = ({
   };
 
   return (
-    <TouchableOpacity
-      activeOpacity={!isEnabled ? 1 : 0.7}
-      onPress={() => {
-        if (isEnabled) onPress();
-      }}
-    >
+    <TouchableOpacity onPress={onPress} disabled={!isEnabled}>
       <View style={GetStylesForButtonType(type)}>
         <Typo
           variant="button"
