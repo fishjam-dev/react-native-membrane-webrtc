@@ -2,8 +2,8 @@ export type PreviewTitle = 'New meeting' | 'Join meeting';
 
 export type RootStack = {
   Room: undefined;
-  CreateRoom: { roomName: string } | undefined;
+  CreateRoom: undefined;
   InitialScreen: undefined;
-  JoinRoom: undefined;
+  JoinRoom: { roomName: string } | undefined;
   Preview: { title: PreviewTitle };
 };

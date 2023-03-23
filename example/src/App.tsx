@@ -10,7 +10,7 @@ import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { CreateRoom } from '@screens/CreateRoom';
 import { InitialScreen } from '@screens/InitialScreen';
-import { JoinRoomStub } from '@screens/JoinRoomStub';
+import { JoinRoom } from '@screens/JoinRoom';
 import { Preview } from '@screens/Preview';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
@@ -91,7 +91,7 @@ export default function App() {
             <Stack.Screen name="Room" component={Room} />
             <Stack.Screen
               name="JoinRoom"
-              component={JoinRoomStub}
+              component={JoinRoom}
               options={{
                 cardStyle: { backgroundColor: 'transparent' },
               }}

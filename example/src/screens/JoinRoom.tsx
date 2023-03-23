@@ -1,4 +1,6 @@
-import { BackgroundAnimation } from '@components/BackgroundAnimation';
+import { BrandColors } from '@colors';
+import { BackgroundWrapper } from '@components/BackgroundWrapper';
+import { Icon } from '@components/Icon';
 import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
@@ -6,8 +8,6 @@ import { StandardButton } from '@components/buttons/StandardButton';
 import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCardAnimation } from '@react-navigation/stack';
-import { checkIfStringContainsOnlyWhitespaces } from '@utils';
 import { isEmpty } from 'lodash';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
@@ -20,7 +20,7 @@ import {
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
-type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
+type Props = NativeStackScreenProps<RootStack, 'JoinRoom'>;
 type GoBackAction = Readonly<{
   type: string;
   payload?: object | undefined;
@@ -28,12 +28,17 @@ type GoBackAction = Readonly<{
   target?: string | undefined;
 }>;
 
-export const CreateRoom = ({ navigation, route }: Props) => {
+export const JoinRoom = ({ navigation, route }: Props) => {
   const height = useHeaderHeight();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const modalAction = useRef<GoBackAction>();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
-  const { next, current } = useCardAnimation();
+
+  useEffect(() => {
+    if (route.params?.roomName) {
+      setRoomName(route.params?.roomName);
+    }
+  }, []);
 
   useEffect(() => {
     const handleBeforeRemoveEvent = (e) => {
@@ -52,31 +57,12 @@ export const CreateRoom = ({ navigation, route }: Props) => {
       navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
   }, [navigation, roomName, username]);
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerStyle: {
-        //@ts-ignore
-        opacity: next
-          ? 0
-          : current.progress.interpolate({
-              inputRange: [0, 0.99, 1],
-              outputRange: [0, 0, 1],
-            }),
-      },
-    });
-  }, []);
-
   const shouldEnableCreateRoomButton = () => {
-    return (
-      !isEmpty(username) &&
-      !isEmpty(roomName) &&
-      !checkIfStringContainsOnlyWhitespaces(username) &&
-      !checkIfStringContainsOnlyWhitespaces(roomName)
-    );
+    return !isEmpty(username) && !isEmpty(roomName);
   };
 
   const openPreview = () => {
-    navigation.push('Preview', { title: 'New meeting' });
+    navigation.push('Preview', { title: 'Join meeting' });
   };
 
   const requestPermissionsAndOpenPreview = useCallback(async () => {
@@ -106,7 +92,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   }, []);
 
   return (
-    <BackgroundAnimation>
+    <BackgroundWrapper hasHeader>
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
@@ -145,9 +131,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             </View>
 
             <View style={styles.smallTitle}>
-              <Typo variant="chat-regular">
-                Create a new room to start the meeting
-              </Typo>
+              <Typo variant="chat-regular">Join an existing meeting</Typo>
             </View>
             <View style={styles.roomInputLabel}>
               <Typo variant="body-small">Room name</Typo>
@@ -160,6 +144,13 @@ export const CreateRoom = ({ navigation, route }: Props) => {
                 onChangeText={setRoomName}
               />
             </View>
+            <View style={styles.roomInputSubLabel}>
+              <View style={styles.roomInputSubLabelIcon}>
+                <Icon name="Info" size={16} color={BrandColors.darkBlue100} />
+              </View>
+              <Typo variant="label">Provide name or link to the room</Typo>
+            </View>
+
             <View style={styles.usernameInputLabel}>
               <Typo variant="body-small">Your name</Typo>
             </View>
@@ -185,7 +176,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-    </BackgroundAnimation>
+    </BackgroundWrapper>
   );
 };
 
@@ -200,6 +191,16 @@ const styles = StyleSheet.create({
   roomInput: {
     marginTop: 3,
     width: '100%',
+  },
+  roomInputSubLabel: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  roomInputSubLabelIcon: {
+    paddingRight: 4,
   },
   usernameInputLabel: {
     marginTop: 19,
