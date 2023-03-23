@@ -1,5 +1,5 @@
 import { BrandColors } from '@colors';
-import { BackgroundWrapper } from '@components/BackgroundWrapper';
+import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Typo } from '@components/Typo';
 import { InCallButton } from '@components/buttons/InCallButton';
 import { StandardButton } from '@components/buttons/StandardButton';
@@ -98,7 +98,7 @@ export const Preview = ({ navigation, route }: Props) => {
   ]);
 
   return (
-    <BackgroundWrapper hasHeader>
+    <BackgroundAnimation>
       <View style={styles.content}>
         <View style={styles.header}>
           <Typo variant="h4">Videoconferencing for everyone</Typo>
@@ -155,7 +155,7 @@ export const Preview = ({ navigation, route }: Props) => {
           <Typo variant="label">Step 2/2</Typo>
         </View>
       </View>
-    </BackgroundWrapper>
+    </BackgroundAnimation>
   );
 };
 

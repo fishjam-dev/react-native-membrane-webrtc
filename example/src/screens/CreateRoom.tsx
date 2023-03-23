@@ -1,4 +1,4 @@
-import { BackgroundWrapper } from '@components/BackgroundWrapper';
+import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
@@ -6,6 +6,8 @@ import { StandardButton } from '@components/buttons/StandardButton';
 import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useCardAnimation } from '@react-navigation/stack';
+import { checkIfStringContainsOnlyWhitespaces } from '@utils';
 import { isEmpty } from 'lodash';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
@@ -31,6 +33,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const modalAction = useRef<GoBackAction>();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
+  const { next, current } = useCardAnimation();
 
   useEffect(() => {
     if (route.params?.roomName) {
@@ -55,8 +58,27 @@ export const CreateRoom = ({ navigation, route }: Props) => {
       navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
   }, [navigation, roomName, username]);
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerStyle: {
+        //@ts-ignore
+        opacity: next
+          ? 0
+          : current.progress.interpolate({
+              inputRange: [0, 0.99, 1],
+              outputRange: [0, 0, 1],
+            }),
+      },
+    });
+  }, []);
+
   const shouldEnableCreateRoomButton = () => {
-    return !isEmpty(username) && !isEmpty(roomName);
+    return (
+      !isEmpty(username) &&
+      !isEmpty(roomName) &&
+      !checkIfStringContainsOnlyWhitespaces(username) &&
+      !checkIfStringContainsOnlyWhitespaces(roomName)
+    );
   };
 
   const openPreview = () => {
@@ -90,7 +112,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   }, []);
 
   return (
-    <BackgroundWrapper hasHeader>
+    <BackgroundAnimation>
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
@@ -169,7 +191,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-    </BackgroundWrapper>
+    </BackgroundAnimation>
   );
 };
 

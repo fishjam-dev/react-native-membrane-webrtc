@@ -1,11 +1,12 @@
 import 'react-native-gesture-handler';
+import { BackgroundWrapper } from '@components/BackgroundWrapper';
 import {
   NotoSans_400Regular,
   NotoSans_500Medium,
   NotoSans_600SemiBold,
 } from '@expo-google-fonts/noto-sans';
 import { RootStack } from '@model/NavigationTypes';
-import { NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { CreateRoom } from '@screens/CreateRoom';
 import { InitialScreen } from '@screens/InitialScreen';
@@ -53,30 +54,58 @@ export default function App() {
 
   if (!fontsLoaded) return null;
 
+  const navTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: 'transparent',
+    },
+  };
+
   return (
-    <VideoroomContextProvider>
-      <NavigationContainer linking={linking}>
-        <Stack.Navigator
-          initialRouteName="InitialScreen"
-          screenOptions={{
-            headerBackTitle: 'Back',
-          }}
-        >
-          <Stack.Screen
-            name="InitialScreen"
-            component={InitialScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="CreateRoom"
-            component={CreateRoom}
-            options={{ title: 'New meeting' }}
-          />
-          <Stack.Screen name="Room" component={Room} />
-          <Stack.Screen name="JoinRoom" component={JoinRoomStub} />
-          <Stack.Screen name="Preview" component={Preview} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </VideoroomContextProvider>
+    <BackgroundWrapper>
+      <VideoroomContextProvider>
+        <NavigationContainer linking={linking} theme={navTheme}>
+          <Stack.Navigator
+            initialRouteName="InitialScreen"
+            screenOptions={{
+              headerBackTitle: 'Back',
+            }}
+          >
+            <Stack.Screen
+              name="InitialScreen"
+              component={InitialScreen}
+              options={{
+                headerShown: false,
+                cardStyle: { backgroundColor: 'transparent' },
+              }}
+            />
+            <Stack.Screen
+              name="CreateRoom"
+              component={CreateRoom}
+              options={{
+                title: 'New meeting',
+                cardStyle: { backgroundColor: 'transparent' },
+              }}
+            />
+            <Stack.Screen name="Room" component={Room} />
+            <Stack.Screen
+              name="JoinRoom"
+              component={JoinRoomStub}
+              options={{
+                cardStyle: { backgroundColor: 'transparent' },
+              }}
+            />
+            <Stack.Screen
+              name="Preview"
+              component={Preview}
+              options={{
+                cardStyle: { backgroundColor: 'transparent' },
+              }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </VideoroomContextProvider>
+    </BackgroundWrapper>
   );
 }

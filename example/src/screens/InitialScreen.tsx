@@ -1,4 +1,4 @@
-import { BackgroundWrapper } from '@components/BackgroundWrapper';
+import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Typo } from '@components/Typo';
 import { CardButton } from '@components/buttons/CardButton';
 import React from 'react';
@@ -6,7 +6,7 @@ import { View, StyleSheet, Image } from 'react-native';
 
 export const InitialScreen = ({ navigation }) => {
   return (
-    <BackgroundWrapper>
+    <BackgroundAnimation>
       <View style={styles.content}>
         <View style={styles.header}>
           <Image
@@ -40,7 +40,7 @@ export const InitialScreen = ({ navigation }) => {
           </CardButton>
         </View>
       </View>
-    </BackgroundWrapper>
+    </BackgroundAnimation>
   );
 };
 

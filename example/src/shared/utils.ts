@@ -10,3 +10,7 @@ export const getShortUsername = (username: string) => {
     .join('')
     .toUpperCase();
 };
+
+export const checkIfStringContainsOnlyWhitespaces = (val: string) => {
+  return !val.trim();
+};
