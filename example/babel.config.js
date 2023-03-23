@@ -16,6 +16,7 @@ module.exports = {
           '@colors': './src/shared/colors.ts',
           '@screens': './src/screens/',
           '@model': './src/model/',
+          '@utils': './src/shared/utils.ts',
         },
       },
     ],
