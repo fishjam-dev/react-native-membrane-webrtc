@@ -1,4 +1,5 @@
 import { BrandColors } from '@colors';
+import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Typo } from '@components/Typo';
 import { InCallButton } from '@components/buttons/InCallButton';
 import { StandardButton } from '@components/buttons/StandardButton';
@@ -6,7 +7,6 @@ import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCardAnimation } from '@react-navigation/stack';
 import { getShortUsername } from '@utils';
 import React, {
   useEffect,
@@ -14,12 +14,10 @@ import React, {
   useLayoutEffect,
   useState,
 } from 'react';
-import { View, StyleSheet, Alert, Animated, Dimensions } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'Preview'>;
-
-const { width } = Dimensions.get('window');
 
 export const Preview = ({ navigation, route }: Props) => {
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
@@ -47,8 +45,6 @@ export const Preview = ({ navigation, route }: Props) => {
       title,
     });
   }, [navigation]);
-
-  const { current } = useCardAnimation();
 
   const getTitleLabel = () => {
     switch (title) {
@@ -102,20 +98,7 @@ export const Preview = ({ navigation, route }: Props) => {
   ]);
 
   return (
-    <Animated.View
-      style={{
-        flex: 1,
-        transform: [
-          {
-            translateX: current.progress.interpolate({
-              inputRange: [0, 1],
-              outputRange: [width, 0],
-              extrapolate: 'clamp',
-            }),
-          },
-        ],
-      }}
-    >
+    <BackgroundAnimation>
       <View style={styles.content}>
         <View style={styles.header}>
           <Typo variant="h4">Videoconferencing for everyone</Typo>
@@ -172,7 +155,7 @@ export const Preview = ({ navigation, route }: Props) => {
           <Typo variant="label">Step 2/2</Typo>
         </View>
       </View>
-    </Animated.View>
+    </BackgroundAnimation>
   );
 };
 

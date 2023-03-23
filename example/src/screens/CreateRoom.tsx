@@ -1,3 +1,4 @@
+import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
@@ -16,8 +17,6 @@ import {
   Platform,
   PermissionsAndroid,
   ScrollView,
-  Animated,
-  Dimensions,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
@@ -28,8 +27,6 @@ type GoBackAction = Readonly<{
   source?: string | undefined;
   target?: string | undefined;
 }>;
-
-const { width } = Dimensions.get('window');
 
 export const CreateRoom = ({ navigation, route }: Props) => {
   const height = useHeaderHeight();
@@ -117,26 +114,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   }, []);
 
   return (
-    <Animated.View
-      style={{
-        flex: 1,
-        transform: [
-          {
-            translateX: next
-              ? next.progress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, -width],
-                  extrapolate: 'clamp',
-                })
-              : current.progress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [width, 0],
-                  extrapolate: 'clamp',
-                }),
-          },
-        ],
-      }}
-    >
+    <BackgroundAnimation>
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
@@ -215,7 +193,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-    </Animated.View>
+    </BackgroundAnimation>
   );
 };
 
