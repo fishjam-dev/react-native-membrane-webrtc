@@ -33,7 +33,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const modalAction = useRef<GoBackAction>();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
-  const { next } = useCardAnimation();
+  const { next, current } = useCardAnimation();
 
   useEffect(() => {
     if (route.params?.roomName) {
@@ -71,8 +71,6 @@ export const CreateRoom = ({ navigation, route }: Props) => {
       },
     });
   }, []);
-
-  const { current } = useCardAnimation();
 
   const shouldEnableCreateRoomButton = () => {
     return (
