@@ -1,6 +1,5 @@
-import { BrandColors } from '@colors';
-import { BackgroundWrapper } from '@components/BackgroundWrapper';
-import { Icon } from '@components/Icon';
+import { TextColors } from '@colors';
+import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
@@ -8,7 +7,12 @@ import { StandardButton } from '@components/buttons/StandardButton';
 import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { isEmpty } from 'lodash';
+import { useCardAnimation } from '@react-navigation/stack';
+import {
+  checkIfUrl,
+  extractRoomNameFromUrl,
+  shouldEnableRoomButton,
+} from '@utils';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
@@ -33,10 +37,13 @@ export const JoinRoom = ({ navigation, route }: Props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const modalAction = useRef<GoBackAction>();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
+  const [isRoomNameInputEditable, setIsRoomNameInputEditable] = useState(true);
+  const { next, current } = useCardAnimation();
 
   useEffect(() => {
     if (route.params?.roomName) {
       setRoomName(route.params?.roomName);
+      setIsRoomNameInputEditable(false);
     }
   }, []);
 
@@ -57,11 +64,24 @@ export const JoinRoom = ({ navigation, route }: Props) => {
       navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
   }, [navigation, roomName, username]);
 
-  const shouldEnableCreateRoomButton = () => {
-    return !isEmpty(username) && !isEmpty(roomName);
-  };
+  useEffect(() => {
+    navigation.setOptions({
+      headerStyle: {
+        //@ts-ignore
+        opacity: next
+          ? 0
+          : current.progress.interpolate({
+              inputRange: [0, 0.99, 1],
+              outputRange: [0, 0, 1],
+            }),
+      },
+    });
+  }, []);
 
   const openPreview = () => {
+    if (checkIfUrl(roomName)) {
+      setRoomName(decodeURI(extractRoomNameFromUrl(roomName)));
+    }
     navigation.push('Preview', { title: 'Join meeting' });
   };
 
@@ -92,7 +112,7 @@ export const JoinRoom = ({ navigation, route }: Props) => {
   }, []);
 
   return (
-    <BackgroundWrapper hasHeader>
+    <BackgroundAnimation>
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
@@ -108,8 +128,8 @@ export const JoinRoom = ({ navigation, route }: Props) => {
           keyboardVerticalOffset={height}
         >
           <Modal
-            headline="Discard meeting"
-            body="Are you sure you want to discard creation of this meeting?"
+            headline="Cancel joining meeting"
+            body="Are you sure you don't want to cancel joining to this meeting?"
             visible={isModalVisible}
             onClose={() => setIsModalVisible(false)}
           >
@@ -122,7 +142,7 @@ export const JoinRoom = ({ navigation, route }: Props) => {
                 navigation.dispatch(modalAction.current!);
               }}
             >
-              Yes, discard meeting
+              Yes, don't join meeting
             </StandardButton>
           </Modal>
           <View style={styles.inner}>
@@ -131,7 +151,9 @@ export const JoinRoom = ({ navigation, route }: Props) => {
             </View>
 
             <View style={styles.smallTitle}>
-              <Typo variant="chat-regular">Join an existing meeting</Typo>
+              <Typo variant="chat-regular" color={TextColors.description}>
+                Join an existing meeting
+              </Typo>
             </View>
             <View style={styles.roomInputLabel}>
               <Typo variant="body-small">Room name</Typo>
@@ -142,13 +164,9 @@ export const JoinRoom = ({ navigation, route }: Props) => {
                 placeholder="Room name"
                 value={roomName}
                 onChangeText={setRoomName}
+                editable={isRoomNameInputEditable}
+                sublabel="Provide name or link to the room"
               />
-            </View>
-            <View style={styles.roomInputSubLabel}>
-              <View style={styles.roomInputSubLabelIcon}>
-                <Icon name="Info" size={16} color={BrandColors.darkBlue100} />
-              </View>
-              <Typo variant="label">Provide name or link to the room</Typo>
             </View>
 
             <View style={styles.usernameInputLabel}>
@@ -164,7 +182,7 @@ export const JoinRoom = ({ navigation, route }: Props) => {
             <View style={styles.joinRoomButton}>
               <StandardButton
                 onPress={requestPermissionsAndOpenPreview}
-                isEnabled={shouldEnableCreateRoomButton()}
+                isEnabled={shouldEnableRoomButton(username, roomName)}
               >
                 Next
               </StandardButton>
@@ -176,7 +194,7 @@ export const JoinRoom = ({ navigation, route }: Props) => {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-    </BackgroundWrapper>
+    </BackgroundAnimation>
   );
 };
 
@@ -192,18 +210,8 @@ const styles = StyleSheet.create({
     marginTop: 3,
     width: '100%',
   },
-  roomInputSubLabel: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  roomInputSubLabelIcon: {
-    paddingRight: 4,
-  },
   usernameInputLabel: {
-    marginTop: 19,
+    marginTop: 24,
     alignSelf: 'flex-start',
   },
   usernameInput: {

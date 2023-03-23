@@ -26,7 +26,7 @@ const linking = {
   config: {
     screens: {
       // TODO(@skyman503): When JoinRoom screen is finished, use it here.
-      CreateRoom: {
+      JoinRoom: {
         path: 'room/:roomName',
         parse: {
           roomName: decodeURI,
@@ -88,11 +88,18 @@ export default function App() {
                 cardStyle: { backgroundColor: 'transparent' },
               }}
             />
-            <Stack.Screen name="Room" component={Room} />
+            <Stack.Screen
+              name="Room"
+              component={Room}
+              options={{
+                cardStyle: { backgroundColor: 'transparent' },
+              }}
+            />
             <Stack.Screen
               name="JoinRoom"
               component={JoinRoom}
               options={{
+                title: 'Join meeting',
                 cardStyle: { backgroundColor: 'transparent' },
               }}
             />

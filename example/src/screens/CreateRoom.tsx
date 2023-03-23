@@ -1,3 +1,4 @@
+import { TextColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Modal } from '@components/Modal';
 import { TextInput } from '@components/TextInput';
@@ -7,8 +8,7 @@ import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCardAnimation } from '@react-navigation/stack';
-import { checkIfStringContainsOnlyWhitespaces } from '@utils';
-import { isEmpty } from 'lodash';
+import { shouldEnableRoomButton } from '@utils';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
@@ -65,15 +65,6 @@ export const CreateRoom = ({ navigation, route }: Props) => {
       },
     });
   }, []);
-
-  const shouldEnableCreateRoomButton = () => {
-    return (
-      !isEmpty(username) &&
-      !isEmpty(roomName) &&
-      !checkIfStringContainsOnlyWhitespaces(username) &&
-      !checkIfStringContainsOnlyWhitespaces(roomName)
-    );
-  };
 
   const openPreview = () => {
     navigation.push('Preview', { title: 'New meeting' });
@@ -145,7 +136,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             </View>
 
             <View style={styles.smallTitle}>
-              <Typo variant="chat-regular">
+              <Typo variant="chat-regular" color={TextColors.description}>
                 Create a new room to start the meeting
               </Typo>
             </View>
@@ -173,7 +164,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             <View style={styles.createRoomButton}>
               <StandardButton
                 onPress={requestPermissionsAndOpenPreview}
-                isEnabled={shouldEnableCreateRoomButton()}
+                isEnabled={shouldEnableRoomButton(username, roomName)}
               >
                 Create a room
               </StandardButton>

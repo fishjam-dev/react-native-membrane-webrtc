@@ -1,4 +1,4 @@
-import { BrandColors } from '@colors';
+import { BrandColors, TextColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Typo } from '@components/Typo';
 import { InCallButton } from '@components/buttons/InCallButton';
@@ -127,7 +127,9 @@ export const Preview = ({ navigation, route }: Props) => {
           <Typo variant="h4">Videoconferencing for everyone</Typo>
         </View>
         <View style={styles.titleLabel}>
-          <Typo variant="chat-regular">{getTitleLabel()}</Typo>
+          <Typo variant="chat-regular" color={TextColors.description}>
+            {getTitleLabel()}
+          </Typo>
         </View>
 
         <View style={styles.cameraPreview}>
