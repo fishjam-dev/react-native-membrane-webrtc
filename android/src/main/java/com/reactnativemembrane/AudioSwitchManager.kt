@@ -11,14 +11,17 @@ import com.twilio.audioswitch.AudioSwitch
 
 
 class AudioSwitchManager(private val context: Context) {
-  private var audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-  private var preferredDeviceList = listOf(AudioDevice.BluetoothHeadset::class.java, AudioDevice.WiredHeadset::class.java, AudioDevice.Speakerphone::class.java, AudioDevice.Earpiece::class.java)
+  private var preferredDeviceList = listOf(
+    AudioDevice.BluetoothHeadset::class.java,
+    AudioDevice.WiredHeadset::class.java,
+    AudioDevice.Speakerphone::class.java,
+    AudioDevice.Earpiece::class.java
+  )
 
   // AudioSwitch is not threadsafe, so all calls should be done on the main thread.
   private val handler: Handler = Handler(Looper.getMainLooper())
 
-  private var audioSwitch: AudioSwitch = AudioSwitch(context, loggingEnabled = true)
+  private var audioSwitch: AudioSwitch = AudioSwitch(context, loggingEnabled = true, preferredDeviceList = preferredDeviceList)
 
   fun start(listener: AudioDeviceChangeListener) {
       handler.removeCallbacksAndMessages(null)
@@ -34,7 +37,6 @@ class AudioSwitchManager(private val context: Context) {
         audioSwitch.stop()
     }
   }
-
 
   fun selectedAudioDevice(): AudioDevice? {
     return audioSwitch.selectedAudioDevice
