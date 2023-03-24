@@ -121,6 +121,23 @@ export enum ScreencastQuality {
 
 export type TrackEncoding = 'l' | 'm' | 'h';
 
+export enum AudioOutputDeviceType {
+  Bluetooth = 'bluetooth',
+  Headset = 'headset',
+  Speaker = 'speaker',
+  Earpiece = 'earpiece',
+}
+
+export enum AudioSessionMode {
+  VoiceChat = 'voiceChat',
+  VideoChat = 'videoChat',
+}
+
+export type AudioOutputDevice = {
+  type: AudioOutputDeviceType;
+  name: string;
+};
+
 /**
  * A type describing simulcast configuration.
  *
@@ -192,11 +209,6 @@ export type ConnectionOptions = {
    *  a map `string -> any` containing connection params passed to the socket.
    */
   connectionParams: SocketConnectionParams;
-  /**
-   * whether to turn the speakersphone on/off.
-   * @default `true`
-   */
-  isSpeakerphoneOn: boolean;
   /**
    * a map `string -> any` containing params passed to the socket channel.
    */
@@ -585,16 +597,90 @@ export function useAudioTrackMetadata() {
  * This hook manages audio settings.
  */
 export function useAudioSettings() {
-  const [isSpeakerphoneOn, setIsSpeakerphoneOn] = useState<boolean>(true);
+  const [selectedAudioOutputDevice, setSelectedAudioOutputDevice] =
+    useState<AudioOutputDevice | null>(null);
+  const [availableDevices, setAvailableDevices] = useState<AudioOutputDevice[]>(
+    []
+  );
+
+  const onAudioDevice = useCallback((event) => {
+    setSelectedAudioOutputDevice(event.selectedDevice);
+    setAvailableDevices(event.availableDevices);
+  }, []);
+
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener(
+      'AudioDeviceUpdate',
+      onAudioDevice
+    );
+    Membrane.startAudioSwitcher();
+    return () => {
+      eventListener.remove();
+      if (Platform.OS === 'android') {
+        Membrane.stopAudioSwitcher();
+      }
+    };
+  }, []);
 
   /**
-   *  function that toggles the speakerphone on/off.
+   * [Android only] selects output audio device.
+   * For detecting and selecting bluettoth devices make sure you have the BLUETOOTH_CONNECT permission.
    */
-  const toggleSpeakerphone = useCallback(async () => {
-    await Membrane.toggleSpeakerphone();
-    setIsSpeakerphoneOn((isSpeakerphoneOn) => !isSpeakerphoneOn);
+  const selectOutputAudioDevice = useCallback(
+    async (device: AudioOutputDeviceType) => {
+      if (Platform.OS === 'ios') {
+        throw Error(
+          'selectOutputAudioDevice function is supported only on Android. ' +
+            'To select an output audio device on iOS use selectAudioSessionMode or showAudioRoutePicker functions'
+        );
+      }
+      await Membrane.setOutputAudioDevice(device);
+    },
+    []
+  );
+
+  /**
+   * [iOS only] selects audio session mode. For more information refer to Apple's documentation:
+   *  https://developer.apple.com/documentation/avfaudio/avaudiosession/mode/
+   *
+   */
+  const selectAudioSessionMode = useCallback(
+    async (audioSessionMode: AudioSessionMode) => {
+      if (Platform.OS === 'android') {
+        throw Error('selectAudioSessionMode function is supported only on iOS');
+      }
+      await Membrane.selectAudioSessionMode(audioSessionMode);
+    },
+    []
+  );
+
+  /**
+   * [iOS only] Shows a picker modal that allows user to select output audio device. For more
+   * information refer to Apple's documentation: https://developer.apple.com/documentation/avkit/avroutepickerview
+   */
+  const showAudioRoutePicker = useCallback(async () => {
+    if (Platform.OS === 'android') {
+      throw Error(
+        'showAudioRoutePicker function is supported only on iOS. ' +
+          'To select an output audio device on Android use selectOutputAudioDevice function'
+      );
+    }
+    await Membrane.showAudioRoutePicker();
   }, []);
-  return { toggleSpeakerphone, isSpeakerphoneOn };
+
+  return {
+    /**
+     * currently selected output audio device
+     */
+    selectedAudioOutputDevice,
+    /**
+     * [Android only] available audio output devices to be set
+     */
+    availableDevices,
+    selectOutputAudioDevice,
+    selectAudioSessionMode,
+    showAudioRoutePicker,
+  };
 }
 
 /**

@@ -90,7 +90,6 @@ export const Preview = ({ navigation, route }: Props) => {
         maxBandwidth: { l: 150, m: 500, h: 1500 },
         videoTrackMetadata: { active: true, type: 'camera' },
         audioTrackMetadata: { active: true, type: 'audio' },
-        isSpeakerphoneOn: false,
         videoTrackEnabled: isCameraOn,
         audioTrackEnabled: isMicrophoneOn,
         captureDeviceId: currentCamera?.id,

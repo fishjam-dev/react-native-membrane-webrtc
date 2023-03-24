@@ -18,7 +18,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
-import { handlePermissions } from 'src/shared/openPreview';
+import { handlePermissions } from 'src/shared/handlePermissions';
 
 type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
 
