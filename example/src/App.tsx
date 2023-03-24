@@ -97,7 +97,14 @@ export default function App() {
                   cardStyle: { backgroundColor: 'transparent' },
                 }}
               />
-              <Stack.Screen name="Room" component={Room} />
+              <Stack.Screen
+                name="Room"
+                component={Room}
+                options={{
+                  headerShown: false,
+                  cardStyle: { backgroundColor: 'transparent' },
+                }}
+              />
               <Stack.Screen
                 name="JoinRoom"
                 component={JoinRoom}

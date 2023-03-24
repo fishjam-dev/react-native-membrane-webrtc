@@ -1,12 +1,14 @@
+import { BrandColors, TextColors } from '@colors';
 import { Icon } from '@components/Icon';
+import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 
-import { Controls } from '../Controls';
 import { Settings } from '../Settings';
+import { CallControls } from '../components/CallControls';
 
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
@@ -24,12 +26,6 @@ export const Room = ({ navigation }: Props) => {
 
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
 
-  useEffect(() => {
-    if (!focusedTrack && tracks[0]) {
-      setFocusedTrackId(tracks[0].id);
-    }
-  }, [tracks, focusedTrack]);
-
   const [areSettingsOpen, setAreSettingsOpen] = useState<boolean>(false);
 
   const isFocusedParticipantSpeaking =
@@ -42,7 +38,16 @@ export const Room = ({ navigation }: Props) => {
   }, []);
 
   return (
-    <View style={styles.flex}>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerTitle}>
+          <Typo variant="h4">Videoroom Makeover</Typo>
+        </View>
+        <View style={styles.headerIcon}>
+          <Icon name="Cam-switch" size={24} color={BrandColors.darkBlue100} />
+        </View>
+      </View>
+
       <View style={styles.flex}>
         {!!focusedTrack && !!focusedParticipant && (
           <View
@@ -86,27 +91,25 @@ export const Room = ({ navigation }: Props) => {
           {participants
             .map((p) =>
               p.tracks
-                .filter((t) => t.id !== focusedTrack?.id)
+                // .filter((t) => t.id !== focusedTrack?.id)
                 .filter((t) => t.type === 'Video')
                 .map((t) => (
                   <Pressable
                     onPress={() => setFocusedTrackId(t.id)}
                     key={t.id}
-                    style={[
-                      styles.participant,
-                      p.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-                      Membrane.VadStatus.Speech
-                        ? styles.vadSpeech
-                        : {},
-                    ]}
+                    style={[styles.participant]}
                   >
                     <Membrane.VideoRendererView
                       trackId={t.id}
                       style={styles.flex}
                     />
-                    <Text style={styles.displayName}>
-                      {p.metadata.displayName}
-                    </Text>
+                    <View style={styles.displayNameContainer}>
+                      <View style={styles.displayName}>
+                        <Typo variant="label" color={TextColors.white}>
+                          {p.metadata.displayName}
+                        </Typo>
+                      </View>
+                    </View>
                     <View style={styles.disabledIconsContainer}>
                       {!p.tracks.find((t) => t.type === 'Audio')?.metadata
                         .active && <Icon name="Microphone-off" size={24} />}
@@ -120,12 +123,30 @@ export const Room = ({ navigation }: Props) => {
             .flat()}
         </View>
       </View>
-      <Controls disconnect={disconnect} />
+      <CallControls disconnect={disconnect} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: BrandColors.seaBlue20,
+  },
+  header: {
+    flexDirection: 'row',
+    marginTop: 60,
+    width: '100%',
+  },
+  headerTitle: {
+    marginLeft: 16,
+  },
+  headerIcon: {
+    justifyContent: 'center',
+    marginRight: 15,
+    marginLeft: 'auto',
+  },
   flex: {
     flex: 1,
   },
@@ -140,23 +161,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   otherParticipantsContainer: {
+    flex: 1,
     width: '100%',
-    flexDirection: 'row',
-    height: 100,
-    margin: 20,
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+    // height: 100,
+    marginTop: 16,
   },
   participant: {
-    height: 100,
-    width: 100,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#001A72',
+    minWidth: 156,
+    minHeight: 156,
+    aspectRatio: 1,
+    flex: 1,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: BrandColors.darkBlue60,
+  },
+  displayNameContainer: {
+    backgroundColor: BrandColors.darkBlue80,
+    borderRadius: 60,
+    position: 'absolute',
+    left: 16,
+    bottom: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   displayName: {
-    backgroundColor: 'white',
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 6,
+    paddingBottom: 5,
   },
   settingsButton: {
     position: 'absolute',

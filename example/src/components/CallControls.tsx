@@ -3,7 +3,7 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-export const Controls = ({ disconnect }: { disconnect: () => void }) => {
+export const CallControls = ({ disconnect }: { disconnect: () => void }) => {
   const { isCameraOn, toggleCamera } = Membrane.useCameraState();
   const { isMicrophoneOn, toggleMicrophone } = Membrane.useMicrophoneState();
   const { isScreencastOn, toggleScreencast } = Membrane.useScreencast();
@@ -39,38 +39,28 @@ export const Controls = ({ disconnect }: { disconnect: () => void }) => {
 
   return (
     <View style={styles.iconsContainer}>
-      {!isMicrophoneOn ? (
+      <View style={styles.iconInRow}>
         <InCallButton
-          iconName="Microphone-off"
-          onPress={toggleMicrophoneAndUpdateMetadata}
-        />
-      ) : (
-        <InCallButton
-          iconName="Microphone"
-          onPress={toggleMicrophoneAndUpdateMetadata}
-        />
-      )}
-      {!isCameraOn ? (
-        <InCallButton
-          iconName="Cam-disabled"
+          iconName={!isCameraOn ? 'Cam-disabled' : 'Cam'}
           onPress={toggleCameraAndUpdateMetadata}
         />
-      ) : (
-        <InCallButton iconName="Cam" onPress={toggleCameraAndUpdateMetadata} />
-      )}
+      </View>
+      <View style={styles.iconInRow}>
+        <InCallButton
+          iconName={!isMicrophoneOn ? 'Microphone-off' : 'Microphone'}
+          onPress={toggleMicrophoneAndUpdateMetadata}
+        />
+      </View>
+      <View style={styles.iconInRow}>
+        <InCallButton
+          iconName={isScreencastOn ? 'Screenshare' : 'Screen-off'}
+          onPress={toggleScreencastAndUpdateMetadata}
+        />
+      </View>
+      <View style={styles.iconInRow}>
+        <InCallButton iconName="Menu-vertical" onPress={() => {}} />
+      </View>
       <InCallButton type="disconnect" iconName="Hangup" onPress={disconnect} />
-
-      {isScreencastOn ? (
-        <InCallButton
-          iconName="Screenshare"
-          onPress={toggleScreencastAndUpdateMetadata}
-        />
-      ) : (
-        <InCallButton
-          iconName="Screen-off"
-          onPress={toggleScreencastAndUpdateMetadata}
-        />
-      )}
     </View>
   );
 };
@@ -79,7 +69,11 @@ const styles = StyleSheet.create({
   iconsContainer: {
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 24,
+    justifyContent: 'center',
+    marginTop: 16,
+    marginBottom: 34,
+  },
+  iconInRow: {
+    marginRight: 16,
   },
 });
