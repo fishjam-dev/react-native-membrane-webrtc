@@ -8,8 +8,12 @@ import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCardAnimation } from '@react-navigation/stack';
-import { isEmptyStringOrWhitespaces } from '@utils';
-import React, { useEffect } from 'react';
+import {
+  checkIfUrl,
+  extractRoomNameFromUrl,
+  isEmptyStringOrWhitespaces,
+} from '@utils';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -20,12 +24,20 @@ import {
 import { useVideoroomState } from 'src/VideoroomContext';
 import { handlePermissions } from 'src/shared/openPreview';
 
-type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
+type Props = NativeStackScreenProps<RootStack, 'JoinRoom'>;
 
-export const CreateRoom = ({ navigation, route }: Props) => {
+export const JoinRoom = ({ navigation, route }: Props) => {
   const height = useHeaderHeight();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
+  const [isRoomNameInputEditable, setIsRoomNameInputEditable] = useState(true);
   const { next, current } = useCardAnimation();
+
+  useEffect(() => {
+    if (route.params?.roomName) {
+      setRoomName(route.params?.roomName);
+      setIsRoomNameInputEditable(false);
+    }
+  }, []);
 
   useEffect(() => {
     navigation.setOptions({
@@ -42,7 +54,10 @@ export const CreateRoom = ({ navigation, route }: Props) => {
   }, []);
 
   const openPreview = () => {
-    navigation.push('Preview', { title: 'New meeting' });
+    if (checkIfUrl(roomName)) {
+      setRoomName(decodeURI(extractRoomNameFromUrl(roomName)));
+    }
+    navigation.push('Preview', { title: 'Join meeting' });
   };
 
   return (
@@ -62,9 +77,9 @@ export const CreateRoom = ({ navigation, route }: Props) => {
           keyboardVerticalOffset={height}
         >
           <DiscardModal
-            headline="Discard meeting"
-            body="Are you sure you want to discard creation of this meeting?"
-            buttonText="Yes, discard meeting"
+            headline="Cancel joining meeting"
+            body="Are you sure you don't want to cancel joining to this meeting?"
+            buttonText="Yes, don't join meeting"
           />
           <View style={styles.inner}>
             <View>
@@ -73,7 +88,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
 
             <View style={styles.smallTitle}>
               <Typo variant="chat-regular" color={TextColors.description}>
-                Create a new room to start the meeting
+                Join an existing meeting
               </Typo>
             </View>
             <View style={styles.roomInputLabel}>
@@ -85,8 +100,11 @@ export const CreateRoom = ({ navigation, route }: Props) => {
                 placeholder="Room name"
                 value={roomName}
                 onChangeText={setRoomName}
+                editable={isRoomNameInputEditable}
+                sublabel="Provide name or link to the room"
               />
             </View>
+
             <View style={styles.usernameInputLabel}>
               <Typo variant="body-small">Your name</Typo>
             </View>
@@ -97,7 +115,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
                 onChangeText={setUsername}
               />
             </View>
-            <View style={styles.createRoomButton}>
+            <View style={styles.joinRoomButton}>
               <StandardButton
                 onPress={() => handlePermissions(openPreview)}
                 isEnabled={
@@ -105,7 +123,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
                   !isEmptyStringOrWhitespaces(roomName)
                 }
               >
-                Create a room
+                Next
               </StandardButton>
             </View>
 
@@ -132,14 +150,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   usernameInputLabel: {
-    marginTop: 19,
+    marginTop: 24,
     alignSelf: 'flex-start',
   },
   usernameInput: {
     marginTop: 3,
     width: '100%',
   },
-  createRoomButton: {
+  joinRoomButton: {
     marginTop: 32,
     width: '100%',
   },

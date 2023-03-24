@@ -1,5 +1,6 @@
 import 'react-native-gesture-handler';
 import { BackgroundWrapper } from '@components/BackgroundWrapper';
+import { VIDEOROOM_URL } from '@env';
 import {
   NotoSans_400Regular,
   NotoSans_500Medium,
@@ -10,7 +11,7 @@ import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { CreateRoom } from '@screens/CreateRoom';
 import { InitialScreen } from '@screens/InitialScreen';
-import { JoinRoomStub } from '@screens/JoinRoomStub';
+import { JoinRoom } from '@screens/JoinRoom';
 import { Preview } from '@screens/Preview';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
@@ -22,12 +23,11 @@ import { VideoroomContextProvider } from './VideoroomContext';
 SplashScreen.preventAutoHideAsync();
 
 const linking = {
-  prefixes: ['https://videoroom.membrane.work'],
+  prefixes: [VIDEOROOM_URL],
   config: {
     screens: {
-      // TODO(@skyman503): When JoinRoom screen is finished, use it here.
-      CreateRoom: {
-        path: 'room/:roomName',
+      JoinRoom: {
+        path: ':roomName',
         parse: {
           roomName: decodeURI,
         },
@@ -91,8 +91,9 @@ export default function App() {
             <Stack.Screen name="Room" component={Room} />
             <Stack.Screen
               name="JoinRoom"
-              component={JoinRoomStub}
+              component={JoinRoom}
               options={{
+                title: 'Join meeting',
                 cardStyle: { backgroundColor: 'transparent' },
               }}
             />
