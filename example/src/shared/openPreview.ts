@@ -1,6 +1,6 @@
 import { PermissionsAndroid, Platform } from 'react-native';
 
-export const requestPermissionsAndOpenPreview = async (callback: Function) => {
+export const handlePermissions = async (callback: Function) => {
   if (Platform.OS === 'ios') {
     callback();
     return;

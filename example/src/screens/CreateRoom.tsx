@@ -18,7 +18,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
-import { requestPermissionsAndOpenPreview } from 'src/shared/openPreview';
+import { handlePermissions } from 'src/shared/openPreview';
 
 type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
 
@@ -64,10 +64,6 @@ export const CreateRoom = ({ navigation, route }: Props) => {
           <DiscardModal
             headline="Discard meeting"
             body="Are you sure you want to discard creation of this meeting?"
-            onPress={() => {
-              setRoomName('');
-              setUsername('');
-            }}
             buttonText="Yes, discard meeting"
           />
           <View style={styles.inner}>
@@ -103,7 +99,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             </View>
             <View style={styles.createRoomButton}>
               <StandardButton
-                onPress={() => requestPermissionsAndOpenPreview(openPreview)}
+                onPress={() => handlePermissions(openPreview)}
                 isEnabled={
                   !isEmptyStringOrWhitespaces(username) &&
                   !isEmptyStringOrWhitespaces(roomName)

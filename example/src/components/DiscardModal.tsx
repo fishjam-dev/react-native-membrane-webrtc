@@ -14,18 +14,16 @@ type GoBackAction = Readonly<{
 type DiscardModalProps = {
   headline: string;
   body: string;
-  onPress: () => void;
   buttonText: string;
 };
 
 export const DiscardModal = ({
   headline,
   body,
-  onPress,
   buttonText,
 }: DiscardModalProps) => {
   const navigation = useNavigation();
-  const { roomName, username } = useVideoroomState();
+  const { roomName, setRoomName, username, setUsername } = useVideoroomState();
   const modalAction = useRef<GoBackAction>();
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -57,7 +55,8 @@ export const DiscardModal = ({
         type="danger"
         onPress={() => {
           setIsModalVisible(false);
-          onPress();
+          setRoomName('');
+          setUsername('');
           navigation.dispatch(modalAction.current!);
         }}
       >
