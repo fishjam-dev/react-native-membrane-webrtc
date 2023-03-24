@@ -1,6 +1,7 @@
 import { AdditionalColors, BrandColors, TextColors } from '@colors';
 import { Typo } from '@components/Typo';
-import React, { ReactNode } from 'react';
+import { debounce } from 'lodash';
+import React, { ReactNode, useCallback } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 
 const StandardButtonStyles = StyleSheet.create({
@@ -40,6 +41,14 @@ export const StandardButton = ({
   onPress,
   children,
 }: StandardButtonProps) => {
+  const debouncedOnPress = useCallback(
+    debounce(onPress, 300, {
+      leading: true,
+      trailing: false,
+    }),
+    []
+  );
+
   const GetBackgroundColorStyle = (
     type: StandardButtonTypeName,
     isEnabled: boolean
@@ -82,7 +91,7 @@ export const StandardButton = ({
   };
 
   return (
-    <TouchableOpacity onPress={onPress} disabled={!isEnabled}>
+    <TouchableOpacity onPress={debouncedOnPress} disabled={!isEnabled}>
       <View style={GetStylesForButtonType(type)}>
         <Typo
           variant="button"

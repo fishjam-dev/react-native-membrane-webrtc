@@ -1,7 +1,8 @@
 import { BrandColors, TextColors } from '@colors';
 import { Icon } from '@components/Icon';
 import { Typo } from '@components/Typo';
-import React, { ReactNode } from 'react';
+import { debounce } from 'lodash';
+import React, { ReactNode, useCallback } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import Animated, {
   interpolateColor,
@@ -41,6 +42,13 @@ export const CardButton = ({
   children,
 }: CardButtonProps) => {
   const progress = useSharedValue(0);
+  const debouncedOnPress = useCallback(
+    debounce(onPress, 300, {
+      leading: true,
+      trailing: false,
+    }),
+    []
+  );
 
   const backgroundColorStyle = useAnimatedStyle(
     () => ({
@@ -60,7 +68,7 @@ export const CardButton = ({
           progress.value = withTiming(1);
         }}
         onPressOut={() => (progress.value = 0)}
-        onPress={onPress}
+        onPress={debouncedOnPress}
       >
         <Animated.View
           style={[CardButtonStyles.animatedView, backgroundColorStyle]}
