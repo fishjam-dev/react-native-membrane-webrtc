@@ -1,6 +1,6 @@
 import { TextColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
-import { Modal } from '@components/Modal';
+import { DiscardModal } from '@components/DiscardModal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
@@ -11,31 +11,23 @@ import { useCardAnimation } from '@react-navigation/stack';
 import {
   checkIfUrl,
   extractRoomNameFromUrl,
-  shouldEnableRoomButton,
+  isEmptyStringOrWhitespaces,
 } from '@utils';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  PermissionsAndroid,
   ScrollView,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
+import { requestPermissionsAndOpenPreview } from 'src/shared/openPreview';
 
 type Props = NativeStackScreenProps<RootStack, 'JoinRoom'>;
-type GoBackAction = Readonly<{
-  type: string;
-  payload?: object | undefined;
-  source?: string | undefined;
-  target?: string | undefined;
-}>;
 
 export const JoinRoom = ({ navigation, route }: Props) => {
   const height = useHeaderHeight();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const modalAction = useRef<GoBackAction>();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
   const [isRoomNameInputEditable, setIsRoomNameInputEditable] = useState(true);
   const { next, current } = useCardAnimation();
@@ -46,23 +38,6 @@ export const JoinRoom = ({ navigation, route }: Props) => {
       setIsRoomNameInputEditable(false);
     }
   }, []);
-
-  useEffect(() => {
-    const handleBeforeRemoveEvent = (e) => {
-      if (!roomName && !username) {
-        // If we don't have unsaved changes, then we don't need to do anything
-        return;
-      }
-      e.preventDefault();
-      modalAction.current = e.data.action;
-      setIsModalVisible(true);
-    };
-
-    navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
-
-    return () =>
-      navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
-  }, [navigation, roomName, username]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -85,32 +60,6 @@ export const JoinRoom = ({ navigation, route }: Props) => {
     navigation.push('Preview', { title: 'Join meeting' });
   };
 
-  const requestPermissionsAndOpenPreview = useCallback(async () => {
-    if (Platform.OS === 'ios') {
-      openPreview();
-      return;
-    }
-    try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      ]);
-      if (
-        granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
-        granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] ===
-          PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        console.log('You can use the camera');
-      } else {
-        console.log('Camera permission denied');
-      }
-      openPreview();
-    } catch (err) {
-      console.warn(err);
-    }
-  }, []);
-
   return (
     <BackgroundAnimation>
       <ScrollView
@@ -127,24 +76,15 @@ export const JoinRoom = ({ navigation, route }: Props) => {
           enabled
           keyboardVerticalOffset={height}
         >
-          <Modal
+          <DiscardModal
             headline="Cancel joining meeting"
             body="Are you sure you don't want to cancel joining to this meeting?"
-            visible={isModalVisible}
-            onClose={() => setIsModalVisible(false)}
-          >
-            <StandardButton
-              type="danger"
-              onPress={() => {
-                setIsModalVisible(false);
-                setRoomName('');
-                setUsername('');
-                navigation.dispatch(modalAction.current!);
-              }}
-            >
-              Yes, don't join meeting
-            </StandardButton>
-          </Modal>
+            onPress={() => {
+              setRoomName('');
+              setUsername('');
+            }}
+            buttonText="Yes, don't join meeting"
+          />
           <View style={styles.inner}>
             <View>
               <Typo variant="h4">Videoconferencing for everyone</Typo>
@@ -181,8 +121,11 @@ export const JoinRoom = ({ navigation, route }: Props) => {
             </View>
             <View style={styles.joinRoomButton}>
               <StandardButton
-                onPress={requestPermissionsAndOpenPreview}
-                isEnabled={shouldEnableRoomButton(username, roomName)}
+                onPress={() => requestPermissionsAndOpenPreview(openPreview)}
+                isEnabled={
+                  !isEmptyStringOrWhitespaces(username) &&
+                  !isEmptyStringOrWhitespaces(roomName)
+                }
               >
                 Next
               </StandardButton>

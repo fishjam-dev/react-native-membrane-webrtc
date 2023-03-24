@@ -1,6 +1,5 @@
+import { VIDEOROOM_URL } from '@env';
 import { isEmpty } from 'lodash';
-
-const VIDEOROOM_URL = 'https://videoroom.membrane.work/room/';
 
 /**
  * Used to generate short representation of a username.
@@ -15,8 +14,8 @@ export const getShortUsername = (username: string) => {
     .toUpperCase();
 };
 
-export const checkIfStringContainsOnlyWhitespaces = (val: string) => {
-  return !val.trim();
+export const isEmptyStringOrWhitespaces = (val: string) => {
+  return isEmpty(val) || !val.trim();
 };
 
 export const checkIfUrl = (val: string) => {
@@ -25,13 +24,4 @@ export const checkIfUrl = (val: string) => {
 
 export const extractRoomNameFromUrl = (url: string) => {
   return url.substring(url.indexOf(VIDEOROOM_URL) + VIDEOROOM_URL.length);
-};
-
-export const shouldEnableRoomButton = (username, roomName) => {
-  return (
-    !isEmpty(username) &&
-    !isEmpty(roomName) &&
-    !checkIfStringContainsOnlyWhitespaces(username) &&
-    !checkIfStringContainsOnlyWhitespaces(roomName)
-  );
 };

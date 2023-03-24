@@ -1,6 +1,6 @@
 import { TextColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
-import { Modal } from '@components/Modal';
+import { DiscardModal } from '@components/DiscardModal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
@@ -8,49 +8,24 @@ import { RootStack } from '@model/NavigationTypes';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCardAnimation } from '@react-navigation/stack';
-import { shouldEnableRoomButton } from '@utils';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { isEmptyStringOrWhitespaces } from '@utils';
+import React, { useEffect } from 'react';
 import {
   View,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  PermissionsAndroid,
   ScrollView,
 } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
+import { requestPermissionsAndOpenPreview } from 'src/shared/openPreview';
 
 type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
-type GoBackAction = Readonly<{
-  type: string;
-  payload?: object | undefined;
-  source?: string | undefined;
-  target?: string | undefined;
-}>;
 
 export const CreateRoom = ({ navigation, route }: Props) => {
   const height = useHeaderHeight();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const modalAction = useRef<GoBackAction>();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
   const { next, current } = useCardAnimation();
-
-  useEffect(() => {
-    const handleBeforeRemoveEvent = (e) => {
-      if (!roomName && !username) {
-        // If we don't have unsaved changes, then we don't need to do anything
-        return;
-      }
-      e.preventDefault();
-      modalAction.current = e.data.action;
-      setIsModalVisible(true);
-    };
-
-    navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
-
-    return () =>
-      navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
-  }, [navigation, roomName, username]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -70,32 +45,6 @@ export const CreateRoom = ({ navigation, route }: Props) => {
     navigation.push('Preview', { title: 'New meeting' });
   };
 
-  const requestPermissionsAndOpenPreview = useCallback(async () => {
-    if (Platform.OS === 'ios') {
-      openPreview();
-      return;
-    }
-    try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      ]);
-      if (
-        granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
-        granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] ===
-          PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        console.log('You can use the camera');
-      } else {
-        console.log('Camera permission denied');
-      }
-      openPreview();
-    } catch (err) {
-      console.warn(err);
-    }
-  }, []);
-
   return (
     <BackgroundAnimation>
       <ScrollView
@@ -112,24 +61,15 @@ export const CreateRoom = ({ navigation, route }: Props) => {
           enabled
           keyboardVerticalOffset={height}
         >
-          <Modal
+          <DiscardModal
             headline="Discard meeting"
             body="Are you sure you want to discard creation of this meeting?"
-            visible={isModalVisible}
-            onClose={() => setIsModalVisible(false)}
-          >
-            <StandardButton
-              type="danger"
-              onPress={() => {
-                setIsModalVisible(false);
-                setRoomName('');
-                setUsername('');
-                navigation.dispatch(modalAction.current!);
-              }}
-            >
-              Yes, discard meeting
-            </StandardButton>
-          </Modal>
+            onPress={() => {
+              setRoomName('');
+              setUsername('');
+            }}
+            buttonText="Yes, discard meeting"
+          />
           <View style={styles.inner}>
             <View>
               <Typo variant="h4">Videoconferencing for everyone</Typo>
@@ -163,8 +103,11 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             </View>
             <View style={styles.createRoomButton}>
               <StandardButton
-                onPress={requestPermissionsAndOpenPreview}
-                isEnabled={shouldEnableRoomButton(username, roomName)}
+                onPress={() => requestPermissionsAndOpenPreview(openPreview)}
+                isEnabled={
+                  !isEmptyStringOrWhitespaces(username) &&
+                  !isEmptyStringOrWhitespaces(roomName)
+                }
               >
                 Create a room
               </StandardButton>

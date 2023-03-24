@@ -86,7 +86,7 @@ export const TextInput = ({
   };
 
   return (
-    <>
+    <View>
       <RNTextInput
         style={GetStyleForTextInput()}
         placeholder={placeholder}
@@ -119,6 +119,6 @@ export const TextInput = ({
           </Typo>
         </View>
       ) : null}
-    </>
+    </View>
   );
 };

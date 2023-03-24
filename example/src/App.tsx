@@ -1,5 +1,6 @@
 import 'react-native-gesture-handler';
 import { BackgroundWrapper } from '@components/BackgroundWrapper';
+import { VIDEOROOM_URL } from '@env';
 import {
   NotoSans_400Regular,
   NotoSans_500Medium,
@@ -22,11 +23,11 @@ import { VideoroomContextProvider } from './VideoroomContext';
 SplashScreen.preventAutoHideAsync();
 
 const linking = {
-  prefixes: ['https://videoroom.membrane.work'],
+  prefixes: [VIDEOROOM_URL],
   config: {
     screens: {
       JoinRoom: {
-        path: 'room/:roomName',
+        path: ':roomName',
         parse: {
           roomName: decodeURI,
         },
