@@ -78,8 +78,17 @@ export default function App() {
               initialRouteName="InitialScreen"
               screenOptions={{
                 headerBackTitle: 'Back',
+                headerMode: 'float',
               }}
             >
+              <Stack.Screen
+                name="InitialScreen"
+                component={InitialScreen}
+                options={{
+                  headerShown: false,
+                  cardStyle: { backgroundColor: 'transparent' },
+                }}
+              />
               <Stack.Screen
                 name="InitialScreen"
                 component={InitialScreen}
