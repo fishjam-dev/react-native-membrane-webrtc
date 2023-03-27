@@ -17,6 +17,7 @@ import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
+import { StatusBar } from 'react-native';
 
 import { VideoroomContextProvider } from './VideoroomContext';
 
@@ -64,6 +65,11 @@ export default function App() {
 
   return (
     <BackgroundWrapper>
+      <StatusBar
+        translucent
+        barStyle="dark-content"
+        backgroundColor="transparent"
+      />
       <VideoroomContextProvider>
         <NavigationContainer linking={linking} theme={navTheme}>
           <Stack.Navigator
