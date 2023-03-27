@@ -70,6 +70,7 @@ export default function App() {
             initialRouteName="InitialScreen"
             screenOptions={{
               headerBackTitle: 'Back',
+              headerMode: 'float',
             }}
           >
             <Stack.Screen
