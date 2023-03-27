@@ -90,14 +90,6 @@ export default function App() {
                 }}
               />
               <Stack.Screen
-                name="InitialScreen"
-                component={InitialScreen}
-                options={{
-                  headerShown: false,
-                  cardStyle: { backgroundColor: 'transparent' },
-                }}
-              />
-              <Stack.Screen
                 name="CreateRoom"
                 component={CreateRoom}
                 options={{
