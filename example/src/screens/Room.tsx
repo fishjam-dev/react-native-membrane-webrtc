@@ -21,7 +21,7 @@ export const Room = ({ navigation }: Props) => {
 
   const videoViewWidth = (width - 32 - 16) / 2;
   const smallScreenVideoWidth =
-    (height - 126 - 8 * (participants.length / 2 + 2)) /
+    (height - 126 - 16 * (participants.length / 2 + 2)) /
     Math.ceil(participants.length / 2);
 
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
@@ -128,13 +128,12 @@ export const Room = ({ navigation }: Props) => {
               )
               .flat()
               .slice(0, participants.length > 8 ? 7 : 8)}
-            <View
-              style={{ display: participants.length > 8 ? 'flex' : 'none' }}
-            >
+
+            {participants.length > 8 && (
               <View style={getStylesForParticipants(participants)}>
                 <Typo variant="label">Others</Typo>
               </View>
-            </View>
+            )}
           </View>
         </View>
       </View>
