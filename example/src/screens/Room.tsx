@@ -36,6 +36,7 @@ export const Room = ({ navigation }: Props) => {
   useEffect(() => {
     const handleBeforeRemoveEvent = (e) => {
       e.preventDefault();
+      // TODO(@skyman503): Navigate to `LeaveScreen` when it is implemented.
       // Check whether beforeRemove event was triggered by disconenct button.
       if (e.data.action.source) {
         navigation.dispatch(e.data.action);

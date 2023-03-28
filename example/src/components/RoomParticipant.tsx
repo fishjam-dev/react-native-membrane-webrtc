@@ -17,8 +17,6 @@ export const RoomParticipant = ({
   participant,
   pStyle,
 }: RoomParticipantProps) => {
-  console.log('P', participant);
-
   return (
     <View style={pStyle}>
       {!participant.tracks.filter((t) => t.type === 'Video').length ||
