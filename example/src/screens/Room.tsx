@@ -1,11 +1,11 @@
-import { AdditionalColors, BrandColors, TextColors } from '@colors';
+import { BrandColors } from '@colors';
+import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Icon } from '@components/Icon';
-import { NoCameraView } from '@components/NoCameraView';
+import { RoomParticipant } from '@components/RoomParticipant';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { getShortUsername } from '@utils';
 import React, { useCallback, useEffect } from 'react';
 import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
@@ -23,6 +23,7 @@ export const Room = ({ navigation }: Props) => {
   const { width, height } = Dimensions.get('window');
   const { roomName } = useVideoroomState();
   const participants = Membrane.useRoomParticipants();
+  console.log(participants);
 
   const videoViewWidth = (width - 3 * PADDING_BETWEEN_PARTICIPANTS) / 2;
   const smallScreenVideoWidth =
@@ -77,95 +78,59 @@ export const Room = ({ navigation }: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerTitle}>
-          <Typo variant="h4">{roomName}</Typo>
-        </View>
-        <View style={styles.headerIcon}>
-          <Pressable onPress={switchCamera}>
-            <Icon name="Cam-switch" size={24} color={BrandColors.darkBlue100} />
-          </Pressable>
-        </View>
-      </View>
-
-      <View style={styles.flex}>
-        <View style={styles.participantsContainer}>
-          <View
-            style={[
-              styles.inner,
-              participants.length > FLEX_BRAKPOINT ? styles.row : styles.column,
-            ]}
-          >
-            {participants
-              .map((p) =>
-                p.tracks
-                  .filter((t) => t.type === 'Video')
-                  .map((t) => (
-                    <View
-                      key={t.id}
-                      style={getStylesForParticipants(participants)}
-                    >
-                      {!t.metadata.active ? (
-                        <View style={styles.videoTrack}>
-                          <NoCameraView
-                            username={getShortUsername(p.metadata.displayName)}
-                          />
-                        </View>
-                      ) : (
-                        <Membrane.VideoRendererView
-                          trackId={t.id}
-                          style={styles.videoTrack}
-                        />
-                      )}
-                      <View style={styles.displayNameContainer}>
-                        <View
-                          style={[
-                            styles.displayName,
-                            p.type === 'Local'
-                              ? styles.localUser
-                              : styles.remoteUser,
-                          ]}
-                        >
-                          <Typo variant="label" color={TextColors.white}>
-                            {p.type === 'Local'
-                              ? 'You'
-                              : p.metadata.displayName}
-                          </Typo>
-                        </View>
-                      </View>
-
-                      {!p.tracks.find((t) => t.type === 'Audio')?.metadata
-                        .active && (
-                        <View style={styles.mutedIcon}>
-                          <Icon
-                            name="Microphone-off"
-                            size={16}
-                            color={BrandColors.darkBlue100}
-                          />
-                        </View>
-                      )}
-                    </View>
-                  ))
-              )
-              .flat()
-              .slice(
-                0,
-                participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
-                  ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
-                  : MAX_NUM_OF_USERS_ON_THE_SCREEN
-              )}
-
-            {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
-              <View style={getStylesForParticipants(participants)}>
-                <Typo variant="label">Others</Typo>
-              </View>
-            )}
+    <BackgroundAnimation>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerTitle}>
+            <Typo variant="h4">{roomName}</Typo>
+          </View>
+          <View style={styles.headerIcon}>
+            <Pressable onPress={switchCamera}>
+              <Icon
+                name="Cam-switch"
+                size={24}
+                color={BrandColors.darkBlue100}
+              />
+            </Pressable>
           </View>
         </View>
+
+        <View style={styles.flex}>
+          <View style={styles.participantsContainer}>
+            <View
+              style={[
+                styles.inner,
+                participants.length > FLEX_BRAKPOINT
+                  ? styles.row
+                  : styles.column,
+              ]}
+            >
+              {participants
+                .slice(
+                  0,
+                  participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
+                    ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
+                    : MAX_NUM_OF_USERS_ON_THE_SCREEN
+                )
+                .map((p) => (
+                  <RoomParticipant
+                    key={p.id}
+                    participant={p}
+                    pStyle={getStylesForParticipants(participants)}
+                  />
+                ))}
+
+              {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
+                <View style={getStylesForParticipants(participants)}>
+                  <Typo variant="label">Others</Typo>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+        <CallControls disconnect={disconnect} />
       </View>
-      <CallControls disconnect={disconnect} />
-    </View>
+    </BackgroundAnimation>
   );
 };
 
@@ -218,35 +183,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 4,
     marginRight: 4,
-  },
-  displayNameContainer: {
-    borderRadius: 60,
-    position: 'absolute',
-    left: 16,
-    bottom: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  remoteUser: {
-    backgroundColor: BrandColors.darkBlue80,
-  },
-  localUser: {
-    backgroundColor: BrandColors.pink100,
-  },
-  displayName: {
-    borderRadius: 60,
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingTop: 6,
-    paddingBottom: 6,
-  },
-  videoTrack: { width: '100%', aspectRatio: 1 },
-  mutedIcon: {
-    position: 'absolute',
-    left: 16,
-    top: 16,
-    backgroundColor: AdditionalColors.white,
-    borderRadius: 50,
-    padding: 6,
   },
 });

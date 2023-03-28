@@ -66,7 +66,7 @@ export default function App() {
 
   return (
     <BackgroundWrapper>
-      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+      <SafeAreaView style={{ flex: 1 }} edges={[]}>
         <StatusBar
           translucent
           barStyle="dark-content"

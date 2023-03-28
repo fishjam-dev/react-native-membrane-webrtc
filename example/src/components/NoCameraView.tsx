@@ -4,11 +4,11 @@ import { View, StyleSheet } from 'react-native';
 
 import { Typo } from './Typo';
 
-type NoCameraViewTypes = {
+type NoCameraViewProps = {
   username: string;
 };
 
-export const NoCameraView = ({ username }: NoCameraViewTypes) => {
+export const NoCameraView = ({ username }: NoCameraViewProps) => {
   return (
     <View style={styles.noCameraBackground}>
       <View style={styles.noCameraContent}>
