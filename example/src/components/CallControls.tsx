@@ -53,7 +53,7 @@ export const CallControls = ({ disconnect }: { disconnect: () => void }) => {
       </View>
       <View style={styles.iconInRow}>
         <InCallButton
-          iconName={isScreencastOn ? 'Screenshare' : 'Screen-off'}
+          iconName={!isScreencastOn ? 'Screenshare' : 'Screen-off'}
           onPress={toggleScreencastAndUpdateMetadata}
         />
       </View>
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 16,
+    marginTop: 8,
     marginBottom: 34,
   },
   iconInRow: {

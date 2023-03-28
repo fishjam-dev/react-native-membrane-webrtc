@@ -4,38 +4,52 @@ import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useState, useCallback } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { findIndex } from 'lodash';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
 
-import { Settings } from '../Settings';
 import { CallControls } from '../components/CallControls';
 
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
 export const Room = ({ navigation }: Props) => {
-  const participants = Membrane.useRoomParticipants();
-  const tracks = participants
-    .map((p) => p.tracks.filter((t) => t.type === 'Video'))
-    .flat();
+  const { width, height } = Dimensions.get('window');
+  const videoViewWidth = (width - 32 - 16) / 2;
 
-  const [focusedTrackId, setFocusedTrackId] = useState<string | null>(null);
-  const focusedTrack = tracks.find((t) => t.id === focusedTrackId);
-  const focusedParticipant = participants.find(
-    (p) => p.tracks.find((t) => t.id === focusedTrackId) != null
-  );
+  const participants = Membrane.useRoomParticipants();
+  const [currentCamera, setCurrentCamera] =
+    useState<Membrane.CaptureDevice | null>(null);
+  const availableCameras = useRef<Membrane.CaptureDevice[]>([]);
 
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
 
-  const [areSettingsOpen, setAreSettingsOpen] = useState<boolean>(false);
-
-  const isFocusedParticipantSpeaking =
-    focusedParticipant?.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-    Membrane.VadStatus.Speech;
+  useEffect(() => {
+    Membrane.getCaptureDevices().then((devices) => {
+      availableCameras.current = devices;
+      setCurrentCamera(devices.find((device) => device.isFrontFacing) || null);
+    });
+  }, []);
 
   const disconnect = useCallback(() => {
     mbDisconnect();
     navigation.goBack();
   }, []);
+
+  const switchCamera = useCallback(() => {
+    const cameras = availableCameras.current;
+    // setCurrentCamera(
+    //   (currentCamera) =>
+    //     cameras[(findIndex(cameras, currentCamera) + 1) % cameras.length]
+    // );
+    console.log(cameras, currentCamera);
+    Membrane.switchCamera(
+      cameras[(findIndex(cameras, currentCamera) + 1) % cameras.length].id
+    );
+  }, []);
+
+  const newVideoWidth =
+    (height - 126 - 8 * (participants.length / 2 + 2)) /
+    Math.ceil(participants.length / 2);
 
   return (
     <View style={styles.container}>
@@ -44,83 +58,65 @@ export const Room = ({ navigation }: Props) => {
           <Typo variant="h4">Videoroom Makeover</Typo>
         </View>
         <View style={styles.headerIcon}>
-          <Icon name="Cam-switch" size={24} color={BrandColors.darkBlue100} />
+          <Pressable onPress={switchCamera}>
+            <Icon name="Cam-switch" size={24} color={BrandColors.darkBlue100} />
+          </Pressable>
         </View>
       </View>
 
       <View style={styles.flex}>
-        {!!focusedTrack && !!focusedParticipant && (
+        <View style={styles.otherParticipantsContainer}>
           <View
             style={[
-              styles.focusedParticipantContainer,
-              isFocusedParticipantSpeaking ? styles.vadSpeech : {},
+              styles.inner,
+              participants.length > 3 ? styles.row : styles.column,
             ]}
           >
-            <Membrane.VideoRendererView
-              trackId={focusedTrack.id}
-              style={styles.focusedParticipant}
-              videoLayout={Membrane.VideoLayout.FIT}
-            />
-            <Text style={styles.displayName}>
-              {focusedParticipant.metadata.displayName}
-            </Text>
-            {!!areSettingsOpen && (
-              <View style={styles.settingsWrapper}>
-                <Settings
-                  participant={focusedParticipant}
-                  track={focusedTrack}
-                />
-              </View>
-            )}
-            <View style={styles.disabledIconsContainer}>
-              {!focusedParticipant.tracks.find((t) => t.type === 'Audio')
-                ?.metadata.active && <Icon name="Microphone-off" size={24} />}
-              {!focusedTrack.metadata.active && (
-                <Icon name="Cam-disabled" size={24} />
-              )}
-            </View>
-            <Pressable
-              style={styles.settingsButton}
-              onPress={() => setAreSettingsOpen((o) => !o)}
-            >
-              <Icon name="Settings" size={48} />
-            </Pressable>
-          </View>
-        )}
-        <View style={styles.otherParticipantsContainer}>
-          {participants
-            .map((p) =>
-              p.tracks
-                // .filter((t) => t.id !== focusedTrack?.id)
-                .filter((t) => t.type === 'Video')
-                .map((t) => (
-                  <Pressable
-                    onPress={() => setFocusedTrackId(t.id)}
-                    key={t.id}
-                    style={[styles.participant]}
-                  >
-                    <Membrane.VideoRendererView
-                      trackId={t.id}
-                      style={styles.flex}
-                    />
-                    <View style={styles.displayNameContainer}>
-                      <View style={styles.displayName}>
-                        <Typo variant="label" color={TextColors.white}>
-                          {p.metadata.displayName}
-                        </Typo>
+            {participants
+              .map((p) =>
+                p.tracks
+                  .filter((t) => t.type === 'Video')
+                  .map((t) => (
+                    <Pressable
+                      onPress={() => {}}
+                      key={t.id}
+                      style={[
+                        styles.participant,
+                        participants.length > 3
+                          ? {
+                              width: Math.min(videoViewWidth, newVideoWidth),
+                            }
+                          : {
+                              flex: 1,
+                              maxHeight: width - 32,
+                              maxWidth: width - 32,
+                            },
+                      ]}
+                    >
+                      <Membrane.VideoRendererView
+                        trackId={t.id}
+                        style={{ width: '100%', aspectRatio: 1 }}
+                      />
+                      <View style={styles.displayNameContainer}>
+                        <View style={styles.displayName}>
+                          <Typo variant="label" color={TextColors.white}>
+                            {p.metadata.displayName}
+                          </Typo>
+                        </View>
                       </View>
-                    </View>
-                    <View style={styles.disabledIconsContainer}>
-                      {!p.tracks.find((t) => t.type === 'Audio')?.metadata
-                        .active && <Icon name="Microphone-off" size={24} />}
-                      {!t.metadata.active && (
-                        <Icon name="Cam-disabled" size={24} />
-                      )}
-                    </View>
-                  </Pressable>
-                ))
-            )
-            .flat()}
+
+                      <View style={styles.disabledIconsContainer}>
+                        {!p.tracks.find((t) => t.type === 'Audio')?.metadata
+                          .active && <Icon name="Microphone-off" size={24} />}
+                        {!t.metadata.active && (
+                          <Icon name="Cam-disabled" size={24} />
+                        )}
+                      </View>
+                    </Pressable>
+                  ))
+              )
+              .flat()}
+          </View>
         </View>
       </View>
       <CallControls disconnect={disconnect} />
@@ -162,20 +158,31 @@ const styles = StyleSheet.create({
   },
   otherParticipantsContainer: {
     flex: 1,
-    width: '100%',
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-    // height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  column: {
+    flexDirection: 'column',
+  },
+  inner: {
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   participant: {
-    minWidth: 156,
-    minHeight: 156,
     aspectRatio: 1,
-    flex: 1,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: BrandColors.darkBlue60,
+    overflow: 'hidden',
+    marginBottom: 8,
+    marginLeft: 4,
+    marginRight: 4,
   },
   displayNameContainer: {
     backgroundColor: BrandColors.darkBlue80,
@@ -209,7 +216,7 @@ const styles = StyleSheet.create({
     left: 0,
   },
   vadSpeech: {
-    borderWidth: 6,
-    borderColor: '#001A72',
+    borderWidth: 5,
+    borderColor: BrandColors.green60,
   },
 });
