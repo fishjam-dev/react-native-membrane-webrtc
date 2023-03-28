@@ -1,8 +1,8 @@
 import { AdditionalColors, BrandColors, TextColors } from '@colors';
 import { Typo } from '@components/Typo';
-import { debounce } from 'lodash';
-import React, { ReactNode, useCallback } from 'react';
+import React, { ReactNode } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { useDebounce } from 'src/shared/debouncer';
 
 const StandardButtonStyles = StyleSheet.create({
   common: {
@@ -41,13 +41,7 @@ export const StandardButton = ({
   onPress,
   children,
 }: StandardButtonProps) => {
-  const debouncedOnPress = useCallback(
-    debounce(onPress, 300, {
-      leading: true,
-      trailing: false,
-    }),
-    []
-  );
+  const debouncedOnPress = useDebounce(onPress);
 
   const GetBackgroundColorStyle = (
     type: StandardButtonTypeName,
