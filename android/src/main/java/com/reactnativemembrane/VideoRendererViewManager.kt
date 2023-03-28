@@ -9,32 +9,32 @@ import org.webrtc.RendererCommon
 class VideoRendererViewManager : SimpleViewManager<View>() {
   override fun getName() = "VideoRendererView"
 
-  private val viewsWrappers = HashMap<VideoTextureViewRenderer, VideoRendererWrapper>();
+  private val views = ArrayList<VideoRendererView>()
 
   init {
     MembraneModule.onTracksUpdate = {
-      viewsWrappers.values.forEach { it.update() }
+      views.forEach { it.update() }
     }
   }
 
   override fun createViewInstance(reactContext: ThemedReactContext): View {
-    val wrapper = VideoRendererWrapper(reactContext)
-    viewsWrappers[wrapper.view] = wrapper
-    return wrapper.view
+    val view = VideoRendererView(reactContext)
+    views.add(view)
+    return view
   }
 
   override fun onDropViewInstance(view: View) {
-    viewsWrappers[view]?.dispose()
-    viewsWrappers.remove(view)
+    (view as VideoRendererView).dispose()
+    views.remove(view)
   }
 
   @ReactProp(name = "trackId")
-  fun setParticipantId(view: VideoTextureViewRenderer, trackId: String) {
-    viewsWrappers[view]?.init(trackId)
+  fun setParticipantId(view: VideoRendererView, trackId: String) {
+    view.init(trackId)
   }
 
   @ReactProp(name = "videoLayout")
-  fun setVideoLayout(view: VideoTextureViewRenderer, videoLayout: String) {
+  fun setVideoLayout(view: VideoRendererView, videoLayout: String) {
     val scalingType = when (videoLayout) {
       "FILL" -> RendererCommon.ScalingType.SCALE_ASPECT_FILL
       "FIT" -> RendererCommon.ScalingType.SCALE_ASPECT_FIT
@@ -45,7 +45,7 @@ class VideoRendererViewManager : SimpleViewManager<View>() {
   }
 
   @ReactProp(name = "mirrorVideo")
-  fun setMirrorVideo(view: VideoTextureViewRenderer, mirror: Boolean) {
+  fun setMirrorVideo(view: VideoRendererView, mirror: Boolean) {
     view.setMirror(mirror)
   }
 }
