@@ -6,7 +6,7 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { getShortUsername } from '@utils';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
@@ -25,6 +25,21 @@ export const Room = ({ navigation }: Props) => {
     Math.ceil(participants.length / 2);
 
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
+
+  useEffect(() => {
+    const handleBeforeRemoveEvent = (e) => {
+      e.preventDefault();
+      // Check whether beforeRemove event was triggered by disconenct button.
+      if (e.data.action.source) {
+        navigation.dispatch(e.data.action);
+      }
+    };
+
+    navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
+
+    return () =>
+      navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
+  }, [navigation]);
 
   const disconnect = useCallback(() => {
     mbDisconnect();
