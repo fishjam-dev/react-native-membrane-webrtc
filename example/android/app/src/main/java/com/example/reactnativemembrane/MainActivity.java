@@ -47,7 +47,7 @@ public class MainActivity extends ReactActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(null);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      handleGestureNavigation();
+      //handleGestureNavigation();
     }
   }
 }

@@ -85,7 +85,7 @@ export default function App() {
                 name="InitialScreen"
                 component={InitialScreen}
                 options={{
-                  headerShown: false,
+                  headerStyle: { opacity: 0 },
                   cardStyle: { backgroundColor: 'transparent' },
                 }}
               />

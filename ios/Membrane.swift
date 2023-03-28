@@ -1,7 +1,8 @@
 import MembraneRTC
 import React
 import ReplayKit
-
+import AVKit
+import WebRTC
 
 #if os(iOS)
 @available(iOS 12, *)
@@ -87,11 +88,25 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var screenshareBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
   var globalToLocalTrackId: [String:String] = [:]
   
-  var isSpeakersphoneOn = true
-  
   var tracksContexts: [String: TrackContext] = [:]
   
   var captureDeviceId: String? = nil
+  
+  var audioSessionMode: AVAudioSession.Mode = AVAudioSession.Mode.videoChat
+  
+  override init() {
+    super.init()
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(onRouteChangeNotification),
+      name: AVAudioSession.routeChangeNotification,
+      object: nil
+    )
+  }
+  
+  override func invalidate() {
+    super.invalidate()
+  }
   
   private func getGlobalTrackId(localTrackId: String) -> String? {
     return globalToLocalTrackId.filter { $0.value == localTrackId }.first?.key
@@ -179,7 +194,6 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.localUserMetadata = (connectionOptions["userMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
-    self.isSpeakersphoneOn = connectionOptions["isSpeakerphoneOn"] as? Bool ?? true
     self.isMicEnabled = connectionOptions["audioTrackEnabled"] as? Bool ?? true
     self.isCameraEnabled = connectionOptions["videoTrackEnabled"] as? Bool ?? true
     self.captureDeviceId = connectionOptions["captureDeviceId"] as? String
@@ -584,15 +598,54 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     room.setTrackBandwidth(trackId: trackId, bandwidth: BandwidthLimit(truncating: bandwidth))
   }
   
-  @objc(toggleSpeakerphone:withRejecter:)
-  func toggleSpeakerphone(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-    if(isSpeakersphoneOn) {
-      localAudioTrack?.setVoiceChatMode()
-    } else {
-      localAudioTrack?.setVideoChatMode()
+  func setAudioSessionMode() {
+    guard let localAudioTrack = localAudioTrack else {
+      return
     }
-    isSpeakersphoneOn = !isSpeakersphoneOn
-    resolve(nil)
+
+    switch self.audioSessionMode {
+    case AVAudioSession.Mode.videoChat:
+      localAudioTrack.setVideoChatMode()
+      break
+    case AVAudioSession.Mode.voiceChat:
+      localAudioTrack.setVoiceChatMode()
+      break
+    default:
+      localAudioTrack.setVideoChatMode()
+      break
+    }
+  }
+  
+  @objc(selectAudioSessionMode:withResolver:withRejecter:)
+  func selectAudioSessionMode(sessionMode: NSString, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    switch sessionMode {
+    case "videoChat":
+      self.audioSessionMode = AVAudioSession.Mode.videoChat
+      break
+    case "voiceChat":
+      self.audioSessionMode = AVAudioSession.Mode.voiceChat
+      break
+    default:
+      reject("E_MEMBRANE_AUDIO_SESSION", "Invalid audio session mode: \(sessionMode). Supported modes: videoChat, voiceChat", nil)
+      return
+    }
+    setAudioSessionMode()
+  }
+  
+  @objc(showAudioRoutePicker:withRejecter:)
+  func showAudioRoutePicker(resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    DispatchQueue.main.async {
+      let pickerView = AVRoutePickerView()
+      if let button = pickerView.subviews.first(where: { $0 is UIButton }) as? UIButton {
+        button.sendActions(for: .touchUpInside)
+        resolve(nil)
+      }
+    }
+  }
+  
+  @objc(startAudioSwitcher:withRejecter:)
+  func startAudioSwitcher(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    onRouteChangeNotification()
   }
   
   override func supportedEvents() -> [String]! {
@@ -603,6 +656,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       "IsCameraOn",
       "IsScreencastOn",
       "BandwidthEstimation",
+      "AudioDeviceUpdate"
     ]
   }
   
@@ -612,6 +666,31 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   func emitParticipants() -> Void {
     emitEvent(name: "ParticipantsUpdate", data: getParticipantsForRN())
+  }
+  
+  @objc func onRouteChangeNotification() {
+    let currentRoute = AVAudioSession.sharedInstance().currentRoute
+    let output = currentRoute.outputs[0]
+    let deviceType = output.portType
+    var deviceTypeString: String = ""
+    
+    switch deviceType {
+    case .bluetoothA2DP, .bluetoothLE, .bluetoothHFP:
+      deviceTypeString = "bluetooth"
+      break
+    case .builtInSpeaker:
+      deviceTypeString = "speaker"
+      break
+    case .builtInReceiver:
+      deviceTypeString = "earpiece"
+      break
+    case .headphones:
+      deviceTypeString = "headphones"
+      break
+    default:
+      deviceTypeString = deviceType.rawValue
+    }
+    emitEvent(name: "AudioDeviceUpdate", data: ["selectedDevice": ["name": output.portName, "type": deviceTypeString], "availableDevices": []])
   }
   
   func onConnected() {
@@ -658,12 +737,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     localVideoTrack?.setEnabled(isCameraEnabled)
     localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
     localAudioTrack?.setEnabled(isMicEnabled)
-    
-    if(isSpeakersphoneOn) {
-      localAudioTrack?.setVideoChatMode()
-    } else {
-      localAudioTrack?.setVoiceChatMode()
-    }
+    setAudioSessionMode()
     
     var localParticipant = Participant(
       id: localParticipantId,
