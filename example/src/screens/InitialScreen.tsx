@@ -48,11 +48,11 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignSelf: 'center',
+    justifyContent: 'center',
     paddingLeft: 16,
     paddingRight: 16,
   },
   header: {
-    marginTop: 160,
     alignItems: 'center',
   },
   subtitle: {

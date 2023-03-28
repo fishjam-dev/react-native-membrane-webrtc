@@ -17,6 +17,8 @@ import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
+import { StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VideoroomContextProvider } from './VideoroomContext';
 
@@ -64,50 +66,57 @@ export default function App() {
 
   return (
     <BackgroundWrapper>
-      <VideoroomContextProvider>
-        <NavigationContainer linking={linking} theme={navTheme}>
-          <Stack.Navigator
-            initialRouteName="InitialScreen"
-            screenOptions={{
-              headerBackTitle: 'Back',
-              headerMode: 'float',
-            }}
-          >
-            <Stack.Screen
-              name="InitialScreen"
-              component={InitialScreen}
-              options={{
-                headerStyle: { opacity: 0 },
-                cardStyle: { backgroundColor: 'transparent' },
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <StatusBar
+          translucent
+          barStyle="dark-content"
+          backgroundColor="transparent"
+        />
+        <VideoroomContextProvider>
+          <NavigationContainer linking={linking} theme={navTheme}>
+            <Stack.Navigator
+              initialRouteName="InitialScreen"
+              screenOptions={{
+                headerBackTitle: 'Back',
+                headerMode: 'float',
               }}
-            />
-            <Stack.Screen
-              name="CreateRoom"
-              component={CreateRoom}
-              options={{
-                title: 'New meeting',
-                cardStyle: { backgroundColor: 'transparent' },
-              }}
-            />
-            <Stack.Screen name="Room" component={Room} />
-            <Stack.Screen
-              name="JoinRoom"
-              component={JoinRoom}
-              options={{
-                title: 'Join meeting',
-                cardStyle: { backgroundColor: 'transparent' },
-              }}
-            />
-            <Stack.Screen
-              name="Preview"
-              component={Preview}
-              options={{
-                cardStyle: { backgroundColor: 'transparent' },
-              }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </VideoroomContextProvider>
+            >
+              <Stack.Screen
+                name="InitialScreen"
+                component={InitialScreen}
+                options={{
+                  headerStyle: { opacity: 0 },
+                  cardStyle: { backgroundColor: 'transparent' },
+                }}
+              />
+              <Stack.Screen
+                name="CreateRoom"
+                component={CreateRoom}
+                options={{
+                  title: 'New meeting',
+                  cardStyle: { backgroundColor: 'transparent' },
+                }}
+              />
+              <Stack.Screen name="Room" component={Room} />
+              <Stack.Screen
+                name="JoinRoom"
+                component={JoinRoom}
+                options={{
+                  title: 'Join meeting',
+                  cardStyle: { backgroundColor: 'transparent' },
+                }}
+              />
+              <Stack.Screen
+                name="Preview"
+                component={Preview}
+                options={{
+                  cardStyle: { backgroundColor: 'transparent' },
+                }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </VideoroomContextProvider>
+      </SafeAreaView>
     </BackgroundWrapper>
   );
 }
