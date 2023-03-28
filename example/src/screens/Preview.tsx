@@ -1,5 +1,6 @@
 import { BrandColors, TextColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
+import { NoCameraView } from '@components/NoCameraView';
 import { Typo } from '@components/Typo';
 import { InCallButton } from '@components/buttons/InCallButton';
 import { StandardButton } from '@components/buttons/StandardButton';
@@ -140,13 +141,7 @@ export const Preview = ({ navigation, route }: Props) => {
               captureDeviceId={currentCamera?.id}
             />
           ) : (
-            <View style={styles.noCameraBackground}>
-              <View style={styles.noCameraContent}>
-                <Typo variant="h5" color={BrandColors.darkBlue80}>
-                  {getShortUsername(username)}
-                </Typo>
-              </View>
-            </View>
+            <NoCameraView username={getShortUsername(username)} />
           )}
 
           <View style={styles.iconsRow}>
@@ -237,21 +232,5 @@ const styles = StyleSheet.create({
   microphoneButton: {
     paddingRight: 16,
     paddingLeft: 16,
-  },
-  noCameraBackground: {
-    backgroundColor: BrandColors.seaBlue20,
-    flex: 1,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  noCameraContent: {
-    borderRadius: 5000,
-    borderColor: BrandColors.darkBlue60,
-    borderWidth: 1,
-    width: 132,
-    height: 132,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

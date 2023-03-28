@@ -1,12 +1,14 @@
 import { BrandColors, TextColors } from '@colors';
 import { Icon } from '@components/Icon';
+import { NoCameraView } from '@components/NoCameraView';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { findIndex } from 'lodash';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { getShortUsername } from '@utils';
+import React, { useCallback } from 'react';
 import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
+import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
 
@@ -14,21 +16,15 @@ type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
 export const Room = ({ navigation }: Props) => {
   const { width, height } = Dimensions.get('window');
-  const videoViewWidth = (width - 32 - 16) / 2;
-
+  const { roomName } = useVideoroomState();
   const participants = Membrane.useRoomParticipants();
-  const [currentCamera, setCurrentCamera] =
-    useState<Membrane.CaptureDevice | null>(null);
-  const availableCameras = useRef<Membrane.CaptureDevice[]>([]);
+
+  const videoViewWidth = (width - 32 - 16) / 2;
+  const smallScreenVideoWidth =
+    (height - 126 - 8 * (participants.length / 2 + 2)) /
+    Math.ceil(participants.length / 2);
 
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
-
-  useEffect(() => {
-    Membrane.getCaptureDevices().then((devices) => {
-      availableCameras.current = devices;
-      setCurrentCamera(devices.find((device) => device.isFrontFacing) || null);
-    });
-  }, []);
 
   const disconnect = useCallback(() => {
     mbDisconnect();
@@ -36,26 +32,33 @@ export const Room = ({ navigation }: Props) => {
   }, []);
 
   const switchCamera = useCallback(() => {
-    const cameras = availableCameras.current;
-    // setCurrentCamera(
-    //   (currentCamera) =>
-    //     cameras[(findIndex(cameras, currentCamera) + 1) % cameras.length]
-    // );
-    console.log(cameras, currentCamera);
-    Membrane.switchCamera(
-      cameras[(findIndex(cameras, currentCamera) + 1) % cameras.length].id
-    );
+    Membrane.flipCamera();
   }, []);
 
-  const newVideoWidth =
-    (height - 126 - 8 * (participants.length / 2 + 2)) /
-    Math.ceil(participants.length / 2);
+  const getWidthWhenManyParticipants = () => {
+    return Math.min(videoViewWidth, smallScreenVideoWidth);
+  };
+
+  const getStylesForParticipants = () => {
+    return [
+      styles.participant,
+      participants.length > 3
+        ? {
+            width: getWidthWhenManyParticipants(),
+          }
+        : {
+            flex: 1,
+            maxHeight: width - 32,
+            maxWidth: width - 32,
+          },
+    ];
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerTitle}>
-          <Typo variant="h4">Videoroom Makeover</Typo>
+          <Typo variant="h4">{roomName}</Typo>
         </View>
         <View style={styles.headerIcon}>
           <Pressable onPress={switchCamera}>
@@ -65,7 +68,7 @@ export const Room = ({ navigation }: Props) => {
       </View>
 
       <View style={styles.flex}>
-        <View style={styles.otherParticipantsContainer}>
+        <View style={styles.participantsContainer}>
           <View
             style={[
               styles.inner,
@@ -77,45 +80,47 @@ export const Room = ({ navigation }: Props) => {
                 p.tracks
                   .filter((t) => t.type === 'Video')
                   .map((t) => (
-                    <Pressable
-                      onPress={() => {}}
-                      key={t.id}
-                      style={[
-                        styles.participant,
-                        participants.length > 3
-                          ? {
-                              width: Math.min(videoViewWidth, newVideoWidth),
-                            }
-                          : {
-                              flex: 1,
-                              maxHeight: width - 32,
-                              maxWidth: width - 32,
-                            },
-                      ]}
-                    >
-                      <Membrane.VideoRendererView
-                        trackId={t.id}
-                        style={{ width: '100%', aspectRatio: 1 }}
-                      />
+                    <View key={t.id} style={getStylesForParticipants()}>
+                      {!t.metadata.active ? (
+                        <View style={styles.videoTrack}>
+                          <NoCameraView
+                            username={getShortUsername(p.metadata.displayName)}
+                          />
+                        </View>
+                      ) : (
+                        <Membrane.VideoRendererView
+                          trackId={t.id}
+                          style={styles.videoTrack}
+                        />
+                      )}
                       <View style={styles.displayNameContainer}>
-                        <View style={styles.displayName}>
+                        <View
+                          style={[
+                            styles.displayName,
+                            p.type === 'Local'
+                              ? styles.localUser
+                              : styles.remoteUser,
+                          ]}
+                        >
                           <Typo variant="label" color={TextColors.white}>
-                            {p.metadata.displayName}
+                            {p.type === 'Local'
+                              ? 'You'
+                              : p.metadata.displayName}
                           </Typo>
                         </View>
                       </View>
-
-                      <View style={styles.disabledIconsContainer}>
-                        {!p.tracks.find((t) => t.type === 'Audio')?.metadata
-                          .active && <Icon name="Microphone-off" size={24} />}
-                        {!t.metadata.active && (
-                          <Icon name="Cam-disabled" size={24} />
-                        )}
-                      </View>
-                    </Pressable>
+                    </View>
                   ))
               )
-              .flat()}
+              .flat()
+              .slice(0, participants.length > 8 ? 7 : 8)}
+            <View
+              style={{ display: participants.length > 8 ? 'flex' : 'none' }}
+            >
+              <View style={getStylesForParticipants()}>
+                <Typo variant="label">Others</Typo>
+              </View>
+            </View>
           </View>
         </View>
       </View>
@@ -146,17 +151,7 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  focusedParticipantContainer: {
-    flex: 1,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#001A72',
-    margin: 20,
-  },
-  focusedParticipant: {
-    flex: 1,
-  },
-  otherParticipantsContainer: {
+  participantsContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -185,7 +180,6 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   displayNameContainer: {
-    backgroundColor: BrandColors.darkBlue80,
     borderRadius: 60,
     position: 'absolute',
     left: 16,
@@ -193,30 +187,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  remoteUser: {
+    backgroundColor: BrandColors.darkBlue80,
+  },
+  localUser: {
+    backgroundColor: BrandColors.pink100,
+  },
   displayName: {
+    borderRadius: 60,
     paddingLeft: 12,
     paddingRight: 12,
     paddingTop: 6,
-    paddingBottom: 5,
+    paddingBottom: 6,
   },
-  settingsButton: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-  },
-  settingsWrapper: {
-    position: 'absolute',
-    right: 4,
-    bottom: 48,
-  },
-  disabledIconsContainer: {
-    flexDirection: 'row',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  },
-  vadSpeech: {
-    borderWidth: 5,
-    borderColor: BrandColors.green60,
-  },
+  videoTrack: { width: '100%', aspectRatio: 1 },
 });
