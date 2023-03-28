@@ -12,6 +12,11 @@ import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
 
+const HEADER_AND_FOOTER_SIZE = 126;
+const PADDING_BETWEEN_PARTICIPANTS = 16;
+const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
+const FLEX_BRAKPOINT = 3;
+
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
 export const Room = ({ navigation }: Props) => {
@@ -19,9 +24,11 @@ export const Room = ({ navigation }: Props) => {
   const { roomName } = useVideoroomState();
   const participants = Membrane.useRoomParticipants();
 
-  const videoViewWidth = (width - 32 - 16) / 2;
+  const videoViewWidth = (width - 3 * PADDING_BETWEEN_PARTICIPANTS) / 2;
   const smallScreenVideoWidth =
-    (height - 126 - 16 * (participants.length / 2 + 2)) /
+    (height -
+      HEADER_AND_FOOTER_SIZE -
+      PADDING_BETWEEN_PARTICIPANTS * (participants.length / 2 + 2)) /
     Math.ceil(participants.length / 2);
 
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
@@ -57,14 +64,14 @@ export const Room = ({ navigation }: Props) => {
   const getStylesForParticipants = (participants: Membrane.Participant[]) => {
     return [
       styles.participant,
-      participants.length > 3
+      participants.length > FLEX_BRAKPOINT
         ? {
             width: getWidthWhenManyParticipants(),
           }
         : {
             flex: 1,
-            maxHeight: width - 32,
-            maxWidth: width - 32,
+            maxHeight: width - 2 * PADDING_BETWEEN_PARTICIPANTS,
+            maxWidth: width - 2 * PADDING_BETWEEN_PARTICIPANTS,
           },
     ];
   };
@@ -87,7 +94,7 @@ export const Room = ({ navigation }: Props) => {
           <View
             style={[
               styles.inner,
-              participants.length > 3 ? styles.row : styles.column,
+              participants.length > FLEX_BRAKPOINT ? styles.row : styles.column,
             ]}
           >
             {participants
@@ -142,9 +149,14 @@ export const Room = ({ navigation }: Props) => {
                   ))
               )
               .flat()
-              .slice(0, participants.length > 8 ? 7 : 8)}
+              .slice(
+                0,
+                participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
+                  ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
+                  : MAX_NUM_OF_USERS_ON_THE_SCREEN
+              )}
 
-            {participants.length > 8 && (
+            {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
               <View style={getStylesForParticipants(participants)}>
                 <Typo variant="label">Others</Typo>
               </View>
