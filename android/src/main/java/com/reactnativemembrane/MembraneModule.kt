@@ -8,6 +8,7 @@ import android.media.projection.MediaProjectionManager
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.twilio.audioswitch.AudioDevice
 import kotlinx.coroutines.Dispatchers
 import org.membraneframework.rtc.*
 import org.membraneframework.rtc.media.*
@@ -60,6 +61,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   var trackContexts: MutableMap<String, TrackContext> = mutableMapOf()
 
   var captureDeviceId: String? = null
+  val audioSwitchManager = AudioSwitchManager(reactContext)
 
   companion object {
     val participants = LinkedHashMap<String, Participant>()
@@ -92,6 +94,10 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   init {
     reactContext.addActivityEventListener(activityEventListener)
+  }
+
+  override fun invalidate() {
+    audioSwitchManager.stop()
   }
 
   private fun getSimulcastConfigFromOptions(options: ReadableMap): SimulcastConfig {
@@ -140,19 +146,10 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
     val socketChannelParams = connectionOptions.getMap("socketChannelParams")?.toMap() ?: mutableMapOf()
 
-    var isSpeakerphoneOn = true
-    if(connectionOptions.hasKey("isSpeakerphoneOn")) {
-      isSpeakerphoneOn = connectionOptions.getBoolean("isSpeakerphoneOn")
-    }
-
     this.captureDeviceId = connectionOptions.getString("captureDeviceId")
 
     this.videoSimulcastConfig = getSimulcastConfigFromOptions(connectionOptions)
     this.videoMaxBandwidth = getMaxBandwidthFromOptions(connectionOptions)
-
-    val audioManager =  reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    audioManager.isSpeakerphoneOn = isSpeakerphoneOn
-    audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
 
     connectPromise = promise
     room = MembraneRTC.connect(
@@ -342,9 +339,21 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun toggleSpeakerphone(promise: Promise) {
-    val audioManager = reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    audioManager.isSpeakerphoneOn = !audioManager.isSpeakerphoneOn
+  fun setOutputAudioDevice(audioDevice: String, promise: Promise) {
+    audioSwitchManager.selectAudioOutput(AudioDeviceKind.fromTypeName(audioDevice))
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun startAudioSwitcher(promise: Promise) {
+    audioSwitchManager.start(this::emitAudioDeviceEvent)
+    emitAudioDeviceEvent(audioSwitchManager.availableAudioDevices(), audioSwitchManager.selectedAudioDevice())
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun stopAudioSwitcher(promise: Promise) {
+    audioSwitchManager.stop()
     promise.resolve(null)
   }
 
@@ -529,6 +538,22 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   private fun emitParticipants() {
     emitEvent("ParticipantsUpdate", getParticipantsAsRNMap())
+  }
+
+  private fun audioDeviceAsRNMap(audioDevice: AudioDevice): WritableMap {
+    val map = Arguments.createMap()
+    map.putString("name", audioDevice.name)
+    map.putString("type", AudioDeviceKind.fromAudioDevice(audioDevice)?.typeName)
+    return map
+  }
+
+  private fun emitAudioDeviceEvent(audioDevices: List<AudioDevice>, selectedDevice: AudioDevice?) {
+    val map = Arguments.createMap()
+    map.putMap("selectedDevice",  if (selectedDevice != null) audioDeviceAsRNMap(selectedDevice) else null)
+    val audioDevicesRNArray = Arguments.createArray()
+    audioDevices.forEach { audioDevice -> audioDevicesRNArray.pushMap(audioDeviceAsRNMap(audioDevice)) }
+    map.putArray("availableDevices", audioDevicesRNArray)
+    emitEvent("AudioDeviceUpdate", map)
   }
 
   private fun getSimulcastConfigAsRNMap(simulcastConfig: SimulcastConfig): WritableMap? {

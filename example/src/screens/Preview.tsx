@@ -30,6 +30,7 @@ export const Preview = ({ navigation, route }: Props) => {
   const { title } = route.params;
 
   const { connect: mbConnect, joinRoom, error } = Membrane.useMembraneServer();
+  Membrane.useAudioSettings();
 
   const params = {
     token: 'NOW_YOU_CAN_SEND_PARAMS',
@@ -90,7 +91,6 @@ export const Preview = ({ navigation, route }: Props) => {
         maxBandwidth: { l: 150, m: 500, h: 1500 },
         videoTrackMetadata: { active: true, type: 'camera' },
         audioTrackMetadata: { active: true, type: 'audio' },
-        isSpeakerphoneOn: false,
         videoTrackEnabled: isCameraOn,
         audioTrackEnabled: isMicrophoneOn,
         captureDeviceId: currentCamera?.id,
