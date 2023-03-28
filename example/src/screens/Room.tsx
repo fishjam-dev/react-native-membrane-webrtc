@@ -39,7 +39,7 @@ export const Room = ({ navigation }: Props) => {
     return Math.min(videoViewWidth, smallScreenVideoWidth);
   };
 
-  const getStylesForParticipants = () => {
+  const getStylesForParticipants = (participants: Membrane.Participant[]) => {
     return [
       styles.participant,
       participants.length > 3
@@ -80,7 +80,10 @@ export const Room = ({ navigation }: Props) => {
                 p.tracks
                   .filter((t) => t.type === 'Video')
                   .map((t) => (
-                    <View key={t.id} style={getStylesForParticipants()}>
+                    <View
+                      key={t.id}
+                      style={getStylesForParticipants(participants)}
+                    >
                       {!t.metadata.active ? (
                         <View style={styles.videoTrack}>
                           <NoCameraView
@@ -109,16 +112,17 @@ export const Room = ({ navigation }: Props) => {
                           </Typo>
                         </View>
                       </View>
-                      <View style={styles.mutedIcon}>
-                        {!p.tracks.find((t) => t.type === 'Audio')?.metadata
-                          .active && (
+
+                      {!p.tracks.find((t) => t.type === 'Audio')?.metadata
+                        .active && (
+                        <View style={styles.mutedIcon}>
                           <Icon
                             name="Microphone-off"
                             size={16}
                             color={BrandColors.darkBlue100}
                           />
-                        )}
-                      </View>
+                        </View>
+                      )}
                     </View>
                   ))
               )
@@ -127,7 +131,7 @@ export const Room = ({ navigation }: Props) => {
             <View
               style={{ display: participants.length > 8 ? 'flex' : 'none' }}
             >
-              <View style={getStylesForParticipants()}>
+              <View style={getStylesForParticipants(participants)}>
                 <Typo variant="label">Others</Typo>
               </View>
             </View>
