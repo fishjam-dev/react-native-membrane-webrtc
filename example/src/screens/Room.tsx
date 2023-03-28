@@ -1,4 +1,4 @@
-import { BrandColors, TextColors } from '@colors';
+import { AdditionalColors, BrandColors, TextColors } from '@colors';
 import { Icon } from '@components/Icon';
 import { NoCameraView } from '@components/NoCameraView';
 import { Typo } from '@components/Typo';
@@ -109,6 +109,16 @@ export const Room = ({ navigation }: Props) => {
                           </Typo>
                         </View>
                       </View>
+                      <View style={styles.mutedIcon}>
+                        {!p.tracks.find((t) => t.type === 'Audio')?.metadata
+                          .active && (
+                          <Icon
+                            name="Microphone-off"
+                            size={16}
+                            color={BrandColors.darkBlue100}
+                          />
+                        )}
+                      </View>
                     </View>
                   ))
               )
@@ -201,4 +211,12 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
   },
   videoTrack: { width: '100%', aspectRatio: 1 },
+  mutedIcon: {
+    position: 'absolute',
+    left: 16,
+    top: 16,
+    backgroundColor: AdditionalColors.white,
+    borderRadius: 50,
+    padding: 6,
+  },
 });
