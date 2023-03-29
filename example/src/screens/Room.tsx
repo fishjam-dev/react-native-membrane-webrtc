@@ -1,181 +1,192 @@
+import { BrandColors } from '@colors';
+import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Icon } from '@components/Icon';
+import { RoomParticipant } from '@components/RoomParticipant';
+import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import React, { useCallback, useEffect } from 'react';
+import { StyleSheet, View, Dimensions } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useVideoroomState } from 'src/VideoroomContext';
 
-import { Controls } from '../Controls';
-import { Settings } from '../Settings';
+import { CallControls } from '../components/CallControls';
+
+const HEADER_AND_FOOTER_SIZE = 126;
+const OFFSET_PER_ROW = 16;
+const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
+const FLEX_BRAKPOINT = 3;
 
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
 export const Room = ({ navigation }: Props) => {
+  const { width, height } = Dimensions.get('window');
+  const { roomName } = useVideoroomState();
   const participants = Membrane.useRoomParticipants();
-  const tracks = participants
-    .map((p) => p.tracks.filter((t) => t.type === 'Video'))
-    .flat();
-
-  const [focusedTrackId, setFocusedTrackId] = useState<string | null>(null);
-  const focusedTrack = tracks.find((t) => t.id === focusedTrackId);
-  const focusedParticipant = participants.find(
-    (p) => p.tracks.find((t) => t.id === focusedTrackId) != null
+  const rowNum = Math.min(
+    Math.ceil(participants.length / 2),
+    MAX_NUM_OF_USERS_ON_THE_SCREEN / 2
   );
 
+  const videoViewWidth = (width - 3 * OFFSET_PER_ROW) / 2;
+  const smallScreenVideoWidth =
+    (height - HEADER_AND_FOOTER_SIZE - OFFSET_PER_ROW * (rowNum + 2)) / rowNum;
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
 
+  // TODO(@skyman503): Use gestureEnable when https://github.com/react-navigation/react-navigation/issues/10394 is fixed.
   useEffect(() => {
-    if (!focusedTrack && tracks[0]) {
-      setFocusedTrackId(tracks[0].id);
-    }
-  }, [tracks, focusedTrack]);
+    const handleBeforeRemoveEvent = (e) => {
+      e.preventDefault();
+      // TODO(@skyman503): Navigate to `LeaveScreen` when it is implemented.
+      // Check whether beforeRemove event was triggered by disconenct button.
+      if (e.data.action.source) {
+        navigation.dispatch(e.data.action);
+      }
+    };
 
-  const [areSettingsOpen, setAreSettingsOpen] = useState<boolean>(false);
+    navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
 
-  const isFocusedParticipantSpeaking =
-    focusedParticipant?.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-    Membrane.VadStatus.Speech;
+    return () =>
+      navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
+  }, [navigation]);
 
   const disconnect = useCallback(() => {
     mbDisconnect();
     navigation.goBack();
   }, []);
 
+  const switchCamera = useCallback(() => {
+    Membrane.flipCamera();
+  }, []);
+
+  const getWidthWhenManyParticipants = () => {
+    return Math.min(videoViewWidth, smallScreenVideoWidth);
+  };
+
+  const getStylesForParticipants = (participants: Membrane.Participant[]) => {
+    return [
+      styles.participant,
+      participants.length > FLEX_BRAKPOINT
+        ? {
+            width: getWidthWhenManyParticipants(),
+          }
+        : {
+            flex: 1,
+            maxHeight: width - 2 * OFFSET_PER_ROW,
+            maxWidth: width - 2 * OFFSET_PER_ROW,
+          },
+    ];
+  };
+
   return (
-    <View style={styles.flex}>
-      <View style={styles.flex}>
-        {!!focusedTrack && !!focusedParticipant && (
-          <View
-            style={[
-              styles.focusedParticipantContainer,
-              isFocusedParticipantSpeaking ? styles.vadSpeech : {},
-            ]}
-          >
-            <Membrane.VideoRendererView
-              trackId={focusedTrack.id}
-              style={styles.focusedParticipant}
-              videoLayout={Membrane.VideoLayout.FIT}
-            />
-            <Text style={styles.displayName}>
-              {focusedParticipant.metadata.displayName}
-            </Text>
-            {!!areSettingsOpen && (
-              <View style={styles.settingsWrapper}>
-                <Settings
-                  participant={focusedParticipant}
-                  track={focusedTrack}
-                />
-              </View>
-            )}
-            <View style={styles.disabledIconsContainer}>
-              {!focusedParticipant.tracks.find((t) => t.type === 'Audio')
-                ?.metadata.active && <Icon name="Microphone-off" size={24} />}
-              {!focusedTrack.metadata.active && (
-                <Icon name="Cam-disabled" size={24} />
-              )}
+    <BackgroundAnimation>
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <View style={styles.headerTitle}>
+              <Typo variant="h4">{roomName}</Typo>
             </View>
-            <Pressable
-              style={styles.settingsButton}
-              onPress={() => setAreSettingsOpen((o) => !o)}
-            >
-              <Icon name="Settings" size={48} />
-            </Pressable>
+            <View style={styles.headerIcon}>
+              <TouchableOpacity onPress={switchCamera}>
+                <Icon
+                  name="Cam-switch"
+                  size={24}
+                  color={BrandColors.darkBlue100}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        )}
-        <View style={styles.otherParticipantsContainer}>
-          {participants
-            .map((p) =>
-              p.tracks
-                .filter((t) => t.id !== focusedTrack?.id)
-                .filter((t) => t.type === 'Video')
-                .map((t) => (
-                  <Pressable
-                    onPress={() => setFocusedTrackId(t.id)}
-                    key={t.id}
-                    style={[
-                      styles.participant,
-                      p.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-                      Membrane.VadStatus.Speech
-                        ? styles.vadSpeech
-                        : {},
-                    ]}
-                  >
-                    <Membrane.VideoRendererView
-                      trackId={t.id}
-                      style={styles.flex}
-                    />
-                    <Text style={styles.displayName}>
-                      {p.metadata.displayName}
-                    </Text>
-                    <View style={styles.disabledIconsContainer}>
-                      {!p.tracks.find((t) => t.type === 'Audio')?.metadata
-                        .active && <Icon name="Microphone-off" size={24} />}
-                      {!t.metadata.active && (
-                        <Icon name="Cam-disabled" size={24} />
-                      )}
+
+          <View style={styles.flex}>
+            <View style={styles.participantsContainer}>
+              <View
+                style={[
+                  styles.inner,
+                  participants.length > FLEX_BRAKPOINT
+                    ? styles.row
+                    : styles.column,
+                ]}
+              >
+                {participants
+                  .slice(
+                    0,
+                    participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
+                      ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
+                      : MAX_NUM_OF_USERS_ON_THE_SCREEN
+                  )
+                  .map((p) => (
+                    <View
+                      key={p.id}
+                      style={getStylesForParticipants(participants)}
+                    >
+                      <RoomParticipant participant={p} />
                     </View>
-                  </Pressable>
-                ))
-            )
-            .flat()}
+                  ))}
+
+                {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
+                  <View style={getStylesForParticipants(participants)}>
+                    <Typo variant="label">Others</Typo>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+          <CallControls disconnect={disconnect} />
         </View>
-      </View>
-      <Controls disconnect={disconnect} />
-    </View>
+      </SafeAreaView>
+    </BackgroundAnimation>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: BrandColors.seaBlue20,
+  },
+  header: {
+    flexDirection: 'row',
+    marginTop: 60,
+    width: '100%',
+  },
+  headerTitle: {
+    marginLeft: 16,
+  },
+  headerIcon: {
+    justifyContent: 'center',
+    marginRight: 15,
+    marginLeft: 'auto',
+  },
   flex: {
     flex: 1,
   },
-  focusedParticipantContainer: {
+  participantsContainer: {
     flex: 1,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#001A72',
-    margin: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
   },
-  focusedParticipant: {
-    flex: 1,
-  },
-  otherParticipantsContainer: {
-    width: '100%',
+  row: {
     flexDirection: 'row',
-    height: 100,
-    margin: 20,
+  },
+  column: {
+    flexDirection: 'column',
+  },
+  inner: {
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   participant: {
-    height: 100,
-    width: 100,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#001A72',
-  },
-  displayName: {
-    backgroundColor: 'white',
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
-  },
-  settingsButton: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-  },
-  settingsWrapper: {
-    position: 'absolute',
-    right: 4,
-    bottom: 48,
-  },
-  disabledIconsContainer: {
-    flexDirection: 'row',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  },
-  vadSpeech: {
-    borderWidth: 6,
-    borderColor: '#001A72',
+    aspectRatio: 1,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: BrandColors.darkBlue60,
+    overflow: 'hidden',
+    marginBottom: 8,
+    marginLeft: 4,
+    marginRight: 4,
   },
 });

@@ -7,17 +7,16 @@ import kotlinx.coroutines.launch
 import org.membraneframework.rtc.media.VideoTrack
 import org.membraneframework.rtc.ui.VideoTextureViewRenderer
 
-class VideoRendererWrapper(context: Context) {
-  var view: VideoTextureViewRenderer = VideoTextureViewRenderer(context)
+class VideoRendererView(context: Context): VideoTextureViewRenderer(context) {
   var isInitialized = false
   var activeVideoTrack: VideoTrack? = null
   var trackId: String? = null
 
-  fun setupTrack(videoTrack: VideoTrack) {
+  private fun setupTrack(videoTrack: VideoTrack) {
     if (activeVideoTrack == videoTrack) return
 
-    activeVideoTrack?.removeRenderer(view)
-    videoTrack.addRenderer(view)
+    activeVideoTrack?.removeRenderer(this)
+    videoTrack.addRenderer(this)
     activeVideoTrack = videoTrack
   }
 
@@ -27,7 +26,7 @@ class VideoRendererWrapper(context: Context) {
       val videoTrack = participant?.videoTracks?.get(trackId) ?: return@launch
       if(!isInitialized) {
         isInitialized = true
-        view.init(videoTrack.eglContext, null)
+        this@VideoRendererView.init(videoTrack.eglContext, null)
       }
       setupTrack(videoTrack)
     }
@@ -39,8 +38,7 @@ class VideoRendererWrapper(context: Context) {
   }
 
   fun dispose() {
-    activeVideoTrack?.removeRenderer(view)
-    view.release()
+    activeVideoTrack?.removeRenderer(this)
+    this.release()
   }
-
 }
