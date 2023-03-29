@@ -82,7 +82,7 @@ export const Room = ({ navigation }: Props) => {
 
   return (
     <BackgroundAnimation>
-      <SafeAreaView style={{ flex: 1 }} edges={[]}>
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
         <View style={styles.container}>
           <View style={styles.header}>
             <View style={styles.headerTitle}>
