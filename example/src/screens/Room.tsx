@@ -135,7 +135,7 @@ export const Room = ({ navigation }: Props) => {
                       p1={participants[participants.length - 1]}
                       p2={participants[participants.length - 2]}
                       numOfOtherParticipants={
-                        participants.length - MAX_NUM_OF_USERS_ON_THE_SCREEN
+                        participants.length - MAX_NUM_OF_USERS_ON_THE_SCREEN + 1
                       }
                     />
                   </View>
