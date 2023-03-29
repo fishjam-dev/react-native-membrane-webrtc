@@ -22,7 +22,6 @@ export const RoomParticipant = ({
   const audioTrack = tracks.find((t) => t.type === 'Audio');
 
   const participantHasVideo = () => {
-    console.log(videoTrack);
     if (videoTrack !== undefined) {
       return videoTrack.metadata.active;
     }

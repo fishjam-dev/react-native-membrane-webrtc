@@ -24,17 +24,17 @@ export const Room = ({ navigation }: Props) => {
   const { width, height } = Dimensions.get('window');
   const { roomName } = useVideoroomState();
   const participants = Membrane.useRoomParticipants();
+  const rowNum = Math.min(
+    Math.ceil(participants.length / 2),
+    MAX_NUM_OF_USERS_ON_THE_SCREEN / 2
+  );
 
   const videoViewWidth = (width - 3 * PADDING_BETWEEN_PARTICIPANTS) / 2;
   const smallScreenVideoWidth =
     (height -
       HEADER_AND_FOOTER_SIZE -
-      PADDING_BETWEEN_PARTICIPANTS * (participants.length / 2 + 2)) /
-    Math.min(
-      Math.ceil(participants.length / 2),
-      MAX_NUM_OF_USERS_ON_THE_SCREEN
-    );
-
+      PADDING_BETWEEN_PARTICIPANTS * (rowNum + 2)) /
+    rowNum;
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
 
   useEffect(() => {
