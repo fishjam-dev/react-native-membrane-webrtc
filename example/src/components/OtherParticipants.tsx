@@ -7,8 +7,8 @@ import { View, StyleSheet } from 'react-native';
 import { Typo } from './Typo';
 
 type OtherParticipantsProp = {
-  p1: Membrane.Participant | undefined;
-  p2: Membrane.Participant | undefined;
+  p1?: Membrane.Participant;
+  p2?: Membrane.Participant;
   numOfOtherParticipants: number;
 };
 
@@ -90,8 +90,8 @@ const styles = StyleSheet.create({
     borderRadius: 5000,
     borderColor: BrandColors.darkBlue60,
     borderWidth: 1,
-    width: 100,
-    height: 100,
+    width: 75,
+    height: 75,
   },
   textRow: {
     marginTop: 8,
