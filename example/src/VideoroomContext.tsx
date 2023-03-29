@@ -9,7 +9,7 @@ import {
   useCameraState,
   useMicrophoneState,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 
 const VideoroomContext = React.createContext<
@@ -46,6 +46,8 @@ const VideoroomContextProvider = (props) => {
   const { updateVideoTrackMetadata } = useVideoTrackMetadata();
   const { updateAudioTrackMetadata } = useAudioTrackMetadata();
 
+  const isConnected = useRef(false);
+
   const connectAndJoinRoom = useCallback(async () => {
     const trimmedRoomName = roomName.trimEnd();
     const trimmedUserName = username.trimEnd();
@@ -71,6 +73,7 @@ const VideoroomContextProvider = (props) => {
       captureDeviceId: currentCamera?.id,
     });
     await joinRoom();
+    isConnected.current = true;
   }, [roomName, username, isCameraOn, isMicrophoneOn, currentCamera]);
 
   useEffect(() => {
@@ -81,14 +84,18 @@ const VideoroomContextProvider = (props) => {
   }, [error]);
 
   const toggleCamera = useCallback(() => {
-    membraneToggleCamera();
-    updateVideoTrackMetadata({ active: !isCameraOn, type: 'camera' });
+    if (isConnected.current) {
+      membraneToggleCamera();
+      updateVideoTrackMetadata({ active: !isCameraOn, type: 'camera' });
+    }
     setIsCameraOn(!isCameraOn);
   }, [isCameraOn]);
 
   const toggleMicrophone = useCallback(() => {
-    membraneToggleMicrophone();
-    updateAudioTrackMetadata({ active: !isMicrophoneOn, type: 'audio' });
+    if (isConnected.current) {
+      membraneToggleMicrophone();
+      updateAudioTrackMetadata({ active: !isMicrophoneOn, type: 'audio' });
+    }
     setIsMicrophoneOn(!isMicrophoneOn);
   }, [isMicrophoneOn]);
 
