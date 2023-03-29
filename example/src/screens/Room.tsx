@@ -14,7 +14,7 @@ import { useVideoroomState } from 'src/VideoroomContext';
 import { CallControls } from '../components/CallControls';
 
 const HEADER_AND_FOOTER_SIZE = 126;
-const PADDING_BETWEEN_PARTICIPANTS = 16;
+const OFFSETPER_ROW = 16;
 const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
 const FLEX_BRAKPOINT = 3;
 
@@ -29,12 +29,9 @@ export const Room = ({ navigation }: Props) => {
     MAX_NUM_OF_USERS_ON_THE_SCREEN / 2
   );
 
-  const videoViewWidth = (width - 3 * PADDING_BETWEEN_PARTICIPANTS) / 2;
+  const videoViewWidth = (width - 3 * OFFSETPER_ROW) / 2;
   const smallScreenVideoWidth =
-    (height -
-      HEADER_AND_FOOTER_SIZE -
-      PADDING_BETWEEN_PARTICIPANTS * (rowNum + 2)) /
-    rowNum;
+    (height - HEADER_AND_FOOTER_SIZE - OFFSETPER_ROW * (rowNum + 2)) / rowNum;
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
 
   useEffect(() => {
@@ -75,8 +72,8 @@ export const Room = ({ navigation }: Props) => {
           }
         : {
             flex: 1,
-            maxHeight: width - 2 * PADDING_BETWEEN_PARTICIPANTS,
-            maxWidth: width - 2 * PADDING_BETWEEN_PARTICIPANTS,
+            maxHeight: width - 2 * OFFSETPER_ROW,
+            maxWidth: width - 2 * OFFSETPER_ROW,
           },
     ];
   };
