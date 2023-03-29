@@ -8,21 +8,17 @@ import { NoCameraView } from './NoCameraView';
 import { Typo } from './Typo';
 
 type RoomParticipantProps = {
-  tracks: Membrane.Track[];
-  metadata: Membrane.Metadata;
-  type: Membrane.ParticipantType;
+  participant: Membrane.Participant;
 };
 
 export const RoomParticipant = ({
-  tracks,
-  metadata,
-  type,
+  participant: { metadata, tracks, type },
 }: RoomParticipantProps) => {
   const videoTrack = tracks.find((t) => t.type === 'Video');
   const audioTrack = tracks.find((t) => t.type === 'Audio');
 
   const participantHasVideo = () => {
-    if (videoTrack !== undefined) {
+    if (videoTrack) {
       return videoTrack.metadata.active;
     }
     return false;

@@ -9,12 +9,13 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
 
 const HEADER_AND_FOOTER_SIZE = 126;
-const OFFSETPER_ROW = 16;
+const OFFSET_PER_ROW = 16;
 const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
 const FLEX_BRAKPOINT = 3;
 
@@ -29,11 +30,12 @@ export const Room = ({ navigation }: Props) => {
     MAX_NUM_OF_USERS_ON_THE_SCREEN / 2
   );
 
-  const videoViewWidth = (width - 3 * OFFSETPER_ROW) / 2;
+  const videoViewWidth = (width - 3 * OFFSET_PER_ROW) / 2;
   const smallScreenVideoWidth =
-    (height - HEADER_AND_FOOTER_SIZE - OFFSETPER_ROW * (rowNum + 2)) / rowNum;
+    (height - HEADER_AND_FOOTER_SIZE - OFFSET_PER_ROW * (rowNum + 2)) / rowNum;
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
 
+  // TODO(@skyman503): Use gestureEnable when https://github.com/react-navigation/react-navigation/issues/10394 is fixed.
   useEffect(() => {
     const handleBeforeRemoveEvent = (e) => {
       e.preventDefault();
@@ -72,70 +74,68 @@ export const Room = ({ navigation }: Props) => {
           }
         : {
             flex: 1,
-            maxHeight: width - 2 * OFFSETPER_ROW,
-            maxWidth: width - 2 * OFFSETPER_ROW,
+            maxHeight: width - 2 * OFFSET_PER_ROW,
+            maxWidth: width - 2 * OFFSET_PER_ROW,
           },
     ];
   };
 
   return (
     <BackgroundAnimation>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerTitle}>
-            <Typo variant="h4">{roomName}</Typo>
-          </View>
-          <View style={styles.headerIcon}>
-            <TouchableOpacity onPress={switchCamera}>
-              <Icon
-                name="Cam-switch"
-                size={24}
-                color={BrandColors.darkBlue100}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.flex}>
-          <View style={styles.participantsContainer}>
-            <View
-              style={[
-                styles.inner,
-                participants.length > FLEX_BRAKPOINT
-                  ? styles.row
-                  : styles.column,
-              ]}
-            >
-              {participants
-                .slice(
-                  0,
-                  participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
-                    ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
-                    : MAX_NUM_OF_USERS_ON_THE_SCREEN
-                )
-                .map((p) => (
-                  <View
-                    key={p.id}
-                    style={getStylesForParticipants(participants)}
-                  >
-                    <RoomParticipant
-                      tracks={p.tracks}
-                      type={p.type}
-                      metadata={p.metadata}
-                    />
-                  </View>
-                ))}
-
-              {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
-                <View style={getStylesForParticipants(participants)}>
-                  <Typo variant="label">Others</Typo>
-                </View>
-              )}
+      <SafeAreaView style={{ flex: 1 }} edges={[]}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <View style={styles.headerTitle}>
+              <Typo variant="h4">{roomName}</Typo>
+            </View>
+            <View style={styles.headerIcon}>
+              <TouchableOpacity onPress={switchCamera}>
+                <Icon
+                  name="Cam-switch"
+                  size={24}
+                  color={BrandColors.darkBlue100}
+                />
+              </TouchableOpacity>
             </View>
           </View>
+
+          <View style={styles.flex}>
+            <View style={styles.participantsContainer}>
+              <View
+                style={[
+                  styles.inner,
+                  participants.length > FLEX_BRAKPOINT
+                    ? styles.row
+                    : styles.column,
+                ]}
+              >
+                {participants
+                  .slice(
+                    0,
+                    participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
+                      ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
+                      : MAX_NUM_OF_USERS_ON_THE_SCREEN
+                  )
+                  .map((p) => (
+                    <View
+                      key={p.id}
+                      style={getStylesForParticipants(participants)}
+                    >
+                      <RoomParticipant participant={p} />
+                    </View>
+                  ))}
+
+                {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
+                  <View style={getStylesForParticipants(participants)}>
+                    <Typo variant="label">Others</Typo>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+          <CallControls disconnect={disconnect} />
         </View>
-        <CallControls disconnect={disconnect} />
-      </View>
+      </SafeAreaView>
     </BackgroundAnimation>
   );
 };
