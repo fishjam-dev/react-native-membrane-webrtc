@@ -22,9 +22,9 @@ export const Preview = ({ navigation, route }: Props) => {
     currentCamera,
     setCurrentCamera,
     isCameraOn,
-    setIsCameraOn,
+    toggleCamera,
     isMicrophoneOn,
-    setIsMicrophoneOn,
+    toggleMicrophone,
     connectAndJoinRoom,
   } = useVideoroomState();
   const { title } = route.params;
@@ -96,17 +96,13 @@ export const Preview = ({ navigation, route }: Props) => {
             <View style={styles.iconsRow}>
               <InCallButton
                 iconName={isCameraOn ? 'Cam' : 'Cam-disabled'}
-                onPress={() => {
-                  setIsCameraOn(!isCameraOn);
-                }}
+                onPress={toggleCamera}
               />
 
               <View style={styles.microphoneButton}>
                 <InCallButton
                   iconName={isMicrophoneOn ? 'Microphone' : 'Microphone-off'}
-                  onPress={() => {
-                    setIsMicrophoneOn(!isMicrophoneOn);
-                  }}
+                  onPress={toggleMicrophone}
                 />
               </View>
               <InCallButton iconName="Cam-switch" onPress={switchCamera} />

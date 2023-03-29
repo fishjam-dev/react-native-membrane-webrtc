@@ -4,6 +4,10 @@ import {
   useAudioSettings,
   VideoQuality,
   CaptureDevice,
+  useVideoTrackMetadata,
+  useAudioTrackMetadata,
+  useCameraState,
+  useMicrophoneState,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Alert } from 'react-native';
@@ -15,9 +19,9 @@ const VideoroomContext = React.createContext<
       username: string;
       setUsername: (username: string) => void;
       isCameraOn: boolean;
-      setIsCameraOn: (isOn: boolean) => void;
+      toggleCamera: () => void;
       isMicrophoneOn: boolean;
-      setIsMicrophoneOn: (isOn: boolean) => void;
+      toggleMicrophone: () => void;
       currentCamera: CaptureDevice | null;
       setCurrentCamera: (camera: CaptureDevice | null) => void;
       connectAndJoinRoom: () => Promise<void>;
@@ -33,9 +37,14 @@ const VideoroomContextProvider = (props) => {
   const [currentCamera, setCurrentCamera] = useState<CaptureDevice | null>(
     null
   );
+  const { toggleCamera: membraneToggleCamera } = useCameraState();
+  const { toggleMicrophone: membraneToggleMicrophone } = useMicrophoneState();
 
   const { connect, joinRoom, error } = useMembraneServer();
   useAudioSettings();
+
+  const { updateVideoTrackMetadata } = useVideoTrackMetadata();
+  const { updateAudioTrackMetadata } = useAudioTrackMetadata();
 
   const connectAndJoinRoom = useCallback(async () => {
     const trimmedRoomName = roomName.trimEnd();
@@ -55,8 +64,8 @@ const VideoroomContextProvider = (props) => {
       },
       quality: VideoQuality.HD_169,
       maxBandwidth: { l: 150, m: 500, h: 1500 },
-      videoTrackMetadata: { active: true, type: 'camera' },
-      audioTrackMetadata: { active: true, type: 'audio' },
+      videoTrackMetadata: { active: isCameraOn, type: 'camera' },
+      audioTrackMetadata: { active: isMicrophoneOn, type: 'audio' },
       videoTrackEnabled: isCameraOn,
       audioTrackEnabled: isMicrophoneOn,
       captureDeviceId: currentCamera?.id,
@@ -71,6 +80,18 @@ const VideoroomContextProvider = (props) => {
     }
   }, [error]);
 
+  const toggleCamera = useCallback(() => {
+    membraneToggleCamera();
+    updateVideoTrackMetadata({ active: !isCameraOn, type: 'camera' });
+    setIsCameraOn(!isCameraOn);
+  }, [isCameraOn]);
+
+  const toggleMicrophone = useCallback(() => {
+    membraneToggleMicrophone();
+    updateAudioTrackMetadata({ active: !isMicrophoneOn, type: 'audio' });
+    setIsMicrophoneOn(!isMicrophoneOn);
+  }, [isMicrophoneOn]);
+
   const value = {
     roomName,
     setRoomName,
@@ -78,9 +99,9 @@ const VideoroomContextProvider = (props) => {
     setUsername,
     connectAndJoinRoom,
     isCameraOn,
-    setIsCameraOn,
+    toggleCamera,
     isMicrophoneOn,
-    setIsMicrophoneOn,
+    toggleMicrophone,
     currentCamera,
     setCurrentCamera,
   };
