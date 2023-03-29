@@ -1,6 +1,12 @@
 import { TextColors } from '@colors';
 import React, { ReactNode } from 'react';
-import { StyleSheet, Text, Dimensions, TextStyle } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  Dimensions,
+  TextStyle,
+  TextProps,
+} from 'react-native';
 
 const SMALL_WINDOW_BREAKPOINT = 640;
 
@@ -172,12 +178,14 @@ type TypoProps = {
   variant: VariantName;
   color?: string;
   children: ReactNode;
-};
+} & TextProps;
 
 export const Typo = ({
   variant = 'body-big',
   color = TextColors.darkText,
   children,
+  style,
+  ...textProps
 }: TypoProps) => {
   const windowWidth = Dimensions.get('window').width;
 
@@ -204,11 +212,12 @@ export const Typo = ({
       'chat-title': TextStylesCustom.chatTitle,
     };
 
-    return [
-      StyleSheet.create({ color: textColor as TextStyle }),
-      variantMap[variant],
-    ];
+    return [{ color: textColor as TextStyle }, variantMap[variant]];
   };
 
-  return <Text style={GetStyleForVariant(variant, color)}>{children}</Text>;
+  return (
+    <Text style={[...GetStyleForVariant(variant, color), style]} {...textProps}>
+      {children}
+    </Text>
+  );
 };

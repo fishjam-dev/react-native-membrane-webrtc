@@ -54,7 +54,7 @@ export const Room = ({ navigation }: Props) => {
 
   const disconnect = useCallback(() => {
     mbDisconnect();
-    navigation.goBack();
+    navigation.push('LeaveRoom');
   }, []);
 
   const switchCamera = useCallback(() => {

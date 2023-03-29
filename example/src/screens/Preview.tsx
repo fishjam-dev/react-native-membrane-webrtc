@@ -4,45 +4,30 @@ import { NoCameraView } from '@components/NoCameraView';
 import { Typo } from '@components/Typo';
 import { InCallButton } from '@components/buttons/InCallButton';
 import { StandardButton } from '@components/buttons/StandardButton';
-import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { findIndex } from 'lodash';
-import React, {
-  useEffect,
-  useCallback,
-  useLayoutEffect,
-  useState,
-  useRef,
-} from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import React, { useEffect, useCallback, useLayoutEffect, useRef } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'Preview'>;
 
 export const Preview = ({ navigation, route }: Props) => {
-  const { roomName, setRoomName, username, setUsername } = useVideoroomState();
-  const [isCameraOn, setIsCameraOn] = useState(true);
-  const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
-  const isSimulcastOn = true;
-
+  const {
+    roomName,
+    username,
+    currentCamera,
+    setCurrentCamera,
+    isCameraOn,
+    setIsCameraOn,
+    isMicrophoneOn,
+    setIsMicrophoneOn,
+    connectAndJoinRoom,
+  } = useVideoroomState();
   const { title } = route.params;
-
-  const { connect: mbConnect, joinRoom, error } = Membrane.useMembraneServer();
-  Membrane.useAudioSettings();
-
-  const params = {
-    token: 'NOW_YOU_CAN_SEND_PARAMS',
-  };
-
-  useEffect(() => {
-    if (error) {
-      console.log(error);
-      Alert.alert('Error when connecting to server:', error);
-    }
-  }, [error]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -59,8 +44,6 @@ export const Preview = ({ navigation, route }: Props) => {
     }
   };
 
-  const [currentCamera, setCurrentCamera] =
-    useState<Membrane.CaptureDevice | null>(null);
   const availableCameras = useRef<Membrane.CaptureDevice[]>([]);
 
   useEffect(() => {
@@ -70,54 +53,19 @@ export const Preview = ({ navigation, route }: Props) => {
     });
   }, []);
 
-  const connect = useCallback(async () => {
-    const validRoomName = roomName.trimEnd();
-    const validUserName = username.trimEnd();
-
-    setRoomName(validRoomName);
-    setUsername(validUserName);
-
+  const onConnectPress = useCallback(async () => {
     try {
-      await mbConnect(SERVER_URL, validRoomName, {
-        userMetadata: { displayName: validUserName },
-        connectionParams: params,
-        socketChannelParams: {
-          isSimulcastOn,
-        },
-        simulcastConfig: {
-          enabled: isSimulcastOn,
-          activeEncodings: ['l', 'm', 'h'],
-        },
-        quality: Membrane.VideoQuality.HD_169,
-        maxBandwidth: { l: 150, m: 500, h: 1500 },
-        videoTrackMetadata: { active: true, type: 'camera' },
-        audioTrackMetadata: { active: true, type: 'audio' },
-        videoTrackEnabled: isCameraOn,
-        audioTrackEnabled: isMicrophoneOn,
-        captureDeviceId: currentCamera?.id,
-      });
-      await joinRoom();
+      await connectAndJoinRoom();
       navigation.navigate('Room');
     } catch (err) {
       console.warn(err);
     }
-  }, [
-    mbConnect,
-    joinRoom,
-    roomName,
-    isSimulcastOn,
-    username,
-    SERVER_URL,
-    isCameraOn,
-    isMicrophoneOn,
-    currentCamera,
-  ]);
+  }, [connectAndJoinRoom]);
 
   const switchCamera = useCallback(() => {
     const cameras = availableCameras.current;
     setCurrentCamera(
-      (currentCamera) =>
-        cameras[(findIndex(cameras, currentCamera) + 1) % cameras.length]
+      cameras[(findIndex(cameras, currentCamera) + 1) % cameras.length]
     );
   }, []);
 
@@ -170,7 +118,9 @@ export const Preview = ({ navigation, route }: Props) => {
           </View>
 
           <View style={styles.joinButton}>
-            <StandardButton onPress={connect}>Join the room</StandardButton>
+            <StandardButton onPress={onConnectPress}>
+              Join the room
+            </StandardButton>
           </View>
 
           <View style={styles.stepLabel}>

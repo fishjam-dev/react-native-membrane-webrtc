@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useRef, useState } from 'react';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 import { Modal } from './Modal';
@@ -27,22 +27,24 @@ export const DiscardModal = ({
   const modalAction = useRef<GoBackAction>();
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  useEffect(() => {
-    const handleBeforeRemoveEvent = (e) => {
-      if (!roomName && !username) {
-        // If we don't have unsaved changes, then we don't need to do anything
-        return;
-      }
-      e.preventDefault();
-      modalAction.current = e.data.action;
-      setIsModalVisible(true);
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const handleBeforeRemoveEvent = (e) => {
+        if (!roomName && !username) {
+          // If we don't have unsaved changes, then we don't need to do anything
+          return;
+        }
+        e.preventDefault();
+        modalAction.current = e.data.action;
+        setIsModalVisible(true);
+      };
 
-    navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
+      navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
 
-    return () =>
-      navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
-  }, [navigation, roomName, username]);
+      return () =>
+        navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
+    }, [navigation, roomName, username])
+  );
 
   return (
     <Modal

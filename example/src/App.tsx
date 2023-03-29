@@ -13,6 +13,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { CreateRoom } from '@screens/CreateRoom';
 import { InitialScreen } from '@screens/InitialScreen';
 import { JoinRoom } from '@screens/JoinRoom';
+import { LeaveRoomScreen } from '@screens/LeaveRoomScreen';
 import { Preview } from '@screens/Preview';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
@@ -117,6 +118,13 @@ export default function App() {
               component={Preview}
               options={{
                 cardStyle: { backgroundColor: 'transparent' },
+              }}
+            />
+            <Stack.Screen
+              name="LeaveRoom"
+              component={LeaveRoomScreen}
+              options={{
+                headerShown: false,
               }}
             />
           </Stack.Navigator>
