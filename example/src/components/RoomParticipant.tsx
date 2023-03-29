@@ -6,6 +6,7 @@ import { View, StyleSheet } from 'react-native';
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';
 import { Typo } from './Typo';
+import { PinButton } from './buttons/PinButton';
 
 type RoomParticipantProps = {
   participant: Membrane.Participant;
@@ -26,38 +27,43 @@ export const RoomParticipant = ({
 
   return (
     <View>
-      {participantHasVideo() ? (
-        <Membrane.VideoRendererView
-          trackId={videoTrack!.id}
-          style={styles.videoTrack}
-        />
-      ) : (
-        <View style={styles.videoTrack}>
-          <NoCameraView username={metadata.displayName} />
-        </View>
-      )}
-      <View style={styles.displayNameContainer}>
-        <View
-          style={[
-            styles.displayName,
-            type === 'Local' ? styles.localUser : styles.remoteUser,
-          ]}
-        >
-          <Typo variant="label" color={TextColors.white}>
-            {type === 'Local' ? 'You' : metadata.displayName}
-          </Typo>
-        </View>
-      </View>
-
-      {!audioTrack?.metadata.active && (
-        <View style={styles.mutedIcon}>
-          <Icon
-            name="Microphone-off"
-            size={16}
-            color={BrandColors.darkBlue100}
+      <View>
+        {participantHasVideo() ? (
+          <Membrane.VideoRendererView
+            trackId={videoTrack!.id}
+            style={styles.videoTrack}
           />
+        ) : (
+          <View style={styles.videoTrack}>
+            <NoCameraView username={metadata.displayName} />
+          </View>
+        )}
+        <View style={styles.displayNameContainer}>
+          <View
+            style={[
+              styles.displayName,
+              type === 'Local' ? styles.localUser : styles.remoteUser,
+            ]}
+          >
+            <Typo variant="label" color={TextColors.white}>
+              {type === 'Local' ? 'You' : metadata.displayName}
+            </Typo>
+          </View>
         </View>
-      )}
+
+        {!audioTrack?.metadata.active && (
+          <View style={styles.mutedIcon}>
+            <Icon
+              name="Microphone-off"
+              size={16}
+              color={BrandColors.darkBlue100}
+            />
+          </View>
+        )}
+      </View>
+      <View style={styles.pinButton}>
+        <PinButton onPress={() => {}}>Pin user</PinButton>
+      </View>
     </View>
   );
 };
@@ -92,5 +98,19 @@ const styles = StyleSheet.create({
     backgroundColor: AdditionalColors.white,
     borderRadius: 50,
     padding: 6,
+  },
+  pinButton: {
+    // position: 'absolute',
+    // left: 0,
+    // right: 0,
+    // top: 0,
+    // bottom: 0,
+    // margin: 'auto',
+    position: 'absolute',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
   },
 });
