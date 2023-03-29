@@ -25,12 +25,15 @@ class VideoPreviewView : UIView {
     addSubview(videoView!)
    
     localVideoTrack = LocalVideoTrack.create(videoParameters: VideoParameters.presetFHD169) as? LocalCameraVideoTrack
-    localVideoTrack?.start()
     videoView?.track = localVideoTrack
   }
   
-  override func removeFromSuperview() {
-    localVideoTrack?.stop()
+  override func willMove(toWindow newWindow: UIWindow?) {
+    if(newWindow == nil) {
+      localVideoTrack?.stop()
+    } else {
+      localVideoTrack?.start()
+    }
   }
   
   @available(*, unavailable)

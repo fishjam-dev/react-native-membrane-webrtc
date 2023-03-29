@@ -1,20 +1,18 @@
+package com.reactnativemembrane
+
 import android.view.View
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.reactnativemembrane.VideoPreviewView
 import org.membraneframework.rtc.ui.VideoTextureViewRenderer
 import org.webrtc.RendererCommon
 
 class VideoPreviewViewManager : SimpleViewManager<View>() {
-  override fun getName() = "VideoPreviewView"
-
-  private val viewsWrappers = HashMap<VideoTextureViewRenderer, VideoPreviewView>()
+  override fun getName() = "com.reactnativemembrane.VideoPreviewView"
 
   override fun createViewInstance(reactContext: ThemedReactContext): View {
-    val wrapper = VideoPreviewView(reactContext)
-    wrapper.init()
-    viewsWrappers[wrapper.view] = wrapper
-    return wrapper.view
+    return VideoPreviewView(reactContext)
   }
 
   @ReactProp(name = "videoLayout")
@@ -29,17 +27,12 @@ class VideoPreviewViewManager : SimpleViewManager<View>() {
   }
 
   @ReactProp(name = "mirrorVideo")
-  fun setMirrorVideo(view: VideoTextureViewRenderer, mirror: Boolean) {
+  fun setMirrorVideo(view: VideoPreviewView, mirror: Boolean) {
     view.setMirror(mirror)
   }
 
   @ReactProp(name = "captureDeviceId")
-  fun setCaptureDeviceId(view: VideoTextureViewRenderer, captureDeviceId: String) {
-    viewsWrappers[view]?.switchCamera(captureDeviceId)
-  }
-
-  override fun onDropViewInstance(view: View) {
-    viewsWrappers[view]?.dispose()
-    viewsWrappers.remove(view)
+  fun setCaptureDeviceId(view: VideoPreviewView, captureDeviceId: String) {
+    view.switchCamera(captureDeviceId)
   }
 }
