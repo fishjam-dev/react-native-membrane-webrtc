@@ -26,7 +26,7 @@ export const RoomParticipant = ({
   };
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <View>
         {participantHasVideo() ? (
           <Membrane.VideoRendererView
@@ -100,17 +100,12 @@ const styles = StyleSheet.create({
     padding: 6,
   },
   pinButton: {
-    // position: 'absolute',
-    // left: 0,
-    // right: 0,
-    // top: 0,
-    // bottom: 0,
-    // margin: 'auto',
     position: 'absolute',
-    marginLeft: 'auto',
-    marginRight: 'auto',
     left: 0,
     right: 0,
-    textAlign: 'center',
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
