@@ -9,7 +9,7 @@ import org.membraneframework.rtc.ui.VideoTextureViewRenderer
 import org.webrtc.RendererCommon
 
 class VideoPreviewViewManager : SimpleViewManager<View>() {
-  override fun getName() = "com.reactnativemembrane.VideoPreviewView"
+  override fun getName() = "VideoPreviewView"
 
   override fun createViewInstance(reactContext: ThemedReactContext): View {
     return VideoPreviewView(reactContext)
