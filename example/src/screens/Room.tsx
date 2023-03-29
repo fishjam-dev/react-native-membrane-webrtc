@@ -1,6 +1,7 @@
 import { BrandColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Icon } from '@components/Icon';
+import { OtherParticipants } from '@components/OtherParticipants';
 import { RoomParticipant } from '@components/RoomParticipant';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
@@ -119,7 +120,10 @@ export const Room = ({ navigation }: Props) => {
                   .map((p) => (
                     <View
                       key={p.id}
-                      style={getStylesForParticipants(participants)}
+                      style={[
+                        getStylesForParticipants(participants),
+                        styles.shownParticipantBorder,
+                      ]}
                     >
                       <RoomParticipant participant={p} />
                     </View>
@@ -127,7 +131,13 @@ export const Room = ({ navigation }: Props) => {
 
                 {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
                   <View style={getStylesForParticipants(participants)}>
-                    <Typo variant="label">Others</Typo>
+                    <OtherParticipants
+                      p1={participants[participants.length - 1]}
+                      p2={participants[participants.length - 2]}
+                      numOfOtherParticipants={
+                        participants.length - MAX_NUM_OF_USERS_ON_THE_SCREEN + 1
+                      }
+                    />
                   </View>
                 )}
               </View>
@@ -182,11 +192,13 @@ const styles = StyleSheet.create({
   participant: {
     aspectRatio: 1,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: BrandColors.darkBlue60,
     overflow: 'hidden',
     marginBottom: 8,
     marginLeft: 4,
     marginRight: 4,
+  },
+  shownParticipantBorder: {
+    borderWidth: 1,
+    borderColor: BrandColors.darkBlue60,
   },
 });
