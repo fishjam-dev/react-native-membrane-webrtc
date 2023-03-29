@@ -3,43 +3,46 @@ import { Typo } from '@components/Typo';
 import { CardButton } from '@components/buttons/CardButton';
 import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const InitialScreen = ({ navigation }) => {
   return (
     <BackgroundAnimation>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Image
-            style={styles.logo}
-            source={require('../../assets/images/Logo.png')}
-          />
-          <View style={styles.subtitle}>
-            <Typo variant="h5">Videoconferencing for everyone</Typo>
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Image
+              style={styles.logo}
+              source={require('../../assets/images/Logo.png')}
+            />
+            <View style={styles.subtitle}>
+              <Typo variant="h5">Videoconferencing for everyone</Typo>
+            </View>
+          </View>
+
+          <View style={styles.createButton}>
+            <CardButton
+              iconName="edit"
+              onPress={() => {
+                navigation.push('CreateRoom');
+              }}
+            >
+              Create new meeting
+            </CardButton>
+          </View>
+
+          <View style={styles.joinButton}>
+            <CardButton
+              iconName="Users"
+              onPress={() => {
+                navigation.push('JoinRoom');
+              }}
+            >
+              Join existing meeting
+            </CardButton>
           </View>
         </View>
-
-        <View style={styles.createButton}>
-          <CardButton
-            iconName="edit"
-            onPress={() => {
-              navigation.push('CreateRoom');
-            }}
-          >
-            Create new meeting
-          </CardButton>
-        </View>
-
-        <View style={styles.joinButton}>
-          <CardButton
-            iconName="Users"
-            onPress={() => {
-              navigation.push('JoinRoom');
-            }}
-          >
-            Join existing meeting
-          </CardButton>
-        </View>
-      </View>
+      </SafeAreaView>
     </BackgroundAnimation>
   );
 };

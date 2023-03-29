@@ -57,9 +57,6 @@ export const CallControls = ({ disconnect }: { disconnect: () => void }) => {
           onPress={toggleScreencastAndUpdateMetadata}
         />
       </View>
-      <View style={styles.iconInRow}>
-        <InCallButton iconName="Menu-vertical" onPress={() => {}} />
-      </View>
       <InCallButton type="disconnect" iconName="Hangup" onPress={disconnect} />
     </View>
   );

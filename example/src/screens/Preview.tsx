@@ -8,7 +8,6 @@ import { SERVER_URL } from '@env';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { getShortUsername } from '@utils';
 import { findIndex } from 'lodash';
 import React, {
   useEffect,
@@ -18,6 +17,7 @@ import React, {
   useRef,
 } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'Preview'>;
@@ -123,59 +123,61 @@ export const Preview = ({ navigation, route }: Props) => {
 
   return (
     <BackgroundAnimation>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Typo variant="h4">Videoconferencing for everyone</Typo>
-        </View>
-        <View style={styles.titleLabel}>
-          <Typo variant="chat-regular" color={TextColors.description}>
-            {getTitleLabel()}
-          </Typo>
-        </View>
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Typo variant="h4">Videoconferencing for everyone</Typo>
+          </View>
+          <View style={styles.titleLabel}>
+            <Typo variant="chat-regular" color={TextColors.description}>
+              {getTitleLabel()}
+            </Typo>
+          </View>
 
-        <View style={styles.cameraPreview}>
-          {isCameraOn ? (
-            <Membrane.VideoPreviewView
-              style={styles.membraneVideoPreview}
-              mirrorVideo
-              captureDeviceId={currentCamera?.id}
-            />
-          ) : (
-            <NoCameraView username={getShortUsername(username)} />
-          )}
+          <View style={styles.cameraPreview}>
+            {isCameraOn ? (
+              <Membrane.VideoPreviewView
+                style={styles.membraneVideoPreview}
+                mirrorVideo
+                captureDeviceId={currentCamera?.id}
+              />
+            ) : (
+              <NoCameraView username={username} />
+            )}
 
-          <View style={styles.iconsRow}>
-            <InCallButton
-              iconName={isCameraOn ? 'Cam' : 'Cam-disabled'}
-              onPress={() => {
-                setIsCameraOn(!isCameraOn);
-              }}
-            />
-
-            <View style={styles.microphoneButton}>
+            <View style={styles.iconsRow}>
               <InCallButton
-                iconName={isMicrophoneOn ? 'Microphone' : 'Microphone-off'}
+                iconName={isCameraOn ? 'Cam' : 'Cam-disabled'}
                 onPress={() => {
-                  setIsMicrophoneOn(!isMicrophoneOn);
+                  setIsCameraOn(!isCameraOn);
                 }}
               />
+
+              <View style={styles.microphoneButton}>
+                <InCallButton
+                  iconName={isMicrophoneOn ? 'Microphone' : 'Microphone-off'}
+                  onPress={() => {
+                    setIsMicrophoneOn(!isMicrophoneOn);
+                  }}
+                />
+              </View>
+              <InCallButton iconName="Cam-switch" onPress={switchCamera} />
             </View>
-            <InCallButton iconName="Cam-switch" onPress={switchCamera} />
+          </View>
+
+          <View style={styles.roomNameLabel}>
+            <Typo variant="h5">You are joining: {roomName.trimEnd()}</Typo>
+          </View>
+
+          <View style={styles.joinButton}>
+            <StandardButton onPress={connect}>Join the room</StandardButton>
+          </View>
+
+          <View style={styles.stepLabel}>
+            <Typo variant="label">Step 2/2</Typo>
           </View>
         </View>
-
-        <View style={styles.roomNameLabel}>
-          <Typo variant="h5">You are joining: {roomName.trimEnd()}</Typo>
-        </View>
-
-        <View style={styles.joinButton}>
-          <StandardButton onPress={connect}>Join the room</StandardButton>
-        </View>
-
-        <View style={styles.stepLabel}>
-          <Typo variant="label">Step 2/2</Typo>
-        </View>
-      </View>
+      </SafeAreaView>
     </BackgroundAnimation>
   );
 };

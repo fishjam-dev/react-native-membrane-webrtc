@@ -1,4 +1,5 @@
 import { BrandColors } from '@colors';
+import { getShortUsername } from '@utils';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
@@ -13,7 +14,7 @@ export const NoCameraView = ({ username }: NoCameraViewProps) => {
     <View style={styles.noCameraBackground}>
       <View style={styles.noCameraContent}>
         <Typo variant="h5" color={BrandColors.darkBlue80}>
-          {username}
+          {getShortUsername(username)}
         </Typo>
       </View>
     </View>

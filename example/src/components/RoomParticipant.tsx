@@ -1,53 +1,60 @@
 import { BrandColors, AdditionalColors, TextColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import { getShortUsername } from '@utils';
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';
 import { Typo } from './Typo';
 
 type RoomParticipantProps = {
-  participant: Membrane.Participant;
-  pStyle: ViewStyle[];
+  tracks: Membrane.Track[];
+  metadata: Membrane.Metadata;
+  type: Membrane.ParticipantType;
 };
 
 export const RoomParticipant = ({
-  participant,
-  pStyle,
+  tracks,
+  metadata,
+  type,
 }: RoomParticipantProps) => {
+  const videoTrack = tracks.find((t) => t.type === 'Video');
+  const audioTrack = tracks.find((t) => t.type === 'Audio');
+
+  const participantHasVideo = () => {
+    console.log(videoTrack);
+    if (videoTrack !== undefined) {
+      return videoTrack.metadata.active;
+    }
+    return false;
+  };
+
   return (
-    <View style={pStyle}>
-      {!participant.tracks.filter((t) => t.type === 'Video').length ||
-      !participant.tracks.find((t) => t.type === 'Video')!.metadata.active ? (
-        <View style={styles.videoTrack}>
-          <NoCameraView
-            username={getShortUsername(participant.metadata.displayName)}
-          />
-        </View>
-      ) : (
+    <View>
+      {participantHasVideo() ? (
         <Membrane.VideoRendererView
-          trackId={participant.tracks.find((t) => t.type === 'Video')!.id}
+          trackId={videoTrack!.id}
           style={styles.videoTrack}
         />
+      ) : (
+        <View style={styles.videoTrack}>
+          <NoCameraView username={metadata.displayName} />
+        </View>
       )}
       <View style={styles.displayNameContainer}>
         <View
           style={[
             styles.displayName,
-            participant.type === 'Local' ? styles.localUser : styles.remoteUser,
+            type === 'Local' ? styles.localUser : styles.remoteUser,
           ]}
         >
           <Typo variant="label" color={TextColors.white}>
-            {participant.type === 'Local'
-              ? 'You'
-              : participant.metadata.displayName}
+            {type === 'Local' ? 'You' : metadata.displayName}
           </Typo>
         </View>
       </View>
 
-      {!participant.tracks.find((t) => t.type === 'Audio')?.metadata.active && (
+      {!audioTrack?.metadata.active && (
         <View style={styles.mutedIcon}>
           <Icon
             name="Microphone-off"

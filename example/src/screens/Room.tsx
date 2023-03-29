@@ -7,7 +7,8 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect } from 'react';
-import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
+import { StyleSheet, View, Dimensions } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
@@ -29,7 +30,10 @@ export const Room = ({ navigation }: Props) => {
     (height -
       HEADER_AND_FOOTER_SIZE -
       PADDING_BETWEEN_PARTICIPANTS * (participants.length / 2 + 2)) /
-    Math.ceil(participants.length / 2);
+    Math.min(
+      Math.ceil(participants.length / 2),
+      MAX_NUM_OF_USERS_ON_THE_SCREEN
+    );
 
   const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
 
@@ -85,13 +89,13 @@ export const Room = ({ navigation }: Props) => {
             <Typo variant="h4">{roomName}</Typo>
           </View>
           <View style={styles.headerIcon}>
-            <Pressable onPress={switchCamera}>
+            <TouchableOpacity onPress={switchCamera}>
               <Icon
                 name="Cam-switch"
                 size={24}
                 color={BrandColors.darkBlue100}
               />
-            </Pressable>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -113,11 +117,16 @@ export const Room = ({ navigation }: Props) => {
                     : MAX_NUM_OF_USERS_ON_THE_SCREEN
                 )
                 .map((p) => (
-                  <RoomParticipant
+                  <View
                     key={p.id}
-                    participant={p}
-                    pStyle={getStylesForParticipants(participants)}
-                  />
+                    style={getStylesForParticipants(participants)}
+                  >
+                    <RoomParticipant
+                      tracks={p.tracks}
+                      type={p.type}
+                      metadata={p.metadata}
+                    />
+                  </View>
                 ))}
 
               {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
@@ -137,7 +146,6 @@ export const Room = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
     backgroundColor: BrandColors.seaBlue20,
   },
   header: {

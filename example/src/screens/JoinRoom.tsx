@@ -21,6 +21,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 import { handlePermissions } from 'src/shared/handlePermissions';
 
@@ -62,77 +63,79 @@ export const JoinRoom = ({ navigation, route }: Props) => {
 
   return (
     <BackgroundAnimation>
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-        }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{
-            flex: 1,
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
           }}
-          enabled
-          keyboardVerticalOffset={height}
+          keyboardShouldPersistTaps="handled"
         >
-          <DiscardModal
-            headline="Cancel joining meeting"
-            body="Are you sure you don't want to cancel joining to this meeting?"
-            buttonText="Yes, don't join meeting"
-          />
-          <View style={styles.inner}>
-            <View>
-              <Typo variant="h4">Videoconferencing for everyone</Typo>
-            </View>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{
+              flex: 1,
+            }}
+            enabled
+            keyboardVerticalOffset={height}
+          >
+            <DiscardModal
+              headline="Cancel joining meeting"
+              body="Are you sure you don't want to cancel joining to this meeting?"
+              buttonText="Yes, don't join meeting"
+            />
+            <View style={styles.inner}>
+              <View>
+                <Typo variant="h4">Videoconferencing for everyone</Typo>
+              </View>
 
-            <View style={styles.smallTitle}>
-              <Typo variant="chat-regular" color={TextColors.description}>
-                Join an existing meeting
-              </Typo>
-            </View>
-            <View style={styles.roomInputLabel}>
-              <Typo variant="body-small">Room name</Typo>
-            </View>
+              <View style={styles.smallTitle}>
+                <Typo variant="chat-regular" color={TextColors.description}>
+                  Join an existing meeting
+                </Typo>
+              </View>
+              <View style={styles.roomInputLabel}>
+                <Typo variant="body-small">Room name</Typo>
+              </View>
 
-            <View style={styles.roomInput}>
-              <TextInput
-                placeholder="Room name"
-                value={roomName}
-                onChangeText={setRoomName}
-                editable={isRoomNameInputEditable}
-                sublabel="Provide name or link to the room"
-              />
-            </View>
+              <View style={styles.roomInput}>
+                <TextInput
+                  placeholder="Room name"
+                  value={roomName}
+                  onChangeText={setRoomName}
+                  editable={isRoomNameInputEditable}
+                  sublabel="Provide name or link to the room"
+                />
+              </View>
 
-            <View style={styles.usernameInputLabel}>
-              <Typo variant="body-small">Your name</Typo>
-            </View>
-            <View style={styles.usernameInput}>
-              <TextInput
-                placeholder="Your name"
-                value={username}
-                onChangeText={setUsername}
-              />
-            </View>
-            <View style={styles.joinRoomButton}>
-              <StandardButton
-                onPress={() => handlePermissions(openPreview)}
-                isEnabled={
-                  !isEmptyStringOrWhitespaces(username) &&
-                  !isEmptyStringOrWhitespaces(roomName)
-                }
-              >
-                Next
-              </StandardButton>
-            </View>
+              <View style={styles.usernameInputLabel}>
+                <Typo variant="body-small">Your name</Typo>
+              </View>
+              <View style={styles.usernameInput}>
+                <TextInput
+                  placeholder="Your name"
+                  value={username}
+                  onChangeText={setUsername}
+                />
+              </View>
+              <View style={styles.joinRoomButton}>
+                <StandardButton
+                  onPress={() => handlePermissions(openPreview)}
+                  isEnabled={
+                    !isEmptyStringOrWhitespaces(username) &&
+                    !isEmptyStringOrWhitespaces(roomName)
+                  }
+                >
+                  Next
+                </StandardButton>
+              </View>
 
-            <View style={styles.stepLabel}>
-              <Typo variant="label">Step 1/2</Typo>
+              <View style={styles.stepLabel}>
+                <Typo variant="label">Step 1/2</Typo>
+              </View>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-      </ScrollView>
+          </KeyboardAvoidingView>
+        </ScrollView>
+      </SafeAreaView>
     </BackgroundAnimation>
   );
 };
