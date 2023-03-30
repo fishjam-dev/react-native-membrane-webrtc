@@ -150,6 +150,7 @@ export const Room = ({ navigation }: Props) => {
                         <RoomParticipant
                           participant={p}
                           onPinButtonPressed={setFocusedTrackId}
+                          titleSmall={participants.length > FLEX_BRAKPOINT}
                         />
                       </View>
                     ))}

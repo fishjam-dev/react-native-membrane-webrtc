@@ -26,7 +26,7 @@ export const PinButton = ({ children, onPress }: PinButtonProp) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    width: 200,
+    width: '100%',
     height: 56,
     backgroundColor: 'rgba(81, 89, 112, 0.75)',
     justifyContent: 'center',

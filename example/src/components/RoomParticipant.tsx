@@ -14,6 +14,7 @@ type RoomParticipantProps = {
   onPinButtonPressed?: (string) => void;
   focused?: boolean;
   pinButtonHiddden?: boolean;
+  titleSmall?: boolean;
 };
 
 export const RoomParticipant = ({
@@ -21,6 +22,7 @@ export const RoomParticipant = ({
   onPinButtonPressed = (string) => {},
   focused = false,
   pinButtonHiddden = false,
+  titleSmall = false,
 }: RoomParticipantProps) => {
   const [showPinButton, setShowPinButton] = useState(false);
   const videoTrack = tracks.find((t) => t.type === 'Video');
@@ -34,7 +36,7 @@ export const RoomParticipant = ({
   };
 
   const getTextForPinButton = () => {
-    return focused ? 'Unpin user' : 'Pin user';
+    return focused ? 'Unpin user' : titleSmall ? 'Pin' : 'Pin user';
   };
 
   const onPinButton = () => {
