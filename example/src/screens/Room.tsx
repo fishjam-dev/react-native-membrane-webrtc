@@ -7,7 +7,7 @@ import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,7 +25,13 @@ type Props = NativeStackScreenProps<RootStack, 'Room'>;
 export const Room = ({ navigation }: Props) => {
   const { width, height } = Dimensions.get('window');
   const { roomName } = useVideoroomState();
+
   const participants = Membrane.useRoomParticipants();
+  const [focusedTrackId, setFocusedTrackId] = useState<string | null>(null);
+  const focusedParticipant = participants.find(
+    (p) => p.tracks.find((t) => t.id === focusedTrackId) != null
+  );
+
   const rowNum = Math.min(
     Math.ceil(participants.length / 2),
     MAX_NUM_OF_USERS_ON_THE_SCREEN / 2
@@ -94,48 +100,75 @@ export const Room = ({ navigation }: Props) => {
             </View>
           </View>
 
-          <View style={styles.flex}>
-            <View style={styles.participantsContainer}>
-              <View
-                style={[
-                  styles.inner,
-                  participants.length > FLEX_BRAKPOINT
-                    ? styles.row
-                    : styles.column,
-                ]}
-              >
-                {participants
-                  .slice(
-                    0,
-                    participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
-                      ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
-                      : MAX_NUM_OF_USERS_ON_THE_SCREEN
-                  )
-                  .map((p) => (
-                    <View
-                      key={p.id}
-                      style={[
-                        getStylesForParticipants(participants),
-                        styles.shownParticipantBorder,
-                      ]}
-                    >
-                      <RoomParticipant participant={p} />
-                    </View>
-                  ))}
-
-                {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
-                  <View style={getStylesForParticipants(participants)}>
-                    <OtherParticipants
-                      p1={participants[participants.length - 1]}
-                      p2={participants[participants.length - 2]}
-                      numOfOtherParticipants={
-                        participants.length - MAX_NUM_OF_USERS_ON_THE_SCREEN + 1
-                      }
-                    />
-                  </View>
-                )}
+          <View style={{ flex: 1 }}>
+            {focusedParticipant ? (
+              <View style={styles.focusedParticipantContainer}>
+                <View style={styles.focusedParticipant}>
+                  <RoomParticipant
+                    participant={focusedParticipant}
+                    onPinButtonPressed={setFocusedTrackId}
+                    focused
+                  />
+                </View>
               </View>
-            </View>
+            ) : null}
+
+            {focusedParticipant ? (
+              <View style={styles.otherParticipants}>
+                <OtherParticipants
+                  participants={participants.filter(
+                    (p) => p.id !== focusedParticipant?.id
+                  )}
+                />
+              </View>
+            ) : (
+              <View style={styles.participantsContainer}>
+                <View
+                  style={[
+                    styles.inner,
+                    participants.length > FLEX_BRAKPOINT
+                      ? styles.row
+                      : styles.column,
+                  ]}
+                >
+                  {participants
+                    .slice(
+                      0,
+                      participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
+                        ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
+                        : MAX_NUM_OF_USERS_ON_THE_SCREEN
+                    )
+                    .map((p) => (
+                      <View
+                        key={p.id}
+                        style={[
+                          getStylesForParticipants(participants),
+                          styles.shownParticipantBorder,
+                        ]}
+                      >
+                        <RoomParticipant
+                          participant={p}
+                          onPinButtonPressed={setFocusedTrackId}
+                        />
+                      </View>
+                    ))}
+
+                  {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
+                    <View style={getStylesForParticipants(participants)}>
+                      <OtherParticipants
+                        p1={participants[participants.length - 1]}
+                        p2={participants[participants.length - 2]}
+                        numOfOtherParticipants={
+                          participants.length -
+                          MAX_NUM_OF_USERS_ON_THE_SCREEN +
+                          1
+                        }
+                      />
+                    </View>
+                  )}
+                </View>
+              </View>
+            )}
           </View>
           <CallControls />
         </SafeAreaView>
@@ -194,5 +227,27 @@ const styles = StyleSheet.create({
   shownParticipantBorder: {
     borderWidth: 1,
     borderColor: BrandColors.darkBlue60,
+  },
+  focusedParticipantContainer: {
+    // flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    backgroundColor: 'blue',
+  },
+  focusedParticipant: {
+    aspectRatio: 1,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: BrandColors.darkBlue60,
+    overflow: 'hidden',
+    width: '100%',
+  },
+  otherParticipants: {
+    marginTop: 16,
+    marginBottom: 8,
+    flex: 1,
   },
 });

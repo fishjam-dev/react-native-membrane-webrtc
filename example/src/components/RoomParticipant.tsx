@@ -1,7 +1,8 @@
 import { BrandColors, AdditionalColors, TextColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { delay } from '@utils';
+import React, { useState } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';
@@ -10,11 +11,18 @@ import { PinButton } from './buttons/PinButton';
 
 type RoomParticipantProps = {
   participant: Membrane.Participant;
+  onPinButtonPressed?: (string) => void;
+  focused?: boolean;
+  pinButtonHiddden?: boolean;
 };
 
 export const RoomParticipant = ({
   participant: { metadata, tracks, type },
+  onPinButtonPressed = (string) => {},
+  focused = false,
+  pinButtonHiddden = false,
 }: RoomParticipantProps) => {
+  const [showPinButton, setShowPinButton] = useState(false);
   const videoTrack = tracks.find((t) => t.type === 'Video');
   const audioTrack = tracks.find((t) => t.type === 'Audio');
 
@@ -25,9 +33,31 @@ export const RoomParticipant = ({
     return false;
   };
 
+  const getTextForPinButton = () => {
+    return focused ? 'Unpin user' : 'Pin user';
+  };
+
+  const onPinButton = () => {
+    if (focused) {
+      onPinButtonPressed(null);
+      return;
+    }
+    onPinButtonPressed(videoTrack!.id);
+  };
+
+  const triggerShowingPinButton = async () => {
+    if (pinButtonHiddden) {
+      return;
+    }
+
+    setShowPinButton(true);
+    await delay(2000);
+    setShowPinButton(false);
+  };
+
   return (
     <View style={{ flex: 1 }}>
-      <View>
+      <Pressable onPress={triggerShowingPinButton}>
         {participantHasVideo() ? (
           <Membrane.VideoRendererView
             trackId={videoTrack!.id}
@@ -51,6 +81,12 @@ export const RoomParticipant = ({
           </View>
         </View>
 
+        {focused ? (
+          <View style={styles.displayPinContainer}>
+            <Icon name="Pin" size={20} color={BrandColors.darkBlue100} />
+          </View>
+        ) : null}
+
         {!audioTrack?.metadata.active && (
           <View style={styles.mutedIcon}>
             <Icon
@@ -60,10 +96,12 @@ export const RoomParticipant = ({
             />
           </View>
         )}
-      </View>
-      <View style={styles.pinButton}>
-        <PinButton onPress={() => {}}>Pin user</PinButton>
-      </View>
+      </Pressable>
+      {showPinButton ? (
+        <View style={styles.pinButton}>
+          <PinButton onPress={onPinButton}>{getTextForPinButton()} </PinButton>
+        </View>
+      ) : null}
     </View>
   );
 };
@@ -90,7 +128,7 @@ const styles = StyleSheet.create({
     paddingTop: 6,
     paddingBottom: 6,
   },
-  videoTrack: { width: '100%', aspectRatio: 1 },
+  videoTrack: { height: '100%', aspectRatio: 1 },
   mutedIcon: {
     position: 'absolute',
     left: 16,
@@ -107,5 +145,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  displayPinContainer: {
+    borderRadius: 60,
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: AdditionalColors.white,
+    padding: 4,
   },
 });
