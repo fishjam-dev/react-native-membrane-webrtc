@@ -33,7 +33,6 @@ export const Room = ({ navigation }: Props) => {
   const videoViewWidth = (width - 3 * OFFSET_PER_ROW) / 2;
   const smallScreenVideoWidth =
     (height - HEADER_AND_FOOTER_SIZE - OFFSET_PER_ROW * (rowNum + 2)) / rowNum;
-  const { disconnect: mbDisconnect } = Membrane.useMembraneServer();
 
   // TODO(@skyman503): Use gestureEnable when https://github.com/react-navigation/react-navigation/issues/10394 is fixed.
   useEffect(() => {
@@ -51,11 +50,6 @@ export const Room = ({ navigation }: Props) => {
     return () =>
       navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
   }, [navigation]);
-
-  const disconnect = useCallback(() => {
-    mbDisconnect();
-    navigation.push('LeaveRoom');
-  }, []);
 
   const switchCamera = useCallback(() => {
     Membrane.flipCamera();
@@ -133,7 +127,7 @@ export const Room = ({ navigation }: Props) => {
               </View>
             </View>
           </View>
-          <CallControls disconnect={disconnect} />
+          <CallControls />
         </SafeAreaView>
       </View>
     </BackgroundAnimation>

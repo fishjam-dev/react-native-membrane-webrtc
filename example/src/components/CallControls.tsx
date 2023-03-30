@@ -1,13 +1,23 @@
 import { InCallButton } from '@components/buttons/InCallButton';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import React from 'react';
+import { RootStack } from '@model/NavigationTypes';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
-export const CallControls = ({ disconnect }: { disconnect: () => void }) => {
+export const CallControls = () => {
   const { isScreencastOn, toggleScreencast } = Membrane.useScreencast();
-  const { isCameraOn, toggleCamera, isMicrophoneOn, toggleMicrophone } =
-    useVideoroomState();
+  const {
+    isCameraOn,
+    toggleCamera,
+    isMicrophoneOn,
+    toggleMicrophone,
+    disconnect,
+  } = useVideoroomState();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStack, 'Room'>>();
 
   const toggleScreencastAndUpdateMetadata = () => {
     toggleScreencast({
@@ -19,6 +29,11 @@ export const CallControls = ({ disconnect }: { disconnect: () => void }) => {
       quality: Membrane.ScreencastQuality.FHD30,
     });
   };
+
+  const onDisconnectPress = useCallback(() => {
+    disconnect();
+    navigation.navigate('LeaveRoom');
+  }, []);
 
   return (
     <View style={styles.iconsContainer}>
@@ -40,7 +55,11 @@ export const CallControls = ({ disconnect }: { disconnect: () => void }) => {
           onPress={toggleScreencastAndUpdateMetadata}
         />
       </View>
-      <InCallButton type="disconnect" iconName="Hangup" onPress={disconnect} />
+      <InCallButton
+        type="disconnect"
+        iconName="Hangup"
+        onPress={onDisconnectPress}
+      />
     </View>
   );
 };

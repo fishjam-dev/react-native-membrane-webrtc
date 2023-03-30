@@ -25,6 +25,7 @@ const VideoroomContext = React.createContext<
       currentCamera: CaptureDevice | null;
       setCurrentCamera: (camera: CaptureDevice | null) => void;
       connectAndJoinRoom: () => Promise<void>;
+      disconnect: () => Promise<void>;
     }
   | undefined
 >(undefined);
@@ -40,7 +41,12 @@ const VideoroomContextProvider = (props) => {
   const { toggleCamera: membraneToggleCamera } = useCameraState();
   const { toggleMicrophone: membraneToggleMicrophone } = useMicrophoneState();
 
-  const { connect, joinRoom, error } = useMembraneServer();
+  const {
+    connect,
+    joinRoom,
+    error,
+    disconnect: membraneDisconnect,
+  } = useMembraneServer();
   useAudioSettings();
 
   const { updateVideoTrackMetadata } = useVideoTrackMetadata();
@@ -75,6 +81,11 @@ const VideoroomContextProvider = (props) => {
     await joinRoom();
     isConnected.current = true;
   }, [roomName, username, isCameraOn, isMicrophoneOn, currentCamera]);
+
+  const disconnect = useCallback(async () => {
+    await membraneDisconnect();
+    isConnected.current = false;
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -111,6 +122,7 @@ const VideoroomContextProvider = (props) => {
     toggleMicrophone,
     currentCamera,
     setCurrentCamera,
+    disconnect,
   };
 
   return (
