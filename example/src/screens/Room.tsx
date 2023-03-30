@@ -82,8 +82,8 @@ export const Room = ({ navigation }: Props) => {
 
   return (
     <BackgroundAnimation>
-      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
-        <View style={styles.container}>
+      <View style={styles.container}>
+        <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
           <View style={styles.header}>
             <View style={styles.headerTitle}>
               <Typo variant="h4">{roomName}</Typo>
@@ -134,8 +134,8 @@ export const Room = ({ navigation }: Props) => {
             </View>
           </View>
           <CallControls disconnect={disconnect} />
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </View>
     </BackgroundAnimation>
   );
 };

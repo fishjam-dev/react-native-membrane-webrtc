@@ -1,5 +1,4 @@
 import 'react-native-gesture-handler';
-import { BrandColors } from '@colors';
 import { BackgroundWrapper } from '@components/BackgroundWrapper';
 import { VIDEOROOM_URL } from '@env';
 import {
@@ -102,7 +101,7 @@ export default function App() {
               component={Room}
               options={{
                 headerShown: false,
-                cardStyle: { backgroundColor: BrandColors.seaBlue20 },
+                cardStyle: { backgroundColor: 'transparent' },
               }}
             />
             <Stack.Screen
