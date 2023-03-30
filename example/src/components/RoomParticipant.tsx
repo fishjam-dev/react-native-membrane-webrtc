@@ -77,7 +77,7 @@ export const RoomParticipant = ({
               type === 'Local' ? styles.localUser : styles.remoteUser,
             ]}
           >
-            <Typo variant="label" color={TextColors.white}>
+            <Typo variant="label" color={TextColors.white} numberOfLines={1}>
               {type === 'Local' ? 'You' : metadata.displayName}
             </Typo>
           </View>
@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
     bottom: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 16,
   },
   remoteUser: {
     backgroundColor: BrandColors.darkBlue80,
@@ -129,6 +130,7 @@ const styles = StyleSheet.create({
     paddingRight: 12,
     paddingTop: 6,
     paddingBottom: 6,
+    marginRight: 16,
   },
   videoTrack: { flex: 1, aspectRatio: 1 },
   mutedIcon: {
