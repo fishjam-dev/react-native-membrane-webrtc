@@ -1,7 +1,7 @@
 import { BrandColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Icon } from '@components/Icon';
-import { OtherParticipants } from '@components/OtherParticipants';
+import { NotFocusedParticipants } from '@components/NotFocusedParticipants';
 import { RoomParticipant } from '@components/RoomParticipant';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
@@ -115,7 +115,7 @@ export const Room = ({ navigation }: Props) => {
 
             {focusedParticipant ? (
               <View style={styles.otherParticipants}>
-                <OtherParticipants
+                <NotFocusedParticipants
                   participants={participants.filter(
                     (p) => p.id !== focusedParticipant?.id
                   )}
