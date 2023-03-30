@@ -230,13 +230,11 @@ const styles = StyleSheet.create({
     borderColor: BrandColors.darkBlue60,
   },
   focusedParticipantContainer: {
-    // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 16,
     paddingLeft: 16,
     paddingRight: 16,
-    backgroundColor: 'blue',
   },
   focusedParticipant: {
     aspectRatio: 1,
@@ -247,7 +245,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   otherParticipants: {
-    marginTop: 16,
     marginBottom: 8,
     flex: 1,
   },

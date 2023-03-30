@@ -57,7 +57,7 @@ export const RoomParticipant = ({
 
   return (
     <View style={{ flex: 1 }}>
-      <Pressable onPress={triggerShowingPinButton}>
+      <Pressable onPress={triggerShowingPinButton} style={{ flex: 1 }}>
         {participantHasVideo() ? (
           <Membrane.VideoRendererView
             trackId={videoTrack!.id}
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     paddingTop: 6,
     paddingBottom: 6,
   },
-  videoTrack: { height: '100%', aspectRatio: 1 },
+  videoTrack: { flex: 1, aspectRatio: 1 },
   mutedIcon: {
     position: 'absolute',
     left: 16,
