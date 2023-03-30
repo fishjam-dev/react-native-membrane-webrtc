@@ -23,7 +23,12 @@ export const NotFocusedParticipants = ({
           <RoomParticipant participant={participants[0]} pinButtonHiddden />
         </View>
       ) : (
-        <View style={styles.otherParticipantsContainer}>
+        <View
+          style={[
+            styles.otherParticipantsContainer,
+            styles.otherParticipantContainer,
+          ]}
+        >
           <View style={styles.participant}>
             <RoomParticipant participant={participants[0]} pinButtonHiddden />
           </View>
@@ -63,12 +68,6 @@ const styles = StyleSheet.create({
     flex: 1,
     aspectRatio: 2,
     flexDirection: 'row',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: BrandColors.darkBlue60,
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginLeft: 32,
     marginRight: 32,
   },
