@@ -233,6 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 16,
+    marginBottom: 16,
     paddingLeft: 16,
     paddingRight: 16,
   },

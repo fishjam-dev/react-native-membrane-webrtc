@@ -27,7 +27,8 @@ export const NotFocusedParticipants = ({
           <View style={styles.participant}>
             <RoomParticipant participant={participants[0]} pinButtonHiddden />
           </View>
-          <View style={[styles.participant, styles.participantLeftBorder]}>
+          <View style={styles.middleLine} />
+          <View style={styles.participant}>
             {participants.length === 2 ? (
               <RoomParticipant participant={participants[1]} pinButtonHiddden />
             ) : (
@@ -79,8 +80,9 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     overflow: 'hidden',
   },
-  participantLeftBorder: {
-    borderLeftWidth: 2,
-    borderColor: BrandColors.darkBlue60,
+  middleLine: {
+    height: '100%',
+    width: 2,
+    backgroundColor: BrandColors.darkBlue60,
   },
 });
