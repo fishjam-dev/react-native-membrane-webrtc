@@ -2,6 +2,7 @@ import { BrandColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Icon } from '@components/Icon';
 import { NotFocusedParticipants } from '@components/NotFocusedParticipants';
+import { OtherParticipants } from '@components/OtherParticipants';
 import { RoomParticipant } from '@components/RoomParticipant';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';

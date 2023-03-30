@@ -1,55 +1,34 @@
 import { BrandColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import { getShortUsername } from '@utils';
+import { isEmpty } from 'lodash';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import { Typo } from './Typo';
+import { RoomParticipant } from './RoomParticipant';
 
-type OtherParticipantsProp = {
-  p1?: Membrane.Participant;
-  p2?: Membrane.Participant;
-  numOfOtherParticipants: number;
-};
+type NotFocusedParticipantsProp = { participants: Membrane.Participant[] };
 
-export const OtherParticipants = ({
-  p1,
-  p2,
-  numOfOtherParticipants,
-}: OtherParticipantsProp) => {
-  const checkIfBothExist = () => {
-    return p1 && p2;
-  };
+export const NotFocusedParticipants = ({
+  participants,
+}: NotFocusedParticipantsProp) => {
+  console.log(participants.length);
+  if (isEmpty(participants)) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
-      {checkIfBothExist() ? (
-        <View style={styles.moreThanOne}>
-          <View style={[styles.leftCircle, styles.circle]}>
-            <Typo variant="h5" color={BrandColors.darkBlue80}>
-              {getShortUsername(p1?.metadata.displayName)}
-            </Typo>
-          </View>
-          <View style={styles.rightCircleOutline}>
-            <View style={[styles.rightCircle, styles.circle]}>
-              <Typo variant="h5" color={BrandColors.darkBlue80}>
-                {getShortUsername(p2?.metadata.displayName)}
-              </Typo>
-            </View>
+      {participants.length === 1 ? (
+        <View style={styles.otherParticipantContaner}>
+          <View style={styles.otherParticipant}>
+            <RoomParticipant participant={participants[0]} pinButtonHiddden />
           </View>
         </View>
       ) : (
-        <View style={[styles.oneContent, styles.circle]}>
-          <Typo variant="h5" color={BrandColors.darkBlue80}>
-            {getShortUsername(p1?.metadata.displayName)}
-          </Typo>
+        <View style={styles.otherParticipantContaner}>
+          <RoomParticipant participant={participants[0]} pinButtonHiddden />
         </View>
       )}
-      {numOfOtherParticipants > 2 ? (
-        <View style={styles.textRow}>
-          <Typo variant="label">+ {numOfOtherParticipants - 2} others</Typo>
-        </View>
-      ) : null}
     </View>
   );
 };
@@ -57,43 +36,21 @@ export const OtherParticipants = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: BrandColors.darkBlue40,
-  },
-  moreThanOne: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  oneContent: {
+    backgroundColor: 'cyan',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  leftCircle: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  rightCircleOutline: {
-    borderRadius: 5000,
-    borderColor: BrandColors.darkBlue40,
-    borderWidth: 5,
-    marginLeft: -30,
-  },
-  rightCircle: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: BrandColors.darkBlue40,
-  },
-  circle: {
-    borderRadius: 5000,
+  otherParticipantContaner: {
+    borderRadius: 12,
+    borderWidth: 2,
     borderColor: BrandColors.darkBlue60,
-    borderWidth: 1,
-    width: 75,
-    height: 75,
+    overflow: 'hidden',
+    height: '100%',
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  textRow: {
-    marginTop: 8,
+  otherParticipant: {
+    backgroundColor: 'green',
   },
 });
