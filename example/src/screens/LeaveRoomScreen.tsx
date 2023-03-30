@@ -26,10 +26,7 @@ export const LeaveRoomScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.content}>
-      <Image
-        style={styles.logo}
-        source={require('../../assets/images/Logo.png')}
-      />
+      <Image style={styles.logo} source={require('@assets/images/Logo.png')} />
       <Typo variant="h3" style={styles.title}>
         You’ve left the meeting.
       </Typo>

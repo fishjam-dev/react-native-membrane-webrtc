@@ -9,7 +9,8 @@
       "@colors": ["./src/shared/colors.ts"],
       "@screens/*": ["./src/screens/*"],
       "@model/*": ["./src/model/*"],
-      "@utils": ["./src/shared/utils.ts"]
+      "@utils": ["./src/shared/utils.ts"],
+      "@assets/*": ["./assets/*"]
     }
   },
   "include": ["./src"],

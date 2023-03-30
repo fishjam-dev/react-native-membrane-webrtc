@@ -19,12 +19,12 @@ export const BackgroundWrapper = ({
     <View style={styles.container}>
       <Image
         style={[styles.leftImage, getTopOffsetForLeftImage()]}
-        source={require('../../assets/images/Left.png')}
+        source={require('@assets/images/Left.png')}
       />
 
       <Image
         style={styles.rightImage}
-        source={require('../../assets/images/Right.png')}
+        source={require('@assets/images/Right.png')}
       />
       <View style={styles.content}>{children}</View>
     </View>

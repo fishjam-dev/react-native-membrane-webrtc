@@ -17,6 +17,7 @@ module.exports = {
           '@screens': './src/screens/',
           '@model': './src/model/',
           '@utils': './src/shared/utils.ts',
+          '@assets': './assets/',
         },
       },
     ],

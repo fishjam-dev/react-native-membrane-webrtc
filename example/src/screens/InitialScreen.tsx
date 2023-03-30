@@ -13,7 +13,7 @@ export const InitialScreen = ({ navigation }) => {
           <View style={styles.header}>
             <Image
               style={styles.logo}
-              source={require('../../assets/images/Logo.png')}
+              source={require('@assets/images/Logo.png')}
             />
             <View style={styles.subtitle}>
               <Typo variant="h5">Videoconferencing for everyone</Typo>
