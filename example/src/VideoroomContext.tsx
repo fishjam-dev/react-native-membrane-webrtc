@@ -9,8 +9,10 @@ import {
   useCameraState,
   useMicrophoneState,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Alert } from 'react-native';
+
+type VideoroomState = 'BeforeMeeting' | 'InMeeting' | 'AfterMeeting';
 
 const VideoroomContext = React.createContext<
   | {
@@ -26,6 +28,8 @@ const VideoroomContext = React.createContext<
       setCurrentCamera: (camera: CaptureDevice | null) => void;
       connectAndJoinRoom: () => Promise<void>;
       disconnect: () => Promise<void>;
+      videoroomState: VideoroomState;
+      goToMainScreen: () => void;
     }
   | undefined
 >(undefined);
@@ -52,7 +56,8 @@ const VideoroomContextProvider = (props) => {
   const { updateVideoTrackMetadata } = useVideoTrackMetadata();
   const { updateAudioTrackMetadata } = useAudioTrackMetadata();
 
-  const isConnected = useRef(false);
+  const [videoroomState, setVideoroomState] =
+    useState<VideoroomState>('BeforeMeeting');
 
   const connectAndJoinRoom = useCallback(async () => {
     const trimmedRoomName = roomName.trimEnd();
@@ -79,12 +84,18 @@ const VideoroomContextProvider = (props) => {
       captureDeviceId: currentCamera?.id,
     });
     await joinRoom();
-    isConnected.current = true;
+    setVideoroomState('InMeeting');
   }, [roomName, username, isCameraOn, isMicrophoneOn, currentCamera]);
 
   const disconnect = useCallback(async () => {
     await membraneDisconnect();
-    isConnected.current = false;
+    setVideoroomState('AfterMeeting');
+  }, []);
+
+  const goToMainScreen = useCallback(() => {
+    setRoomName('');
+    setUsername('');
+    setVideoroomState('BeforeMeeting');
   }, []);
 
   useEffect(() => {
@@ -95,20 +106,20 @@ const VideoroomContextProvider = (props) => {
   }, [error]);
 
   const toggleCamera = useCallback(() => {
-    if (isConnected.current) {
+    if (videoroomState === 'InMeeting') {
       membraneToggleCamera();
       updateVideoTrackMetadata({ active: !isCameraOn, type: 'camera' });
     }
     setIsCameraOn(!isCameraOn);
-  }, [isCameraOn]);
+  }, [isCameraOn, videoroomState]);
 
   const toggleMicrophone = useCallback(() => {
-    if (isConnected.current) {
+    if (videoroomState === 'InMeeting') {
       membraneToggleMicrophone();
       updateAudioTrackMetadata({ active: !isMicrophoneOn, type: 'audio' });
     }
     setIsMicrophoneOn(!isMicrophoneOn);
-  }, [isMicrophoneOn]);
+  }, [isMicrophoneOn, videoroomState]);
 
   const value = {
     roomName,
@@ -123,6 +134,8 @@ const VideoroomContextProvider = (props) => {
     currentCamera,
     setCurrentCamera,
     disconnect,
+    videoroomState,
+    goToMainScreen,
   };
 
   return (
