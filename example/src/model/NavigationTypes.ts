@@ -6,4 +6,5 @@ export type RootStack = {
   InitialScreen: undefined;
   JoinRoom: { roomName: string } | undefined;
   Preview: { title: PreviewTitle };
+  LeaveRoom: undefined;
 };

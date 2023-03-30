@@ -1,5 +1,4 @@
 import 'react-native-gesture-handler';
-import { BrandColors } from '@colors';
 import { BackgroundWrapper } from '@components/BackgroundWrapper';
 import { VIDEOROOM_URL } from '@env';
 import {
@@ -13,6 +12,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { CreateRoom } from '@screens/CreateRoom';
 import { InitialScreen } from '@screens/InitialScreen';
 import { JoinRoom } from '@screens/JoinRoom';
+import { LeaveRoomScreen } from '@screens/LeaveRoomScreen';
 import { Preview } from '@screens/Preview';
 import { Room } from '@screens/Room';
 import { useFonts } from 'expo-font';
@@ -45,7 +45,7 @@ export default function App() {
     NotoSans_400Regular,
     NotoSans_500Medium,
     NotoSans_600SemiBold,
-    IcoMoon: require('../assets/fonts/icomoon/icomoon.ttf'),
+    IcoMoon: require('@assets/fonts/icomoon/icomoon.ttf'),
   });
 
   useEffect(() => {
@@ -101,7 +101,7 @@ export default function App() {
               component={Room}
               options={{
                 headerShown: false,
-                cardStyle: { backgroundColor: BrandColors.seaBlue20 },
+                cardStyle: { backgroundColor: 'transparent' },
               }}
             />
             <Stack.Screen
@@ -117,6 +117,13 @@ export default function App() {
               component={Preview}
               options={{
                 cardStyle: { backgroundColor: 'transparent' },
+              }}
+            />
+            <Stack.Screen
+              name="LeaveRoom"
+              component={LeaveRoomScreen}
+              options={{
+                headerShown: false,
               }}
             />
           </Stack.Navigator>

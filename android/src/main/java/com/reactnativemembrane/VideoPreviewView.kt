@@ -11,6 +11,25 @@ class VideoPreviewView(private val context: Context): VideoTextureViewRenderer(c
   private lateinit var localVideoTrack: LocalVideoTrack
   private lateinit var eglBase: EglBase
   private lateinit var peerConnectionFactory: PeerConnectionFactory
+  private var isInitialized: Boolean = false
+
+  init {
+    initialize()
+  }
+
+  private fun initialize() {
+    if(isInitialized) return
+    isInitialized = true
+    PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions.builder(context).createInitializationOptions())
+    eglBase = EglBase.create()
+    peerConnectionFactory = PeerConnectionFactory.builder().createPeerConnectionFactory()
+
+    localVideoTrack = LocalVideoTrack.create(context, peerConnectionFactory, eglBase, VideoParameters.presetFHD169).also {
+      it.start()
+    }
+    init(eglBase.eglBaseContext, null)
+    localVideoTrack.addRenderer(this)
+  }
 
   fun switchCamera(captureDeviceId: String) {
     localVideoTrack.switchCamera(captureDeviceId)
@@ -23,6 +42,7 @@ class VideoPreviewView(private val context: Context): VideoTextureViewRenderer(c
     this.release()
     peerConnectionFactory.dispose()
     eglBase.release()
+    isInitialized = false
   }
 
   override fun onDetachedFromWindow() {
@@ -32,14 +52,6 @@ class VideoPreviewView(private val context: Context): VideoTextureViewRenderer(c
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions.builder(context).createInitializationOptions())
-    eglBase = EglBase.create()
-    peerConnectionFactory = PeerConnectionFactory.builder().createPeerConnectionFactory()
-
-    localVideoTrack = LocalVideoTrack.create(context, peerConnectionFactory, eglBase, VideoParameters.presetFHD169).also {
-      it.start()
-    }
-    init(eglBase.eglBaseContext, null)
-    localVideoTrack.addRenderer(this)
+    initialize()
   }
 }
