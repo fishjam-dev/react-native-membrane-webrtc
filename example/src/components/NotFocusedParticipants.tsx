@@ -59,12 +59,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  othersWrapper: {
-    marginTop: 16,
-    marginBottom: 16,
-  },
   otherParticipantsContainer: {
-    // flex: 1,
+    flex: 1,
+    aspectRatio: 2,
     flexDirection: 'row',
     borderRadius: 12,
     borderWidth: 2,

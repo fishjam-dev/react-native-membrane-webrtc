@@ -11,7 +11,10 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
@@ -172,7 +175,7 @@ export const Room = ({ navigation }: Props) => {
               </View>
             )}
           </View>
-          <CallControls />
+          <CallControls bottomOffset={useSafeAreaInsets().bottom} />
         </SafeAreaView>
       </View>
     </BackgroundAnimation>
@@ -239,7 +242,7 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   focusedParticipant: {
-    aspectRatio: 1,
+    aspectRatio: 1 / 1.3,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: BrandColors.darkBlue60,
@@ -247,6 +250,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   otherParticipants: {
+    marginTop: 16,
     marginBottom: 8,
     flex: 1,
   },

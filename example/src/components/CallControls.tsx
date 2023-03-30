@@ -7,7 +7,11 @@ import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
-export const CallControls = () => {
+type CallControlsProp = {
+  bottomOffset: number;
+};
+
+export const CallControls = ({ bottomOffset }: CallControlsProp) => {
   const { isScreencastOn, toggleScreencast } = Membrane.useScreencast();
   const {
     isCameraOn,
@@ -36,7 +40,7 @@ export const CallControls = () => {
   }, []);
 
   return (
-    <View style={styles.iconsContainer}>
+    <View style={[styles.iconsContainer, { marginBottom: 34 - bottomOffset }]}>
       <View style={styles.iconInRow}>
         <InCallButton
           iconName={!isCameraOn ? 'Cam-disabled' : 'Cam'}
@@ -70,7 +74,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 8,
-    marginBottom: 34,
   },
   iconInRow: {
     marginRight: 16,

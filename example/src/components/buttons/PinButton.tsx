@@ -13,11 +13,13 @@ type PinButtonProp = {
 export const PinButton = ({ children, onPress }: PinButtonProp) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
-      <Icon name="Pin" size={24} color={AdditionalColors.white} />
-      <View style={styles.buttonText}>
-        <Typo variant="button" color={TextColors.white}>
-          {children}
-        </Typo>
+      <View style={styles.wrapper}>
+        <Icon name="Pin" size={24} color={AdditionalColors.white} />
+        <View style={styles.buttonText}>
+          <Typo variant="button" color={TextColors.white}>
+            {children}
+          </Typo>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -25,20 +27,22 @@ export const PinButton = ({ children, onPress }: PinButtonProp) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     width: '100%',
     height: 56,
+    alignSelf: 'center',
+  },
+  buttonText: {
+    marginLeft: 8,
+  },
+  wrapper: {
     backgroundColor: 'rgba(81, 89, 112, 0.75)',
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
+    flexDirection: 'row',
     paddingLeft: 32,
     paddingRight: 32,
     paddingTop: 16,
     paddingBottom: 16,
     borderRadius: 100,
-  },
-  buttonText: {
-    marginLeft: 8,
   },
 });
