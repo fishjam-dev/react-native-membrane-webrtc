@@ -37,6 +37,7 @@ export const Room = ({ navigation }: Props) => {
   const focusedParticipant = participants.find(
     (p) => p.id === focusedParticipantId
   );
+  console.log(focusedParticipant?.tracks);
 
   const rowNum = Math.min(
     Math.ceil(participants.length / 2),
