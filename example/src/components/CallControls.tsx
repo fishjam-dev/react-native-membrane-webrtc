@@ -5,7 +5,10 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
+
+const BOTTOM_MARGIN = 34;
 
 export const CallControls = () => {
   const { isScreencastOn, toggleScreencast } = Membrane.useScreencast();
@@ -16,6 +19,7 @@ export const CallControls = () => {
     toggleMicrophone,
     disconnect,
   } = useVideoroomState();
+  const bottomOffset = useSafeAreaInsets().bottom;
 
   const toggleScreencastAndUpdateMetadata = () => {
     toggleScreencast({
@@ -36,7 +40,12 @@ export const CallControls = () => {
   }, [disconnect]);
 
   return (
-    <View style={styles.iconsContainer}>
+    <View
+      style={[
+        styles.iconsContainer,
+        { marginBottom: BOTTOM_MARGIN - bottomOffset },
+      ]}
+    >
       <View style={styles.iconInRow}>
         <InCallButton
           iconName={!isCameraOn ? 'Cam-disabled' : 'Cam'}
@@ -70,7 +79,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 8,
-    marginBottom: 34,
   },
   iconInRow: {
     marginRight: 16,

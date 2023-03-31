@@ -47,7 +47,10 @@ export const OtherParticipants = ({
       )}
       {numOfOtherParticipants > 2 ? (
         <View style={styles.textRow}>
-          <Typo variant="label">+ {numOfOtherParticipants - 2} others</Typo>
+          <Typo variant="label">
+            + {numOfOtherParticipants - 2} other
+            {numOfOtherParticipants - 2 > 1 ? 's' : null}
+          </Typo>
         </View>
       ) : null}
     </View>
