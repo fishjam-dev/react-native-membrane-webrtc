@@ -32,8 +32,6 @@ export const RoomParticipant = ({
   const audioTrack = tracks.find((t) => t.type === 'Audio');
   const videoType = videoTrack?.metadata.type;
 
-  console.log(videoType);
-
   const participantHasVideo = () => {
     if (videoTrack) {
       return videoTrack.metadata.active;
