@@ -29,6 +29,7 @@ type Props = NativeStackScreenProps<RootStack, 'Room'>;
 export const Room = ({ navigation }: Props) => {
   const { width, height } = Dimensions.get('window');
   const { roomName } = useVideoroomState();
+  const bottomOffset = useSafeAreaInsets().bottom;
 
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantId, setFocusedParticipantId] = useState<
@@ -155,7 +156,7 @@ export const Room = ({ navigation }: Props) => {
                         <RoomParticipant
                           participant={p}
                           onPinButtonPressed={setFocusedParticipantId}
-                          titleSmall={participants.length > FLEX_BRAKPOINT}
+                          tileSmall={participants.length > FLEX_BRAKPOINT}
                         />
                       </View>
                     ))}
@@ -177,7 +178,7 @@ export const Room = ({ navigation }: Props) => {
               </View>
             )}
           </View>
-          <CallControls bottomOffset={useSafeAreaInsets().bottom} />
+          <CallControls bottomOffset={bottomOffset} />
         </SafeAreaView>
       </View>
     </BackgroundAnimation>

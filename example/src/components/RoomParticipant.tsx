@@ -15,7 +15,7 @@ type RoomParticipantProps = {
   onPinButtonPressed?: (string) => void;
   focused?: boolean;
   pinButtonHiddden?: boolean;
-  titleSmall?: boolean;
+  tileSmall?: boolean;
 };
 
 export const RoomParticipant = ({
@@ -23,7 +23,7 @@ export const RoomParticipant = ({
   onPinButtonPressed = (string) => {},
   focused = false,
   pinButtonHiddden = false,
-  titleSmall = false,
+  tileSmall = false,
 }: RoomParticipantProps) => {
   const [showPinButton, setShowPinButton] = useState(false);
   const isPinButtonShown = useRef(false);
@@ -38,7 +38,7 @@ export const RoomParticipant = ({
   };
 
   const getTextForPinButton = () => {
-    return focused ? 'Unpin user' : titleSmall ? 'Pin' : 'Pin user';
+    return focused ? 'Unpin user' : tileSmall ? 'Pin' : 'Pin user';
   };
 
   const onPinButton = () => {
@@ -73,7 +73,7 @@ export const RoomParticipant = ({
           <View style={styles.videoTrack}>
             <NoCameraView
               username={metadata.displayName}
-              isSmallTile={titleSmall}
+              isSmallTile={tileSmall}
             />
           </View>
         )}

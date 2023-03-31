@@ -7,6 +7,8 @@ import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
+const BOTTOM_MARGIN = 34;
+
 type CallControlsProp = {
   bottomOffset: number;
 };
@@ -40,7 +42,12 @@ export const CallControls = ({ bottomOffset }: CallControlsProp) => {
   }, []);
 
   return (
-    <View style={[styles.iconsContainer, { marginBottom: 34 - bottomOffset }]}>
+    <View
+      style={[
+        styles.iconsContainer,
+        { marginBottom: BOTTOM_MARGIN - bottomOffset },
+      ]}
+    >
       <View style={styles.iconInRow}>
         <InCallButton
           iconName={!isCameraOn ? 'Cam-disabled' : 'Cam'}

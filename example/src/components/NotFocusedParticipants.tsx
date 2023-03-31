@@ -23,7 +23,7 @@ export const NotFocusedParticipants = ({
           <RoomParticipant
             participant={participants[0]}
             pinButtonHiddden
-            titleSmall
+            tileSmall
           />
         </View>
       ) : (
@@ -37,7 +37,7 @@ export const NotFocusedParticipants = ({
             <RoomParticipant
               participant={participants[0]}
               pinButtonHiddden
-              titleSmall
+              tileSmall
             />
           </View>
           <View style={styles.middleLine} />
@@ -46,7 +46,7 @@ export const NotFocusedParticipants = ({
               <RoomParticipant
                 participant={participants[1]}
                 pinButtonHiddden
-                titleSmall
+                tileSmall
               />
             ) : (
               <OtherParticipants
