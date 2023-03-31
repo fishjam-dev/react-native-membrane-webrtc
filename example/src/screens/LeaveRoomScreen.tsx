@@ -2,6 +2,7 @@ import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
 import { RootStack } from '@model/NavigationTypes';
+import { useNotifications } from '@model/NotificationsContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
@@ -11,13 +12,14 @@ type Props = NativeStackScreenProps<RootStack, 'LeaveRoom'>;
 
 export const LeaveRoomScreen = ({ navigation }: Props) => {
   const { connectAndJoinRoom, goToMainScreen } = useVideoroomState();
+  const { showNotification } = useNotifications();
 
   const rejoinMeeting = useCallback(async () => {
     try {
       await connectAndJoinRoom();
       navigation.goBack();
     } catch (err) {
-      console.warn(err);
+      showNotification('Error connecting to server', 'error');
     }
   }, [connectAndJoinRoom]);
 
