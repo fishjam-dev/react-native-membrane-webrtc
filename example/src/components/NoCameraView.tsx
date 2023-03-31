@@ -7,12 +7,21 @@ import { Typo } from './Typo';
 
 type NoCameraViewProps = {
   username: string;
+  isSmallTitle?: boolean;
 };
 
-export const NoCameraView = ({ username }: NoCameraViewProps) => {
+export const NoCameraView = ({
+  username,
+  isSmallTitle = false,
+}: NoCameraViewProps) => {
   return (
     <View style={styles.noCameraBackground}>
-      <View style={styles.noCameraContent}>
+      <View
+        style={[
+          styles.noCameraContent,
+          isSmallTitle ? styles.smallContent : styles.bigContent,
+        ]}
+      >
         <Typo variant="h5" color={BrandColors.darkBlue80}>
           {getShortUsername(username)}
         </Typo>
@@ -33,9 +42,15 @@ const styles = StyleSheet.create({
     borderRadius: 5000,
     borderColor: BrandColors.darkBlue60,
     borderWidth: 1,
-    width: 132,
-    height: 132,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  bigContent: {
+    width: 132,
+    height: 132,
+  },
+  smallContent: {
+    width: 75,
+    height: 75,
   },
 });

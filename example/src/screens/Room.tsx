@@ -31,9 +31,11 @@ export const Room = ({ navigation }: Props) => {
   const { roomName } = useVideoroomState();
 
   const participants = Membrane.useRoomParticipants();
-  const [focusedTrackId, setFocusedTrackId] = useState<string | null>(null);
+  const [focusedParticipantId, setFocusedParticipantId] = useState<
+    string | null
+  >(null);
   const focusedParticipant = participants.find(
-    (p) => p.tracks.find((t) => t.id === focusedTrackId) != null
+    (p) => p.id === focusedParticipantId
   );
 
   const rowNum = Math.min(
@@ -110,7 +112,7 @@ export const Room = ({ navigation }: Props) => {
                 <View style={styles.focusedParticipant}>
                   <RoomParticipant
                     participant={focusedParticipant}
-                    onPinButtonPressed={setFocusedTrackId}
+                    onPinButtonPressed={setFocusedParticipantId}
                     focused
                   />
                 </View>
@@ -152,7 +154,7 @@ export const Room = ({ navigation }: Props) => {
                       >
                         <RoomParticipant
                           participant={p}
-                          onPinButtonPressed={setFocusedTrackId}
+                          onPinButtonPressed={setFocusedParticipantId}
                           titleSmall={participants.length > FLEX_BRAKPOINT}
                         />
                       </View>

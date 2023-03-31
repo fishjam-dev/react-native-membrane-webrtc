@@ -20,7 +20,11 @@ export const NotFocusedParticipants = ({
     <View style={styles.container}>
       {participants.length === 1 ? (
         <View style={styles.otherParticipantContainer}>
-          <RoomParticipant participant={participants[0]} pinButtonHiddden />
+          <RoomParticipant
+            participant={participants[0]}
+            pinButtonHiddden
+            titleSmall
+          />
         </View>
       ) : (
         <View
@@ -30,12 +34,20 @@ export const NotFocusedParticipants = ({
           ]}
         >
           <View style={styles.participant}>
-            <RoomParticipant participant={participants[0]} pinButtonHiddden />
+            <RoomParticipant
+              participant={participants[0]}
+              pinButtonHiddden
+              titleSmall
+            />
           </View>
           <View style={styles.middleLine} />
           <View style={styles.participant}>
             {participants.length === 2 ? (
-              <RoomParticipant participant={participants[1]} pinButtonHiddden />
+              <RoomParticipant
+                participant={participants[1]}
+                pinButtonHiddden
+                titleSmall
+              />
             ) : (
               <OtherParticipants
                 p1={participants[1]}

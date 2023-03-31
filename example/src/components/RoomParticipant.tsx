@@ -1,8 +1,9 @@
 import { BrandColors, AdditionalColors, TextColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { delay } from '@utils';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';
@@ -18,13 +19,14 @@ type RoomParticipantProps = {
 };
 
 export const RoomParticipant = ({
-  participant: { metadata, tracks, type },
+  participant: { metadata, tracks, type, id },
   onPinButtonPressed = (string) => {},
   focused = false,
   pinButtonHiddden = false,
   titleSmall = false,
 }: RoomParticipantProps) => {
   const [showPinButton, setShowPinButton] = useState(false);
+  const isPinButtonShown = useRef(false);
   const videoTrack = tracks.find((t) => t.type === 'Video');
   const audioTrack = tracks.find((t) => t.type === 'Audio');
 
@@ -44,17 +46,19 @@ export const RoomParticipant = ({
       onPinButtonPressed(null);
       return;
     }
-    onPinButtonPressed(videoTrack!.id);
+    onPinButtonPressed(id);
   };
 
   const triggerShowingPinButton = async () => {
-    if (pinButtonHiddden) {
+    if (pinButtonHiddden || isPinButtonShown.current) {
       return;
     }
 
+    isPinButtonShown.current = true;
     setShowPinButton(true);
     await delay(2000);
     setShowPinButton(false);
+    isPinButtonShown.current = false;
   };
 
   return (
@@ -67,7 +71,10 @@ export const RoomParticipant = ({
           />
         ) : (
           <View style={styles.videoTrack}>
-            <NoCameraView username={metadata.displayName} />
+            <NoCameraView
+              username={metadata.displayName}
+              isSmallTitle={titleSmall}
+            />
           </View>
         )}
         <View style={styles.displayNameContainer}>
@@ -100,9 +107,9 @@ export const RoomParticipant = ({
         )}
       </Pressable>
       {showPinButton ? (
-        <View style={styles.pinButton}>
+        <Animated.View style={styles.pinButton} entering={FadeIn}>
           <PinButton onPress={onPinButton}>{getTextForPinButton()} </PinButton>
-        </View>
+        </Animated.View>
       ) : null}
     </View>
   );
@@ -132,7 +139,11 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
     marginRight: 16,
   },
-  videoTrack: { flex: 1, aspectRatio: 1 },
+  videoTrack: {
+    flex: 1,
+    aspectRatio: 1,
+    alignSelf: 'center',
+  },
   mutedIcon: {
     position: 'absolute',
     left: 16,
