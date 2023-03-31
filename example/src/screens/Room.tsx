@@ -7,9 +7,10 @@ import { RoomParticipant } from '@components/RoomParticipant';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
+import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View, Dimensions } from 'react-native';
+import { StyleSheet, View, Dimensions, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
@@ -38,6 +39,18 @@ export const Room = ({ navigation }: Props) => {
   const rowNum = Math.min(
     Math.ceil(participants.length / 2),
     MAX_NUM_OF_USERS_ON_THE_SCREEN / 2
+  );
+
+  const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      InteractionManager.runAfterInteractions(() => {
+        setShouldShowParticipants(true);
+      });
+
+      return () => setShouldShowParticipants(false);
+    }, [])
   );
 
   const videoViewWidth = (width - 3 * OFFSET_PER_ROW) / 2;
@@ -104,76 +117,81 @@ export const Room = ({ navigation }: Props) => {
           </View>
 
           <View style={{ flex: 1 }}>
-            {focusedParticipant ? (
-              <View style={styles.focusedParticipantContainer}>
-                <View style={styles.focusedParticipant}>
-                  <RoomParticipant
-                    participant={focusedParticipant}
-                    onPinButtonPressed={setFocusedParticipantId}
-                    focused
-                  />
-                </View>
-              </View>
-            ) : null}
-
-            {focusedParticipant ? (
-              <View style={styles.otherParticipants}>
-                <NotFocusedParticipants
-                  participants={participants.filter(
-                    (p) => p.id !== focusedParticipant?.id
-                  )}
-                />
-              </View>
-            ) : (
-              <View style={styles.participantsContainer}>
-                <View
-                  style={[
-                    styles.inner,
-                    participants.length > FLEX_BRAKPOINT
-                      ? styles.row
-                      : styles.column,
-                  ]}
-                >
-                  {participants
-                    .slice(
-                      0,
-                      participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
-                        ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
-                        : MAX_NUM_OF_USERS_ON_THE_SCREEN
-                    )
-                    .map((p) => (
-                      <View
-                        key={p.id}
-                        style={[
-                          getStylesForParticipants(participants),
-                          styles.shownParticipantBorder,
-                        ]}
-                      >
-                        <RoomParticipant
-                          participant={p}
-                          onPinButtonPressed={setFocusedParticipantId}
-                          tileSmall={participants.length > FLEX_BRAKPOINT}
-                        />
-                      </View>
-                    ))}
-
-                  {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
-                    <View style={getStylesForParticipants(participants)}>
-                      <OtherParticipants
-                        p1={participants[participants.length - 1]}
-                        p2={participants[participants.length - 2]}
-                        numOfOtherParticipants={
-                          participants.length -
-                          MAX_NUM_OF_USERS_ON_THE_SCREEN +
-                          1
-                        }
+            {shouldShowParticipants && (
+              <>
+                {focusedParticipant ? (
+                  <View style={styles.focusedParticipantContainer}>
+                    <View style={styles.focusedParticipant}>
+                      <RoomParticipant
+                        participant={focusedParticipant}
+                        onPinButtonPressed={setFocusedParticipantId}
+                        focused
                       />
                     </View>
-                  )}
-                </View>
-              </View>
+                  </View>
+                ) : null}
+
+                {focusedParticipant ? (
+                  <View style={styles.otherParticipants}>
+                    <NotFocusedParticipants
+                      participants={participants.filter(
+                        (p) => p.id !== focusedParticipant?.id
+                      )}
+                    />
+                  </View>
+                ) : (
+                  <View style={styles.participantsContainer}>
+                    <View
+                      style={[
+                        styles.inner,
+                        participants.length > FLEX_BRAKPOINT
+                          ? styles.row
+                          : styles.column,
+                      ]}
+                    >
+                      {participants
+                        .slice(
+                          0,
+                          participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
+                            ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
+                            : MAX_NUM_OF_USERS_ON_THE_SCREEN
+                        )
+                        .map((p) => (
+                          <View
+                            key={p.id}
+                            style={[
+                              getStylesForParticipants(participants),
+                              styles.shownParticipantBorder,
+                            ]}
+                          >
+                            <RoomParticipant
+                              participant={p}
+                              onPinButtonPressed={setFocusedParticipantId}
+                              tileSmall={participants.length > FLEX_BRAKPOINT}
+                            />
+                          </View>
+                        ))}
+
+                      {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
+                        <View style={getStylesForParticipants(participants)}>
+                          <OtherParticipants
+                            p1={participants[participants.length - 1]}
+                            p2={participants[participants.length - 2]}
+                            numOfOtherParticipants={
+                              participants.length -
+                              MAX_NUM_OF_USERS_ON_THE_SCREEN +
+                              1
+                            }
+                          />
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                )}
+              </>
             )}
           </View>
+
           <CallControls />
         </SafeAreaView>
       </View>
