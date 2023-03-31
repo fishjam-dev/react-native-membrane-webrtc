@@ -50,7 +50,7 @@ export const Navigation = () => {
           cardStyle: { backgroundColor: 'transparent' },
         }}
       >
-        {videoroomState === 'InMeeting' ? (
+        {videoroomState === 'InMeeting' || videoroomState === 'AfterMeeting' ? (
           <>
             <Stack.Screen
               name="Room"
@@ -59,9 +59,6 @@ export const Navigation = () => {
                 headerShown: false,
               }}
             />
-          </>
-        ) : videoroomState === 'AfterMeeting' ? (
-          <>
             <Stack.Screen
               name="LeaveRoom"
               component={LeaveRoomScreen}
@@ -84,9 +81,6 @@ export const Navigation = () => {
               component={CreateRoom}
               options={{
                 title: 'New meeting',
-                headerStyle: {
-                  backgroundColor: '#ff0000',
-                },
               }}
             />
             <Stack.Screen
