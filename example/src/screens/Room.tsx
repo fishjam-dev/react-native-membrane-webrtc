@@ -6,10 +6,8 @@ import { OtherParticipants } from '@components/OtherParticipants';
 import { RoomParticipant } from '@components/RoomParticipant';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import { RootStack } from '@model/NavigationTypes';
 import { useFocusEffect } from '@react-navigation/native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, View, Dimensions, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,9 +20,7 @@ const OFFSET_PER_ROW = 16;
 const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
 const FLEX_BRAKPOINT = 3;
 
-type Props = NativeStackScreenProps<RootStack, 'Room'>;
-
-export const Room = ({ navigation }: Props) => {
+export const Room = () => {
   const { width, height } = Dimensions.get('window');
   const { roomName } = useVideoroomState();
 
@@ -56,23 +52,6 @@ export const Room = ({ navigation }: Props) => {
   const videoViewWidth = (width - 3 * OFFSET_PER_ROW) / 2;
   const smallScreenVideoWidth =
     (height - HEADER_AND_FOOTER_SIZE - OFFSET_PER_ROW * (rowNum + 2)) / rowNum;
-
-  // TODO(@skyman503): Use gestureEnable when https://github.com/react-navigation/react-navigation/issues/10394 is fixed.
-  useEffect(() => {
-    const handleBeforeRemoveEvent = (e) => {
-      e.preventDefault();
-      // TODO(@skyman503): Navigate to `LeaveScreen` when it is implemented.
-      // Check whether beforeRemove event was triggered by disconenct button.
-      if (e.data.action.source) {
-        navigation.dispatch(e.data.action);
-      }
-    };
-
-    navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
-
-    return () =>
-      navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
-  }, [navigation]);
 
   const switchCamera = useCallback(() => {
     Membrane.flipCamera();

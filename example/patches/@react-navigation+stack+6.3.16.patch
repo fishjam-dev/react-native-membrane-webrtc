@@ -1,0 +1,64 @@
+diff --git a/node_modules/@react-navigation/stack/src/types.tsx b/node_modules/@react-navigation/stack/src/types.tsx
+index 77f48cd..593a3d3 100644
+--- a/node_modules/@react-navigation/stack/src/types.tsx
++++ b/node_modules/@react-navigation/stack/src/types.tsx
+@@ -176,6 +176,7 @@ export type StackHeaderOptions = Omit<
+    * Title string used by the back button when `headerBackTitle` doesn't fit on the screen. `"Back"` by default.
+    */
+   headerTruncatedBackTitle?: string;
++  isHeaderAbsolutelyPositioned?: boolean;
+   /**
+    * Function which returns a React Element to display custom image in header's back button.
+    * It receives the `tintColor` in in the options object as an argument. object.
+diff --git a/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx b/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
+index 4d4848f..beab2df 100755
+--- a/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
++++ b/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
+@@ -18,6 +18,8 @@ import {
+ } from 'react-native';
+ import type { EdgeInsets } from 'react-native-safe-area-context';
+ 
++import { getIsModalPresentation } from './Card';
++import CardContainer from './CardContainer';
+ import {
+   forModalPresentationIOS,
+   forNoAnimation as forNoAnimationCard,
+@@ -39,8 +41,6 @@ import findLastIndex from '../../utils/findLastIndex';
+ import getDistanceForDirection from '../../utils/getDistanceForDirection';
+ import type { Props as HeaderContainerProps } from '../Header/HeaderContainer';
+ import { MaybeScreen, MaybeScreenContainer } from '../Screens';
+-import { getIsModalPresentation } from './Card';
+-import CardContainer from './CardContainer';
+ 
+ type GestureValues = {
+   [key: string]: Animated.Value;
+@@ -266,7 +266,7 @@ export default class CardStack extends React.Component<Props, State> {
+           ? nextDescriptor.options
+           : descriptor.options;
+ 
+-      let defaultTransitionPreset =
++      const defaultTransitionPreset =
+         optionsForTransitionConfig.presentation === 'modal'
+           ? ModalTransition
+           : optionsForTransitionConfig.presentation === 'transparentModal'
+@@ -499,12 +499,18 @@ export default class CardStack extends React.Component<Props, State> {
+ 
+     const isFloatHeaderAbsolute = this.state.scenes.slice(-2).some((scene) => {
+       const options = scene.descriptor.options ?? {};
+-      const { headerMode, headerTransparent, headerShown = true } = options;
++      const {
++        headerMode,
++        headerTransparent,
++        headerShown = true,
++        isHeaderAbsolutelyPositioned,
++      } = options;
+ 
+       if (
+         headerTransparent ||
+         headerShown === false ||
+-        headerMode === 'screen'
++        headerMode === 'screen' ||
++        isHeaderAbsolutelyPositioned
+       ) {
+         return true;
+       }

@@ -2,7 +2,7 @@ import { InCallButton } from '@components/buttons/InCallButton';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,8 +20,6 @@ export const CallControls = () => {
     disconnect,
   } = useVideoroomState();
   const bottomOffset = useSafeAreaInsets().bottom;
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStack, 'Room'>>();
 
   const toggleScreencastAndUpdateMetadata = () => {
     toggleScreencast({
@@ -34,10 +32,12 @@ export const CallControls = () => {
     });
   };
 
-  const onDisconnectPress = useCallback(() => {
-    disconnect();
+  const navigation = useNavigation<StackNavigationProp<RootStack, 'Room'>>();
+
+  const onDisconnectPress = useCallback(async () => {
+    await disconnect();
     navigation.navigate('LeaveRoom');
-  }, []);
+  }, [disconnect]);
 
   return (
     <View
