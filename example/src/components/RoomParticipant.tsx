@@ -73,7 +73,7 @@ export const RoomParticipant = ({
           <View style={styles.videoTrack}>
             <NoCameraView
               username={metadata.displayName}
-              isSmallTitle={titleSmall}
+              isSmallTile={titleSmall}
             />
           </View>
         )}

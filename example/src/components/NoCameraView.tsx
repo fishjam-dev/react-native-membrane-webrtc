@@ -7,19 +7,19 @@ import { Typo } from './Typo';
 
 type NoCameraViewProps = {
   username: string;
-  isSmallTitle?: boolean;
+  isSmallTile?: boolean;
 };
 
 export const NoCameraView = ({
   username,
-  isSmallTitle = false,
+  isSmallTile = false,
 }: NoCameraViewProps) => {
   return (
     <View style={styles.noCameraBackground}>
       <View
         style={[
           styles.noCameraContent,
-          isSmallTitle ? styles.smallContent : styles.bigContent,
+          isSmallTile ? styles.smallContent : styles.bigContent,
         ]}
       >
         <Typo variant="h5" color={BrandColors.darkBlue80}>
