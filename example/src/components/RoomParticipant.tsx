@@ -33,7 +33,9 @@ export const RoomParticipant = ({
 }: RoomParticipantProps) => {
   const [showPinButton, setShowPinButton] = useState(false);
   const isPinButtonShown = useRef(false);
-  const videoTrack = tracks.find((t) => t.type === 'Video');
+  // const videoTrack = tracks.find((t) => t.type === 'Video');
+  const videoTrack = tracks[0];
+  const videoTrackType = videoTrack?.metadata.type;
   const audioTrack = tracks.find((t) => t.type === 'Audio');
   const buttonOpacity = useSharedValue(0);
 
@@ -92,7 +94,16 @@ export const RoomParticipant = ({
         {participantHasVideo() ? (
           <Membrane.VideoRendererView
             trackId={videoTrack!.id}
-            style={styles.videoTrack}
+            style={
+              videoTrackType === 'camera'
+                ? styles.videoTrack
+                : styles.videoTrackScreencast
+            }
+            videoLayout={
+              videoTrackType === 'camera'
+                ? Membrane.VideoLayout.FILL
+                : Membrane.VideoLayout.FIT
+            }
           />
         ) : (
           <View style={styles.videoTrack}>
@@ -170,6 +181,12 @@ const styles = StyleSheet.create({
     flex: 1,
     aspectRatio: 1,
     alignSelf: 'center',
+  },
+  videoTrackScreencast: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    backgroundColor: AdditionalColors.grey140,
   },
   mutedIcon: {
     position: 'absolute',
