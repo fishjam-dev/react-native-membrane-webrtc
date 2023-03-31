@@ -3,7 +3,11 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { delay } from '@utils';
 import React, { useRef, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';
@@ -29,6 +33,7 @@ export const RoomParticipant = ({
   const isPinButtonShown = useRef(false);
   const videoTrack = tracks.find((t) => t.type === 'Video');
   const audioTrack = tracks.find((t) => t.type === 'Audio');
+  const buttonOpacity = useSharedValue(0);
 
   const participantHasVideo = () => {
     if (videoTrack) {
@@ -49,14 +54,23 @@ export const RoomParticipant = ({
     onPinButtonPressed(id);
   };
 
+  const opacityStyle = useAnimatedStyle(() => {
+    return {
+      opacity: buttonOpacity.value,
+    };
+  });
+
   const triggerShowingPinButton = async () => {
     if (pinButtonHiddden || isPinButtonShown.current) {
       return;
     }
 
+    buttonOpacity.value = withTiming(1, { duration: 300 });
     isPinButtonShown.current = true;
     setShowPinButton(true);
-    await delay(2000);
+    await delay(1700);
+    buttonOpacity.value = withTiming(0, { duration: 300 });
+    await delay(300);
     setShowPinButton(false);
     isPinButtonShown.current = false;
   };
@@ -107,8 +121,12 @@ export const RoomParticipant = ({
         )}
       </Pressable>
       {showPinButton ? (
-        <Animated.View style={styles.pinButton} entering={FadeIn}>
-          <PinButton onPress={onPinButton}>{getTextForPinButton()} </PinButton>
+        <Animated.View style={[styles.pinButton, opacityStyle]}>
+          <View style={styles.pinButtonWrapper}>
+            <PinButton onPress={onPinButton}>
+              {getTextForPinButton()}{' '}
+            </PinButton>
+          </View>
         </Animated.View>
       ) : null}
     </View>
@@ -151,6 +169,10 @@ const styles = StyleSheet.create({
     backgroundColor: AdditionalColors.white,
     borderRadius: 50,
     padding: 6,
+  },
+  pinButtonWrapper: {
+    borderRadius: 100,
+    overflow: 'hidden',
   },
   pinButton: {
     position: 'absolute',
