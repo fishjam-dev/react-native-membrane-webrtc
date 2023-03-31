@@ -1,12 +1,14 @@
 import { BrandColors, AdditionalColors, TextColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import { delay } from '@utils';
 import React, { useRef, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
+  withSequence,
+  withDelay,
+  runOnJS,
 } from 'react-native-reanimated';
 
 import { Icon } from './Icon';
@@ -60,19 +62,28 @@ export const RoomParticipant = ({
     };
   });
 
+  const setIsPinButtonShown = (val: boolean) => {
+    isPinButtonShown.current = val;
+  };
+
   const triggerShowingPinButton = async () => {
     if (pinButtonHiddden || isPinButtonShown.current) {
       return;
     }
 
-    buttonOpacity.value = withTiming(1, { duration: 300 });
     isPinButtonShown.current = true;
     setShowPinButton(true);
-    await delay(1700);
-    buttonOpacity.value = withTiming(0, { duration: 300 });
-    await delay(300);
-    setShowPinButton(false);
-    isPinButtonShown.current = false;
+
+    buttonOpacity.value = withSequence(
+      withTiming(1, { duration: 300 }),
+      withDelay(
+        1700,
+        withTiming(0, { duration: 300 }, () => {
+          runOnJS(setShowPinButton)(false);
+          runOnJS(setIsPinButtonShown)(false);
+        })
+      )
+    );
   };
 
   return (
@@ -123,9 +134,7 @@ export const RoomParticipant = ({
       {showPinButton ? (
         <Animated.View style={[styles.pinButton, opacityStyle]}>
           <View style={styles.pinButtonWrapper}>
-            <PinButton onPress={onPinButton}>
-              {getTextForPinButton()}{' '}
-            </PinButton>
+            <PinButton onPress={onPinButton}>{getTextForPinButton()}</PinButton>
           </View>
         </Animated.View>
       ) : null}

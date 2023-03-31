@@ -5,15 +5,12 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 const BOTTOM_MARGIN = 34;
 
-type CallControlsProp = {
-  bottomOffset: number;
-};
-
-export const CallControls = ({ bottomOffset }: CallControlsProp) => {
+export const CallControls = () => {
   const { isScreencastOn, toggleScreencast } = Membrane.useScreencast();
   const {
     isCameraOn,
@@ -22,6 +19,7 @@ export const CallControls = ({ bottomOffset }: CallControlsProp) => {
     toggleMicrophone,
     disconnect,
   } = useVideoroomState();
+  const bottomOffset = useSafeAreaInsets().bottom;
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStack, 'Room'>>();
 

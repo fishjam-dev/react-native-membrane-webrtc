@@ -11,10 +11,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
@@ -29,7 +26,6 @@ type Props = NativeStackScreenProps<RootStack, 'Room'>;
 export const Room = ({ navigation }: Props) => {
   const { width, height } = Dimensions.get('window');
   const { roomName } = useVideoroomState();
-  const bottomOffset = useSafeAreaInsets().bottom;
 
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantId, setFocusedParticipantId] = useState<
@@ -178,7 +174,7 @@ export const Room = ({ navigation }: Props) => {
               </View>
             )}
           </View>
-          <CallControls bottomOffset={bottomOffset} />
+          <CallControls />
         </SafeAreaView>
       </View>
     </BackgroundAnimation>
