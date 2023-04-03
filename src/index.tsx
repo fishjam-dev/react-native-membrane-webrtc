@@ -287,8 +287,13 @@ export function useMembraneServer() {
     async (...args: any) => {
       if (lock.current) return Promise.resolve();
       lock.current = true;
-      await f(...args);
-      lock.current = false;
+      try {
+        await f(...args);
+      } catch (e) {
+        throw e;
+      } finally {
+        lock.current = false;
+      }
     };
 
   /**
