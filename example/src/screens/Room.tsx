@@ -7,9 +7,10 @@ import { RoomParticipant } from '@components/RoomParticipant';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, Dimensions, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import IdleTimerManager from 'react-native-idle-timer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
@@ -28,6 +29,13 @@ export const Room = () => {
   const [focusedParticipantId, setFocusedParticipantId] = useState<
     string | null
   >(null);
+
+  useEffect(() => {
+    IdleTimerManager.setIdleTimerDisabled(true, 'room');
+
+    return () => IdleTimerManager.setIdleTimerDisabled(false, 'room');
+  }, []);
+
   const focusedParticipant = participants.find(
     (p) => p.id === focusedParticipantId
   );
