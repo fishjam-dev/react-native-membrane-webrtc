@@ -19,7 +19,7 @@ import { VideoroomContextProvider } from './VideoroomContext';
 SplashScreen.preventAutoHideAsync();
 
 Sentry.init({
-  dsn: 'https://9604f3f42d5e4745a7334e32ae0a6d50@o4504956005777408.ingest.sentry.io/4504956007677952',
+  dsn: 'https://9da3a9c5ecdf4d47a731889e29d14c67@o4504956776415232.ingest.sentry.io/4504956777922560',
   // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
   // We recommend adjusting this value in production.
   tracesSampleRate: 1.0,
