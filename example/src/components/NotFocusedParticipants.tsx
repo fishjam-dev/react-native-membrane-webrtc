@@ -1,4 +1,4 @@
-import { BrandColors } from '@colors';
+import { AdditionalColors, BrandColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { isEmpty } from 'lodash';
 import React from 'react';
@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: BrandColors.darkBlue60,
+    backgroundColor: AdditionalColors.grey140,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
