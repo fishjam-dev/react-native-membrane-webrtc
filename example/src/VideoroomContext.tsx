@@ -10,6 +10,7 @@ import {
   useMicrophoneState,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useNotifications } from '@model/NotificationsContext';
+import * as Sentry from '@sentry/react-native';
 import React, { useState, useCallback, useEffect } from 'react';
 
 type VideoroomState = 'BeforeMeeting' | 'InMeeting' | 'AfterMeeting';
@@ -65,6 +66,9 @@ const VideoroomContextProvider = (props) => {
 
     setRoomName(trimmedRoomName);
     setUsername(trimmedUserName);
+
+    Sentry.setExtra('room name', trimmedRoomName);
+    Sentry.setExtra('user name', trimmedUserName);
 
     await connect(SERVER_URL, trimmedRoomName, {
       userMetadata: { displayName: trimmedUserName },

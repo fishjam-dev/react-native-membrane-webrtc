@@ -6,6 +6,7 @@ import {
   NotoSans_600SemiBold,
 } from '@expo-google-fonts/noto-sans';
 import { NotificationsContextProvider } from '@model/NotificationsContext';
+import * as Sentry from '@sentry/react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
@@ -17,7 +18,15 @@ import { VideoroomContextProvider } from './VideoroomContext';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function App() {
+Sentry.init({
+  dsn: 'https://9604f3f42d5e4745a7334e32ae0a6d50@o4504956005777408.ingest.sentry.io/4504956007677952',
+  // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+  // We recommend adjusting this value in production.
+  tracesSampleRate: 1.0,
+  enabled: !__DEV__,
+});
+
+function App() {
   const [fontsLoaded] = useFonts({
     NotoSans_400Regular,
     NotoSans_500Medium,
@@ -50,3 +59,5 @@ export default function App() {
     </BackgroundWrapper>
   );
 }
+
+export default Sentry.wrap(App);
