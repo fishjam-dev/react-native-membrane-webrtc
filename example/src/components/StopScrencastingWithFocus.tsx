@@ -1,4 +1,5 @@
 import { BrandColors, TextColors } from '@colors';
+import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
@@ -6,6 +7,19 @@ import { Typo } from './Typo';
 import { StandardButton } from './buttons/StandardButton';
 
 export const StopScreencastingWithFocus = () => {
+  const { toggleScreencast } = Membrane.useScreencast();
+
+  const toggleScreencastAndUpdateMetadata = () => {
+    toggleScreencast({
+      screencastMetadata: {
+        displayName: 'presenting',
+        type: 'screensharing',
+        active: 'true',
+      },
+      quality: Membrane.ScreencastQuality.FHD30,
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -15,7 +29,10 @@ export const StopScreencastingWithFocus = () => {
           </Typo>
         </View>
         <View style={styles.buttonWrapper}>
-          <StandardButton type="secondary" onPress={() => {}}>
+          <StandardButton
+            type="secondary"
+            onPress={toggleScreencastAndUpdateMetadata}
+          >
             Stop sharing
           </StandardButton>
         </View>

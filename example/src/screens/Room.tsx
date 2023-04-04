@@ -44,17 +44,20 @@ export const Room = () => {
   const focusedParticipant = participants.find(
     (p) => p.id === focusedParticipantData?.participantId
   );
+
   const participantsWithTracks = participants
-    .map((p) =>
-      p.tracks.length > 1
-        ? p.tracks
-            .filter((t) => t.metadata.type !== 'audio')
-            .map((_t, idx) => ({
-              participant: p,
-              idx,
-            }))
-        : { participant: p, idx: -1 }
-    )
+    .map((p) => {
+      const videoTracks = p.tracks;
+      if (videoTracks.some((t) => t.type === Membrane.TrackType.Video)) {
+        return p.tracks
+          .filter((t) => t.metadata.type !== 'audio')
+          .map((_t, idx) => ({
+            participant: p,
+            idx,
+          }));
+      }
+      return { participant: p, idx: -1 };
+    })
     .flat();
 
   const rowNum = Math.min(
