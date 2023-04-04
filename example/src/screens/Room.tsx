@@ -1,9 +1,10 @@
-import { BrandColors } from '@colors';
+import { AdditionalColors, BrandColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Icon } from '@components/Icon';
 import { NotFocusedParticipants } from '@components/NotFocusedParticipants';
 import { OtherParticipants } from '@components/OtherParticipants';
 import { RoomParticipant } from '@components/RoomParticipant';
+import { StopScreencastingWithFocus } from '@components/StopScrencastingWithFocus';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useFocusEffect } from '@react-navigation/native';
@@ -21,14 +22,18 @@ const OFFSET_PER_ROW = 16;
 const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
 const FLEX_BRAKPOINT = 3;
 
+type focusedVideoTrack = {
+  participantId: string;
+  trackIdx: number;
+};
+
 export const Room = () => {
   const { width, height } = Dimensions.get('window');
   const { roomName } = useVideoroomState();
 
   const participants = Membrane.useRoomParticipants();
-  const [focusedParticipantId, setFocusedParticipantId] = useState<
-    string | null
-  >(null);
+  const [focusedParticipantData, setFocusedParticipantData] =
+    useState<focusedVideoTrack | null>(null);
 
   useEffect(() => {
     IdleTimerManager.setIdleTimerDisabled(true, 'room');
@@ -37,11 +42,23 @@ export const Room = () => {
   }, []);
 
   const focusedParticipant = participants.find(
-    (p) => p.id === focusedParticipantId
+    (p) => p.id === focusedParticipantData?.participantId
   );
+  const participantsWithTracks = participants
+    .map((p) =>
+      p.tracks.length > 1
+        ? p.tracks
+            .filter((t) => t.metadata.type !== 'audio')
+            .map((_t, idx) => ({
+              participant: p,
+              idx,
+            }))
+        : { participant: p, idx: -1 }
+    )
+    .flat();
 
   const rowNum = Math.min(
-    Math.ceil(participants.length / 2),
+    Math.ceil(participantsWithTracks.length / 2),
     MAX_NUM_OF_USERS_ON_THE_SCREEN / 2
   );
 
@@ -61,6 +78,26 @@ export const Room = () => {
   const smallScreenVideoWidth =
     (height - HEADER_AND_FOOTER_SIZE - OFFSET_PER_ROW * (rowNum + 2)) / rowNum;
 
+  const findScreensharingTrack = (track: Membrane.Track) => {
+    return track.metadata.type === 'screensharing';
+  };
+
+  useEffect(() => {
+    const screencast = participants
+      .reverse()
+      .find((p) => p.tracks.some((t) => findScreensharingTrack(t)));
+
+    if (screencast) {
+      setFocusedParticipantData({
+        participantId: screencast.id,
+        trackIdx: screencast.tracks.findIndex((t) => findScreensharingTrack(t)),
+      });
+    }
+  }, [
+    participants.filter((p) => p.tracks.some((t) => findScreensharingTrack(t)))
+      .length,
+  ]);
+
   const switchCamera = useCallback(() => {
     Membrane.flipCamera();
   }, []);
@@ -69,10 +106,10 @@ export const Room = () => {
     return Math.min(videoViewWidth, smallScreenVideoWidth);
   };
 
-  const getStylesForParticipants = (participants: Membrane.Participant[]) => {
+  const getStylesForParticipants = () => {
     return [
       styles.participant,
-      participants.length > FLEX_BRAKPOINT
+      participantsWithTracks.length > FLEX_BRAKPOINT
         ? {
             width: getWidthWhenManyParticipants(),
           }
@@ -109,11 +146,22 @@ export const Room = () => {
                 {focusedParticipant ? (
                   <View style={styles.focusedParticipantContainer}>
                     <View style={styles.focusedParticipant}>
-                      <RoomParticipant
-                        participant={focusedParticipant}
-                        onPinButtonPressed={setFocusedParticipantId}
-                        focused
-                      />
+                      {focusedParticipant.type ===
+                        Membrane.ParticipantType.Local &&
+                      focusedParticipant.tracks[
+                        focusedParticipantData
+                          ? focusedParticipantData?.trackIdx
+                          : 0
+                      ].metadata.type === 'screensharing' ? (
+                        <StopScreencastingWithFocus />
+                      ) : (
+                        <RoomParticipant
+                          participant={focusedParticipant}
+                          trackIdx={focusedParticipantData?.trackIdx}
+                          onPinButtonPressed={setFocusedParticipantData}
+                          focused
+                        />
+                      )}
                     </View>
                   </View>
                 ) : null}
@@ -121,9 +169,17 @@ export const Room = () => {
                 {focusedParticipant ? (
                   <View style={styles.otherParticipants}>
                     <NotFocusedParticipants
-                      participants={participants.filter(
-                        (p) => p.id !== focusedParticipant?.id
-                      )}
+                      participants={participantsWithTracks
+                        .filter(
+                          (p) =>
+                            (p.participant.id === focusedParticipant?.id &&
+                              p.idx !== focusedParticipantData?.trackIdx) ||
+                            p.participant.id !== focusedParticipant?.id
+                        )
+                        .map((p) => ({
+                          participant: p.participant,
+                          trackIdx: p.idx,
+                        }))}
                     />
                   </View>
                 ) : (
@@ -131,41 +187,46 @@ export const Room = () => {
                     <View
                       style={[
                         styles.inner,
-                        participants.length > FLEX_BRAKPOINT
+                        participantsWithTracks.length > FLEX_BRAKPOINT
                           ? styles.row
                           : styles.column,
                       ]}
                     >
-                      {participants
+                      {participantsWithTracks
                         .slice(
                           0,
-                          participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN
+                          participantsWithTracks.length >
+                            MAX_NUM_OF_USERS_ON_THE_SCREEN
                             ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
                             : MAX_NUM_OF_USERS_ON_THE_SCREEN
                         )
                         .map((p) => (
                           <View
-                            key={p.id}
+                            key={p.participant.id + p.idx}
                             style={[
-                              getStylesForParticipants(participants),
+                              getStylesForParticipants(),
                               styles.shownParticipantBorder,
                             ]}
                           >
                             <RoomParticipant
-                              participant={p}
-                              onPinButtonPressed={setFocusedParticipantId}
-                              tileSmall={participants.length > FLEX_BRAKPOINT}
+                              participant={p.participant}
+                              trackIdx={p.idx}
+                              onPinButtonPressed={setFocusedParticipantData}
+                              tileSmall={
+                                participantsWithTracks.length > FLEX_BRAKPOINT
+                              }
                             />
                           </View>
                         ))}
 
-                      {participants.length > MAX_NUM_OF_USERS_ON_THE_SCREEN && (
-                        <View style={getStylesForParticipants(participants)}>
+                      {participantsWithTracks.length >
+                        MAX_NUM_OF_USERS_ON_THE_SCREEN && (
+                        <View style={getStylesForParticipants()}>
                           <OtherParticipants
                             p1={participants[participants.length - 1]}
                             p2={participants[participants.length - 2]}
                             numOfOtherParticipants={
-                              participants.length -
+                              participantsWithTracks.length -
                               MAX_NUM_OF_USERS_ON_THE_SCREEN +
                               1
                             }
@@ -232,6 +293,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 4,
     marginRight: 4,
+    backgroundColor: AdditionalColors.grey140,
   },
   shownParticipantBorder: {
     borderWidth: 1,
@@ -252,6 +314,7 @@ const styles = StyleSheet.create({
     borderColor: BrandColors.darkBlue60,
     overflow: 'hidden',
     width: '100%',
+    backgroundColor: AdditionalColors.grey140,
   },
   otherParticipants: {
     marginTop: 16,

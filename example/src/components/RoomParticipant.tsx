@@ -18,14 +18,17 @@ import { PinButton } from './buttons/PinButton';
 
 type RoomParticipantProps = {
   participant: Membrane.Participant;
+  trackIdx?: number;
   onPinButtonPressed?: (string) => void;
   focused?: boolean;
   pinButtonHiddden?: boolean;
   tileSmall?: boolean;
+  isScreencast?: boolean;
 };
 
 export const RoomParticipant = ({
   participant: { metadata, tracks, type, id },
+  trackIdx = -1,
   onPinButtonPressed = (string) => {},
   focused = false,
   pinButtonHiddden = false,
@@ -33,10 +36,11 @@ export const RoomParticipant = ({
 }: RoomParticipantProps) => {
   const [showPinButton, setShowPinButton] = useState(false);
   const isPinButtonShown = useRef(false);
-  // const videoTrack = tracks.find((t) => t.type === 'Video');
-  const videoTrack = tracks[0];
+
+  const videoTrack = trackIdx !== -1 ? tracks[trackIdx] : null;
   const videoTrackType = videoTrack?.metadata.type;
-  const audioTrack = tracks.find((t) => t.type === 'Audio');
+  const audioTrack =
+    videoTrackType === 'camera' ? tracks.find((t) => t.type === 'Audio') : null;
   const buttonOpacity = useSharedValue(0);
 
   const participantHasVideo = () => {
@@ -55,7 +59,7 @@ export const RoomParticipant = ({
       onPinButtonPressed(null);
       return;
     }
-    onPinButtonPressed(id);
+    onPinButtonPressed({ participantId: id, trackIdx });
   };
 
   const opacityStyle = useAnimatedStyle(() => {
@@ -97,6 +101,8 @@ export const RoomParticipant = ({
             style={
               videoTrackType === 'camera'
                 ? styles.videoTrack
+                : focused
+                ? styles.videoTrackScreencastFocused
                 : styles.videoTrackScreencast
             }
             videoLayout={
@@ -132,7 +138,7 @@ export const RoomParticipant = ({
           </View>
         ) : null}
 
-        {!audioTrack?.metadata.active && (
+        {videoTrackType !== 'screensharing' && !audioTrack?.metadata.active && (
           <View style={styles.mutedIcon}>
             <Icon
               name="Microphone-off"
@@ -184,9 +190,10 @@ const styles = StyleSheet.create({
   },
   videoTrackScreencast: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    backgroundColor: AdditionalColors.grey140,
+    aspectRatio: 1,
+  },
+  videoTrackScreencastFocused: {
+    flex: 1,
   },
   mutedIcon: {
     position: 'absolute',

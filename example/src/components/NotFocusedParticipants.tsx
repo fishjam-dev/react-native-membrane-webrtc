@@ -7,7 +7,12 @@ import { View, StyleSheet } from 'react-native';
 import { OtherParticipants } from './OtherParticipants';
 import { RoomParticipant } from './RoomParticipant';
 
-type NotFocusedParticipantsProp = { participants: Membrane.Participant[] };
+type NotFocusedParticipant = {
+  participant: Membrane.Participant;
+  trackIdx: number;
+};
+
+type NotFocusedParticipantsProp = { participants: NotFocusedParticipant[] };
 
 export const NotFocusedParticipants = ({
   participants,
@@ -21,7 +26,8 @@ export const NotFocusedParticipants = ({
       {participants.length === 1 ? (
         <View style={styles.otherParticipantContainer}>
           <RoomParticipant
-            participant={participants[0]}
+            participant={participants[0].participant}
+            trackIdx={participants[0].trackIdx}
             pinButtonHiddden
             tileSmall
           />
@@ -35,7 +41,8 @@ export const NotFocusedParticipants = ({
         >
           <View style={styles.participant}>
             <RoomParticipant
-              participant={participants[0]}
+              participant={participants[0].participant}
+              trackIdx={participants[0].trackIdx}
               pinButtonHiddden
               tileSmall
             />
@@ -44,14 +51,15 @@ export const NotFocusedParticipants = ({
           <View style={styles.participant}>
             {participants.length === 2 ? (
               <RoomParticipant
-                participant={participants[1]}
+                participant={participants[1].participant}
+                trackIdx={participants[1].trackIdx}
                 pinButtonHiddden
                 tileSmall
               />
             ) : (
               <OtherParticipants
-                p1={participants[1]}
-                p2={participants[2]}
+                p1={participants[1].participant}
+                p2={participants[2].participant}
                 numOfOtherParticipants={participants.length - 1}
               />
             )}
