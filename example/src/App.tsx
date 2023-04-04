@@ -5,10 +5,12 @@ import {
   NotoSans_500Medium,
   NotoSans_600SemiBold,
 } from '@expo-google-fonts/noto-sans';
+import { NotificationsContextProvider } from '@model/NotificationsContext';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Navigation } from './Navigation';
 import { VideoroomContextProvider } from './VideoroomContext';
@@ -38,9 +40,13 @@ export default function App() {
         barStyle="dark-content"
         backgroundColor="transparent"
       />
-      <VideoroomContextProvider>
-        <Navigation />
-      </VideoroomContextProvider>
+      <SafeAreaProvider>
+        <NotificationsContextProvider>
+          <VideoroomContextProvider>
+            <Navigation />
+          </VideoroomContextProvider>
+        </NotificationsContextProvider>
+      </SafeAreaProvider>
     </BackgroundWrapper>
   );
 }

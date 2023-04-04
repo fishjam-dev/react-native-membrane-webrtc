@@ -9,8 +9,8 @@ import {
   useCameraState,
   useMicrophoneState,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
+import { useNotifications } from '@model/NotificationsContext';
 import React, { useState, useCallback, useEffect } from 'react';
-import { Alert } from 'react-native';
 
 type VideoroomState = 'BeforeMeeting' | 'InMeeting' | 'AfterMeeting';
 
@@ -98,10 +98,11 @@ const VideoroomContextProvider = (props) => {
     setVideoroomState('BeforeMeeting');
   }, []);
 
+  const { showNotification } = useNotifications();
+
   useEffect(() => {
     if (error) {
-      console.log(error);
-      Alert.alert('Error when connecting to server:', error);
+      showNotification('Error connecting to server', 'error');
     }
   }, [error]);
 

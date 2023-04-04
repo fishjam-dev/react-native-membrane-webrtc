@@ -6,6 +6,7 @@ import { InCallButton } from '@components/buttons/InCallButton';
 import { StandardButton } from '@components/buttons/StandardButton';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
+import { useNotifications } from '@model/NotificationsContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { findIndex } from 'lodash';
 import React, { useEffect, useCallback, useLayoutEffect, useRef } from 'react';
@@ -53,11 +54,13 @@ export const Preview = ({ navigation, route }: Props) => {
     });
   }, []);
 
+  const { showNotification } = useNotifications();
+
   const onConnectPress = useCallback(async () => {
     try {
       await connectAndJoinRoom();
     } catch (err) {
-      console.warn(err);
+      showNotification('Error connecting to server', 'error');
     }
   }, [connectAndJoinRoom]);
 
