@@ -27,6 +27,7 @@
     "react-native": "0.70.5",
     "react-native-dotenv": "^3.3.1",
     "react-native-gesture-handler": "^2.9.0",
+    "react-native-idle-timer": "^2.2.0",
     "react-native-modal": "^13.0.1",
     "react-native-reanimated": "^3.0.2",
     "react-native-safe-area-context": "^4.5.0",
