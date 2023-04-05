@@ -450,6 +450,12 @@ PODS:
   - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
+  - RNSentry (5.3.0):
+    - React-Core
+    - Sentry/HybridSDK (= 8.3.3)
+  - Sentry/HybridSDK (8.3.3):
+    - SentryPrivate (= 8.3.3)
+  - SentryPrivate (8.3.3)
   - SocketRocket (0.6.0)
   - SwiftCollection (0.5.0):
     - AssociatedValues (~> 5.0.0)
@@ -537,6 +543,7 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -560,6 +567,8 @@ SPEC REPOS:
     - OrderedObjectSet
     - PromisesObjC
     - PromisesSwift
+    - Sentry
+    - SentryPrivate
     - SocketRocket
     - SwiftCollection
     - SwiftPhoenixClient
@@ -662,6 +671,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -732,6 +743,9 @@ SPEC CHECKSUMS:
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNReanimated: 0a5f87ec1da472cca3e835333fdebe51d983c411
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
+  RNSentry: 8363f1eff1c685a502e15080b5e2f447969897c5
+  Sentry: 8ffc397d98fe58d693e73959b26ed0eaee55646a
+  SentryPrivate: bf776a47a131648f5023097215987b40fbd47025
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   SwiftCollection: 9f83c97b993bfad6298d7765631b409a00f57779
   SwiftPhoenixClient: 4e36f35d00e43d11881c255bd60c20efc0f39c91
