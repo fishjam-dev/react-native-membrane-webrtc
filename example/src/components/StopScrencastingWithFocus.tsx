@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
   textContainer: {
     marginHorizontal: 43.5,
