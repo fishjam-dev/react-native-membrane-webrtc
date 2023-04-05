@@ -1,5 +1,4 @@
 import { InCallButton } from '@components/buttons/InCallButton';
-import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -11,26 +10,16 @@ import { useVideoroomState } from 'src/VideoroomContext';
 const BOTTOM_MARGIN = 34;
 
 export const CallControls = () => {
-  const { isScreencastOn, toggleScreencast } = Membrane.useScreencast();
   const {
     isCameraOn,
     toggleCamera,
     isMicrophoneOn,
     toggleMicrophone,
+    isScreencastOn,
+    toggleScreencastAndUpdateMetadata,
     disconnect,
   } = useVideoroomState();
   const bottomOffset = useSafeAreaInsets().bottom;
-
-  const toggleScreencastAndUpdateMetadata = () => {
-    toggleScreencast({
-      screencastMetadata: {
-        displayName: 'presenting',
-        type: 'screensharing',
-        active: 'true',
-      },
-      quality: Membrane.ScreencastQuality.FHD30,
-    });
-  };
 
   const navigation = useNavigation<StackNavigationProp<RootStack, 'Room'>>();
 

@@ -1,24 +1,13 @@
 import { BrandColors, TextColors } from '@colors';
-import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { useVideoroomState } from 'src/VideoroomContext';
 
 import { Typo } from './Typo';
 import { StandardButton } from './buttons/StandardButton';
 
 export const StopScreencastingWithFocus = () => {
-  const { toggleScreencast } = Membrane.useScreencast();
-
-  const toggleScreencastAndUpdateMetadata = () => {
-    toggleScreencast({
-      screencastMetadata: {
-        displayName: 'presenting',
-        type: 'screensharing',
-        active: 'true',
-      },
-      quality: Membrane.ScreencastQuality.FHD30,
-    });
-  };
+  const { toggleScreencastAndUpdateMetadata } = useVideoroomState();
 
   return (
     <View style={styles.container}>

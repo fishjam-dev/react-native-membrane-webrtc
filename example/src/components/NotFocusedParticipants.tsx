@@ -7,12 +7,12 @@ import { View, StyleSheet } from 'react-native';
 import { OtherParticipants } from './OtherParticipants';
 import { RoomParticipant } from './RoomParticipant';
 
-type NotFocusedParticipant = {
+export type Participant = {
   participant: Membrane.Participant;
-  trackIdx: number;
+  trackId: string;
 };
 
-type NotFocusedParticipantsProp = { participants: NotFocusedParticipant[] };
+type NotFocusedParticipantsProp = { participants: Participant[] };
 
 export const NotFocusedParticipants = ({
   participants,
@@ -27,7 +27,7 @@ export const NotFocusedParticipants = ({
         <View style={styles.otherParticipantContainer}>
           <RoomParticipant
             participant={participants[0].participant}
-            trackIdx={participants[0].trackIdx}
+            trackId={participants[0].trackId}
             pinButtonHiddden
             tileSmall
           />
@@ -42,7 +42,7 @@ export const NotFocusedParticipants = ({
           <View style={styles.participant}>
             <RoomParticipant
               participant={participants[0].participant}
-              trackIdx={participants[0].trackIdx}
+              trackId={participants[0].trackId}
               pinButtonHiddden
               tileSmall
             />
@@ -52,7 +52,7 @@ export const NotFocusedParticipants = ({
             {participants.length === 2 ? (
               <RoomParticipant
                 participant={participants[1].participant}
-                trackIdx={participants[1].trackIdx}
+                trackId={participants[1].trackId}
                 pinButtonHiddden
                 tileSmall
               />

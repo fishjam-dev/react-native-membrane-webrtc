@@ -1,15 +1,17 @@
-import { AdditionalColors, BrandColors } from '@colors';
+import { BrandColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
+import {
+  FocusedParticipant,
+  ParticipantVideoTrack,
+} from '@components/FocusedParticipant';
 import { Icon } from '@components/Icon';
 import { NotFocusedParticipants } from '@components/NotFocusedParticipants';
-import { OtherParticipants } from '@components/OtherParticipants';
-import { RoomParticipant } from '@components/RoomParticipant';
-import { StopScreencastingWithFocus } from '@components/StopScrencastingWithFocus';
+import { Participants } from '@components/Participants';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View, Dimensions, InteractionManager } from 'react-native';
+import { StyleSheet, View, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import IdleTimerManager from 'react-native-idle-timer';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,23 +19,12 @@ import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
 
-const HEADER_AND_FOOTER_SIZE = 126;
-const OFFSET_PER_ROW = 16;
-const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
-const FLEX_BRAKPOINT = 3;
-
-type focusedVideoTrack = {
-  participantId: string;
-  trackIdx: number;
-};
-
 export const Room = () => {
-  const { width, height } = Dimensions.get('window');
   const { roomName } = useVideoroomState();
 
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
-    useState<focusedVideoTrack | null>(null);
+    useState<ParticipantVideoTrack | null>(null);
 
   useEffect(() => {
     IdleTimerManager.setIdleTimerDisabled(true, 'room');
@@ -41,29 +32,19 @@ export const Room = () => {
     return () => IdleTimerManager.setIdleTimerDisabled(false, 'room');
   }, []);
 
-  const focusedParticipant = participants.find(
-    (p) => p.id === focusedParticipantData?.participantId
-  );
-
   const participantsWithTracks = participants
     .map((p) => {
-      const videoTracks = p.tracks;
-      if (videoTracks.some((t) => t.type === Membrane.TrackType.Video)) {
+      if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
         return p.tracks
           .filter((t) => t.metadata.type !== 'audio')
-          .map((_t, idx) => ({
+          .map((t) => ({
             participant: p,
-            idx,
+            trackId: t.id,
           }));
       }
-      return { participant: p, idx: -1 };
+      return { participant: p, trackId: '' };
     })
     .flat();
-
-  const rowNum = Math.min(
-    Math.ceil(participantsWithTracks.length / 2),
-    MAX_NUM_OF_USERS_ON_THE_SCREEN / 2
-  );
 
   const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
 
@@ -77,52 +58,36 @@ export const Room = () => {
     }, [])
   );
 
-  const videoViewWidth = (width - 3 * OFFSET_PER_ROW) / 2;
-  const smallScreenVideoWidth =
-    (height - HEADER_AND_FOOTER_SIZE - OFFSET_PER_ROW * (rowNum + 2)) / rowNum;
-
-  const findScreensharingTrack = (track: Membrane.Track) => {
+  const isScreensharingTrack = (track: Membrane.Track) => {
     return track.metadata.type === 'screensharing';
+  };
+
+  const isTrackFocused = (p: ParticipantVideoTrack) => {
+    return (
+      p.participant.id === focusedParticipantData?.participant.id &&
+      p.trackId === focusedParticipantData?.trackId
+    );
   };
 
   useEffect(() => {
     const screencast = participants
       .reverse()
-      .find((p) => p.tracks.some((t) => findScreensharingTrack(t)));
+      .find((p) => p.tracks.some((t) => isScreensharingTrack(t)));
 
     if (screencast) {
       setFocusedParticipantData({
-        participantId: screencast.id,
-        trackIdx: screencast.tracks.findIndex((t) => findScreensharingTrack(t)),
+        participant: screencast,
+        trackId: screencast.tracks.find((t) => isScreensharingTrack(t))!.id,
       });
     }
   }, [
-    participants.filter((p) => p.tracks.some((t) => findScreensharingTrack(t)))
+    participants.filter((p) => p.tracks.some((t) => isScreensharingTrack(t)))
       .length,
   ]);
 
   const switchCamera = useCallback(() => {
     Membrane.flipCamera();
   }, []);
-
-  const getWidthWhenManyParticipants = () => {
-    return Math.min(videoViewWidth, smallScreenVideoWidth);
-  };
-
-  const getStylesForParticipants = () => {
-    return [
-      styles.participant,
-      participantsWithTracks.length > FLEX_BRAKPOINT
-        ? {
-            width: getWidthWhenManyParticipants(),
-          }
-        : {
-            flex: 1,
-            maxHeight: width - 2 * OFFSET_PER_ROW,
-            maxWidth: width - 2 * OFFSET_PER_ROW,
-          },
-    ];
-  };
 
   return (
     <BackgroundAnimation>
@@ -146,98 +111,25 @@ export const Room = () => {
           <View style={{ flex: 1 }}>
             {shouldShowParticipants && (
               <>
-                {focusedParticipant ? (
-                  <View style={styles.focusedParticipantContainer}>
-                    <View style={styles.focusedParticipant}>
-                      {focusedParticipant.type ===
-                        Membrane.ParticipantType.Local &&
-                      focusedParticipant.tracks[
-                        focusedParticipantData
-                          ? focusedParticipantData?.trackIdx
-                          : 0
-                      ].metadata.type === 'screensharing' ? (
-                        <StopScreencastingWithFocus />
-                      ) : (
-                        <RoomParticipant
-                          participant={focusedParticipant}
-                          trackIdx={focusedParticipantData?.trackIdx}
-                          onPinButtonPressed={setFocusedParticipantData}
-                          focused
-                        />
-                      )}
-                    </View>
-                  </View>
-                ) : null}
-
-                {focusedParticipant ? (
-                  <View style={styles.otherParticipants}>
-                    <NotFocusedParticipants
-                      participants={participantsWithTracks
-                        .filter(
-                          (p) =>
-                            (p.participant.id === focusedParticipant?.id &&
-                              p.idx !== focusedParticipantData?.trackIdx) ||
-                            p.participant.id !== focusedParticipant?.id
-                        )
-                        .map((p) => ({
-                          participant: p.participant,
-                          trackIdx: p.idx,
-                        }))}
+                {focusedParticipantData ? (
+                  <>
+                    <FocusedParticipant
+                      focusedParticipant={focusedParticipantData}
+                      onPress={setFocusedParticipantData}
                     />
-                  </View>
-                ) : (
-                  <View style={styles.participantsContainer}>
-                    <View
-                      style={[
-                        styles.inner,
-                        participantsWithTracks.length > FLEX_BRAKPOINT
-                          ? styles.row
-                          : styles.column,
-                      ]}
-                    >
-                      {participantsWithTracks
-                        .slice(
-                          0,
-                          participantsWithTracks.length >
-                            MAX_NUM_OF_USERS_ON_THE_SCREEN
-                            ? MAX_NUM_OF_USERS_ON_THE_SCREEN - 1
-                            : MAX_NUM_OF_USERS_ON_THE_SCREEN
-                        )
-                        .map((p) => (
-                          <View
-                            key={p.participant.id + p.idx}
-                            style={[
-                              getStylesForParticipants(),
-                              styles.shownParticipantBorder,
-                            ]}
-                          >
-                            <RoomParticipant
-                              participant={p.participant}
-                              trackIdx={p.idx}
-                              onPinButtonPressed={setFocusedParticipantData}
-                              tileSmall={
-                                participantsWithTracks.length > FLEX_BRAKPOINT
-                              }
-                            />
-                          </View>
-                        ))}
-
-                      {participantsWithTracks.length >
-                        MAX_NUM_OF_USERS_ON_THE_SCREEN && (
-                        <View style={getStylesForParticipants()}>
-                          <OtherParticipants
-                            p1={participants[participants.length - 1]}
-                            p2={participants[participants.length - 2]}
-                            numOfOtherParticipants={
-                              participantsWithTracks.length -
-                              MAX_NUM_OF_USERS_ON_THE_SCREEN +
-                              1
-                            }
-                          />
-                        </View>
-                      )}
+                    <View style={styles.otherParticipants}>
+                      <NotFocusedParticipants
+                        participants={participantsWithTracks.filter(
+                          (p) => !isTrackFocused(p)
+                        )}
+                      />
                     </View>
-                  </View>
+                  </>
+                ) : (
+                  <Participants
+                    participants={participantsWithTracks}
+                    onPress={setFocusedParticipantData}
+                  />
                 )}
               </>
             )}
@@ -271,54 +163,7 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  participantsContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-    paddingLeft: 16,
-    paddingRight: 16,
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  column: {
-    flexDirection: 'column',
-  },
-  inner: {
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  participant: {
-    aspectRatio: 1,
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginBottom: 8,
-    marginLeft: 4,
-    marginRight: 4,
-    backgroundColor: AdditionalColors.grey140,
-  },
-  shownParticipantBorder: {
-    borderWidth: 1,
-    borderColor: BrandColors.darkBlue60,
-  },
-  focusedParticipantContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 16,
-    paddingLeft: 16,
-    paddingRight: 16,
-  },
-  focusedParticipant: {
-    aspectRatio: 1 / 1.3,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: BrandColors.darkBlue60,
-    overflow: 'hidden',
-    width: '100%',
-    backgroundColor: AdditionalColors.grey140,
-  },
+
   otherParticipants: {
     marginTop: 16,
     marginBottom: 8,

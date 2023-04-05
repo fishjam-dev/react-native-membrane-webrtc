@@ -18,26 +18,27 @@ import { PinButton } from './buttons/PinButton';
 
 type RoomParticipantProps = {
   participant: Membrane.Participant;
-  trackIdx?: number;
+  trackId?: string;
   onPinButtonPressed?: (string) => void;
   focused?: boolean;
   pinButtonHiddden?: boolean;
   tileSmall?: boolean;
-  isScreencast?: boolean;
 };
 
 export const RoomParticipant = ({
-  participant: { metadata, tracks, type, id },
-  trackIdx = -1,
+  participant,
+  trackId = '',
   onPinButtonPressed = (string) => {},
   focused = false,
   pinButtonHiddden = false,
   tileSmall = false,
 }: RoomParticipantProps) => {
+  const { metadata, tracks, type } = participant;
+
   const [showPinButton, setShowPinButton] = useState(false);
   const isPinButtonShown = useRef(false);
 
-  const videoTrack = trackIdx !== -1 ? tracks[trackIdx] : null;
+  const videoTrack = tracks.find((t) => t.id === trackId);
   const videoTrackType = videoTrack?.metadata.type;
   const audioTrack =
     !videoTrack || videoTrackType === 'camera'
@@ -61,7 +62,7 @@ export const RoomParticipant = ({
       onPinButtonPressed(null);
       return;
     }
-    onPinButtonPressed({ participantId: id, trackIdx });
+    onPinButtonPressed({ participant, trackId });
   };
 
   const opacityStyle = useAnimatedStyle(() => {
