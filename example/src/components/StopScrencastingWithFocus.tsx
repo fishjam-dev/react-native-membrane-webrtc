@@ -11,20 +11,18 @@ export const StopScreencastingWithFocus = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.textContainer}>
-          <Typo variant="h5" color={TextColors.white} style={styles.text}>
-            You are sharing your screen with everyone.
-          </Typo>
-        </View>
-        <View style={styles.buttonWrapper}>
-          <StandardButton
-            type="secondary"
-            onPress={toggleScreencastAndUpdateMetadata}
-          >
-            Stop sharing
-          </StandardButton>
-        </View>
+      <View style={styles.textContainer}>
+        <Typo variant="h5" color={TextColors.white} style={styles.text}>
+          You are sharing your screen with everyone.
+        </Typo>
+      </View>
+      <View style={styles.buttonWrapper}>
+        <StandardButton
+          type="secondary"
+          onPress={toggleScreencastAndUpdateMetadata}
+        >
+          Stop sharing
+        </StandardButton>
       </View>
     </View>
   );
@@ -36,12 +34,7 @@ const styles = StyleSheet.create({
     backgroundColor: BrandColors.darkBlue100,
     alignItems: 'center',
     alignSelf: 'center',
-  },
-  content: {
-    flex: 1,
     justifyContent: 'center',
-    alignSelf: 'center',
-    alignItems: 'center',
   },
   textContainer: {
     marginHorizontal: 43.5,

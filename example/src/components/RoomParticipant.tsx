@@ -151,6 +151,7 @@ export const RoomParticipant = ({
           </View>
         )}
       </Pressable>
+
       {showPinButton ? (
         <Animated.View style={[styles.pinButton, opacityStyle]}>
           <View style={styles.pinButtonWrapper}>

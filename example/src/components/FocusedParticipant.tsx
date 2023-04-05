@@ -23,6 +23,7 @@ export const FocusedParticipant = ({
   const focusedTrack = focusedParticipant.participant.tracks.find(
     (t) => t.id === focusedParticipant.trackId
   );
+
   return (
     <View style={styles.focusedParticipantContainer}>
       <View style={styles.focusedParticipant}>

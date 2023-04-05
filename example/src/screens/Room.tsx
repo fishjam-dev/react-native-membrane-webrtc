@@ -79,6 +79,8 @@ export const Room = () => {
         participant: screencast,
         trackId: screencast.tracks.find((t) => isScreensharingTrack(t))!.id,
       });
+    } else {
+      setFocusedParticipantData(null);
     }
   }, [
     participants.filter((p) => p.tracks.some((t) => isScreensharingTrack(t)))
