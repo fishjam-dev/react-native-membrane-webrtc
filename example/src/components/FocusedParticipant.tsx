@@ -20,12 +20,14 @@ export const FocusedParticipant = ({
     (t) => t.id === focusedParticipant.trackId
   );
 
+  const isLocalScreenshareTrack =
+    focusedParticipant.participant.type === Membrane.ParticipantType.Local &&
+    focusedTrack?.metadata.type === 'screensharing';
+
   return (
     <View style={styles.focusedParticipantContainer}>
       <View style={styles.focusedParticipant}>
-        {focusedParticipant.participant.type ===
-          Membrane.ParticipantType.Local &&
-        focusedTrack?.metadata.type === 'screensharing' ? (
+        {isLocalScreenshareTrack ? (
           <StopScreencastingWithFocus />
         ) : (
           <RoomParticipant

@@ -42,7 +42,7 @@ export const Room = () => {
             trackId: t.id,
           }));
       }
-      return { participant: p, trackId: '' };
+      return { participant: p };
     })
     .flat();
 

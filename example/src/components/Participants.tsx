@@ -19,14 +19,15 @@ type ParticipantsProp = {
 export const Participants = ({ participants, onPress }: ParticipantsProp) => {
   const { width, height } = Dimensions.get('window');
 
-  const rowNum = Math.min(
+  const numberOfRows = Math.min(
     Math.ceil(participants.length / 2),
     MAX_NUM_OF_USERS_ON_THE_SCREEN / 2
   );
 
   const videoViewWidth = (width - 3 * OFFSET_PER_ROW) / 2;
   const smallScreenVideoWidth =
-    (height - HEADER_AND_FOOTER_SIZE - OFFSET_PER_ROW * (rowNum + 2)) / rowNum;
+    (height - HEADER_AND_FOOTER_SIZE - OFFSET_PER_ROW * (numberOfRows + 2)) /
+    numberOfRows;
 
   const getWidthWhenManyParticipants = () => {
     return Math.min(videoViewWidth, smallScreenVideoWidth);

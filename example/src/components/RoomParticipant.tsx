@@ -27,7 +27,7 @@ type RoomParticipantProps = {
 
 export const RoomParticipant = ({
   participant,
-  trackId = '',
+  trackId,
   onPinButtonPressed = (string) => {},
   focused = false,
   pinButtonHiddden = false,
@@ -38,7 +38,7 @@ export const RoomParticipant = ({
   const [showPinButton, setShowPinButton] = useState(false);
   const isPinButtonShown = useRef(false);
 
-  const videoTrack = tracks.find((t) => t.id === trackId);
+  const videoTrack = trackId ? tracks.find((t) => t.id === trackId) : null;
   const videoTrackType = videoTrack?.metadata.type;
   const audioTrack =
     !videoTrack || videoTrackType === 'camera'

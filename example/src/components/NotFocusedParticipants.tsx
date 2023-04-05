@@ -9,7 +9,7 @@ import { RoomParticipant } from './RoomParticipant';
 
 export type Participant = {
   participant: Membrane.Participant;
-  trackId: string;
+  trackId?: string;
 };
 
 type NotFocusedParticipantsProp = { participants: Participant[] };
