@@ -137,7 +137,7 @@ const VideoroomContextProvider = (props) => {
       },
       quality: ScreencastQuality.HD15,
     });
-  }, [isScreencastOn, videoroomState]);
+  }, []);
 
   const value = {
     roomName,
