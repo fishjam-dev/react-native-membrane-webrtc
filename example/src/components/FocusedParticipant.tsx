@@ -3,16 +3,12 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
+import { Participant } from './NotFocusedParticipants';
 import { RoomParticipant } from './RoomParticipant';
 import { StopScreencastingWithFocus } from './StopScrencastingWithFocus';
 
-export type ParticipantVideoTrack = {
-  participant: Membrane.Participant;
-  trackId: string;
-};
-
 type FocusedParticipantProp = {
-  focusedParticipant: ParticipantVideoTrack;
+  focusedParticipant: Participant;
   onPress: (string) => void;
 };
 

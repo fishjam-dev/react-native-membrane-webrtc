@@ -128,18 +128,7 @@ const VideoroomContextProvider = (props) => {
     setIsMicrophoneOn(!isMicrophoneOn);
   }, [isMicrophoneOn, videoroomState]);
 
-  // const toggleScreencastAndUpdateMetadata = useCallback(() => {
-  //   membraneToggleScreencast({
-  //     screencastMetadata: {
-  //       displayName: 'presenting',
-  //       type: 'screensharing',
-  //       active: 'true',
-  //     },
-  //     quality: ScreencastQuality.FHD30,
-  //   });
-  // }, [isScreencastOn, videoroomState]);
-
-  const toggleScreencastAndUpdateMetadata = () => {
+  const toggleScreencastAndUpdateMetadata = useCallback(() => {
     membraneToggleScreencast({
       screencastMetadata: {
         displayName: 'presenting',
@@ -148,7 +137,7 @@ const VideoroomContextProvider = (props) => {
       },
       quality: ScreencastQuality.FHD30,
     });
-  };
+  }, [isScreencastOn, videoroomState]);
 
   const value = {
     roomName,

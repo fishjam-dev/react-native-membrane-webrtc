@@ -1,11 +1,11 @@
 import { BrandColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
-import {
-  FocusedParticipant,
-  ParticipantVideoTrack,
-} from '@components/FocusedParticipant';
+import { FocusedParticipant } from '@components/FocusedParticipant';
 import { Icon } from '@components/Icon';
-import { NotFocusedParticipants } from '@components/NotFocusedParticipants';
+import {
+  NotFocusedParticipants,
+  Participant,
+} from '@components/NotFocusedParticipants';
 import { Participants } from '@components/Participants';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
@@ -24,7 +24,7 @@ export const Room = () => {
 
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
-    useState<ParticipantVideoTrack | null>(null);
+    useState<Participant | null>(null);
 
   useEffect(() => {
     IdleTimerManager.setIdleTimerDisabled(true, 'room');
@@ -62,7 +62,7 @@ export const Room = () => {
     return track.metadata.type === 'screensharing';
   };
 
-  const isTrackFocused = (p: ParticipantVideoTrack) => {
+  const isTrackFocused = (p: Participant) => {
     return (
       p.participant.id === focusedParticipantData?.participant.id &&
       p.trackId === focusedParticipantData?.trackId
