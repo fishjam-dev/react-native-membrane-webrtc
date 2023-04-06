@@ -41,7 +41,7 @@ export const RoomParticipant = ({
   const videoTrack = trackId ? tracks.find((t) => t.id === trackId) : null;
   const videoTrackType = videoTrack?.metadata.type;
   const audioTrack =
-    !videoTrack || videoTrackType === 'camera'
+    videoTrackType !== 'screensharing'
       ? tracks.find((t) => t.type === 'Audio')
       : null;
   const buttonOpacity = useSharedValue(0);
