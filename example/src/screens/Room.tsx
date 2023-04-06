@@ -70,6 +70,26 @@ export const Room = () => {
   };
 
   useEffect(() => {
+    const curretStateOfFocusedParticipant = participants.find(
+      (p) => p.id === focusedParticipantData?.participant.id
+    );
+
+    if (!curretStateOfFocusedParticipant) {
+      setFocusedParticipantData(null);
+      return;
+    }
+
+    if (
+      focusedParticipantData?.participant !== curretStateOfFocusedParticipant
+    ) {
+      setFocusedParticipantData({
+        participant: curretStateOfFocusedParticipant,
+        trackId: focusedParticipantData?.trackId,
+      });
+    }
+  }, [participants]);
+
+  useEffect(() => {
     const screencast = participants
       .reverse()
       .find((p) => p.tracks.some((t) => isScreensharingTrack(t)));
@@ -86,26 +106,6 @@ export const Room = () => {
     participants.filter((p) => p.tracks.some((t) => isScreensharingTrack(t)))
       .length,
   ]);
-
-  useEffect(() => {
-    const curretStateOfFocusedParticipant = participants.find(
-      (p) => p.id === focusedParticipantData?.participant.id
-    );
-
-    if (!curretStateOfFocusedParticipant) {
-      setFocusedParticipantData(null);
-      return;
-    }
-
-    if (
-      focusedParticipantData?.participant !== curretStateOfFocusedParticipant
-    ) {
-      setFocusedParticipantData({
-        participant: curretStateOfFocusedParticipant!,
-        trackId: focusedParticipantData?.trackId,
-      });
-    }
-  }, [participants]);
 
   const switchCamera = useCallback(() => {
     Membrane.flipCamera();
