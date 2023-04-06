@@ -758,6 +758,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     if let connectResolve = connectResolve {
       connectResolve(nil)
     }
+    connectResolve = nil
+    connectReject = nil
   }
   
   func onJoinSuccess(peerID: String, peersInRoom: [Peer]) {
