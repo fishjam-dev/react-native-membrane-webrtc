@@ -91,6 +91,12 @@ export const Room = () => {
     const curretStateOfFocusedParticipant = participants.find(
       (p) => p.id === focusedParticipantData?.participant.id
     );
+
+    if (!curretStateOfFocusedParticipant) {
+      setFocusedParticipantData(null);
+      return;
+    }
+
     if (
       focusedParticipantData?.participant !== curretStateOfFocusedParticipant
     ) {
