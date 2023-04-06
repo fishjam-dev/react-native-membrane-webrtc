@@ -111,30 +111,27 @@ export const Room = () => {
           </View>
 
           <View style={{ flex: 1 }}>
-            {shouldShowParticipants && (
-              <>
-                {focusedParticipantData ? (
-                  <>
-                    <FocusedParticipant
-                      focusedParticipant={focusedParticipantData}
-                      onPress={setFocusedParticipantData}
-                    />
-                    <View style={styles.otherParticipants}>
-                      <NotFocusedParticipants
-                        participants={participantsWithTracks.filter(
-                          (p) => !isTrackFocused(p)
-                        )}
-                      />
-                    </View>
-                  </>
-                ) : (
-                  <Participants
-                    participants={participantsWithTracks}
+            {shouldShowParticipants &&
+              (focusedParticipantData ? (
+                <>
+                  <FocusedParticipant
+                    focusedParticipant={focusedParticipantData}
                     onPress={setFocusedParticipantData}
                   />
-                )}
-              </>
-            )}
+                  <View style={styles.otherParticipants}>
+                    <NotFocusedParticipants
+                      participants={participantsWithTracks.filter(
+                        (p) => !isTrackFocused(p)
+                      )}
+                    />
+                  </View>
+                </>
+              ) : (
+                <Participants
+                  participants={participantsWithTracks}
+                  onPress={setFocusedParticipantData}
+                />
+              ))}
           </View>
 
           <CallControls />
@@ -165,7 +162,6 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-
   otherParticipants: {
     marginTop: 16,
     marginBottom: 8,
