@@ -87,6 +87,20 @@ export const Room = () => {
       .length,
   ]);
 
+  useEffect(() => {
+    const curretStateOfFocusedParticipant = participants.find(
+      (p) => p.id === focusedParticipantData?.participant.id
+    );
+    if (
+      focusedParticipantData?.participant !== curretStateOfFocusedParticipant
+    ) {
+      setFocusedParticipantData({
+        participant: curretStateOfFocusedParticipant!,
+        trackId: focusedParticipantData?.trackId,
+      });
+    }
+  }, [participants]);
+
   const switchCamera = useCallback(() => {
     Membrane.flipCamera();
   }, []);
