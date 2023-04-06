@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { PermissionsAndroid, Platform } from 'react-native';
 
 export const handlePermissions = async (callback: Function) => {
@@ -24,5 +25,6 @@ export const handlePermissions = async (callback: Function) => {
     callback();
   } catch (err) {
     console.warn(err);
+    Sentry.captureException(err);
   }
 };

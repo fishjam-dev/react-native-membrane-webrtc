@@ -4,6 +4,7 @@ import { StandardButton } from '@components/buttons/StandardButton';
 import { RootStack } from '@model/NavigationTypes';
 import { useNotifications } from '@model/NotificationsContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import * as Sentry from '@sentry/react-native';
 import React, { useCallback } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
@@ -20,6 +21,7 @@ export const LeaveRoomScreen = ({ navigation }: Props) => {
       navigation.goBack();
     } catch (err) {
       showNotification('Error connecting to server', 'error');
+      Sentry.captureException(err);
     }
   }, [connectAndJoinRoom]);
 

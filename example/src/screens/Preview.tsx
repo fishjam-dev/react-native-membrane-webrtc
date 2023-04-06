@@ -8,6 +8,7 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useNotifications } from '@model/NotificationsContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import * as Sentry from '@sentry/react-native';
 import { findIndex } from 'lodash';
 import React, { useEffect, useCallback, useLayoutEffect, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
@@ -61,6 +62,7 @@ export const Preview = ({ navigation, route }: Props) => {
       await connectAndJoinRoom();
     } catch (err) {
       showNotification('Error connecting to server', 'error');
+      Sentry.captureException(err);
     }
   }, [connectAndJoinRoom]);
 
