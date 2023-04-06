@@ -18,6 +18,7 @@ import { PinButton } from './buttons/PinButton';
 
 type RoomParticipantProps = {
   participant: Membrane.Participant;
+  trackId?: string;
   onPinButtonPressed?: (string) => void;
   focused?: boolean;
   pinButtonHiddden?: boolean;
@@ -25,15 +26,20 @@ type RoomParticipantProps = {
 };
 
 export const RoomParticipant = ({
-  participant: { metadata, tracks, type, id },
+  participant,
+  trackId,
   onPinButtonPressed = (string) => {},
   focused = false,
   pinButtonHiddden = false,
   tileSmall = false,
 }: RoomParticipantProps) => {
+  const { metadata, tracks, type } = participant;
+
   const [showPinButton, setShowPinButton] = useState(false);
   const isPinButtonShown = useRef(false);
-  const videoTrack = tracks.find((t) => t.type === 'Video');
+
+  const videoTrack = trackId ? tracks.find((t) => t.id === trackId) : null;
+  const videoTrackType = videoTrack?.metadata.type;
   const audioTrack = tracks.find((t) => t.type === 'Audio');
   const buttonOpacity = useSharedValue(0);
 
@@ -53,7 +59,7 @@ export const RoomParticipant = ({
       onPinButtonPressed(null);
       return;
     }
-    onPinButtonPressed(id);
+    onPinButtonPressed({ participant, trackId });
   };
 
   const opacityStyle = useAnimatedStyle(() => {
@@ -92,7 +98,18 @@ export const RoomParticipant = ({
         {participantHasVideo() ? (
           <Membrane.VideoRendererView
             trackId={videoTrack!.id}
-            style={styles.videoTrack}
+            style={
+              videoTrackType === 'camera'
+                ? styles.videoTrack
+                : focused
+                ? styles.videoTrackScreencastFocused
+                : styles.videoTrackScreencast
+            }
+            videoLayout={
+              videoTrackType === 'camera'
+                ? Membrane.VideoLayout.FILL
+                : Membrane.VideoLayout.FIT
+            }
           />
         ) : (
           <View style={styles.videoTrack}>
@@ -121,7 +138,7 @@ export const RoomParticipant = ({
           </View>
         ) : null}
 
-        {!audioTrack?.metadata.active && (
+        {videoTrackType !== 'screensharing' && !audioTrack?.metadata.active && (
           <View style={styles.mutedIcon}>
             <Icon
               name="Microphone-off"
@@ -131,6 +148,7 @@ export const RoomParticipant = ({
           </View>
         )}
       </Pressable>
+
       {showPinButton ? (
         <Animated.View style={[styles.pinButton, opacityStyle]}>
           <View style={styles.pinButtonWrapper}>
@@ -170,6 +188,13 @@ const styles = StyleSheet.create({
     flex: 1,
     aspectRatio: 1,
     alignSelf: 'center',
+  },
+  videoTrackScreencast: {
+    flex: 1,
+    aspectRatio: 1,
+  },
+  videoTrackScreencastFocused: {
+    flex: 1,
   },
   mutedIcon: {
     position: 'absolute',

@@ -8,6 +8,8 @@ import {
   useAudioTrackMetadata,
   useCameraState,
   useMicrophoneState,
+  useScreencast,
+  ScreencastQuality,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useNotifications } from '@model/NotificationsContext';
 import * as Sentry from '@sentry/react-native';
@@ -25,6 +27,8 @@ const VideoroomContext = React.createContext<
       toggleCamera: () => void;
       isMicrophoneOn: boolean;
       toggleMicrophone: () => void;
+      isScreencastOn: boolean;
+      toggleScreencastAndUpdateMetadata: () => void;
       currentCamera: CaptureDevice | null;
       setCurrentCamera: (camera: CaptureDevice | null) => void;
       connectAndJoinRoom: () => Promise<void>;
@@ -45,6 +49,8 @@ const VideoroomContextProvider = (props) => {
   );
   const { toggleCamera: membraneToggleCamera } = useCameraState();
   const { toggleMicrophone: membraneToggleMicrophone } = useMicrophoneState();
+  const { isScreencastOn, toggleScreencast: membraneToggleScreencast } =
+    useScreencast();
 
   const {
     connect,
@@ -126,6 +132,17 @@ const VideoroomContextProvider = (props) => {
     setIsMicrophoneOn(!isMicrophoneOn);
   }, [isMicrophoneOn, videoroomState]);
 
+  const toggleScreencastAndUpdateMetadata = useCallback(() => {
+    membraneToggleScreencast({
+      screencastMetadata: {
+        displayName: 'presenting',
+        type: 'screensharing',
+        active: 'true',
+      },
+      quality: ScreencastQuality.HD15,
+    });
+  }, []);
+
   const value = {
     roomName,
     setRoomName,
@@ -136,6 +153,8 @@ const VideoroomContextProvider = (props) => {
     toggleCamera,
     isMicrophoneOn,
     toggleMicrophone,
+    isScreencastOn,
+    toggleScreencastAndUpdateMetadata,
     currentCamera,
     setCurrentCamera,
     disconnect,

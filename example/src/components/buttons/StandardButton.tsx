@@ -11,6 +11,7 @@ const StandardButtonStyles = StyleSheet.create({
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 32,
   },
   primary: {
     backgroundColor: BrandColors.darkBlue100,

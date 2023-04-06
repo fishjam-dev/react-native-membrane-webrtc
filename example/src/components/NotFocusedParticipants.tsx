@@ -1,4 +1,4 @@
-import { BrandColors } from '@colors';
+import { AdditionalColors, BrandColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { isEmpty } from 'lodash';
 import React from 'react';
@@ -7,7 +7,12 @@ import { View, StyleSheet } from 'react-native';
 import { OtherParticipants } from './OtherParticipants';
 import { RoomParticipant } from './RoomParticipant';
 
-type NotFocusedParticipantsProp = { participants: Membrane.Participant[] };
+export type Participant = {
+  participant: Membrane.Participant;
+  trackId?: string;
+};
+
+type NotFocusedParticipantsProp = { participants: Participant[] };
 
 export const NotFocusedParticipants = ({
   participants,
@@ -21,7 +26,8 @@ export const NotFocusedParticipants = ({
       {participants.length === 1 ? (
         <View style={styles.otherParticipantContainer}>
           <RoomParticipant
-            participant={participants[0]}
+            participant={participants[0].participant}
+            trackId={participants[0].trackId}
             pinButtonHiddden
             tileSmall
           />
@@ -35,7 +41,8 @@ export const NotFocusedParticipants = ({
         >
           <View style={styles.participant}>
             <RoomParticipant
-              participant={participants[0]}
+              participant={participants[0].participant}
+              trackId={participants[0].trackId}
               pinButtonHiddden
               tileSmall
             />
@@ -44,14 +51,15 @@ export const NotFocusedParticipants = ({
           <View style={styles.participant}>
             {participants.length === 2 ? (
               <RoomParticipant
-                participant={participants[1]}
+                participant={participants[1].participant}
+                trackId={participants[1].trackId}
                 pinButtonHiddden
                 tileSmall
               />
             ) : (
               <OtherParticipants
-                p1={participants[1]}
-                p2={participants[2]}
+                p1={participants[1].participant}
+                p2={participants[2].participant}
                 numOfOtherParticipants={participants.length - 1}
               />
             )}
@@ -69,9 +77,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   otherParticipantContainer: {
+    flex: 1,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: BrandColors.darkBlue60,
+    backgroundColor: AdditionalColors.grey140,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
