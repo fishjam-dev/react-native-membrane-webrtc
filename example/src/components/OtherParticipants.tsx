@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
     borderRadius: 5000,
     borderColor: BrandColors.darkBlue60,
     borderWidth: 1,
-    width: 75,
-    height: 75,
+    width: 70,
+    height: 70,
   },
   textRow: {
     marginTop: 8,

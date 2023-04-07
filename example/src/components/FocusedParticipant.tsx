@@ -26,38 +26,30 @@ export const FocusedParticipant = ({
 
   return (
     <View style={styles.focusedParticipantContainer}>
-      <View style={styles.focusedParticipant}>
-        {isLocalScreenshareTrack ? (
-          <StopScreencastingWithFocus />
-        ) : (
-          <RoomParticipant
-            participant={focusedParticipant.participant}
-            trackId={focusedParticipant.trackId}
-            onPinButtonPressed={onPress}
-            focused
-          />
-        )}
-      </View>
+      {isLocalScreenshareTrack ? (
+        <StopScreencastingWithFocus />
+      ) : (
+        <RoomParticipant
+          participant={focusedParticipant.participant}
+          trackId={focusedParticipant.trackId}
+          onPinButtonPressed={onPress}
+          focused
+        />
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   focusedParticipantContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 16,
-    paddingLeft: 16,
-    paddingRight: 16,
-  },
-  focusedParticipant: {
-    aspectRatio: 1 / 1.3,
+    margin: 16,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: BrandColors.darkBlue60,
     overflow: 'hidden',
-    width: '100%',
     backgroundColor: AdditionalColors.grey140,
   },
 });

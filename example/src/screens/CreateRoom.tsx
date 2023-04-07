@@ -16,6 +16,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
@@ -24,6 +25,7 @@ import { handlePermissions } from 'src/shared/handlePermissions';
 type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
 
 export const CreateRoom = ({ navigation, route }: Props) => {
+  const { width } = Dimensions.get('window');
   const height = useHeaderHeight();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
   const { next, current } = useCardAnimation();
@@ -51,7 +53,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
         <ScrollView
           contentContainerStyle={{
-            flexGrow: 1,
+            flex: 1,
           }}
           keyboardShouldPersistTaps="handled"
         >
@@ -70,7 +72,9 @@ export const CreateRoom = ({ navigation, route }: Props) => {
             />
             <View style={styles.inner}>
               <View>
-                <Typo variant="h4">Videoconferencing for everyone</Typo>
+                <Typo variant={width > 350 ? 'h4' : 'h5'}>
+                  Videoconferencing for everyone
+                </Typo>
               </View>
 
               <View style={styles.smallTitle}>

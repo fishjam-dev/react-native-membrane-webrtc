@@ -11,7 +11,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Sentry from '@sentry/react-native';
 import { findIndex } from 'lodash';
 import React, { useEffect, useCallback, useLayoutEffect, useRef } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
@@ -30,6 +31,7 @@ export const Preview = ({ navigation, route }: Props) => {
     connectAndJoinRoom,
   } = useVideoroomState();
   const { title } = route.params;
+  const { width } = Dimensions.get('window');
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -76,57 +78,65 @@ export const Preview = ({ navigation, route }: Props) => {
   return (
     <BackgroundAnimation>
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Typo variant="h4">Videoconferencing for everyone</Typo>
-          </View>
-          <View style={styles.titleLabel}>
-            <Typo variant="chat-regular" color={TextColors.description}>
-              {getTitleLabel()}
-            </Typo>
-          </View>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+          }}
+        >
+          <View style={styles.content}>
+            <View style={styles.header}>
+              <Typo variant={width > 350 ? 'h4' : 'h5'}>
+                Videoconferencing for everyone
+              </Typo>
+            </View>
+            <View style={styles.titleLabel}>
+              <Typo variant="chat-regular" color={TextColors.description}>
+                {getTitleLabel()}
+              </Typo>
+            </View>
 
-          <View style={styles.cameraPreview}>
-            {isCameraOn ? (
-              <Membrane.VideoPreviewView
-                style={styles.membraneVideoPreview}
-                mirrorVideo
-                captureDeviceId={currentCamera?.id}
-              />
-            ) : (
-              <NoCameraView username={username} />
-            )}
-
-            <View style={styles.iconsRow}>
-              <InCallButton
-                iconName={isCameraOn ? 'Cam' : 'Cam-disabled'}
-                onPress={toggleCamera}
-              />
-
-              <View style={styles.microphoneButton}>
-                <InCallButton
-                  iconName={isMicrophoneOn ? 'Microphone' : 'Microphone-off'}
-                  onPress={toggleMicrophone}
+            <View style={styles.cameraPreview}>
+              {isCameraOn ? (
+                <Membrane.VideoPreviewView
+                  style={styles.membraneVideoPreview}
+                  mirrorVideo
+                  captureDeviceId={currentCamera?.id}
                 />
+              ) : (
+                <NoCameraView username={username} />
+              )}
+
+              <View style={styles.iconsRow}>
+                <InCallButton
+                  iconName={isCameraOn ? 'Cam' : 'Cam-disabled'}
+                  onPress={toggleCamera}
+                />
+
+                <View style={styles.microphoneButton}>
+                  <InCallButton
+                    iconName={isMicrophoneOn ? 'Microphone' : 'Microphone-off'}
+                    onPress={toggleMicrophone}
+                  />
+                </View>
+                <InCallButton iconName="Cam-switch" onPress={switchCamera} />
               </View>
-              <InCallButton iconName="Cam-switch" onPress={switchCamera} />
+            </View>
+
+            <View style={styles.roomNameLabel}>
+              <Typo variant="h5">You are joining: {roomName.trimEnd()}</Typo>
+            </View>
+
+            <View style={styles.joinButton}>
+              <StandardButton onPress={onConnectPress}>
+                Join the room
+              </StandardButton>
+            </View>
+
+            <View style={styles.stepLabel}>
+              <Typo variant="label">Step 2/2</Typo>
             </View>
           </View>
-
-          <View style={styles.roomNameLabel}>
-            <Typo variant="h5">You are joining: {roomName.trimEnd()}</Typo>
-          </View>
-
-          <View style={styles.joinButton}>
-            <StandardButton onPress={onConnectPress}>
-              Join the room
-            </StandardButton>
-          </View>
-
-          <View style={styles.stepLabel}>
-            <Typo variant="label">Step 2/2</Typo>
-          </View>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </BackgroundAnimation>
   );

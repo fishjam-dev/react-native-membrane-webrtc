@@ -24,7 +24,7 @@ export const NotFocusedParticipants = ({
   return (
     <View style={styles.container}>
       {participants.length === 1 ? (
-        <View style={styles.otherParticipantContainer}>
+        <View style={[styles.otherParticipantContainer, styles.participant]}>
           <RoomParticipant
             participant={participants[0].participant}
             trackId={participants[0].trackId}
@@ -72,9 +72,9 @@ export const NotFocusedParticipants = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    height: 128,
   },
   otherParticipantContainer: {
     flex: 1,
@@ -94,8 +94,8 @@ const styles = StyleSheet.create({
     marginRight: 32,
   },
   participant: {
-    flex: 1,
-    aspectRatio: 1,
+    width: 128,
+    height: 128,
     overflow: 'hidden',
   },
   middleLine: {
