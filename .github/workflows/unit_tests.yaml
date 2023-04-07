@@ -14,5 +14,5 @@ jobs:
           cache: 'yarn'
       - name: Install node dependencies
         run: yarn && cd example && yarn
-      - name: Run unit tests
+      - name: Run unit tests for the example app
         run: yarn test
