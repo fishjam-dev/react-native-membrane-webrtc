@@ -15,4 +15,4 @@ jobs:
       - name: Install node dependencies
         run: yarn && cd example && yarn
       - name: Run unit tests for the example app
-        run: cd examplt && yarn test
+        run: cd example && yarn test
