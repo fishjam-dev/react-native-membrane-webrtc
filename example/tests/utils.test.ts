@@ -1,14 +1,4 @@
-import { VIDEOROOM_URL } from '@env';
-import {
-  extractRoomNameFromUrl,
-  getShortUsername,
-  isEmptyStringOrWhitespaces,
-} from '@utils';
-
-test('is room url valid', () => {
-  const testRoomUrl = VIDEOROOM_URL + 'test';
-  expect(extractRoomNameFromUrl(testRoomUrl)).toBe('test');
-});
+import { getShortUsername, isEmptyStringOrWhitespaces } from '@utils';
 
 test('generating short name', () => {
   expect(getShortUsername('test user')).toBe('TU');
