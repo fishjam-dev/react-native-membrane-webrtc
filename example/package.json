@@ -7,7 +7,8 @@
     "android": "NODE_ENV=development react-native run-android",
     "ios": "NODE_ENV=development react-native run-ios",
     "start": "NODE_ENV=development react-native start",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "test": "jest"
   },
   "dependencies": {
     "@expo-google-fonts/noto-sans": "^0.2.3",
@@ -38,6 +39,7 @@
     "@babel/core": "^7.12.10",
     "@babel/runtime": "^7.12.5",
     "babel-plugin-module-resolver": "^5.0.0",
+    "jest": "^29.5.0",
     "metro-react-native-babel-preset": "^0.64.0",
     "react-native-svg-transformer": "^1.0.0",
     "typescript": "^4.1.3"

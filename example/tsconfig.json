@@ -13,6 +13,6 @@
       "@assets/*": ["./assets/*"]
     }
   },
-  "include": ["./src"],
+  "include": ["./src", "./tests"],
   "exclude": ["**/__mocks__/*", "**/__tests__/*"]
 }
