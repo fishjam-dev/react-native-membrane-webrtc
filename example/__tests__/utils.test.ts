@@ -1,4 +1,7 @@
-import { getShortUsername, isEmptyStringOrWhitespaces } from '@utils';
+import {
+  getShortUsername,
+  isEmptyStringOrWhitespaces,
+} from '../src/shared/utils';
 
 test('generating short name', () => {
   expect(getShortUsername('test user')).toBe('TU');
