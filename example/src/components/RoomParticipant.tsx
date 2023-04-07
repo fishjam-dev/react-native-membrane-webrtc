@@ -92,19 +92,23 @@ export const RoomParticipant = ({
     );
   };
 
+  const getStyleForVideoView = () => {
+    return videoTrackType === 'camera'
+      ? focused
+        ? styles.videoTrackFocused
+        : styles.videoTrack
+      : focused
+      ? styles.videoTrackScreencastFocused
+      : styles.videoTrack;
+  };
+
   return (
-    <View style={{ flex: 1 }}>
-      <Pressable onPress={triggerShowingPinButton} style={{ flex: 1 }}>
+    <View style={styles.fill}>
+      <Pressable onPress={triggerShowingPinButton} style={styles.fill}>
         {participantHasVideo() ? (
           <Membrane.VideoRendererView
             trackId={videoTrack!.id}
-            style={
-              videoTrackType === 'camera'
-                ? styles.videoTrack
-                : focused
-                ? styles.videoTrackScreencastFocused
-                : styles.videoTrackScreencast
-            }
+            style={getStyleForVideoView()}
             videoLayout={
               videoTrackType === 'camera'
                 ? Membrane.VideoLayout.FILL
@@ -161,6 +165,10 @@ export const RoomParticipant = ({
 };
 
 const styles = StyleSheet.create({
+  fill: {
+    flex: 1,
+    width: '100%',
+  },
   displayNameContainer: {
     borderRadius: 60,
     position: 'absolute',
@@ -189,9 +197,9 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     alignSelf: 'center',
   },
-  videoTrackScreencast: {
+  videoTrackFocused: {
     flex: 1,
-    aspectRatio: 1,
+    width: '100%',
   },
   videoTrackScreencastFocused: {
     flex: 1,

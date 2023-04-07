@@ -185,6 +185,5 @@ const styles = StyleSheet.create({
   otherParticipants: {
     marginTop: 16,
     marginBottom: 8,
-    flex: 1,
   },
 });

@@ -14,7 +14,9 @@ const ModalStyles = StyleSheet.create({
   },
   modal: {
     alignSelf: 'center',
-    width: 358,
+    width: '100%',
+    maxWidth: 358,
+    marginHorizontal: 16,
     justifyContent: 'center',
     backgroundColor: AdditionalColors.white,
     borderRadius: 16,

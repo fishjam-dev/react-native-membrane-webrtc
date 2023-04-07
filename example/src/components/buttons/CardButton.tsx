@@ -14,12 +14,12 @@ import { useDebounce } from 'src/shared/debouncer';
 const CardButtonStyles = StyleSheet.create({
   wrapper: {
     height: 179,
+    width: '100%',
   },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 358,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: BrandColors.darkBlue100,

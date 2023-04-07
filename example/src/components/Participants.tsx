@@ -75,7 +75,7 @@ export const Participants = ({ participants, onPress }: ParticipantsProp) => {
                 participant={p.participant}
                 trackId={p.trackId}
                 onPinButtonPressed={onPress}
-                tileSmall={participants.length > FLEX_BRAKPOINT}
+                tileSmall={participants.length > FLEX_BRAKPOINT || width < 350}
               />
             </View>
           ))}
