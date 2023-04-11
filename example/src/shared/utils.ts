@@ -1,5 +1,5 @@
-import { VIDEOROOM_URL } from '@env';
 import { isEmpty } from 'lodash';
+import { VIDEOROOM_URL } from '@env';
 
 /**
  * Used to generate short representation of a username.
