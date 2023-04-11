@@ -24,7 +24,7 @@ const Membrane = NativeModules.Membrane
         },
       }
     );
-const eventEmitter = new NativeEventEmitter(Membrane);
+const eventEmitter = null; //new NativeEventEmitter(Membrane);
 
 export enum ParticipantType {
   Remote = 'Remote',

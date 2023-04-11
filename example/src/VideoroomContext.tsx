@@ -1,3 +1,4 @@
+import { SERVER_URL } from '@env';
 import {
   useMembraneServer,
   useAudioSettings,
@@ -13,7 +14,6 @@ import {
 import { useNotifications } from '@model/NotificationsContext';
 import * as Sentry from '@sentry/react-native';
 import React, { useState, useCallback, useEffect } from 'react';
-import { SERVER_URL } from '@env';
 
 type VideoroomState = 'BeforeMeeting' | 'InMeeting' | 'AfterMeeting';
 
