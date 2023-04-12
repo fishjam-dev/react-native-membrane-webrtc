@@ -16,7 +16,6 @@ import * as Sentry from '@sentry/react-native';
 import React, { useState, useCallback, useEffect } from 'react';
 
 type VideoroomState = 'BeforeMeeting' | 'InMeeting' | 'AfterMeeting';
-
 const VideoroomContext = React.createContext<
   | {
       roomName: string;
@@ -172,7 +171,7 @@ const VideoroomContextProvider = (props) => {
 function useVideoroomState() {
   const context = React.useContext(VideoroomContext);
   if (context === undefined) {
-    throw new Error('useRoomName must be used within a VideoroomContext');
+    throw new Error('context values must be used within a VideoroomContext');
   }
   return context;
 }
