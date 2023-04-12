@@ -2,6 +2,14 @@ const NOOP = () => {
   // noop
 };
 
+export enum ScreencastQuality {
+  VGA = 'VGA',
+  HD5 = 'HD5',
+  HD15 = 'HD15',
+  FHD15 = 'FHD15',
+  FHD30 = 'FHD30',
+}
+
 export enum VideoQuality {
   QVGA_169 = 'QVGA169',
   VGA_169 = 'VGA169',
