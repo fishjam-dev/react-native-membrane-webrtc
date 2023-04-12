@@ -15,51 +15,66 @@ jest.mock('../src/model/NotificationsContext', () => {
     },
   };
 });
-// jest.mock('../../src/index', () => {
-//   return {
-//     useScreencast: () => {
-//       return { isScreencastOn: false, toggleScreencast: () => {} };
-//     },
-//     useMembraneServer: () => {
-//       return {
-//         connect: async (): Promise<void> => {
-//           return new Promise<void>((resolve) => {
-//             resolve();
-//           });
-//         },
-//         disconnect: NOOP,
-//         joinRoom: async (): Promise<void> => {
-//           return new Promise<void>((resolve) => {
-//             resolve();
-//           });
-//         },
-//         error: undefined,
-//       };
-//     },
-//   };
-// });
 
-jest.mock('../../src//index');
+jest.mock('../../src/index', () => {
+  return {
+    ...jest.requireActual('../../src/index'),
+    // useScreencast: () => {
+    //   return { isScreencastOn: false, toggleScreencast: () => {} };
+    // },
+    // useMembraneServer: () => {
+    //   return {
+    //     connect: async (): Promise<void> => {
+    //       return new Promise<void>((resolve) => {
+    //         connectCallback();
+    //         resolve();
+    //       });
+    //     },
+    //     disconnect: NOOP,
+    //     joinRoom: async (): Promise<void> => {
+    //       return new Promise<void>((resolve) => {
+    //         joinCallback();
+    //         resolve();
+    //       });
+    //     },
+    //     error: undefined,
+    //   };
+    // },
+    useAudioSettings: NOOP,
+  };
+});
+
+// jest.mock('../../src//index');
+
+const setExtra = jest.fn(() => {});
+
+const sentry = require('@sentry/react-native');
+sentry.setExtra = setExtra;
 
 const useCameraStateMock = jest.fn(() => {});
 const useMicrophoneStateMock = jest.fn(() => {});
+const useScreencastMock = jest.fn(() => {});
 const useVideoTrackMetadataMock = jest.fn(() => {});
 const useAudioTrackMetadataMock = jest.fn(() => {});
+const connectCallback = jest.fn(() => {});
+const joinCallback = jest.fn(() => {});
 
 const membraneWebRTC = require('../../src/index');
-membraneWebRTC.useScreencast = () => {
-  return { isScreencastOn: false, toggleScreencast: () => {} };
-};
+// membraneWebRTC.useScreencast = () => {
+//   return { isScreencastOn: false, toggleScreencast: () => {} };
+// };
 membraneWebRTC.useMembraneServer = () => {
   return {
     connect: async (): Promise<void> => {
       return new Promise<void>((resolve) => {
+        connectCallback();
         resolve();
       });
     },
     disconnect: NOOP,
     joinRoom: async (): Promise<void> => {
       return new Promise<void>((resolve) => {
+        joinCallback();
         resolve();
       });
     },
@@ -72,6 +87,9 @@ membraneWebRTC.useCameraState = () => {
 membraneWebRTC.useMicrophoneState = () => {
   return { toggleMicrophone: useMicrophoneStateMock };
 };
+membraneWebRTC.useScreencast = () => {
+  return { toggleScreencast: useScreencastMock };
+};
 membraneWebRTC.useVideoTrackMetadata = (params) => {
   return { updateVideoTrackMetadata: useVideoTrackMetadataMock };
 };
@@ -80,6 +98,9 @@ membraneWebRTC.useAudioTrackMetadata = (params) => {
 };
 
 describe('Videoroom context', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   test('Navigating back to main screen', async () => {
     const { result } = renderHook(() => useVideoroomState(), {
       wrapper: VideoroomContextProvider,
@@ -91,6 +112,7 @@ describe('Videoroom context', () => {
       await result.current.connectAndJoinRoom();
       result.current.goToMainScreen();
     });
+
     expect(result.current.roomName).toBe('');
     expect(result.current.username).toBe('');
     expect(result.current.videoroomState).toBe('BeforeMeeting');
@@ -115,6 +137,7 @@ describe('Videoroom context', () => {
       await result.current.connectAndJoinRoom();
       result.current.toggleCamera();
     });
+
     expect(useCameraStateMock).toBeCalledTimes(1);
     expect(useVideoTrackMetadataMock).toBeCalledTimes(1);
     expect(result.current.isCameraOn).toBe(false);
@@ -139,8 +162,55 @@ describe('Videoroom context', () => {
       await result.current.connectAndJoinRoom();
       result.current.toggleMicrophone();
     });
+
     expect(useMicrophoneStateMock).toBeCalledTimes(1);
     expect(useAudioTrackMetadataMock).toBeCalledTimes(1);
     expect(result.current.isMicrophoneOn).toBe(false);
+  });
+
+  test('Connecting to room', async () => {
+    const { result } = renderHook(() => useVideoroomState(), {
+      wrapper: VideoroomContextProvider,
+    });
+
+    act(() => {
+      result.current.setRoomName('test room     ');
+      result.current.setUsername('test user   ');
+    });
+    await act(async () => {
+      await result.current.connectAndJoinRoom();
+    });
+
+    expect(result.current.roomName).toBe('test room');
+    expect(result.current.username).toBe('test user');
+    expect(setExtra).toBeCalledTimes(2);
+    expect(connectCallback).toBeCalledTimes(1);
+    expect(joinCallback).toBeCalledTimes(1);
+    expect(result.current.videoroomState).toBe('InMeeting');
+  });
+
+  test('Disconnect from room', async () => {
+    const { result } = renderHook(() => useVideoroomState(), {
+      wrapper: VideoroomContextProvider,
+    });
+
+    await act(async () => {
+      await result.current.connectAndJoinRoom();
+      await result.current.disconnect();
+    });
+
+    expect(result.current.videoroomState).toBe('AfterMeeting');
+  });
+
+  test('Toggle screencast', async () => {
+    const { result } = renderHook(() => useVideoroomState(), {
+      wrapper: VideoroomContextProvider,
+    });
+
+    await act(async () => {
+      result.current.toggleScreencastAndUpdateMetadata();
+    });
+
+    expect(useScreencastMock).toBeCalledTimes(1);
   });
 });
