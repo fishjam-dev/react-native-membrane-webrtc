@@ -8,6 +8,11 @@ import {
   NativeEventEmitter,
 } from 'react-native';
 
+function isJest() {
+  // @ts-ignore
+  return process.env.NODE_ENV === 'test';
+}
+
 const LINKING_ERROR =
   `The package 'react-native-membrane' doesn't seem to be linked. Make sure: \n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
@@ -16,6 +21,11 @@ const LINKING_ERROR =
 
 const Membrane = NativeModules.Membrane
   ? NativeModules.Membrane
+  : isJest()
+  ? {
+      addListener: () => {},
+      removeListeners: () => {},
+    }
   : new Proxy(
       {},
       {
@@ -24,8 +34,7 @@ const Membrane = NativeModules.Membrane
         },
       }
     );
-const eventEmitter =
-  process.env.NODE_ENV !== 'test' ? new NativeEventEmitter(Membrane) : null;
+const eventEmitter = new NativeEventEmitter(Membrane);
 
 export enum ParticipantType {
   Remote = 'Remote',
@@ -279,8 +288,8 @@ export function useMembraneServer() {
   const lock = useRef(false);
 
   useEffect(() => {
-    const eventListener = eventEmitter?.addListener('MembraneError', setError);
-    return () => eventListener?.remove();
+    const eventListener = eventEmitter.addListener('MembraneError', setError);
+    return () => eventListener.remove();
   }, []);
 
   const withLock =
@@ -363,7 +372,7 @@ export function useRoomParticipants() {
   const [participants, setParticipants] = useState<Participant[]>([]);
 
   useEffect(() => {
-    const eventListener = eventEmitter?.addListener(
+    const eventListener = eventEmitter.addListener(
       'ParticipantsUpdate',
       ({ participants }) => {
         setParticipants(participants);
@@ -374,7 +383,7 @@ export function useRoomParticipants() {
         setParticipants(participants);
       }
     );
-    return () => eventListener?.remove();
+    return () => eventListener.remove();
   }, []);
 
   return participants;
@@ -387,11 +396,11 @@ export function useCameraState() {
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
 
   useEffect(() => {
-    const eventListener = eventEmitter?.addListener('IsCameraOn', (event) =>
+    const eventListener = eventEmitter.addListener('IsCameraOn', (event) =>
       setIsCameraOn(event)
     );
     Membrane.isCameraOn().then(setIsCameraOn);
-    return () => eventListener?.remove();
+    return () => eventListener.remove();
   }, []);
 
   /**
@@ -412,11 +421,11 @@ export function useMicrophoneState() {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
 
   useEffect(() => {
-    const eventListener = eventEmitter?.addListener('IsMicrophoneOn', (event) =>
+    const eventListener = eventEmitter.addListener('IsMicrophoneOn', (event) =>
       setIsMicrophoneOn(event)
     );
     Membrane.isMicrophoneOn().then(setIsMicrophoneOn);
-    return () => eventListener?.remove();
+    return () => eventListener.remove();
   }, []);
 
   /**
@@ -465,11 +474,11 @@ export function useScreencast() {
 
   useEffect(() => {
     if (Platform.OS === 'ios') {
-      const eventListener = eventEmitter?.addListener(
+      const eventListener = eventEmitter.addListener(
         'IsScreencastOn',
         (event) => setIsScreencastOn(event)
       );
-      return () => eventListener?.remove();
+      return () => eventListener.remove();
     }
     return () => {};
   }, []);
@@ -615,13 +624,13 @@ export function useAudioSettings() {
   }, []);
 
   useEffect(() => {
-    const eventListener = eventEmitter?.addListener(
+    const eventListener = eventEmitter.addListener(
       'AudioDeviceUpdate',
       onAudioDevice
     );
     Membrane.startAudioSwitcher();
     return () => {
-      eventListener?.remove();
+      eventListener.remove();
       if (Platform.OS === 'android') {
         Membrane.stopAudioSwitcher();
       }
@@ -778,11 +787,11 @@ export function useBandwidthEstimation() {
   const [estimation, setEstimation] = useState<number | null>(null);
 
   useEffect(() => {
-    const eventListener = eventEmitter?.addListener(
+    const eventListener = eventEmitter.addListener(
       'BandwidthEstimation',
       (estimation) => setEstimation(estimation)
     );
-    return () => eventListener?.remove();
+    return () => eventListener.remove();
   }, []);
 
   return { estimation };
