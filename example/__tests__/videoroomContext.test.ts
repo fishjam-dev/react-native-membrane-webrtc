@@ -15,32 +15,31 @@ jest.mock('../src/model/NotificationsContext', () => {
     },
   };
 });
-jest.mock('../../src/index', () => {
-  return {
-    ...jest.requireActual('../../src/index'),
-    useScreencast: () => {
-      return { isScreencastOn: false, toggleScreencast: () => {} };
-    },
-    useMembraneServer: () => {
-      return {
-        connect: async (): Promise<void> => {
-          return new Promise<void>((resolve) => {
-            resolve();
-          });
-        },
-        disconnect: NOOP,
-        joinRoom: async (): Promise<void> => {
-          return new Promise<void>((resolve) => {
-            resolve();
-          });
-        },
-        error: undefined,
-      };
-    },
-    useAudioSettings: NOOP,
-    membraneToggleCamera: () => {},
-  };
-});
+// jest.mock('../../src/index', () => {
+//   return {
+//     useScreencast: () => {
+//       return { isScreencastOn: false, toggleScreencast: () => {} };
+//     },
+//     useMembraneServer: () => {
+//       return {
+//         connect: async (): Promise<void> => {
+//           return new Promise<void>((resolve) => {
+//             resolve();
+//           });
+//         },
+//         disconnect: NOOP,
+//         joinRoom: async (): Promise<void> => {
+//           return new Promise<void>((resolve) => {
+//             resolve();
+//           });
+//         },
+//         error: undefined,
+//       };
+//     },
+//   };
+// });
+
+jest.mock('../../src//index');
 
 const useCameraStateMock = jest.fn(() => {});
 const useMicrophoneStateMock = jest.fn(() => {});
@@ -48,6 +47,25 @@ const useVideoTrackMetadataMock = jest.fn(() => {});
 const useAudioTrackMetadataMock = jest.fn(() => {});
 
 const membraneWebRTC = require('../../src/index');
+membraneWebRTC.useScreencast = () => {
+  return { isScreencastOn: false, toggleScreencast: () => {} };
+};
+membraneWebRTC.useMembraneServer = () => {
+  return {
+    connect: async (): Promise<void> => {
+      return new Promise<void>((resolve) => {
+        resolve();
+      });
+    },
+    disconnect: NOOP,
+    joinRoom: async (): Promise<void> => {
+      return new Promise<void>((resolve) => {
+        resolve();
+      });
+    },
+    error: undefined,
+  };
+};
 membraneWebRTC.useCameraState = () => {
   return { toggleCamera: useCameraStateMock };
 };
