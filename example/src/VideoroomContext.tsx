@@ -16,6 +16,7 @@ import * as Sentry from '@sentry/react-native';
 import React, { useState, useCallback, useEffect } from 'react';
 
 type VideoroomState = 'BeforeMeeting' | 'InMeeting' | 'AfterMeeting';
+
 const VideoroomContext = React.createContext<
   | {
       roomName: string;

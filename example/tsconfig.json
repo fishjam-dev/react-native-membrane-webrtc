@@ -14,7 +14,6 @@
     },
     "types": ["node"]
   },
-  "include": ["./src"]
-  // "exclude": ["**/__mocks__/*", "**/__tests__/*"]
-  // "typeRoots": ["./src/types"]
+  "include": ["./src"],
+  "exclude": ["**/__mocks__/*", "**/__tests__/*"]
 }

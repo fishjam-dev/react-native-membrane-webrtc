@@ -1,8 +1,6 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   preset: 'jest-expo',
-  // modulePaths: ['<rootDir>'],
-  //moduleDirectories: ['node_modules', '../node_modules'],
   moduleNameMapper: {
     '@jellyfish-dev/react-native-membrane-webrtc': '<rootDir>/../src/index.tsx',
     '^@env$': 'react-native-dotenv',
