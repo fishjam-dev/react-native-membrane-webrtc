@@ -61,65 +61,67 @@ membraneWebRTC.useAudioTrackMetadata = (params) => {
   return { updateAudioTrackMetadata: useAudioTrackMetadataMock };
 };
 
-test('Navigating back to main screen', () => {
-  const result = renderHook(() => useVideoroomState(), {
-    wrapper: VideoroomContextProvider,
-  }).result.current;
+describe('Videoroom context', () => {
+  test('Navigating back to main screen', () => {
+    const result = renderHook(() => useVideoroomState(), {
+      wrapper: VideoroomContextProvider,
+    }).result.current;
 
-  act(() => {
-    result.setRoomName('testRoom');
-    result.setUsername('testUser');
-    result.goToMainScreen();
-  });
-  expect(result.roomName).toBe('');
-  expect(result.username).toBe('');
-  expect(result.videoroomState).toBe('BeforeMeeting');
-});
-
-test('Toggle camera', async () => {
-  const { result } = renderHook(() => useVideoroomState(), {
-    wrapper: VideoroomContextProvider,
+    act(() => {
+      result.setRoomName('testRoom');
+      result.setUsername('testUser');
+      result.goToMainScreen();
+    });
+    expect(result.roomName).toBe('');
+    expect(result.username).toBe('');
+    expect(result.videoroomState).toBe('BeforeMeeting');
   });
 
-  act(() => {
-    result.current.toggleCamera();
-  });
-  expect(result.current.isCameraOn).toBe(false);
-  act(() => {
-    result.current.toggleCamera();
-  });
-  expect(result.current.isCameraOn).toBe(true);
+  test('Toggle camera', async () => {
+    const { result } = renderHook(() => useVideoroomState(), {
+      wrapper: VideoroomContextProvider,
+    });
 
-  await act(async () => {
-    // Change videoroomState to InMeeting
-    await result.current.connectAndJoinRoom();
-    result.current.toggleCamera();
-  });
-  expect(useCameraStateMock).toBeCalledTimes(1);
-  expect(useVideoTrackMetadataMock).toBeCalledTimes(1);
-  expect(result.current.isCameraOn).toBe(false);
-});
+    act(() => {
+      result.current.toggleCamera();
+    });
+    expect(result.current.isCameraOn).toBe(false);
+    act(() => {
+      result.current.toggleCamera();
+    });
+    expect(result.current.isCameraOn).toBe(true);
 
-test('Toggle microphone', async () => {
-  const { result } = renderHook(() => useVideoroomState(), {
-    wrapper: VideoroomContextProvider,
+    await act(async () => {
+      // Change videoroomState to InMeeting
+      await result.current.connectAndJoinRoom();
+      result.current.toggleCamera();
+    });
+    expect(useCameraStateMock).toBeCalledTimes(1);
+    expect(useVideoTrackMetadataMock).toBeCalledTimes(1);
+    expect(result.current.isCameraOn).toBe(false);
   });
 
-  act(() => {
-    result.current.toggleMicrophone();
-  });
-  expect(result.current.isMicrophoneOn).toBe(false);
-  act(() => {
-    result.current.toggleMicrophone();
-  });
-  expect(result.current.isMicrophoneOn).toBe(true);
+  test('Toggle microphone', async () => {
+    const { result } = renderHook(() => useVideoroomState(), {
+      wrapper: VideoroomContextProvider,
+    });
 
-  await act(async () => {
-    // Change videoroomState to InMeeting
-    await result.current.connectAndJoinRoom();
-    result.current.toggleMicrophone();
+    act(() => {
+      result.current.toggleMicrophone();
+    });
+    expect(result.current.isMicrophoneOn).toBe(false);
+    act(() => {
+      result.current.toggleMicrophone();
+    });
+    expect(result.current.isMicrophoneOn).toBe(true);
+
+    await act(async () => {
+      // Change videoroomState to InMeeting
+      await result.current.connectAndJoinRoom();
+      result.current.toggleMicrophone();
+    });
+    expect(useMicrophoneStateMock).toBeCalledTimes(1);
+    expect(useAudioTrackMetadataMock).toBeCalledTimes(1);
+    expect(result.current.isMicrophoneOn).toBe(false);
   });
-  expect(useMicrophoneStateMock).toBeCalledTimes(1);
-  expect(useAudioTrackMetadataMock).toBeCalledTimes(1);
-  expect(result.current.isMicrophoneOn).toBe(false);
 });
