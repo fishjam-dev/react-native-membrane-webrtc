@@ -16,40 +16,12 @@ jest.mock('../src/model/NotificationsContext', () => {
   };
 });
 
-jest.mock('../../src/index', () => {
-  return {
-    ...jest.requireActual('../../src/index'),
-    // useScreencast: () => {
-    //   return { isScreencastOn: false, toggleScreencast: () => {} };
-    // },
-    // useMembraneServer: () => {
-    //   return {
-    //     connect: async (): Promise<void> => {
-    //       return new Promise<void>((resolve) => {
-    //         connectCallback();
-    //         resolve();
-    //       });
-    //     },
-    //     disconnect: NOOP,
-    //     joinRoom: async (): Promise<void> => {
-    //       return new Promise<void>((resolve) => {
-    //         joinCallback();
-    //         resolve();
-    //       });
-    //     },
-    //     error: undefined,
-    //   };
-    // },
-    useAudioSettings: NOOP,
-  };
-});
-
-// jest.mock('../../src//index');
-
 const setExtra = jest.fn(() => {});
 
 const sentry = require('@sentry/react-native');
 sentry.setExtra = setExtra;
+
+jest.mock('../../src/index');
 
 const useCameraStateMock = jest.fn(() => {});
 const useMicrophoneStateMock = jest.fn(() => {});
@@ -101,6 +73,7 @@ describe('Videoroom context', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+
   test('Navigating back to main screen', async () => {
     const { result } = renderHook(() => useVideoroomState(), {
       wrapper: VideoroomContextProvider,
