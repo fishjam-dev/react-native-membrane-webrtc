@@ -15,31 +15,7 @@ jest.mock('../src/model/NotificationsContext', () => {
     },
   };
 });
-// jest.mock('../../src/index', () => {
-//   return {
-//     useScreencast: () => {
-//       return { isScreencastOn: false, toggleScreencast: () => {} };
-//     },
-//     useMembraneServer: () => {
-//       return {
-//         connect: async (): Promise<void> => {
-//           return new Promise<void>((resolve) => {
-//             resolve();
-//           });
-//         },
-//         disconnect: NOOP,
-//         joinRoom: async (): Promise<void> => {
-//           return new Promise<void>((resolve) => {
-//             resolve();
-//           });
-//         },
-//         error: undefined,
-//       };
-//     },
-//   };
-// });
-
-jest.mock('../../src//index');
+jest.mock('../../src/index');
 
 const useCameraStateMock = jest.fn(() => {});
 const useMicrophoneStateMock = jest.fn(() => {});
@@ -80,6 +56,10 @@ membraneWebRTC.useAudioTrackMetadata = (params) => {
 };
 
 describe('Videoroom context', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('Navigating back to main screen', async () => {
     const { result } = renderHook(() => useVideoroomState(), {
       wrapper: VideoroomContextProvider,
@@ -91,6 +71,7 @@ describe('Videoroom context', () => {
       await result.current.connectAndJoinRoom();
       result.current.goToMainScreen();
     });
+
     expect(result.current.roomName).toBe('');
     expect(result.current.username).toBe('');
     expect(result.current.videoroomState).toBe('BeforeMeeting');
@@ -115,6 +96,7 @@ describe('Videoroom context', () => {
       await result.current.connectAndJoinRoom();
       result.current.toggleCamera();
     });
+
     expect(useCameraStateMock).toBeCalledTimes(1);
     expect(useVideoTrackMetadataMock).toBeCalledTimes(1);
     expect(result.current.isCameraOn).toBe(false);
@@ -139,6 +121,7 @@ describe('Videoroom context', () => {
       await result.current.connectAndJoinRoom();
       result.current.toggleMicrophone();
     });
+
     expect(useMicrophoneStateMock).toBeCalledTimes(1);
     expect(useAudioTrackMetadataMock).toBeCalledTimes(1);
     expect(result.current.isMicrophoneOn).toBe(false);
