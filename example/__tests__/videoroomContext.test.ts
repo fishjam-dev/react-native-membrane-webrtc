@@ -62,19 +62,20 @@ membraneWebRTC.useAudioTrackMetadata = (params) => {
 };
 
 describe('Videoroom context', () => {
-  test('Navigating back to main screen', () => {
-    const result = renderHook(() => useVideoroomState(), {
+  test('Navigating back to main screen', async () => {
+    const { result } = renderHook(() => useVideoroomState(), {
       wrapper: VideoroomContextProvider,
-    }).result.current;
-
-    act(() => {
-      result.setRoomName('testRoom');
-      result.setUsername('testUser');
-      result.goToMainScreen();
     });
-    expect(result.roomName).toBe('');
-    expect(result.username).toBe('');
-    expect(result.videoroomState).toBe('BeforeMeeting');
+
+    await act(async () => {
+      result.current.setRoomName('testRoom');
+      result.current.setUsername('testUser');
+      await result.current.connectAndJoinRoom();
+      result.current.goToMainScreen();
+    });
+    expect(result.current.roomName).toBe('');
+    expect(result.current.username).toBe('');
+    expect(result.current.videoroomState).toBe('BeforeMeeting');
   });
 
   test('Toggle camera', async () => {
