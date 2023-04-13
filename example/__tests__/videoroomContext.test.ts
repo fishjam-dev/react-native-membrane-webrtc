@@ -24,11 +24,11 @@ sentry.setExtra = setExtra;
 
 const useCameraStateMock = jest.fn(NOOP);
 const useMicrophoneStateMock = jest.fn(NOOP);
-const useScreencastMock = jest.fn(NOOP);
 const useVideoTrackMetadataMock = jest.fn(NOOP);
 const useAudioTrackMetadataMock = jest.fn(NOOP);
 const connectCallback = jest.fn(NOOP);
 const joinCallback = jest.fn(NOOP);
+const disconnectCallback = jest.fn(NOOP);
 
 const membraneWebRTC = require('../../src/index');
 membraneWebRTC.useMembraneServer = () => {
@@ -39,14 +39,19 @@ membraneWebRTC.useMembraneServer = () => {
         resolve();
       });
     },
-    disconnect: NOOP,
+    disconnect: async (): Promise<void> => {
+      return new Promise<void>((resolve) => {
+        disconnectCallback();
+        resolve();
+      });
+    },
     joinRoom: async (): Promise<void> => {
       return new Promise<void>((resolve) => {
         joinCallback();
         resolve();
       });
     },
-    error: undefined,
+    error: null,
   };
 };
 membraneWebRTC.useCameraState = () => {
@@ -55,13 +60,10 @@ membraneWebRTC.useCameraState = () => {
 membraneWebRTC.useMicrophoneState = () => {
   return { toggleMicrophone: useMicrophoneStateMock };
 };
-membraneWebRTC.useScreencast = () => {
-  return { toggleScreencast: useScreencastMock };
-};
-membraneWebRTC.useVideoTrackMetadata = (params) => {
+membraneWebRTC.useVideoTrackMetadata = () => {
   return { updateVideoTrackMetadata: useVideoTrackMetadataMock };
 };
-membraneWebRTC.useAudioTrackMetadata = (params) => {
+membraneWebRTC.useAudioTrackMetadata = () => {
   return { updateAudioTrackMetadata: useAudioTrackMetadataMock };
 };
 
@@ -168,10 +170,20 @@ describe('Videoroom context', () => {
       await result.current.disconnect();
     });
 
+    expect(disconnectCallback).toBeCalledTimes(1);
     expect(result.current.videoroomState).toBe('AfterMeeting');
   });
 
   test('Toggle screencast', async () => {
+    let isScreencastOn = false;
+    const useScreencastMock = jest.fn(() => {
+      isScreencastOn = !isScreencastOn;
+    });
+
+    membraneWebRTC.useScreencast = () => {
+      return { isScreencastOn: false, toggleScreencast: useScreencastMock };
+    };
+
     const { result } = renderHook(() => useVideoroomState(), {
       wrapper: VideoroomContextProvider,
     });
@@ -181,5 +193,13 @@ describe('Videoroom context', () => {
     });
 
     expect(useScreencastMock).toBeCalledTimes(1);
+    expect(isScreencastOn).toBe(true);
+
+    await act(async () => {
+      result.current.toggleScreencastAndUpdateMetadata();
+    });
+
+    expect(useScreencastMock).toBeCalledTimes(2);
+    expect(isScreencastOn).toBe(false);
   });
 });
