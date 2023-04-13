@@ -72,6 +72,7 @@ describe('Videoroom context', () => {
       result.current.setRoomName('testRoom');
       result.current.setUsername('testUser');
       await result.current.connectAndJoinRoom();
+      await result.current.disconnect();
       result.current.goToMainScreen();
     });
 
@@ -146,6 +147,8 @@ describe('Videoroom context', () => {
     expect(result.current.roomName).toBe('test room');
     expect(result.current.username).toBe('test user');
     expect(setExtra).toBeCalledTimes(2);
+    expect(setExtra).toHaveBeenNthCalledWith(1, 'room name', 'test room');
+    expect(setExtra).toHaveBeenNthCalledWith(2, 'user name', 'test user');
     expect(connectCallback).toBeCalledTimes(1);
     expect(joinCallback).toBeCalledTimes(1);
     expect(result.current.videoroomState).toBe('InMeeting');
@@ -163,6 +166,13 @@ describe('Videoroom context', () => {
 
     expect(disconnectCallback).toBeCalledTimes(1);
     expect(result.current.videoroomState).toBe('AfterMeeting');
+
+    await act(async () => {
+      await result.current.connectAndJoinRoom();
+    });
+
+    expect(connectCallback).toBeCalledTimes(2);
+    expect(result.current.videoroomState).toBe('InMeeting');
   });
 
   test('Toggle screencast', async () => {
