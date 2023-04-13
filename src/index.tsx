@@ -8,6 +8,11 @@ import {
   NativeEventEmitter,
 } from 'react-native';
 
+function isJest() {
+  // @ts-ignore
+  return process.env.NODE_ENV === 'test';
+}
+
 const LINKING_ERROR =
   `The package 'react-native-membrane' doesn't seem to be linked. Make sure: \n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
@@ -16,6 +21,11 @@ const LINKING_ERROR =
 
 const Membrane = NativeModules.Membrane
   ? NativeModules.Membrane
+  : isJest()
+  ? {
+      addListener: () => {},
+      removeListeners: () => {},
+    }
   : new Proxy(
       {},
       {
