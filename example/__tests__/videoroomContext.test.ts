@@ -6,6 +6,12 @@ import {
 } from '../src/VideoroomContext';
 
 const NOOP = () => {};
+const voidPromise = (callback) => async (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    callback();
+    resolve();
+  });
+};
 
 jest.mock('@sentry/react-native');
 jest.mock('../src/model/NotificationsContext', () => {
@@ -33,24 +39,9 @@ const disconnectCallback = jest.fn(NOOP);
 const membraneWebRTC = require('../../src/index');
 membraneWebRTC.useMembraneServer = () => {
   return {
-    connect: async (): Promise<void> => {
-      return new Promise<void>((resolve) => {
-        connectCallback();
-        resolve();
-      });
-    },
-    disconnect: async (): Promise<void> => {
-      return new Promise<void>((resolve) => {
-        disconnectCallback();
-        resolve();
-      });
-    },
-    joinRoom: async (): Promise<void> => {
-      return new Promise<void>((resolve) => {
-        joinCallback();
-        resolve();
-      });
-    },
+    connect: voidPromise(connectCallback),
+    disconnect: voidPromise(disconnectCallback),
+    joinRoom: voidPromise(joinCallback),
     error: null,
   };
 };
