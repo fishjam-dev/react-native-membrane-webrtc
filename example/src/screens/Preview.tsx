@@ -73,7 +73,7 @@ export const Preview = ({ navigation, route }: Props) => {
     setCurrentCamera(
       cameras[(findIndex(cameras, currentCamera) + 1) % cameras.length]
     );
-  }, []);
+  }, [currentCamera]);
 
   return (
     <BackgroundAnimation>
