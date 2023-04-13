@@ -147,7 +147,7 @@ const VideoroomContextProvider = (props) => {
         type: 'screensharing',
         active: 'true',
       },
-      quality: ScreencastQuality.FHD30,
+      quality: ScreencastQuality.HD15,
     });
   }, []);
 
