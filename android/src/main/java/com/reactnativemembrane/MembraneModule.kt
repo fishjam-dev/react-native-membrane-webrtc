@@ -462,9 +462,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       maxBitrate = screencastMaxBandwidth,
     )
 
-    localScreencastTrack = room?.createScreencastTrack(mediaProjectionPermission, videoParameters, screencastMetadata) {
-      stopScreencast()
-    }
+    localScreencastTrack = room?.createScreencastTrack(mediaProjectionPermission, videoParameters, screencastMetadata)
 
     localScreencastTrack?.let {
       val participant = participants[localParticipantId]
@@ -478,8 +476,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     isScreenCastOn = false
 
     localScreencastTrack?.let {
-      room?.removeTrack(it.id())
       participants[localParticipantId]?.removeTrack(it)
+      room?.removeTrack(it.id())
       emitParticipants()
       localScreencastTrack = null
     }
