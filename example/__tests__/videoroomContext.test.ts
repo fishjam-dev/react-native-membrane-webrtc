@@ -17,31 +17,13 @@ jest.mock('../src/model/NotificationsContext', () => {
 });
 jest.mock('../../src/index');
 
-const useCameraStateMock = jest.fn(() => {});
-const useMicrophoneStateMock = jest.fn(() => {});
-const useVideoTrackMetadataMock = jest.fn(() => {});
-const useAudioTrackMetadataMock = jest.fn(() => {});
+const useCameraStateMock = jest.fn(NOOP);
+const useMicrophoneStateMock = jest.fn(NOOP);
+const useVideoTrackMetadataMock = jest.fn(NOOP);
+const useAudioTrackMetadataMock = jest.fn(NOOP);
 
 const membraneWebRTC = require('../../src/index');
-membraneWebRTC.useScreencast = () => {
-  return { isScreencastOn: false, toggleScreencast: () => {} };
-};
-membraneWebRTC.useMembraneServer = () => {
-  return {
-    connect: async (): Promise<void> => {
-      return new Promise<void>((resolve) => {
-        resolve();
-      });
-    },
-    disconnect: NOOP,
-    joinRoom: async (): Promise<void> => {
-      return new Promise<void>((resolve) => {
-        resolve();
-      });
-    },
-    error: undefined,
-  };
-};
+
 membraneWebRTC.useCameraState = () => {
   return { toggleCamera: useCameraStateMock };
 };
