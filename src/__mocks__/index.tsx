@@ -1,3 +1,6 @@
+import React from 'react';
+import { View } from 'react-native';
+
 const {
   ParticipantType,
   TrackType,
@@ -111,4 +114,11 @@ export const useBandwidthEstimation = () => {
   return {
     estimation: null,
   };
+};
+
+export const VideoRendererView = () => {
+  return <View />;
+};
+export const VideoPreviewView = () => {
+  return <View />;
 };
