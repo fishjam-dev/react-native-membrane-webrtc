@@ -15,26 +15,22 @@ jest.mock('../src/model/NotificationsContext', () => {
     },
   };
 });
+jest.mock('../../src/index');
 
-const setExtra = jest.fn(() => {});
+const setExtra = jest.fn(NOOP);
 
 const sentry = require('@sentry/react-native');
 sentry.setExtra = setExtra;
 
-jest.mock('../../src/index');
-
-const useCameraStateMock = jest.fn(() => {});
-const useMicrophoneStateMock = jest.fn(() => {});
-const useScreencastMock = jest.fn(() => {});
-const useVideoTrackMetadataMock = jest.fn(() => {});
-const useAudioTrackMetadataMock = jest.fn(() => {});
-const connectCallback = jest.fn(() => {});
-const joinCallback = jest.fn(() => {});
+const useCameraStateMock = jest.fn(NOOP);
+const useMicrophoneStateMock = jest.fn(NOOP);
+const useScreencastMock = jest.fn(NOOP);
+const useVideoTrackMetadataMock = jest.fn(NOOP);
+const useAudioTrackMetadataMock = jest.fn(NOOP);
+const connectCallback = jest.fn(NOOP);
+const joinCallback = jest.fn(NOOP);
 
 const membraneWebRTC = require('../../src/index');
-// membraneWebRTC.useScreencast = () => {
-//   return { isScreencastOn: false, toggleScreencast: () => {} };
-// };
 membraneWebRTC.useMembraneServer = () => {
   return {
     connect: async (): Promise<void> => {

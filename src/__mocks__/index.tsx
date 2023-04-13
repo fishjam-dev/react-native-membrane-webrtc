@@ -1,40 +1,114 @@
+const {
+  ParticipantType,
+  TrackType,
+  VadStatus,
+  EncodingReason,
+  VideoLayout,
+  VideoQuality,
+  ScreencastQuality,
+  AudioOutputDeviceType,
+  AudioSessionMode,
+  CaptureDevice,
+} = jest.requireActual('../index');
+
+export {
+  ParticipantType,
+  TrackType,
+  VadStatus,
+  EncodingReason,
+  VideoLayout,
+  VideoQuality,
+  ScreencastQuality,
+  AudioOutputDeviceType,
+  AudioSessionMode,
+};
+
 const NOOP = () => {
   // noop
 };
 
-export enum ScreencastQuality {
-  VGA = 'VGA',
-  HD5 = 'HD5',
-  HD15 = 'HD15',
-  FHD15 = 'FHD15',
-  FHD30 = 'FHD30',
-}
+const emptyPromise = async (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    resolve();
+  });
+};
 
-export enum VideoQuality {
-  QVGA_169 = 'QVGA169',
-  VGA_169 = 'VGA169',
-  QHD_169 = 'QHD169',
-  HD_169 = 'HD169',
-  FHD_169 = 'FHD169',
-  QVGA_43 = 'QVGA43',
-  VGA_43 = 'VGA43',
-  QHD_43 = 'QHD43',
-  HD_43 = 'HD43',
-  FHD_43 = 'FHD43',
-}
-
-export const useMembraneServer = NOOP;
-export const useRoomParticipants = NOOP;
-export const useCameraState = NOOP;
-export const useMicrophoneState = NOOP;
-export const flipCamera = NOOP;
-export const switchCamera = NOOP;
-export const getCaptureDevices = NOOP;
-export const useScreencast = NOOP;
-export const usePeerMetadata = NOOP;
-export const useVideoTrackMetadata = NOOP;
-export const useAudioTrackMetadata = NOOP;
-export const useAudioSettings = NOOP;
-export const useSimulcast = NOOP;
-export const useBandwidthLimit = NOOP;
-export const useBandwidthEstimation = NOOP;
+export const useMembraneServer = () => {
+  return {
+    connect: emptyPromise,
+    disconnect: emptyPromise,
+    joinRoom: emptyPromise,
+    error: null,
+  };
+};
+export const useRoomParticipants = () => [];
+export const useCameraState = () => {
+  return {
+    isCameraOn: false,
+    toggleCamera: NOOP,
+  };
+};
+export const useMicrophoneState = () => {
+  return {
+    isMicrophoneOn: false,
+    toggleMicrophone: NOOP,
+  };
+};
+export const flipCamera = emptyPromise;
+export const switchCamera = emptyPromise;
+export const getCaptureDevices = async (): Promise<typeof CaptureDevice[]> => {
+  return new Promise((resolve) => {
+    resolve([]);
+  });
+};
+export const useScreencast = () => {
+  return {
+    isScreencastOn: false,
+    toggleScreencast: NOOP,
+    updateScreencastTrackMetadata: NOOP,
+    toggleScreencastTrackEncoding: NOOP,
+    simulcastConfig: NOOP,
+    setScreencastTrackEncodingBandwidth: NOOP,
+    setScreencastTrackBandwidth: NOOP,
+  };
+};
+export const usePeerMetadata = () => {
+  return {
+    updatePeerMetadata: NOOP,
+  };
+};
+export const useVideoTrackMetadata = () => {
+  return {
+    updateVideoTrackMetadata: NOOP,
+  };
+};
+export const useAudioTrackMetadata = () => {
+  return {
+    updateAudioTrackMetadata: NOOP,
+  };
+};
+export const useAudioSettings = () => {
+  return {
+    selectedAudioOutputDevice: null,
+    availableDevices: [],
+    selectOutputAudioDevice: NOOP,
+    selectAudioSessionMode: NOOP,
+    showAudioRoutePicker: NOOP,
+  };
+};
+export const useSimulcast = () => {
+  return {
+    simulcastConfig: { enabled: false, activeEncodings: [] },
+    setTargetTrackEncoding: NOOP,
+    toggleVideoTrackEncoding: NOOP,
+    setVideoTrackEncodingBandwidth: NOOP,
+  };
+};
+export const useBandwidthLimit = () => {
+  return { setVideoTrackBandwidth: NOOP };
+};
+export const useBandwidthEstimation = () => {
+  return {
+    estimation: null,
+  };
+};
