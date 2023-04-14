@@ -180,7 +180,7 @@ const VideoroomContextProvider = (props) => {
 function useVideoroomState() {
   const context = React.useContext(VideoroomContext);
   if (context === undefined) {
-    throw new Error('useRoomName must be used within a VideoroomContext');
+    throw new Error('useVideoroomState must be used within a VideoroomContext');
   }
   return context;
 }
