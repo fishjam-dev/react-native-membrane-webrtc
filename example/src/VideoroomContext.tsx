@@ -14,6 +14,7 @@ import {
 import { useNotifications } from '@model/NotificationsContext';
 import * as Sentry from '@sentry/react-native';
 import React, { useState, useCallback, useEffect } from 'react';
+import { Platform } from 'react-native';
 
 type VideoroomState = 'BeforeMeeting' | 'InMeeting' | 'AfterMeeting';
 
@@ -83,7 +84,14 @@ const VideoroomContextProvider = (props) => {
       },
       simulcastConfig: {
         enabled: true,
-        activeEncodings: ['l', 'm', 'h'],
+        // a temporary fix for broken screencast on iOS
+        // ios devices have a limit on hardware encoders (https://github.com/twilio/twilio-video-ios/issues/17)
+        // 3 encoders on the simulcast video track + 1 encoder on the screencast track exceeds the limit
+        // so we're using just two layers for now
+        // we're going to toggle one layer when turning on screencast but there is a webrtc issue
+        // with that that needs to be fixed first
+        activeEncodings:
+          Platform.OS === 'android' ? ['l', 'm', 'h'] : ['l', 'h'],
       },
       quality: VideoQuality.HD_169,
       maxBandwidth: { l: 150, m: 500, h: 1500 },
