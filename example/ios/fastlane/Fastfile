@@ -31,7 +31,15 @@ platform :ios do
       app: "1:524233830532:ios:958665fe0e08cc58cc52d1",
       service_credentials_file: 'firebase-admin.json',
     )
+    
     increment_build_number({ build_number: latest_release[:buildVersion].to_i + 1 })
+    commit = last_git_commit
+    short_hash = commit[:abbreviated_commit_hash]
+    build_number = Time.new.strftime("%Y.%m.%d")
+    increment_version_number(
+      version_number: build_number+"."+short_hash
+    )
+
     build_ios_app(
       scheme: "MembraneExample",
       workspace: "MembraneExample.xcworkspace",
