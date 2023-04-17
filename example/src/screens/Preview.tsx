@@ -62,6 +62,7 @@ export const Preview = ({ navigation, route }: Props) => {
   const onConnectPress = useCallback(async () => {
     try {
       await connectAndJoinRoom();
+      navigation.navigate('Room');
     } catch (err) {
       showNotification('Error connecting to server', 'error');
       Sentry.captureException(err);

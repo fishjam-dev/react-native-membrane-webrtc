@@ -9,7 +9,9 @@ import {
 import { Participants } from '@components/Participants';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
+import { RootStack } from '@model/NavigationTypes';
 import { useFocusEffect } from '@react-navigation/native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -19,7 +21,9 @@ import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
 
-export const Room = () => {
+type Props = NativeStackScreenProps<RootStack, 'Room'>;
+
+export const Room = ({ navigation }: Props) => {
   const { roomName } = useVideoroomState();
 
   const participants = Membrane.useRoomParticipants();
@@ -31,6 +35,24 @@ export const Room = () => {
 
     return () => IdleTimerManager.setIdleTimerDisabled(false, 'room');
   }, []);
+
+  // TODO(@skyman503): Use gestureEnable when https://github.com/react-navigation/react-navigation/issues/10394 is fixed.
+  useFocusEffect(
+    useCallback(() => {
+      const handleBeforeRemoveEvent = (e) => {
+        e.preventDefault();
+        // reset action comes from deeplink
+        if (e.data.action.type === 'RESET') {
+          navigation.dispatch(e.data.action);
+        }
+      };
+
+      navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
+
+      return () =>
+        navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
+    }, [navigation])
+  );
 
   const participantsWithTracks = participants
     .map((p) => {
