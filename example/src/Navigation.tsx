@@ -8,10 +8,7 @@ import { JoinRoom } from '@screens/JoinRoom';
 import { LeaveRoomScreen } from '@screens/LeaveRoomScreen';
 import { Preview } from '@screens/Preview';
 import { Room } from '@screens/Room';
-import React, { useEffect } from 'react';
-import { Linking } from 'react-native';
-
-import { useVideoroomState } from './VideoroomContext';
+import React from 'react';
 
 const linking = {
   prefixes: [VIDEOROOM_URL],
@@ -44,17 +41,6 @@ const navTheme = {
 const Stack = createStackNavigator<RootStack>();
 
 export const Navigation = () => {
-  const { disconnect, videoroomState } = useVideoroomState();
-
-  useEffect(() => {
-    const listener = Linking.addEventListener('url', () => {
-      if (videoroomState === 'InMeeting') {
-        disconnect();
-      }
-      return () => listener.remove();
-    });
-  }, [disconnect, videoroomState]);
-
   return (
     <NavigationContainer linking={linking} theme={navTheme}>
       <Stack.Navigator

@@ -1,5 +1,6 @@
 import { BrandColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
+import { DiscardModal } from '@components/DiscardModal';
 import { FocusedParticipant } from '@components/FocusedParticipant';
 import { Icon } from '@components/Icon';
 import {
@@ -24,7 +25,7 @@ import { CallControls } from '../components/CallControls';
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
 export const Room = ({ navigation }: Props) => {
-  const { roomName } = useVideoroomState();
+  const { roomName, disconnect } = useVideoroomState();
 
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
@@ -35,24 +36,6 @@ export const Room = ({ navigation }: Props) => {
 
     return () => IdleTimerManager.setIdleTimerDisabled(false, 'room');
   }, []);
-
-  // TODO(@skyman503): Use gestureEnable when https://github.com/react-navigation/react-navigation/issues/10394 is fixed.
-  useFocusEffect(
-    useCallback(() => {
-      const handleBeforeRemoveEvent = (e) => {
-        e.preventDefault();
-        // reset action comes from deeplink
-        if (e.data.action.type === 'RESET') {
-          navigation.dispatch(e.data.action);
-        }
-      };
-
-      navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
-
-      return () =>
-        navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
-    }, [navigation])
-  );
 
   const participantsWithTracks = participants
     .map((p) => {
@@ -133,8 +116,23 @@ export const Room = ({ navigation }: Props) => {
     Membrane.flipCamera();
   }, []);
 
+  const handleBeforeRemoveEvent = (e, setIsModalVisible) => {
+    e.preventDefault();
+    // reset action comes from deeplink
+    if (e.data.action.type === 'RESET') {
+      setIsModalVisible(true);
+    }
+  };
+
   return (
     <BackgroundAnimation>
+      <DiscardModal
+        headline="Leave room"
+        body="Are you sure you want to leave this room?"
+        buttonText="Yes, leave room"
+        handleBeforeRemoveEvent={handleBeforeRemoveEvent}
+        onDiscard={disconnect}
+      />
       <View style={styles.container}>
         <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
           <View style={styles.header}>

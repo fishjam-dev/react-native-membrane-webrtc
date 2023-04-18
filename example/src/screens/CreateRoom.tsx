@@ -48,6 +48,15 @@ export const CreateRoom = ({ navigation, route }: Props) => {
     navigation.push('Preview', { title: 'New meeting' });
   };
 
+  const handleBeforeRemoveEvent = (e, setIsModalVisible) => {
+    if (!roomName && !username) {
+      // If we don't have unsaved changes, then we don't need to do anything
+      return;
+    }
+    e.preventDefault();
+    setIsModalVisible(true);
+  };
+
   return (
     <BackgroundAnimation>
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
@@ -69,6 +78,7 @@ export const CreateRoom = ({ navigation, route }: Props) => {
               headline="Discard meeting"
               body="Are you sure you want to discard creation of this meeting?"
               buttonText="Yes, discard meeting"
+              handleBeforeRemoveEvent={handleBeforeRemoveEvent}
             />
             <View style={styles.inner}>
               <View>
