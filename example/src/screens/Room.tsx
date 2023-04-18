@@ -1,5 +1,6 @@
 import { BrandColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
+import { DiscardModal } from '@components/DiscardModal';
 import { FocusedParticipant } from '@components/FocusedParticipant';
 import { Icon } from '@components/Icon';
 import {
@@ -9,7 +10,9 @@ import {
 import { Participants } from '@components/Participants';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
+import { RootStack } from '@model/NavigationTypes';
 import { useFocusEffect } from '@react-navigation/native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -19,8 +22,10 @@ import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
 
-export const Room = () => {
-  const { roomName } = useVideoroomState();
+type Props = NativeStackScreenProps<RootStack, 'Room'>;
+
+export const Room = ({ navigation }: Props) => {
+  const { roomName, disconnect } = useVideoroomState();
 
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
@@ -111,8 +116,23 @@ export const Room = () => {
     Membrane.flipCamera();
   }, []);
 
+  const handleBeforeRemoveEvent = (e, setIsModalVisible) => {
+    e.preventDefault();
+    // reset action comes from deeplink
+    if (e.data.action.type === 'RESET') {
+      setIsModalVisible(true);
+    }
+  };
+
   return (
     <BackgroundAnimation>
+      <DiscardModal
+        headline="Leave room"
+        body="Are you sure you want to leave this room?"
+        buttonText="Yes, leave room"
+        handleBeforeRemoveEvent={handleBeforeRemoveEvent}
+        onDiscard={disconnect}
+      />
       <View style={styles.container}>
         <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
           <View style={styles.header}>

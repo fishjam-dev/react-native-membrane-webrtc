@@ -63,6 +63,15 @@ export const JoinRoom = ({ navigation, route }: Props) => {
     navigation.push('Preview', { title: 'Join meeting' });
   };
 
+  const handleBeforeRemoveEvent = (e, setIsModalVisible) => {
+    if (!roomName && !username) {
+      // If we don't have unsaved changes, then we don't need to do anything
+      return;
+    }
+    e.preventDefault();
+    setIsModalVisible(true);
+  };
+
   return (
     <BackgroundAnimation>
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
@@ -84,6 +93,7 @@ export const JoinRoom = ({ navigation, route }: Props) => {
               headline="Cancel joining meeting"
               body="Are you sure you want to cancel joining to this meeting?"
               buttonText="Yes, don't join"
+              handleBeforeRemoveEvent={handleBeforeRemoveEvent}
             />
             <View style={styles.inner}>
               <View>

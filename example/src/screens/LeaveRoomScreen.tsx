@@ -25,6 +25,11 @@ export const LeaveRoomScreen = ({ navigation }: Props) => {
     }
   }, [connectAndJoinRoom]);
 
+  const onMainScreenPress = useCallback(() => {
+    navigation.navigate('InitialScreen');
+    goToMainScreen();
+  }, []);
+
   return (
     <BackgroundAnimation>
       <View style={styles.content}>
@@ -40,7 +45,7 @@ export const LeaveRoomScreen = ({ navigation }: Props) => {
         </Typo>
 
         <View style={styles.mainButton}>
-          <StandardButton onPress={goToMainScreen}>Main page</StandardButton>
+          <StandardButton onPress={onMainScreenPress}>Main page</StandardButton>
         </View>
         <View style={styles.rejoinButton}>
           <StandardButton type="secondary" onPress={rejoinMeeting}>

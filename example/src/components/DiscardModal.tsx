@@ -15,12 +15,19 @@ type DiscardModalProps = {
   headline: string;
   body: string;
   buttonText: string;
+  handleBeforeRemoveEvent: (
+    e: GoBackAction,
+    setIsModalVisible: (isVisible: boolean) => void
+  ) => void;
+  onDiscard?: () => void;
 };
 
 export const DiscardModal = ({
   headline,
   body,
   buttonText,
+  handleBeforeRemoveEvent,
+  onDiscard = () => {},
 }: DiscardModalProps) => {
   const navigation = useNavigation();
   const { roomName, setRoomName, username, setUsername } = useVideoroomState();
@@ -29,20 +36,15 @@ export const DiscardModal = ({
 
   useFocusEffect(
     useCallback(() => {
-      const handleBeforeRemoveEvent = (e) => {
-        if (!roomName && !username) {
-          // If we don't have unsaved changes, then we don't need to do anything
-          return;
-        }
-        e.preventDefault();
+      const _handleBeforeRemoveEvent = (e) => {
+        handleBeforeRemoveEvent(e, setIsModalVisible);
         modalAction.current = e.data.action;
-        setIsModalVisible(true);
       };
 
-      navigation.addListener('beforeRemove', handleBeforeRemoveEvent);
+      navigation.addListener('beforeRemove', _handleBeforeRemoveEvent);
 
       return () =>
-        navigation.removeListener('beforeRemove', handleBeforeRemoveEvent);
+        navigation.removeListener('beforeRemove', _handleBeforeRemoveEvent);
     }, [navigation, roomName, username])
   );
 
@@ -60,6 +62,7 @@ export const DiscardModal = ({
           setRoomName('');
           setUsername('');
           navigation.dispatch(modalAction.current!);
+          onDiscard();
         }}
       >
         {buttonText}
