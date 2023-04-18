@@ -1,6 +1,7 @@
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Typo } from '@components/Typo';
 import { CardButton } from '@components/buttons/CardButton';
+import * as Application from 'expo-application';
 import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -42,6 +43,9 @@ export const InitialScreen = ({ navigation }) => {
             </CardButton>
           </View>
         </View>
+        <Typo variant="body-small" style={styles.versionName}>
+          App version: {Application.nativeApplicationVersion}
+        </Typo>
       </SafeAreaView>
     </BackgroundAnimation>
   );
@@ -72,5 +76,8 @@ const styles = StyleSheet.create({
     width: 223,
     height: 49,
     resizeMode: 'contain',
+  },
+  versionName: {
+    marginLeft: 16,
   },
 });

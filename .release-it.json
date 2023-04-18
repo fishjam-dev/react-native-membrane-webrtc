@@ -2,21 +2,6 @@
   "hooks": {
     "after:bump": "yarn build && yarn build plugin"
   },
-  "plugins": {
-    "@release-it/bumper": {
-      "out": [
-        {
-          "file": "example/android/app/build.gradle",
-          "type": "text/plain"
-        },
-        {
-          "file": "example/ios/MembraneExample.xcodeproj/project.pbxproj",
-          "type": "text/plain"
-        },
-        "example/package.json"
-      ]
-    }
-  },
   "github": {
     "release": true
   }

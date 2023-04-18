@@ -24,6 +24,12 @@ platform :android do
       service_credentials_file: 'firebase-admin.json'
     )
     increment_version_code({ version_code: latest_release[:buildVersion].to_i + 1 })
+
+    commit = last_git_commit
+    short_hash = commit[:abbreviated_commit_hash]
+    build_number = Time.new.strftime("%Y.%m.%d")
+    android_set_version_name(version_name: build_number+"."+short_hash)
+    
     gradle(task: "assembleRelease")
     firebase_app_distribution(
         app: "1:524233830532:android:39cfce23934bb9fecc52d1",
