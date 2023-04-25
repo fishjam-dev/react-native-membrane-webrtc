@@ -3,11 +3,7 @@ on:
   push:
 jobs:
   check:
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        otp: ['25.0.3']
-        elixir: ['1.13.0']
+    runs-on: macos-latest
     steps:
       - name: checkout
         uses: actions/checkout@v2
