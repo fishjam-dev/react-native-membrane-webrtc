@@ -14,6 +14,7 @@ import { useVideoroomState } from 'src/VideoroomContext';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';
+import { SimulcastMenu } from './SimulcastMenu';
 import { Typo } from './Typo';
 import { PinButton } from './buttons/PinButton';
 
@@ -44,6 +45,8 @@ export const RoomParticipant = ({
   const videoTrackType = videoTrack?.metadata.type;
   const audioTrack = tracks.find((t) => t.type === 'Audio');
   const buttonOpacity = useSharedValue(0);
+
+  console.log(videoTrack);
 
   const participantHasVideo = () => {
     if (videoTrack) {
@@ -144,7 +147,11 @@ export const RoomParticipant = ({
           </View>
         ) : null}
 
-        {isDevMode ?? <View style={styles.encodingContainer} />}
+        {isDevMode ? (
+          <View style={styles.simulcastMenu}>
+            <SimulcastMenu type={type} encoding={videoTrack?.encoding} />
+          </View>
+        ) : null}
 
         {videoTrackType !== 'screensharing' && !audioTrack?.metadata.active && (
           <View style={styles.mutedIcon}>
@@ -239,10 +246,7 @@ const styles = StyleSheet.create({
     backgroundColor: AdditionalColors.white,
     padding: 4,
   },
-  encodingContainer: {
-    backgroundColor: AdditionalColors.grey60,
-    width: 50,
-    heigh: 50,
+  simulcastMenu: {
     position: 'absolute',
     top: 0,
     right: 0,
