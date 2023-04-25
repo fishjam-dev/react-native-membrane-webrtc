@@ -12,14 +12,14 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: Setup JDK 11
-        uses: actions/setup-java@v2
-        with:
-          distribution: "zulu"
-          java-version: 11
+      # - name: Setup JDK 11
+      #   uses: actions/setup-java@v2
+      #   with:
+      #     distribution: "zulu"
+      #     java-version: 11
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+      # - name: Setup Android SDK
+      #   uses: android-actions/setup-android@v2
 
       - name: Caching Gradle packages
         uses: actions/cache@v2
@@ -53,8 +53,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mix-${{ env.cache-name }}-
       
-      - name: Install emulator
-        run: ./example/e2e/avd-setup.sh
+      # - name: Install emulator
+      #   run: ./example/e2e/avd-setup.sh
+
+      - name: Install backend deps
+        run: sudo apt-get install libsrtp2-dev libavcodec-dev libavformat-dev libavutil-dev
       
       - name: Download elixir deps
         run: cd example/e2e/backend && mix deps.get
