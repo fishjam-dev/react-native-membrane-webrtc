@@ -12,6 +12,7 @@ const {
   AudioOutputDeviceType,
   AudioSessionMode,
   CaptureDevice,
+  LoggingSeverity,
 } = jest.requireActual('../index');
 
 export {
@@ -24,6 +25,7 @@ export {
   ScreencastQuality,
   AudioOutputDeviceType,
   AudioSessionMode,
+  LoggingSeverity,
 };
 
 const NOOP = () => {
