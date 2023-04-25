@@ -3,11 +3,11 @@ on:
   push:
 jobs:
   check:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        otp: ['22.2']
-        elixir: ['1.9.4']
+        otp: ['25.0.3']
+        elixir: ['1.13.0']
     steps:
       - name: checkout
         uses: actions/checkout@v2
