@@ -17,7 +17,7 @@ jobs:
       - name: Check types
         run: yarn typecheck
       - name: Lint
-        run: yarn eslint --ext '.js,.ts,.tsx' --max-warnings=0 src/ example/src/
+        run: yarn eslint --ext '.js,.ts,.tsx' --max-warnings=0 --ignore-pattern '!.detoxrc.js' src/ example/src/
       - name: Build
         run: EXPO_NONINTERACTIVE=true yarn build
       - name: Build plugin
