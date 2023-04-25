@@ -3,19 +3,24 @@ import { Typo } from '@components/Typo';
 import { CardButton } from '@components/buttons/CardButton';
 import * as Application from 'expo-application';
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useVideoroomState } from 'src/VideoroomContext';
 
 export const InitialScreen = ({ navigation }) => {
+  const { setIsDevMode, isDevMode } = useVideoroomState();
+
   return (
     <BackgroundAnimation>
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Image
-              style={styles.logo}
-              source={require('@assets/images/Logo.png')}
-            />
+            <Pressable onLongPress={() => setIsDevMode(!isDevMode)}>
+              <Image
+                style={styles.logo}
+                source={require('@assets/images/Logo.png')}
+              />
+            </Pressable>
             <View style={styles.subtitle}>
               <Typo variant="h5">Videoconferencing for everyone</Typo>
             </View>
@@ -45,6 +50,7 @@ export const InitialScreen = ({ navigation }) => {
         </View>
         <Typo variant="body-small" style={styles.versionName}>
           App version: {Application.nativeApplicationVersion}
+          {isDevMode ? '_DEV' : ''}
         </Typo>
       </SafeAreaView>
     </BackgroundAnimation>

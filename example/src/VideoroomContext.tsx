@@ -32,6 +32,10 @@ const VideoroomContext = React.createContext<
       toggleScreencastAndUpdateMetadata: () => void;
       currentCamera: CaptureDevice | null;
       setCurrentCamera: (camera: CaptureDevice | null) => void;
+      isDevMode: boolean;
+      setIsDevMode: (isDevMode: boolean) => void;
+      devServerUrl: string;
+      setDevServerUrl: (devServerUrl: string) => void;
       connectAndJoinRoom: () => Promise<void>;
       disconnect: () => Promise<void>;
       videoroomState: VideoroomState;
@@ -48,6 +52,8 @@ const VideoroomContextProvider = (props) => {
   const [currentCamera, setCurrentCamera] = useState<CaptureDevice | null>(
     null
   );
+  const [isDevMode, setIsDevMode] = useState(false);
+  const [devServerUrl, setDevServerUrl] = useState(SERVER_URL);
   const { toggleCamera: membraneToggleCamera } = useCameraState();
   const { toggleMicrophone: membraneToggleMicrophone } = useMicrophoneState();
   const { isScreencastOn, toggleScreencast: membraneToggleScreencast } =
@@ -77,7 +83,7 @@ const VideoroomContextProvider = (props) => {
     Sentry.setExtra('room name', trimmedRoomName);
     Sentry.setExtra('user name', trimmedUserName);
 
-    await connect(SERVER_URL, trimmedRoomName, {
+    await connect(getServerUrl(), trimmedRoomName, {
       userMetadata: { displayName: trimmedUserName },
       socketChannelParams: {
         isSimulcastOn: true,
@@ -151,6 +157,10 @@ const VideoroomContextProvider = (props) => {
     });
   }, []);
 
+  const getServerUrl = useCallback(() => {
+    return isDevMode ? devServerUrl : SERVER_URL;
+  }, [isDevMode, devServerUrl]);
+
   const value = {
     roomName,
     setRoomName,
@@ -165,6 +175,10 @@ const VideoroomContextProvider = (props) => {
     toggleScreencastAndUpdateMetadata,
     currentCamera,
     setCurrentCamera,
+    isDevMode,
+    setIsDevMode,
+    devServerUrl,
+    setDevServerUrl,
     disconnect,
     videoroomState,
     goToMainScreen,
