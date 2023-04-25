@@ -69,7 +69,7 @@ jobs:
         run: cd example/e2e/backend/assets && yarn
       
       - name: Start backend
-        run: cd example/e2e/backend && mix phx.server &
+        run: cd example/e2e/backend && INTEGRATED_TURN_IP=10.0.2.2 mix phx.server &
       
       - name: Install js deps
         run: yarn && cd example && yarn
