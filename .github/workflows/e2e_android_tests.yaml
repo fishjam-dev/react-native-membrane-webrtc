@@ -1,0 +1,81 @@
+name: E2E Android tests
+on:
+  push:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        otp: ['22.2']
+        elixir: ['1.9.4']
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Setup JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: "zulu"
+          java-version: 11
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Caching Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+    
+      - name: Cache elixir deps
+        id: cache-deps
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-elixir-deps
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ env.cache-name }}-
+      
+      - name: Install emulator
+        run: ./example/e2e/avd-setup.sh
+      
+      - name: Download elixir deps
+        run: cd example/e2e/backend && mix deps.get
+      
+      - name: Compile backend
+        run: cd example/e2e/backend && mix compile --force --warnings-as-errors
+      
+      - name: Backend web deps
+        run: cd example/e2e/backend/assets && yarn
+      
+      - name: Start backend
+        run: cd example/e2e/backend && mix phx.server &
+      
+      - name: Install js deps
+        run: cd example && yarn
+      
+      - name: Build android
+        run: cd example && npx detox build -c android.emu.release.ci
+      
+      - name: Run tests
+        run: cd example && npx detox test -c android.emu.release.ci --headless
+
+      
+      
