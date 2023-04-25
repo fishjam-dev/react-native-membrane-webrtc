@@ -443,7 +443,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   fun removeListeners(count: Int?) {}
 
   @ReactMethod
-  fun changeWebRTCLoggingSeverity(severity: String) {
+  fun changeWebRTCLoggingSeverity(severity: String, promise: Promise) {
     when(severity) {
       "verbose" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_VERBOSE)
       "info" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_INFO)
@@ -451,9 +451,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       "warning" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_WARNING)
       "none" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_NONE)
       else -> {
-        throw InvalidParameterException("There is no severity with name $severity")
+        promise.reject("E_INVALID_SEVERITY_LEVEL", "Severity with name=$severity not found")
+        return
       }
     }
+    promise.resolve(null)
   }
 
   fun startScreencast(mediaProjectionPermission: Intent) {

@@ -600,21 +600,22 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
 
   @objc(changeWebRTCLoggingSeverity:withResolver:withRejecter:)
   func changeWebRTCLoggingSeverity(severity: NSString, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) {
-    if(!ensureVideoTrack(reject)) { return }
     switch severity {
     case "verbose":
-      room?.changeWebRTCLoggingSeverity(severity: .verbose)
+       room?.changeWebRTCLoggingSeverity(severity: .verbose)
     case "info":
-      room?.changeWebRTCLoggingSeverity(severity: .info)
+       room?.changeWebRTCLoggingSeverity(severity: .info)
     case "warning":
-      room?.changeWebRTCLoggingSeverity(severity: .warning)
+       room?.changeWebRTCLoggingSeverity(severity: .warning)
     case "error":
-      room?.changeWebRTCLoggingSeverity(severity: .error)
+       room?.changeWebRTCLoggingSeverity(severity: .error)
     case "none":
-      room?.changeWebRTCLoggingSeverity(severity: .none)
+       room?.changeWebRTCLoggingSeverity(severity: .none)
     default:
-      room?.changeWebRTCLoggingSeverity(severity: .none)
+      reject("E_INVALID_SEVERITY_LEVEL", "Severity with name=\(severity) not found", nil)
+      return
     }
+    resolve(nil)
   }
   
   func setAudioSessionMode() {
