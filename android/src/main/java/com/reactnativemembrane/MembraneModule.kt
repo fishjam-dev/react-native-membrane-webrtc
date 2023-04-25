@@ -17,7 +17,6 @@ import org.membraneframework.rtc.models.TrackContext
 import org.membraneframework.rtc.transport.PhoenixTransport
 import org.membraneframework.rtc.utils.Metadata
 import org.webrtc.Logging
-import java.security.InvalidParameterException
 import java.util.*
 
 
