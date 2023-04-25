@@ -72,7 +72,7 @@ jobs:
         run: cd example/e2e/backend && mix phx.server &
       
       - name: Install js deps
-        run: cd example && yarn
+        run: yarn && cd example && yarn
       
       - name: Build android
         run: cd example && npx detox build -c android.emu.release
