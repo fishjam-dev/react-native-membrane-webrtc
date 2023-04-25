@@ -115,6 +115,7 @@ export const useBandwidthEstimation = () => {
     estimation: null,
   };
 };
+export const changeWebRTCLoggingSeverity = NOOP;
 
 export const VideoRendererView = () => {
   return <View />;

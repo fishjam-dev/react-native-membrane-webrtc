@@ -30,7 +30,6 @@ target 'MembraneExample' do
   )
 
   pod 'react-native-membrane', :path => '../..'
-  pod 'MembraneRTC', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios.git'
 
   # Enables Flipper.
   #
@@ -49,6 +48,5 @@ target 'MembraneExample' do
 end
 
 target 'ScreenBroadcast' do
-  # pod 'MembraneRTC/Broadcast'
-  pod 'MembraneRTC/Broadcast', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios.git'
+  pod 'MembraneRTC/Broadcast'
 end
