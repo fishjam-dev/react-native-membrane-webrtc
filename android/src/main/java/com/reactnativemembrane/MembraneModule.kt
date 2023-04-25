@@ -16,6 +16,8 @@ import org.membraneframework.rtc.models.Peer
 import org.membraneframework.rtc.models.TrackContext
 import org.membraneframework.rtc.transport.PhoenixTransport
 import org.membraneframework.rtc.utils.Metadata
+import org.webrtc.Logging
+import java.security.InvalidParameterException
 import java.util.*
 
 
@@ -439,6 +441,20 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun removeListeners(count: Int?) {}
+
+  @ReactMethod
+  fun changeWebRTCLoggingSeverity(severity: String) {
+    when(severity) {
+      "verbose" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_VERBOSE)
+      "info" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_INFO)
+      "error" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_ERROR)
+      "warning" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_WARNING)
+      "none" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_NONE)
+      else -> {
+        throw InvalidParameterException("There is no severity with name $severity")
+      }
+    }
+  }
 
   fun startScreencast(mediaProjectionPermission: Intent) {
     if (localScreencastTrack != null) return

@@ -270,6 +270,14 @@ export type CaptureDevice = {
   isBackFacing: boolean;
 };
 
+export enum LoggingSeverity {
+  Verbose = 'verbose',
+  Info = 'info',
+  Warning = 'warning',
+  Error = 'error',
+  None = 'none',
+}
+
 const defaultSimulcastConfig = () => ({
   enabled: false,
   activeEncodings: [],
@@ -776,6 +784,10 @@ export function useBandwidthLimit() {
   );
 
   return { setVideoTrackBandwidth };
+}
+
+export function changeWebRTCLoggingSeverity(severity: LoggingSeverity) {
+  Membrane.changeWebRTCLoggingSeverity(severity);
 }
 
 /**

@@ -597,6 +597,25 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     room.setTrackBandwidth(trackId: trackId, bandwidth: BandwidthLimit(truncating: bandwidth))
   }
+
+  @objc(changeWebRTCLoggingSeverity:withResolver:withRejecter:)
+  func changeWebRTCLoggingSeverity(severity: NSString, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) {
+    if(!ensureVideoTrack(reject)) { return }
+    switch severity {
+    case "verbose":
+      room?.changeWebRTCLoggingSeverity(severity: .verbose)
+    case "info":
+      room?.changeWebRTCLoggingSeverity(severity: .info)
+    case "warning":
+      room?.changeWebRTCLoggingSeverity(severity: .warning)
+    case "error":
+      room?.changeWebRTCLoggingSeverity(severity: .error)
+    case "none":
+      room?.changeWebRTCLoggingSeverity(severity: .none)
+    default:
+      room?.changeWebRTCLoggingSeverity(severity: .none)
+    }
+  }
   
   func setAudioSessionMode() {
     guard let localAudioTrack = localAudioTrack else {

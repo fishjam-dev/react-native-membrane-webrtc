@@ -102,14 +102,14 @@ PODS:
     - SwiftCollection
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
-    - WebRTC-SDK
+    - WebRTC-SDK (= 104.5112.15)
   - MembraneRTC/Broadcast (4.2.1):
     - Logging
     - PromisesSwift
     - SwiftCollection
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
-    - WebRTC-SDK
+    - WebRTC-SDK (= 104.5112.15)
   - OpenSSL-Universal (1.1.1100)
   - OrderedObjectSet (5.0.0)
   - PromisesObjC (2.2.0)
@@ -464,7 +464,7 @@ PODS:
     - SwiftPhoenixClient/Core (= 4.0.0)
   - SwiftPhoenixClient/Core (4.0.0)
   - SwiftProtobuf (1.21.0)
-  - WebRTC-SDK (104.5112.12)
+  - WebRTC-SDK (104.5112.15)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -506,7 +506,8 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - MembraneRTC/Broadcast
+  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios.git`)
+  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios.git`)
   - OpenSSL-Universal (= 1.1.1100)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -562,7 +563,6 @@ SPEC REPOS:
     - fmt
     - libevent
     - Logging
-    - MembraneRTC
     - OpenSSL-Universal
     - OrderedObjectSet
     - PromisesObjC
@@ -605,6 +605,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes/hermes-engine.podspec"
+  MembraneRTC:
+    :git: https://github.com/jellyfish-dev/membrane-webrtc-ios.git
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -676,6 +678,11 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
+CHECKOUT OPTIONS:
+  MembraneRTC:
+    :commit: 276884a89c46b94099db9883fec9a0abe735823c
+    :git: https://github.com/jellyfish-dev/membrane-webrtc-ios.git
+
 SPEC CHECKSUMS:
   AssociatedValues: 33dfc4f4d0ec2f1177a2558e176364e2ac849cd1
   boost: a7c83b31436843459a1961bfd74b96033dc77234
@@ -705,7 +712,7 @@ SPEC CHECKSUMS:
   hermes-engine: 0b19f33a9c2ec1dbdede3232606eeb1101db4cec
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
-  MembraneRTC: a1df9c618fe56a4f118fa97c1ff0217e80d9bf5a
+  MembraneRTC: be37ac16d6ab364bec9ea96044a0f364698d9a79
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   OrderedObjectSet: 7eb2d546c515a9dc5ac321ce5605d4e96f5d4c3c
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
@@ -750,10 +757,10 @@ SPEC CHECKSUMS:
   SwiftCollection: 9f83c97b993bfad6298d7765631b409a00f57779
   SwiftPhoenixClient: 4e36f35d00e43d11881c255bd60c20efc0f39c91
   SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
-  WebRTC-SDK: 6469c304549f7187e7e67119c8b3184f9ec6b7f6
+  WebRTC-SDK: 18eef1ab50d4c0239adc1cbca33d4ffd9fab6639
   Yoga: d6133108734e69e8c0becc6ba587294b94829687
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: e38aa9e9f463a3b3260c491618d93c4c965da37d
+PODFILE CHECKSUM: 9c42dbf8e9a87f2a4a87e9f4f82c37cfd83ea09b
 
 COCOAPODS: 1.12.0

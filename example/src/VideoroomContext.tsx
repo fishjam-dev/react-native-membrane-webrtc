@@ -10,6 +10,8 @@ import {
   useMicrophoneState,
   useScreencast,
   ScreencastQuality,
+  changeWebRTCLoggingSeverity,
+  LoggingSeverity,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useNotifications } from '@model/NotificationsContext';
 import * as Sentry from '@sentry/react-native';
@@ -130,6 +132,7 @@ const VideoroomContextProvider = (props) => {
       updateVideoTrackMetadata({ active: !isCameraOn, type: 'camera' });
     }
     setIsCameraOn(!isCameraOn);
+    changeWebRTCLoggingSeverity(LoggingSeverity.Verbose);
   }, [isCameraOn, videoroomState]);
 
   const toggleMicrophone = useCallback(() => {
@@ -138,6 +141,7 @@ const VideoroomContextProvider = (props) => {
       updateAudioTrackMetadata({ active: !isMicrophoneOn, type: 'audio' });
     }
     setIsMicrophoneOn(!isMicrophoneOn);
+    changeWebRTCLoggingSeverity(LoggingSeverity.None);
   }, [isMicrophoneOn, videoroomState]);
 
   const toggleScreencastAndUpdateMetadata = useCallback(() => {
