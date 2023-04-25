@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0775143F22525B70F9AC6FE8 /* libPods-ScreenBroadcast.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51DA263AA30EC230E7A0C5E1 /* libPods-ScreenBroadcast.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		1E6FFB72E873BA3B2713E284 /* libPods-ScreenBroadcast.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DFFD718BF41EBB2EF1F4005D /* libPods-ScreenBroadcast.a */; };
 		441A418727D8E06700BC0BA9 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 441A418627D8E06700BC0BA9 /* ReplayKit.framework */; };
 		441A418A27D8E06700BC0BA9 /* SampleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 441A418927D8E06700BC0BA9 /* SampleHandler.swift */; };
 		441A419D27D8E06700BC0BA9 /* ScreenBroadcast.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 441A418527D8E06600BC0BA9 /* ScreenBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -48,7 +48,6 @@
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* MembraneExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MembraneExampleTests.m; sourceTree = "<group>"; };
-		04D2D7FF9D729FC1E513429A /* Pods-ScreenBroadcast.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.release.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* MembraneExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MembraneExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = MembraneExample/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = MembraneExample/AppDelegate.mm; sourceTree = "<group>"; };
@@ -64,11 +63,12 @@
 		441A41A627D8E57200BC0BA9 /* ScreenBroadcast.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScreenBroadcast.entitlements; sourceTree = "<group>"; };
 		449B68B129C22CCA0029A6D0 /* SplashScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = SplashScreen.storyboard; sourceTree = "<group>"; };
 		47F7ED3B7971BE374F7B8635 /* Pods-MembraneExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MembraneExample.debug.xcconfig"; path = "Target Support Files/Pods-MembraneExample/Pods-MembraneExample.debug.xcconfig"; sourceTree = "<group>"; };
-		51DA263AA30EC230E7A0C5E1 /* libPods-ScreenBroadcast.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScreenBroadcast.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8C4DD504F4623E60652C0B2 /* Pods-ScreenBroadcast.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.release.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.release.xcconfig"; sourceTree = "<group>"; };
 		CA3E69C5B9553B26FBA2DF04 /* libPods-MembraneExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MembraneExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFFD718BF41EBB2EF1F4005D /* libPods-ScreenBroadcast.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScreenBroadcast.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E00ACF0FDA8BF921659E2F9A /* Pods-MembraneExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MembraneExample.release.xcconfig"; path = "Target Support Files/Pods-MembraneExample/Pods-MembraneExample.release.xcconfig"; sourceTree = "<group>"; };
-		E5E8471FA694C5AA9A03073D /* Pods-ScreenBroadcast.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.debug.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F8CD98595B18C69207025FEE /* Pods-ScreenBroadcast.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.debug.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +85,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				441A418727D8E06700BC0BA9 /* ReplayKit.framework in Frameworks */,
-				0775143F22525B70F9AC6FE8 /* libPods-ScreenBroadcast.a in Frameworks */,
+				1E6FFB72E873BA3B2713E284 /* libPods-ScreenBroadcast.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,7 +139,7 @@
 				CA3E69C5B9553B26FBA2DF04 /* libPods-MembraneExample.a */,
 				441A418627D8E06700BC0BA9 /* ReplayKit.framework */,
 				441A419227D8E06700BC0BA9 /* UIKit.framework */,
-				51DA263AA30EC230E7A0C5E1 /* libPods-ScreenBroadcast.a */,
+				DFFD718BF41EBB2EF1F4005D /* libPods-ScreenBroadcast.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -174,8 +174,8 @@
 			children = (
 				47F7ED3B7971BE374F7B8635 /* Pods-MembraneExample.debug.xcconfig */,
 				E00ACF0FDA8BF921659E2F9A /* Pods-MembraneExample.release.xcconfig */,
-				E5E8471FA694C5AA9A03073D /* Pods-ScreenBroadcast.debug.xcconfig */,
-				04D2D7FF9D729FC1E513429A /* Pods-ScreenBroadcast.release.xcconfig */,
+				F8CD98595B18C69207025FEE /* Pods-ScreenBroadcast.debug.xcconfig */,
+				C8C4DD504F4623E60652C0B2 /* Pods-ScreenBroadcast.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -245,7 +245,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 441A41A427D8E06700BC0BA9 /* Build configuration list for PBXNativeTarget "ScreenBroadcast" */;
 			buildPhases = (
-				20D4D68FEA97EC67CD75F370 /* [CP] Check Pods Manifest.lock */,
+				8CB5DE8446FF5E1DE6969DB3 /* [CP] Check Pods Manifest.lock */,
 				441A418127D8E06600BC0BA9 /* Sources */,
 				441A418227D8E06600BC0BA9 /* Frameworks */,
 				441A418327D8E06600BC0BA9 /* Resources */,
@@ -333,28 +333,6 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh index.tsx\n";
 		};
-		20D4D68FEA97EC67CD75F370 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ScreenBroadcast-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		4F0A6FC082772762E3E4C96C /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -401,6 +379,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MembraneExample/Pods-MembraneExample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8CB5DE8446FF5E1DE6969DB3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ScreenBroadcast-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		C1D60D28B925C94BD88E79D7 /* [CP] Copy Pods Resources */ = {
@@ -536,7 +536,7 @@
 		};
 		441A419F27D8E06700BC0BA9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E5E8471FA694C5AA9A03073D /* Pods-ScreenBroadcast.debug.xcconfig */;
+			baseConfigurationReference = F8CD98595B18C69207025FEE /* Pods-ScreenBroadcast.debug.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -576,7 +576,7 @@
 		};
 		441A41A027D8E06700BC0BA9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 04D2D7FF9D729FC1E513429A /* Pods-ScreenBroadcast.release.xcconfig */;
+			baseConfigurationReference = C8C4DD504F4623E60652C0B2 /* Pods-ScreenBroadcast.release.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
