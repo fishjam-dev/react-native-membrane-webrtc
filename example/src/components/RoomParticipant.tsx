@@ -10,6 +10,7 @@ import Animated, {
   withDelay,
   runOnJS,
 } from 'react-native-reanimated';
+import { useVideoroomState } from 'src/VideoroomContext';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';
@@ -37,6 +38,7 @@ export const RoomParticipant = ({
 
   const [showPinButton, setShowPinButton] = useState(false);
   const isPinButtonShown = useRef(false);
+  const { isDevMode } = useVideoroomState();
 
   const videoTrack = trackId ? tracks.find((t) => t.id === trackId) : null;
   const videoTrackType = videoTrack?.metadata.type;
@@ -142,6 +144,8 @@ export const RoomParticipant = ({
           </View>
         ) : null}
 
+        {isDevMode ?? <View style={styles.encodingContainer} />}
+
         {videoTrackType !== 'screensharing' && !audioTrack?.metadata.active && (
           <View style={styles.mutedIcon}>
             <Icon
@@ -234,5 +238,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: AdditionalColors.white,
     padding: 4,
+  },
+  encodingContainer: {
+    backgroundColor: AdditionalColors.grey60,
+    width: 50,
+    heigh: 50,
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
 });
