@@ -55,8 +55,8 @@ jobs:
       - name: Install emulator
         run: ./example/e2e/avd-setup.sh
 
-      # - name: Run emulator
-      #   run:  /Users/runner/Library/Android/sdk/emulator/emulator -verbose -no-audio -no-boot-anim -no-window -read-only -gpu host -port 12278 @Pixel_4_API_28
+      - name: Run emulator
+        run:  /Users/runner/Library/Android/sdk/emulator/emulator -verbose -no-audio -no-boot-anim -no-window -read-only -gpu host -port 12278 @Pixel_4_API_28
       
       # - name: Download elixir deps
       #   run: cd example/e2e/backend && mix deps.get
