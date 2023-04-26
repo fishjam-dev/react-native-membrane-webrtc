@@ -22,50 +22,53 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: Caching Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      # - name: Caching Gradle packages
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       ~/.gradle/caches
+      #       ~/.gradle/wrapper
+      #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-gradle-
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          cache: 'yarn'
+      # - name: Use Node.js 16
+      #   uses: actions/setup-node@v2
+      #   with:
+      #     node-version: 16
+      #     cache: 'yarn'
 
-      - name: Brew
-        run: brew install srtp elixir clang-format ffmpeg && yes | mix local.hex && yes | mix local.rebar
+      # - name: Brew
+      #   run: brew install srtp elixir clang-format ffmpeg && yes | mix local.hex && yes | mix local.rebar
     
-      - name: Cache elixir deps
-        id: cache-deps
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-elixir-deps
-        with:
-          path: deps
-          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-mix-${{ env.cache-name }}-
+      # - name: Cache elixir deps
+      #   id: cache-deps
+      #   uses: actions/cache@v3
+      #   env:
+      #     cache-name: cache-elixir-deps
+      #   with:
+      #     path: deps
+      #     key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-mix-${{ env.cache-name }}-
       
       - name: Install emulator
         run: ./example/e2e/avd-setup.sh
+
+      # - name: Run emulator
+      #   run:  /Users/runner/Library/Android/sdk/emulator/emulator -verbose -no-audio -no-boot-anim -no-window -read-only -gpu host -port 12278 @Pixel_4_API_28
       
-      - name: Download elixir deps
-        run: cd example/e2e/backend && mix deps.get
+      # - name: Download elixir deps
+      #   run: cd example/e2e/backend && mix deps.get
       
-      - name: Compile backend
-        run: cd example/e2e/backend && mix compile --force --warnings-as-errors
+      # - name: Compile backend
+      #   run: cd example/e2e/backend && mix compile --force --warnings-as-errors
       
-      - name: Backend web deps
-        run: cd example/e2e/backend/assets && yarn
+      # - name: Backend web deps
+      #   run: cd example/e2e/backend/assets && yarn
       
-      - name: Start backend
-        run: cd example/e2e/backend && INTEGRATED_TURN_IP=10.0.2.2 mix phx.server &
+      # - name: Start backend
+      #   run: cd example/e2e/backend && INTEGRATED_TURN_IP=10.0.2.2 mix phx.server &
       
       - name: Install js deps
         run: yarn && cd example && yarn
