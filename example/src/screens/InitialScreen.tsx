@@ -1,21 +1,37 @@
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Typo } from '@components/Typo';
 import { CardButton } from '@components/buttons/CardButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Sentry from '@sentry/react-native';
 import * as Application from 'expo-application';
 import React from 'react';
-import { View, StyleSheet, Image, Pressable } from 'react-native';
+import { View, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 export const InitialScreen = ({ navigation }) => {
   const { setIsDevMode, isDevMode } = useVideoroomState();
 
+  const toggleDevMode = async () => {
+    const updatedIsDevMode = !isDevMode;
+    Alert.alert(
+      'Dev mode is now '.concat(updatedIsDevMode ? 'enabled' : 'disabled')
+    );
+    setIsDevMode(updatedIsDevMode);
+    try {
+      const jsonValue = JSON.stringify(updatedIsDevMode);
+      await AsyncStorage.setItem('isDevMode', jsonValue);
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+  };
+
   return (
     <BackgroundAnimation>
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Pressable onLongPress={() => setIsDevMode(!isDevMode)}>
+            <Pressable onLongPress={toggleDevMode}>
               <Image
                 style={styles.logo}
                 source={require('@assets/images/Logo.png')}

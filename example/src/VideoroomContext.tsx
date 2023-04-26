@@ -12,6 +12,7 @@ import {
   ScreencastQuality,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useNotifications } from '@model/NotificationsContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Sentry from '@sentry/react-native';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Platform } from 'react-native';
@@ -72,6 +73,21 @@ const VideoroomContextProvider = (props) => {
 
   const [videoroomState, setVideoroomState] =
     useState<VideoroomState>('BeforeMeeting');
+
+  const setIsDevModeInitValue = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('isDevMode');
+      if (jsonValue != null) {
+        setIsDevMode(JSON.parse(jsonValue));
+      }
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+  };
+
+  useEffect(() => {
+    setIsDevModeInitValue();
+  }, []);
 
   const connectAndJoinRoom = useCallback(async () => {
     const trimmedRoomName = roomName.trimEnd();
