@@ -12,6 +12,7 @@ import {
   ScreencastQuality,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useNotifications } from '@model/NotificationsContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Sentry from '@sentry/react-native';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Platform } from 'react-native';
@@ -32,6 +33,11 @@ const VideoroomContext = React.createContext<
       toggleScreencastAndUpdateMetadata: () => void;
       currentCamera: CaptureDevice | null;
       setCurrentCamera: (camera: CaptureDevice | null) => void;
+      isDevMode: boolean;
+      setIsDevMode: (isDevMode: boolean) => void;
+      devServerUrl: string;
+      setDevServerUrl: (devServerUrl: string) => void;
+      setSavedIsDevMode: (updatedIsDevMode: boolean) => Promise<void>;
       connectAndJoinRoom: () => Promise<void>;
       disconnect: () => Promise<void>;
       videoroomState: VideoroomState;
@@ -48,6 +54,8 @@ const VideoroomContextProvider = (props) => {
   const [currentCamera, setCurrentCamera] = useState<CaptureDevice | null>(
     null
   );
+  const [isDevMode, setIsDevMode] = useState(false);
+  const [devServerUrl, setDevServerUrl] = useState(SERVER_URL);
   const { toggleCamera: membraneToggleCamera } = useCameraState();
   const { toggleMicrophone: membraneToggleMicrophone } = useMicrophoneState();
   const { isScreencastOn, toggleScreencast: membraneToggleScreencast } =
@@ -67,6 +75,30 @@ const VideoroomContextProvider = (props) => {
   const [videoroomState, setVideoroomState] =
     useState<VideoroomState>('BeforeMeeting');
 
+  const setSavedIsDevMode = async (updatedIsDevMode: boolean) => {
+    setIsDevMode(updatedIsDevMode);
+    try {
+      const jsonValue = JSON.stringify(updatedIsDevMode);
+      await AsyncStorage.setItem('isDevMode', jsonValue);
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+  };
+
+  const getSavedIsDevMode = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('isDevMode');
+      return jsonValue != null ? JSON.parse(jsonValue) : false;
+    } catch (err) {
+      Sentry.captureException(err);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    getSavedIsDevMode().then((val) => setIsDevMode(val));
+  }, []);
+
   const connectAndJoinRoom = useCallback(async () => {
     const trimmedRoomName = roomName.trimEnd();
     const trimmedUserName = username.trimEnd();
@@ -77,7 +109,7 @@ const VideoroomContextProvider = (props) => {
     Sentry.setExtra('room name', trimmedRoomName);
     Sentry.setExtra('user name', trimmedUserName);
 
-    await connect(SERVER_URL, trimmedRoomName, {
+    await connect(getServerUrl(), trimmedRoomName, {
       userMetadata: { displayName: trimmedUserName },
       socketChannelParams: {
         isSimulcastOn: true,
@@ -151,6 +183,10 @@ const VideoroomContextProvider = (props) => {
     });
   }, []);
 
+  const getServerUrl = useCallback(() => {
+    return isDevMode ? devServerUrl : SERVER_URL;
+  }, [isDevMode, devServerUrl]);
+
   const value = {
     roomName,
     setRoomName,
@@ -165,6 +201,11 @@ const VideoroomContextProvider = (props) => {
     toggleScreencastAndUpdateMetadata,
     currentCamera,
     setCurrentCamera,
+    isDevMode,
+    setIsDevMode,
+    devServerUrl,
+    setDevServerUrl,
+    setSavedIsDevMode,
     disconnect,
     videoroomState,
     goToMainScreen,

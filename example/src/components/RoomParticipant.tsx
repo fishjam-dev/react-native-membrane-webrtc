@@ -10,9 +10,11 @@ import Animated, {
   withDelay,
   runOnJS,
 } from 'react-native-reanimated';
+import { useVideoroomState } from 'src/VideoroomContext';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';
+import { SimulcastMenu } from './SimulcastMenu';
 import { Typo } from './Typo';
 import { PinButton } from './buttons/PinButton';
 
@@ -37,6 +39,7 @@ export const RoomParticipant = ({
 
   const [showPinButton, setShowPinButton] = useState(false);
   const isPinButtonShown = useRef(false);
+  const { isDevMode } = useVideoroomState();
 
   const videoTrack = trackId ? tracks.find((t) => t.id === trackId) : null;
   const videoTrackType = videoTrack?.metadata.type;
@@ -153,6 +156,12 @@ export const RoomParticipant = ({
         )}
       </Pressable>
 
+      {isDevMode ? (
+        <View style={styles.simulcastMenu}>
+          <SimulcastMenu type={type} encoding={videoTrack?.encoding} />
+        </View>
+      ) : null}
+
       {showPinButton ? (
         <Animated.View style={[styles.pinButton, opacityStyle]}>
           <View style={styles.pinButtonWrapper}>
@@ -234,5 +243,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: AdditionalColors.white,
     padding: 4,
+  },
+  simulcastMenu: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
 });

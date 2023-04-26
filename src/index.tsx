@@ -714,6 +714,16 @@ export function useSimulcast() {
   const [simulcastConfig, setSimulcastConfig] =
     useState<SimulcastConfig>(videoSimulcastConfig);
 
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener(
+      'SimulcastConfigUpdate',
+      (event) => {
+        setSimulcastConfig(event);
+      }
+    );
+    return () => eventListener.remove();
+  }, []);
+
   /**
    * sets track encoding that server should send to the client library.
    * The encoding will be sent whenever it is available. If choosen encoding is

@@ -27,7 +27,15 @@ type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
 export const CreateRoom = ({ navigation, route }: Props) => {
   const { width } = Dimensions.get('window');
   const height = useHeaderHeight();
-  const { roomName, setRoomName, username, setUsername } = useVideoroomState();
+  const {
+    isDevMode,
+    devServerUrl,
+    setDevServerUrl,
+    roomName,
+    setRoomName,
+    username,
+    setUsername,
+  } = useVideoroomState();
   const { next, current } = useCardAnimation();
 
   useEffect(() => {
@@ -113,6 +121,22 @@ export const CreateRoom = ({ navigation, route }: Props) => {
                   onChangeText={setUsername}
                 />
               </View>
+
+              {isDevMode ? (
+                <>
+                  <View style={styles.usernameInputLabel}>
+                    <Typo variant="body-small">Server url</Typo>
+                  </View>
+                  <View style={styles.usernameInput}>
+                    <TextInput
+                      placeholder="Server url"
+                      value={devServerUrl}
+                      onChangeText={setDevServerUrl}
+                    />
+                  </View>
+                </>
+              ) : null}
+
               <View style={styles.createRoomButton}>
                 <StandardButton
                   onPress={() => handlePermissions(openPreview)}

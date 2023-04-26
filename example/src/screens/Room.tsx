@@ -25,8 +25,8 @@ import { CallControls } from '../components/CallControls';
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
 export const Room = ({ navigation }: Props) => {
-  const { roomName, disconnect } = useVideoroomState();
-
+  const { isDevMode, roomName, disconnect } = useVideoroomState();
+  const { selectedAudioOutputDevice } = Membrane.useAudioSettings();
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
@@ -174,6 +174,14 @@ export const Room = ({ navigation }: Props) => {
               ))}
           </View>
 
+          {isDevMode ? (
+            <View style={styles.audioDeviceContainer}>
+              <Typo variant="label">
+                Currently using: {selectedAudioOutputDevice?.name} of type:
+                {selectedAudioOutputDevice?.type}
+              </Typo>
+            </View>
+          ) : null}
           <CallControls />
         </SafeAreaView>
       </View>
@@ -205,5 +213,8 @@ const styles = StyleSheet.create({
   otherParticipants: {
     marginTop: 16,
     marginBottom: 8,
+  },
+  audioDeviceContainer: {
+    alignItems: 'center',
   },
 });

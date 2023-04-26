@@ -416,6 +416,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     if(!ensureVideoTrack(promise)) return
     val trackId = localVideoTrack?.id() ?: return
     videoSimulcastConfig = toggleTrackEncoding(encoding, trackId, videoSimulcastConfig)
+    emitEvent("SimulcastConfigUpdate", getSimulcastConfigAsRNMap(videoSimulcastConfig))
     promise.resolve(getSimulcastConfigAsRNMap(videoSimulcastConfig))
   }
 
