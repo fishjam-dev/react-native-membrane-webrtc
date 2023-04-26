@@ -74,7 +74,7 @@ jobs:
         run: cd example && npx detox build -c android.emu.release
       
       - name: Run tests
-        run: cd example && npx detox test -c android.emu.release --headless
+        run: cd example && npx detox test -c android.emu.release --headless --loglevel verbose
 
       
       
