@@ -37,6 +37,7 @@ const VideoroomContext = React.createContext<
       setIsDevMode: (isDevMode: boolean) => void;
       devServerUrl: string;
       setDevServerUrl: (devServerUrl: string) => void;
+      setSavedIsDevMode: (updatedIsDevMode: boolean) => Promise<void>;
       connectAndJoinRoom: () => Promise<void>;
       disconnect: () => Promise<void>;
       videoroomState: VideoroomState;
@@ -74,15 +75,27 @@ const VideoroomContextProvider = (props) => {
   const [videoroomState, setVideoroomState] =
     useState<VideoroomState>('BeforeMeeting');
 
-  const setIsDevModeInitValue = async () => {
+  const setSavedIsDevMode = async (updatedIsDevMode: boolean) => {
+    setIsDevMode(updatedIsDevMode);
     try {
-      const jsonValue = await AsyncStorage.getItem('isDevMode');
-      if (jsonValue != null) {
-        setIsDevMode(JSON.parse(jsonValue));
-      }
+      const jsonValue = JSON.stringify(updatedIsDevMode);
+      await AsyncStorage.setItem('isDevMode', jsonValue);
     } catch (err) {
       Sentry.captureException(err);
     }
+  };
+
+  const getSavedIsDevMode = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('isDevMode');
+      return jsonValue != null ? JSON.parse(jsonValue) : false;
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+  };
+
+  const setIsDevModeInitValue = async () => {
+    setIsDevMode(await getSavedIsDevMode());
   };
 
   useEffect(() => {
@@ -195,6 +208,7 @@ const VideoroomContextProvider = (props) => {
     setIsDevMode,
     devServerUrl,
     setDevServerUrl,
+    setSavedIsDevMode,
     disconnect,
     videoroomState,
     goToMainScreen,
