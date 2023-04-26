@@ -1,6 +1,11 @@
 name: E2E Android tests
 on:
   push:
+env:
+  LDFLAGS: "-L/usr/local/opt/openssl@1.1/lib"
+  CFLAGS: "-I/usr/local/opt/openssl@1.1/include/"
+  CPPFLAGS: "-I/usr/local/opt/openssl@1.1/include/"
+  PKG_CONFIG_PATH: "/usr/local/opt/openssl@1.1/lib/pkgconfig"
 jobs:
   check:
     runs-on: macos-latest
@@ -8,33 +13,33 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: Setup JDK 11
-        uses: actions/setup-java@v2
-        with:
-          distribution: "zulu"
-          java-version: 11
+      # - name: Setup JDK 11
+      #   uses: actions/setup-java@v2
+      #   with:
+      #     distribution: "zulu"
+      #     java-version: 11
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+      # - name: Setup Android SDK
+      #   uses: android-actions/setup-android@v2
 
-      - name: Caching Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      # - name: Caching Gradle packages
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       ~/.gradle/caches
+      #       ~/.gradle/wrapper
+      #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-gradle-
 
-      - name: Use Node.js 16
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          cache: 'yarn'
+      # - name: Use Node.js 16
+      #   uses: actions/setup-node@v2
+      #   with:
+      #     node-version: 16
+      #     cache: 'yarn'
 
       - name: Brew
-        run: brew install srtp elixir clang-format ffmpeg pkg-config openssl && yes | mix local.hex && yes | mix local.rebar
+        run: brew install srtp elixir && yes | mix local.hex && yes | mix local.rebar
     
       # - name: Cache elixir deps
       #   id: cache-deps
