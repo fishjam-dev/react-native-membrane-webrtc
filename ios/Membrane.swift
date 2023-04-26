@@ -576,6 +576,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     self.videoSimulcastConfig = simulcastConfig
+    emitEvent(name: "SimulcastConfigUpdate", data: getSimulcastConfigAsRNMap(simulcastConfig: simulcastConfig))
     resolve(getSimulcastConfigAsRNMap(simulcastConfig: simulcastConfig))
   }
   
@@ -676,7 +677,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       "IsCameraOn",
       "IsScreencastOn",
       "BandwidthEstimation",
-      "AudioDeviceUpdate"
+      "AudioDeviceUpdate",
+      "SimulcastConfigUpdate"
     ]
   }
   

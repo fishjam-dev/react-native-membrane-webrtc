@@ -13,11 +13,12 @@ type SimulcastMenuProps = {
 
 export const SimulcastMenu = ({ type, encoding }: SimulcastMenuProps) => {
   const { simulcastConfig } = Membrane.useSimulcast();
-  console.log(simulcastConfig);
+
   return (
     <View style={styles.encodingContainer}>
       {type === Membrane.ParticipantType.Local ? (
         <View style={styles.simulcastButtons}>
+          <Typo variant="label">Encodings to send: </Typo>
           <SimulcastMenuButton
             label="h"
             enabled={simulcastConfig.activeEncodings.includes('h')}
@@ -45,11 +46,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: AdditionalColors.grey40,
-    padding: 10,
+    padding: 5,
     borderRadius: 10,
     opacity: 0.8,
   },
   simulcastButtons: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
 });

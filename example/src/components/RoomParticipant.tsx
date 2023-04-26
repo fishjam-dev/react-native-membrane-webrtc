@@ -46,8 +46,6 @@ export const RoomParticipant = ({
   const audioTrack = tracks.find((t) => t.type === 'Audio');
   const buttonOpacity = useSharedValue(0);
 
-  console.log(videoTrack);
-
   const participantHasVideo = () => {
     if (videoTrack) {
       return videoTrack.metadata.active;
@@ -147,12 +145,6 @@ export const RoomParticipant = ({
           </View>
         ) : null}
 
-        {isDevMode ? (
-          <View style={styles.simulcastMenu}>
-            <SimulcastMenu type={type} encoding={videoTrack?.encoding} />
-          </View>
-        ) : null}
-
         {videoTrackType !== 'screensharing' && !audioTrack?.metadata.active && (
           <View style={styles.mutedIcon}>
             <Icon
@@ -163,6 +155,12 @@ export const RoomParticipant = ({
           </View>
         )}
       </Pressable>
+
+      {isDevMode ? (
+        <View style={styles.simulcastMenu}>
+          <SimulcastMenu type={type} encoding={videoTrack?.encoding} />
+        </View>
+      ) : null}
 
       {showPinButton ? (
         <Animated.View style={[styles.pinButton, opacityStyle]}>
