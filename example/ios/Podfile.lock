@@ -95,15 +95,15 @@ PODS:
   - hermes-engine (0.70.8)
   - libevent (2.1.12)
   - Logging (1.4.0)
-  - MembraneRTC (4.3.0):
+  - MembraneRTC (4.3.1):
     - Logging
-    - MembraneRTC/Broadcast (= 4.3.0)
+    - MembraneRTC/Broadcast (= 4.3.1)
     - PromisesSwift
     - SwiftCollection
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
-  - MembraneRTC/Broadcast (4.3.0):
+  - MembraneRTC/Broadcast (4.3.1):
     - Logging
     - PromisesSwift
     - SwiftCollection
@@ -705,7 +705,7 @@ SPEC CHECKSUMS:
   hermes-engine: 0b19f33a9c2ec1dbdede3232606eeb1101db4cec
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
-  MembraneRTC: cbe1d145ccc21f6f1add07ef9462f1e140cd3fd2
+  MembraneRTC: 1fbffe9f987cea3b7f79e756d8fb3faa46bddef7
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   OrderedObjectSet: 7eb2d546c515a9dc5ac321ce5605d4e96f5d4c3c
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
