@@ -12,6 +12,7 @@ const {
   AudioOutputDeviceType,
   AudioSessionMode,
   CaptureDevice,
+  LoggingSeverity,
 } = jest.requireActual('../index');
 
 export {
@@ -24,6 +25,7 @@ export {
   ScreencastQuality,
   AudioOutputDeviceType,
   AudioSessionMode,
+  LoggingSeverity,
 };
 
 const NOOP = () => {
@@ -115,6 +117,7 @@ export const useBandwidthEstimation = () => {
     estimation: null,
   };
 };
+export const changeWebRTCLoggingSeverity = emptyPromise;
 
 export const VideoRendererView = () => {
   return <View />;

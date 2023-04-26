@@ -13,6 +13,9 @@ const voidPromise = (callback) => async (): Promise<void> => {
   });
 };
 
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
 jest.mock('@sentry/react-native');
 jest.mock('../src/model/NotificationsContext', () => {
   return {

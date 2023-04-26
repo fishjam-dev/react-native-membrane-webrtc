@@ -576,6 +576,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     self.videoSimulcastConfig = simulcastConfig
+    emitEvent(name: "SimulcastConfigUpdate", data: getSimulcastConfigAsRNMap(simulcastConfig: simulcastConfig))
     resolve(getSimulcastConfigAsRNMap(simulcastConfig: simulcastConfig))
   }
   
@@ -596,6 +597,26 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     room.setTrackBandwidth(trackId: trackId, bandwidth: BandwidthLimit(truncating: bandwidth))
+  }
+
+  @objc(changeWebRTCLoggingSeverity:withResolver:withRejecter:)
+  func changeWebRTCLoggingSeverity(severity: NSString, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) {
+    switch severity {
+    case "verbose":
+       room?.changeWebRTCLoggingSeverity(severity: .verbose)
+    case "info":
+       room?.changeWebRTCLoggingSeverity(severity: .info)
+    case "warning":
+       room?.changeWebRTCLoggingSeverity(severity: .warning)
+    case "error":
+       room?.changeWebRTCLoggingSeverity(severity: .error)
+    case "none":
+       room?.changeWebRTCLoggingSeverity(severity: .none)
+    default:
+      reject("E_INVALID_SEVERITY_LEVEL", "Severity with name=\(severity) not found", nil)
+      return
+    }
+    resolve(nil)
   }
   
   func setAudioSessionMode() {
@@ -656,7 +677,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       "IsCameraOn",
       "IsScreencastOn",
       "BandwidthEstimation",
-      "AudioDeviceUpdate"
+      "AudioDeviceUpdate",
+      "SimulcastConfigUpdate"
     ]
   }
   

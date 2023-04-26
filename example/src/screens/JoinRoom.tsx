@@ -31,7 +31,15 @@ type Props = NativeStackScreenProps<RootStack, 'JoinRoom'>;
 export const JoinRoom = ({ navigation, route }: Props) => {
   const { width } = Dimensions.get('window');
   const height = useHeaderHeight();
-  const { roomName, setRoomName, username, setUsername } = useVideoroomState();
+  const {
+    isDevMode,
+    devServerUrl,
+    setDevServerUrl,
+    roomName,
+    setRoomName,
+    username,
+    setUsername,
+  } = useVideoroomState();
   const [isRoomNameInputEditable, setIsRoomNameInputEditable] = useState(true);
   const { next, current } = useCardAnimation();
 
@@ -131,6 +139,22 @@ export const JoinRoom = ({ navigation, route }: Props) => {
                   onChangeText={setUsername}
                 />
               </View>
+
+              {isDevMode ? (
+                <>
+                  <View style={styles.usernameInputLabel}>
+                    <Typo variant="body-small">Server url</Typo>
+                  </View>
+                  <View style={styles.usernameInput}>
+                    <TextInput
+                      placeholder="Server url"
+                      value={devServerUrl}
+                      onChangeText={setDevServerUrl}
+                    />
+                  </View>
+                </>
+              ) : null}
+
               <View style={styles.joinRoomButton}>
                 <StandardButton
                   onPress={() => handlePermissions(openPreview)}

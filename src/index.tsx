@@ -270,6 +270,14 @@ export type CaptureDevice = {
   isBackFacing: boolean;
 };
 
+export enum LoggingSeverity {
+  Verbose = 'verbose',
+  Info = 'info',
+  Warning = 'warning',
+  Error = 'error',
+  None = 'none',
+}
+
 const defaultSimulcastConfig = () => ({
   enabled: false,
   activeEncodings: [],
@@ -706,6 +714,16 @@ export function useSimulcast() {
   const [simulcastConfig, setSimulcastConfig] =
     useState<SimulcastConfig>(videoSimulcastConfig);
 
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener(
+      'SimulcastConfigUpdate',
+      (event) => {
+        setSimulcastConfig(event);
+      }
+    );
+    return () => eventListener.remove();
+  }, []);
+
   /**
    * sets track encoding that server should send to the client library.
    * The encoding will be sent whenever it is available. If choosen encoding is
@@ -776,6 +794,17 @@ export function useBandwidthLimit() {
   );
 
   return { setVideoTrackBandwidth };
+}
+
+/**
+ * Function that changes level of debugging logs in WebRTC.
+ * @param severity to use when displaying logs
+ * @returns a promise that is resolved when debug severity is changed
+ */
+export function changeWebRTCLoggingSeverity(
+  severity: LoggingSeverity
+): Promise<void> {
+  return Membrane.changeWebRTCLoggingSeverity(severity);
 }
 
 /**
