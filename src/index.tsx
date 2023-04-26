@@ -721,7 +721,6 @@ export function useSimulcast() {
         setSimulcastConfig(event);
       }
     );
-    // Membrane.simulcastConfig().then(setSimulcastConfig);
     return () => eventListener.remove();
   }, []);
 
