@@ -34,21 +34,21 @@ jobs:
           cache: 'yarn'
 
       - name: Brew
-        run: brew install srtp elixir
+        run: brew install srtp elixir && mix local.hex
     
-      - name: Cache elixir deps
-        id: cache-deps
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-elixir-deps
-        with:
-          path: deps
-          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-mix-${{ env.cache-name }}-
+      # - name: Cache elixir deps
+      #   id: cache-deps
+      #   uses: actions/cache@v3
+      #   env:
+      #     cache-name: cache-elixir-deps
+      #   with:
+      #     path: deps
+      #     key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-mix-${{ env.cache-name }}-
       
-      - name: Install emulator
-        run: ./example/e2e/avd-setup.sh
+      # - name: Install emulator
+      #   run: ./example/e2e/avd-setup.sh
       
       - name: Download elixir deps
         run: cd example/e2e/backend && mix deps.get
