@@ -26,9 +26,7 @@ type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
 export const Room = ({ navigation }: Props) => {
   const { isDevMode, roomName, disconnect } = useVideoroomState();
-
   const { selectedAudioOutputDevice } = Membrane.useAudioSettings();
-
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
