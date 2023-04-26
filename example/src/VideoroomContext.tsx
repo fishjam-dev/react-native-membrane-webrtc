@@ -91,15 +91,12 @@ const VideoroomContextProvider = (props) => {
       return jsonValue != null ? JSON.parse(jsonValue) : false;
     } catch (err) {
       Sentry.captureException(err);
+      return false;
     }
   };
 
-  const setIsDevModeInitValue = async () => {
-    setIsDevMode(await getSavedIsDevMode());
-  };
-
   useEffect(() => {
-    setIsDevModeInitValue();
+    getSavedIsDevMode().then((val) => setIsDevMode(val));
   }, []);
 
   const connectAndJoinRoom = useCallback(async () => {
