@@ -34,7 +34,7 @@ jobs:
           cache: 'yarn'
 
       - name: Brew
-        run: brew install srtp elixir && yes | mix local.hex && yes | mix local.rebar
+        run: brew install srtp elixir clang-format ffmpeg pkg-config && yes | mix local.hex && yes | mix local.rebar
     
       # - name: Cache elixir deps
       #   id: cache-deps
