@@ -79,7 +79,7 @@ jobs:
       - name: Where are the apks?
         run: |
           brew install tree
-          cd android/app/build/outputs
+          cd example/android/app/build/outputs
           tree
       
       - name: Run tests
