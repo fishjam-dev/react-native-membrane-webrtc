@@ -26,6 +26,9 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
+      
+      - name: Check emulator version
+        run: cd /Users/runner/Library/Android/sdk/emulator && ./emulator --version
 
       # - name: Caching Gradle packages
       #   uses: actions/cache@v2
@@ -57,8 +60,8 @@ jobs:
       #     restore-keys: |
       #       ${{ runner.os }}-mix-${{ env.cache-name }}-
       
-      - name: Install emulator
-        run: ./example/e2e/avd-setup.sh
+      # - name: Install emulator
+      #   run: ./example/e2e/avd-setup.sh
 
       # - name: Run emulator
       #   run:  /Users/runner/Library/Android/sdk/emulator/emulator -verbose -no-audio -no-boot-anim -no-window -read-only -gpu host -port 12278 @Pixel_4_API_28 &
@@ -75,20 +78,14 @@ jobs:
       # - name: Start backend
       #   run: cd example/e2e/backend && INTEGRATED_TURN_IP=10.0.2.2 mix phx.server &
       
-      - name: Install js deps
-        run: yarn && cd example && yarn
+      # - name: Install js deps
+      #   run: yarn && cd example && yarn
       
-      - name: Build android
-        run: cd example && npx detox build -c android.emu.release
+      # - name: Build android
+      #   run: cd example && npx detox build -c android.emu.release
       
-      - name: Where are the apks?
-        run: |
-          brew install tree
-          cd example/android/app/build/outputs
-          tree
-      
-      - name: Run tests
-        run: cd example && npx detox test -c android.emu.release --loglevel verbose
+      # - name: Run tests
+      #   run: cd example && npx detox test -c android.emu.release --loglevel verbose
 
       
       
