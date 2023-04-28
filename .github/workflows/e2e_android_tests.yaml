@@ -9,6 +9,11 @@ env:
 jobs:
   check:
     runs-on: macos-latest
+    env:
+      MEMBRANE_UPLOAD_STORE_FILE: ${{ secrets.MEMBRANE_UPLOAD_STORE_FILE }}
+      MEMBRANE_UPLOAD_KEY_ALIAS: ${{ secrets.MEMBRANE_UPLOAD_KEY_ALIAS }}
+      MEMBRANE_UPLOAD_STORE_PASSWORD: ${{ secrets.MEMBRANE_UPLOAD_STORE_PASSWORD }}
+      MEMBRANE_UPLOAD_KEY_PASSWORD: ${{ secrets.MEMBRANE_UPLOAD_KEY_PASSWORD }}
     steps:
       - name: checkout
         uses: actions/checkout@v2

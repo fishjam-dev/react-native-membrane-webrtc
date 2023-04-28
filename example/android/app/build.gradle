@@ -147,20 +147,13 @@ android {
         }
     }
     signingConfigs {
-        if (project.hasProperty('MEMBRANE_UPLOAD_STORE_FILE')) {
+        if (System.getenv('MEMBRANE_UPLOAD_STORE_FILE')) {
           release {
-            storeFile file(MEMBRANE_UPLOAD_STORE_FILE)
-            storePassword MEMBRANE_UPLOAD_STORE_PASSWORD
-            keyAlias MEMBRANE_UPLOAD_KEY_ALIAS
-            keyPassword MEMBRANE_UPLOAD_KEY_PASSWORD
+            storeFile file(System.getenv('MEMBRANE_UPLOAD_STORE_FILE'))
+            storePassword System.getenv('MEMBRANE_UPLOAD_STORE_PASSWORD')
+            keyAlias System.getenv('MEMBRANE_UPLOAD_KEY_ALIAS')
+            keyPassword System.getenv('MEMBRANE_UPLOAD_KEY_PASSWORD')
           }
-        } else {
-            release {
-                storeFile file('debug.keystore')
-                storePassword 'android'
-                keyAlias 'androiddebugkey'
-                keyPassword 'android'
-            }    
         }
         debug {
             storeFile file('debug.keystore')
@@ -174,7 +167,7 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            if (project.hasProperty('MEMBRANE_UPLOAD_STORE_FILE')) {
+            if (System.getenv('MEMBRANE_UPLOAD_STORE_FILE')) {
               signingConfig signingConfigs.release
             }
             minifyEnabled enableProguardInReleaseBuilds
