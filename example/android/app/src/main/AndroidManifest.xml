@@ -2,7 +2,6 @@
   package="com.membrane.reactnativemembrane">
 
   <uses-permission android:name="android.permission.INTERNET" />
-  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
   <application
     android:name=".MainApplication"
     android:allowBackup="false"
