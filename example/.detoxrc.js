@@ -58,6 +58,7 @@ module.exports = {
       device: {
         avdName: 'Pixel_4_API_28',
       },
+      bootArgs: '-camera-front emulated',
     },
   },
   configurations: {
