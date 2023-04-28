@@ -33,8 +33,7 @@ module.exports = {
     },
     'android.release': {
       type: 'android.apk',
-      binaryPath:
-        'android/app/build/outputs/apk/release/app-release-unsigned.apk',
+      binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
       testBinaryPath:
         'android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk',
       build:

@@ -154,6 +154,13 @@ android {
             keyAlias MEMBRANE_UPLOAD_KEY_ALIAS
             keyPassword MEMBRANE_UPLOAD_KEY_PASSWORD
           }
+        } else {
+            release {
+                storeFile file('debug.keystore')
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }    
         }
         debug {
             storeFile file('debug.keystore')
