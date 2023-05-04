@@ -1,10 +1,13 @@
 import { InCallButton } from '@components/buttons/InCallButton';
+import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
+
+import { StatsModal } from './StatsModal';
 
 export const CallControls = () => {
   const {
@@ -17,11 +20,25 @@ export const CallControls = () => {
     disconnect,
   } = useVideoroomState();
   const navigation = useNavigation<StackNavigationProp<RootStack, 'Room'>>();
+  const { isDevMode } = useVideoroomState();
+  const { statistics } = Membrane.useRTCStatistics();
+  const [isCollectingStats, setIsCollectingStats] = useState<boolean>(false);
+  const [isStatsModalVisible, setIsStatsModalVisible] = useState(false);
 
   const onDisconnectPress = useCallback(async () => {
     await disconnect();
     navigation.navigate('LeaveRoom');
   }, [disconnect]);
+
+  const hideStats = useCallback(() => {
+    setIsStatsModalVisible(false);
+    setIsCollectingStats(false);
+  }, [statistics, isCollectingStats]);
+
+  const showStats = useCallback(async () => {
+    setIsStatsModalVisible(true);
+    setIsCollectingStats(true);
+  }, [statistics, isCollectingStats]);
 
   return (
     <View style={styles.iconsContainer}>
@@ -43,6 +60,19 @@ export const CallControls = () => {
           onPress={toggleScreencastAndUpdateMetadata}
         />
       </View>
+      {isDevMode ? (
+        <>
+          <View style={styles.iconInRow}>
+            <InCallButton iconName="Info" onPress={showStats} />
+          </View>
+          <StatsModal
+            visible={isStatsModalVisible}
+            close={hideStats}
+            stats={statistics.length}
+            onClose={() => {}}
+          />
+        </>
+      ) : null}
       <InCallButton
         type="disconnect"
         iconName="Hangup"

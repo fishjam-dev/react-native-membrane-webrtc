@@ -826,6 +826,34 @@ export function useBandwidthEstimation() {
   return { estimation };
 }
 
+export function useRTCStatistics() {
+  const MAX_SIZE = 240;
+  const [statistics, setStatistics] = useState<any[]>([]);
+
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener(
+      'StatisticsUpdated',
+      (stats) => {
+        console.log(stats, 'TROMBA');
+        if (statistics.length === MAX_SIZE) {
+          statistics.shift();
+        }
+        statistics.push(stats);
+        console.log('SETTING STATS');
+
+        setStatistics([...statistics]);
+      }
+    );
+    return () => eventListener.remove();
+  }, []);
+
+  const getStatistics = useCallback(async () => {
+    await Membrane.getStatistics();
+  }, []);
+
+  return { statistics, getStatistics };
+}
+
 export type VideoRendererProps = {
   /**
    * id of the video track which you want to render.

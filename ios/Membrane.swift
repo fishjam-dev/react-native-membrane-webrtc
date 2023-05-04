@@ -370,6 +370,13 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }]
   }
   
+//    func getStatsAsRNMap(stats: [String: RTCStats]) -> [String: Any] {
+//  return [
+//    "enabled": simulcastConfig.enabled,
+//  ]
+//}
+
+    
   func getSimulcastConfigAsRNMap(simulcastConfig: SimulcastConfig) -> [String: Any] {
     return [
       "enabled": simulcastConfig.enabled,
@@ -618,6 +625,22 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     resolve(nil)
   }
+    
+    func statsToRNMap(stats: [String: RTCStats]?) -> [String: Any] {
+        var res: [String: Any] = [:]
+        stats?.forEach{ pair in
+            res[pair.key] = pair.value
+        }
+        return res
+    }
+    
+  @objc(getStatistics:withRejecter:)
+  func getStatistics(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) {
+      var x = statsToRNMap(stats:room?.getStats())
+    print(x)
+    emitEvent(name:"StatisticsUpdated", data:x)
+    resolve(x)
+  }
   
   func setAudioSessionMode() {
     guard let localAudioTrack = localAudioTrack else {
@@ -678,7 +701,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       "IsScreencastOn",
       "BandwidthEstimation",
       "AudioDeviceUpdate",
-      "SimulcastConfigUpdate"
+      "SimulcastConfigUpdate",
+      "StatisticsUpdated"
     ]
   }
   

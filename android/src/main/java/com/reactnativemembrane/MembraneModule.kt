@@ -18,6 +18,7 @@ import org.membraneframework.rtc.transport.PhoenixTransport
 import org.membraneframework.rtc.utils.Metadata
 import org.webrtc.Logging
 import java.util.*
+import android.util.Log
 
 
 class MembraneModule(reactContext: ReactApplicationContext) :
@@ -455,6 +456,19 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         return
       }
     }
+    promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun getStatistics(promise: Promise) {
+    val x = room?.getStats()
+    Log.e("KAROL", x.toString())
+    val y = x as Map<String, Any>
+    Log.e("KAROL", y.toString())
+    val z = mapToRNMap(y)
+    Log.e("KAROL", z.toString())
+
+    emitEvent("StatisticsUpdated", mapToRNMap(room?.getStats() as Map<String, Any>))
     promise.resolve(null)
   }
 
