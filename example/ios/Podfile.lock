@@ -341,8 +341,6 @@ PODS:
   - React-jsinspector (0.70.8)
   - React-logger (0.70.8):
     - glog
-  - react-native-idle-timer (2.2.0):
-    - React-Core
   - react-native-membrane (5.0.0):
     - MembraneRTC (~> 4.3.0)
     - React-Core
@@ -527,7 +525,6 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
-  - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
   - react-native-membrane (from `../..`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -638,8 +635,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
-  react-native-idle-timer:
-    :path: "../node_modules/react-native-idle-timer"
   react-native-membrane:
     :path: "../.."
   react-native-safe-area-context:
@@ -730,7 +725,6 @@ SPEC CHECKSUMS:
   React-jsiexecutor: bc8556d76f83a1a9075cdee207aad7c0b7b30a33
   React-jsinspector: 5e5497c844f2381e8648ec3a7d0ad25b3f27f23e
   React-logger: b277ad8f4473f2506fb30b762b6348534a3de10e
-  react-native-idle-timer: 186294075478d59249be48c0ac4097c97105d890
   react-native-membrane: f01ad5c310a767b3a3d237445b7e74977bb3fae5
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   React-perflogger: e9249a18e055cae96fdf685bf6145cbea62506c8
@@ -762,4 +756,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: e38aa9e9f463a3b3260c491618d93c4c965da37d
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.12.0
