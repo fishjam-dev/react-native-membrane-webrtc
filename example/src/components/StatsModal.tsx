@@ -1,20 +1,20 @@
 import { AdditionalColors, BrandColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, processColor } from 'react-native';
-import { LineChart } from 'react-native-charts-wrapper';
-import { ReactNativeModal } from 'react-native-modal';
 import {
   Collapse,
   CollapseHeader,
   CollapseBody,
   AccordionList,
 } from 'accordion-collapse-react-native';
+import { isEmpty } from 'lodash';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, StyleSheet, processColor } from 'react-native';
+import { LineChart } from 'react-native-charts-wrapper';
+import { ScrollView } from 'react-native-gesture-handler';
+import { ReactNativeModal } from 'react-native-modal';
 
 import { Typo } from './Typo';
 import { InCallButton } from './buttons/InCallButton';
-import { ScrollView } from 'react-native-gesture-handler';
-import { isEmpty } from 'lodash';
 
 type StatsModalProps = {
   visible: boolean;
@@ -33,30 +33,28 @@ export const StatsModal = ({
   const { statistics, getStatistics } = Membrane.useRTCStatistics();
   const [labels, setLabels] = useState<string[]>([]);
 
-  const getListOfPlotNames = useCallback(
-    (stats: any) => {
-      if (statistics.length > 2) {
-        // console.log(Object.keys(statistics[statistics.length - 1]));
-        setLabels(Object.keys(statistics[statistics.length - 1]));
-      }
-    },
-    [statistics]
-  );
+  const notPlottableStats = [
+    'kind',
+    'rid',
+    'packetsLost',
+    'packetsReceived',
+    'bytesReceived',
+    'framesReceived',
+    'framesDropped',
+    'bytesSent',
+    'packetsSent',
+    'framesEncoded',
+  ];
 
-  const statsCallback = () => {
-    getStatistics();
-    if (isEmpty(statistics) === false && isEmpty(labels) === false) {
-      // console.log(
-      //   Object.keys(statistics[statistics.length - 1][labels[0]]).map(
-      //     (obj, objId) => {
-      //       return obj;
-      //     }
-      //   )
-      // );
+  const getListOfPlotNames = useCallback(() => {
+    if (statistics.length > 2) {
+      setLabels(Object.keys(statistics[statistics.length - 1]));
     }
+  }, [statistics]);
 
-    // console.log(labels);
-  };
+  const statsCallback = useCallback(() => {
+    getStatistics();
+  }, []);
 
   useEffect(() => {
     if (visible) {
@@ -66,91 +64,85 @@ export const StatsModal = ({
   }, [visible]);
 
   useEffect(() => {
-    getListOfPlotNames(statistics);
-    console.log(labels);
+    getListOfPlotNames();
   }, [statistics]);
 
-  const getValues = (label, chart) => {
-    // console.log('asdad');
+  const getValues = useCallback(
+    (label, chart) => {
+      const filtered = statistics.filter((obj) => {
+        const keys = Object.keys(obj);
+        return keys.includes(label);
+      });
 
-    if (
-      chart === 'kind' ||
-      chart === 'rid' ||
-      chart === 'qualityLimitationDurations'
-    ) {
-      return [{ y: 0 }];
-    }
+      const b = filtered.map((obj) => {
+        return { y: obj[label][chart] !== null ? obj[label][chart] : 0 };
+      });
 
-    const filtered = statistics.filter((obj) => {
-      const keys = Object.keys(obj);
-      return keys.includes(label);
-    });
-    console.log('MICHALEK', filtered);
-    const b = filtered.map((obj, objId) => {
-      return { y: obj[label][chart] !== null ? obj[label][chart] : 0 };
-    });
-    console.log(b, chart);
-    return b;
-  };
+      return b;
+    },
+    [statistics]
+  );
 
-  const getLimitationDurationsDataset = (label, chart) => {
-    const filtered = statistics.filter((obj) => {
-      const keys = Object.keys(obj);
-      return keys.includes(label);
-    });
+  const getLimitationDurationsDataset = useCallback(
+    (label, chart) => {
+      const filtered = statistics.filter((obj) => {
+        const keys = Object.keys(obj);
+        return keys.includes(label);
+      });
 
-    const b = filtered.map((obj, objId) => {
-      return obj[label][chart] !== null ? obj[label][chart] : 0;
-    });
-    // console.log(b, label);
-    const res = [
-      {
-        label: 'bandwidth',
-        values: [],
-        config: {
-          drawValues: false,
-          drawCircles: false,
-          color: processColor('blue'),
+      const b = filtered.map((obj) => {
+        return obj[label][chart] !== null ? obj[label][chart] : 0;
+      });
+
+      const res = [
+        {
+          label: 'bandwidth',
+          values: [],
+          config: {
+            drawValues: false,
+            drawCircles: false,
+            color: processColor('blue'),
+          },
         },
-      },
-      {
-        label: 'cpu',
-        values: [],
-        config: {
-          drawValues: false,
-          drawCircles: false,
-          color: processColor('red'),
+        {
+          label: 'cpu',
+          values: [],
+          config: {
+            drawValues: false,
+            drawCircles: false,
+            color: processColor('red'),
+          },
         },
-      },
-      {
-        label: 'none',
-        values: [],
-        config: {
-          drawValues: false,
-          drawCircles: false,
-          color: processColor('green'),
+        {
+          label: 'none',
+          values: [],
+          config: {
+            drawValues: false,
+            drawCircles: false,
+            color: processColor('green'),
+          },
         },
-      },
-      {
-        label: 'other',
-        values: [],
-        config: {
-          drawValues: false,
-          drawCircles: false,
-          color: processColor('yellow'),
+        {
+          label: 'other',
+          values: [],
+          config: {
+            drawValues: false,
+            drawCircles: false,
+            color: processColor('yellow'),
+          },
         },
-      },
-    ];
-    b.forEach((obj, objId) => {
-      res[0].values.push({ y: obj['bandwidth'] });
-      res[1].values.push({ y: obj['cpu'] });
-      res[2].values.push({ y: obj['none'] });
-      res[3].values.push({ y: obj['other'] });
-    });
+      ];
+      b.forEach((obj) => {
+        res[0].values.push({ y: obj['bandwidth'] });
+        res[1].values.push({ y: obj['cpu'] });
+        res[2].values.push({ y: obj['none'] });
+        res[3].values.push({ y: obj['other'] });
+      });
 
-    console.log(res[0], label);
-    return res;
-  };
+      return res;
+    },
+    [statistics]
+  );
 
   return (
     <ReactNativeModal
@@ -193,7 +185,7 @@ export const StatsModal = ({
                         {Object.keys(
                           statistics[statistics.length - 1][name]
                         ).map((obj, objId) => {
-                          if (obj === 'kind' || obj === 'rid') {
+                          if (notPlottableStats.includes(obj)) {
                             return;
                           }
                           if (obj === 'qualityLimitationDurations') {
@@ -281,6 +273,7 @@ const styles = StyleSheet.create({
   },
   chart: {
     height: 125,
-    width: '80%',
+    width: '100%',
+    paddingHorizontal: 20,
   },
 });

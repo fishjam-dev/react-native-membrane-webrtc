@@ -33,12 +33,12 @@ export const CallControls = () => {
   const hideStats = useCallback(() => {
     setIsStatsModalVisible(false);
     setIsCollectingStats(false);
-  }, [statistics, isCollectingStats]);
+  }, []);
 
   const showStats = useCallback(async () => {
     setIsStatsModalVisible(true);
     setIsCollectingStats(true);
-  }, [statistics, isCollectingStats]);
+  }, []);
 
   return (
     <View style={styles.iconsContainer}>

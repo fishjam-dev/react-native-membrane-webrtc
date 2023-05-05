@@ -834,14 +834,11 @@ export function useRTCStatistics() {
     const eventListener = eventEmitter.addListener(
       'StatisticsUpdated',
       (stats) => {
-        // console.log(stats, 'TROMBA');
         if (statistics.length === MAX_SIZE) {
           statistics.shift();
         }
         stats = preprocessIncomingStats(stats);
-        // console.log(stats);
         statistics.push(stats);
-        // console.log('SETTING STATS');
 
         setStatistics([...statistics]);
       }
@@ -853,55 +850,62 @@ export function useRTCStatistics() {
     await Membrane.getStatistics();
   }, []);
 
-  const preprocessIncomingStats = (stats) => {
-    Object.keys(stats).forEach((obj) => {
-      if (obj.includes('Inbound')) {
-        if (Object.keys(statistics[statistics.length - 1]).includes(obj)) {
-          stats[obj]['packetsLost/s'] =
-            stats[obj]['packetsLost'] -
-            statistics[statistics.length - 1][obj]['packetsLost'];
-          stats[obj]['packetsReceived/s'] =
-            stats[obj]['packetsReceived'] -
-            statistics[statistics.length - 1][obj]['packetsReceived'];
-          stats[obj]['bytesReceived/s'] =
-            stats[obj]['bytesReceived'] -
-            statistics[statistics.length - 1][obj]['bytesReceived'];
-          stats[obj]['framesReceived/s'] =
-            stats[obj]['framesReceived'] -
-            statistics[statistics.length - 1][obj]['framesReceived'];
-          stats[obj]['framesDropped/s'] =
-            stats[obj]['framesDropped'] -
-            statistics[statistics.length - 1][obj]['framesDropped'];
-        } else {
-          stats[obj]['packetsLost/s'] = 0;
-          stats[obj]['packetsReceived/s'] = 0;
-          stats[obj]['bytesReceived/s'] = 0;
-          stats[obj]['framesReceived/s'] = 0;
-          stats[obj]['framesDropped/s'] = 0;
-        }
-        return stats;
-      }
-      // Outbound
-      if (Object.keys(statistics[statistics.length - 1]).includes(obj)) {
-        stats[obj]['bytesSent/s'] =
-          stats[obj]['bytesSent'] -
-          statistics[statistics.length - 1][obj]['bytesSent'];
-        stats[obj]['packetsSent/s'] =
-          stats[obj]['packetsSent'] -
-          statistics[statistics.length - 1][obj]['packetsSent'];
-        stats[obj]['framesEncoded/s'] =
-          stats[obj]['framesEncoded'] -
-          statistics[statistics.length - 1][obj]['framesEncoded'];
-      } else {
-        stats[obj]['bytesSent/s'] = 0;
-        stats[obj]['packetsSent/s'] = 0;
-        stats[obj]['framesEncoded/s'] = 0;
-      }
-    });
-    return stats;
-  };
+  const clearStatistics = useCallback(async () => {
+    setStatistics([]);
+  }, []);
 
-  return { statistics, getStatistics };
+  const preprocessIncomingStats = useCallback(
+    (stats) => {
+      Object.keys(stats).forEach((obj) => {
+        if (obj.includes('Inbound')) {
+          if (Object.keys(statistics[statistics.length - 1]).includes(obj)) {
+            stats[obj]['packetsLost/s'] =
+              stats[obj]['packetsLost'] -
+              statistics[statistics.length - 1][obj]['packetsLost'];
+            stats[obj]['packetsReceived/s'] =
+              stats[obj]['packetsReceived'] -
+              statistics[statistics.length - 1][obj]['packetsReceived'];
+            stats[obj]['bytesReceived/s'] =
+              stats[obj]['bytesReceived'] -
+              statistics[statistics.length - 1][obj]['bytesReceived'];
+            stats[obj]['framesReceived/s'] =
+              stats[obj]['framesReceived'] -
+              statistics[statistics.length - 1][obj]['framesReceived'];
+            stats[obj]['framesDropped/s'] =
+              stats[obj]['framesDropped'] -
+              statistics[statistics.length - 1][obj]['framesDropped'];
+          } else {
+            stats[obj]['packetsLost/s'] = 0;
+            stats[obj]['packetsReceived/s'] = 0;
+            stats[obj]['bytesReceived/s'] = 0;
+            stats[obj]['framesReceived/s'] = 0;
+            stats[obj]['framesDropped/s'] = 0;
+          }
+          return stats;
+        }
+        // Outbound
+        if (Object.keys(statistics[statistics.length - 1]).includes(obj)) {
+          stats[obj]['bytesSent/s'] =
+            stats[obj]['bytesSent'] -
+            statistics[statistics.length - 1][obj]['bytesSent'];
+          stats[obj]['packetsSent/s'] =
+            stats[obj]['packetsSent'] -
+            statistics[statistics.length - 1][obj]['packetsSent'];
+          stats[obj]['framesEncoded/s'] =
+            stats[obj]['framesEncoded'] -
+            statistics[statistics.length - 1][obj]['framesEncoded'];
+        } else {
+          stats[obj]['bytesSent/s'] = 0;
+          stats[obj]['packetsSent/s'] = 0;
+          stats[obj]['framesEncoded/s'] = 0;
+        }
+      });
+      return stats;
+    },
+    [statistics]
+  );
+
+  return { statistics, getStatistics, clearStatistics };
 }
 
 export type VideoRendererProps = {
