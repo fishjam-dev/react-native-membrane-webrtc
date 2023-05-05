@@ -118,6 +118,9 @@ export const useBandwidthEstimation = () => {
   };
 };
 export const changeWebRTCLoggingSeverity = emptyPromise;
+export const useRTCStatistics = () => {
+  return { statistics: [], getStatistics: emptyPromise, clearStatistics: NOOP };
+};
 
 export const VideoRendererView = () => {
   return <View />;
