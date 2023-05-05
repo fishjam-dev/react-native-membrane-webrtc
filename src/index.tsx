@@ -837,7 +837,8 @@ export function useRTCStatistics() {
         if (statistics.length === MAX_SIZE) {
           statistics.shift();
         }
-        setStatistics([...statistics, processIncomingStats(stats)]);
+        statistics.push(processIncomingStats(stats));
+        setStatistics([...statistics]);
       }
     );
     return () => eventListener.remove();

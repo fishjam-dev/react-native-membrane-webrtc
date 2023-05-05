@@ -98,25 +98,24 @@ export const Stats = ({ stats, label }: StatsProp) => {
     [stats]
   );
 
-  const getLineChart = useCallback(
-    (dataSet: object[], isMultiValue: boolean) => {
-      return (
-        <LineChart
-          style={styles.chart}
-          data={{ dataSet }}
-          yAxis={yAxisConfig}
-          xAxis={{
-            drawLabels: false,
-          }}
-          chartDescription={chartDescriptionConfig}
-          legend={{ enabled: isMultiValue, drawInside: isMultiValue }}
-          marker={{ enabled: false }}
-          logEnabled={false}
-        />
-      );
-    },
-    []
-  );
+  const getLineChart = useCallback((dataSets, isMultiValue: boolean) => {
+    return (
+      <LineChart
+        style={styles.chart}
+        data={{
+          dataSets,
+        }}
+        yAxis={yAxisConfig}
+        xAxis={{
+          drawLabels: false,
+        }}
+        chartDescription={chartDescriptionConfig}
+        legend={{ enabled: isMultiValue, drawInside: isMultiValue }}
+        marker={{ enabled: false }}
+        logEnabled={false}
+      />
+    );
+  }, []);
 
   return (
     <View>
