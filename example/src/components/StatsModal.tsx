@@ -1,53 +1,26 @@
 import { AdditionalColors, BrandColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import {
-  Collapse,
-  CollapseHeader,
-  CollapseBody,
-  AccordionList,
-} from 'accordion-collapse-react-native';
-import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, processColor } from 'react-native';
-import { LineChart } from 'react-native-charts-wrapper';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ReactNativeModal } from 'react-native-modal';
 
-import { Typo } from './Typo';
+import { Stats } from './Stats';
 import { InCallButton } from './buttons/InCallButton';
 
 type StatsModalProps = {
   visible: boolean;
-  close: () => void;
-  stats: any;
   onClose: () => void;
 };
 
-export const StatsModal = ({
-  visible,
-  close,
-  stats,
-  onClose,
-}: StatsModalProps) => {
+export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
   const [statsIntervalID, setStatsIntervalID] = useState<number>(0);
-  const { statistics, getStatistics } = Membrane.useRTCStatistics();
+  const { statistics, getStatistics, clearStatistics } =
+    Membrane.useRTCStatistics();
   const [labels, setLabels] = useState<string[]>([]);
 
-  const notPlottableStats = [
-    'kind',
-    'rid',
-    'packetsLost',
-    'packetsReceived',
-    'bytesReceived',
-    'framesReceived',
-    'framesDropped',
-    'bytesSent',
-    'packetsSent',
-    'framesEncoded',
-  ];
-
   const getListOfPlotNames = useCallback(() => {
-    if (statistics.length > 2) {
+    if (statistics.length > 0) {
       setLabels(Object.keys(statistics[statistics.length - 1]));
     }
   }, [statistics]);
@@ -67,83 +40,6 @@ export const StatsModal = ({
     getListOfPlotNames();
   }, [statistics]);
 
-  const getValues = useCallback(
-    (label, chart) => {
-      const filtered = statistics.filter((obj) => {
-        const keys = Object.keys(obj);
-        return keys.includes(label);
-      });
-
-      const b = filtered.map((obj) => {
-        return { y: obj[label][chart] !== null ? obj[label][chart] : 0 };
-      });
-
-      return b;
-    },
-    [statistics]
-  );
-
-  const getLimitationDurationsDataset = useCallback(
-    (label, chart) => {
-      const filtered = statistics.filter((obj) => {
-        const keys = Object.keys(obj);
-        return keys.includes(label);
-      });
-
-      const b = filtered.map((obj) => {
-        return obj[label][chart] !== null ? obj[label][chart] : 0;
-      });
-
-      const res = [
-        {
-          label: 'bandwidth',
-          values: [],
-          config: {
-            drawValues: false,
-            drawCircles: false,
-            color: processColor('blue'),
-          },
-        },
-        {
-          label: 'cpu',
-          values: [],
-          config: {
-            drawValues: false,
-            drawCircles: false,
-            color: processColor('red'),
-          },
-        },
-        {
-          label: 'none',
-          values: [],
-          config: {
-            drawValues: false,
-            drawCircles: false,
-            color: processColor('green'),
-          },
-        },
-        {
-          label: 'other',
-          values: [],
-          config: {
-            drawValues: false,
-            drawCircles: false,
-            color: processColor('yellow'),
-          },
-        },
-      ];
-      b.forEach((obj) => {
-        res[0].values.push({ y: obj['bandwidth'] });
-        res[1].values.push({ y: obj['cpu'] });
-        res[2].values.push({ y: obj['none'] });
-        res[3].values.push({ y: obj['other'] });
-      });
-
-      return res;
-    },
-    [statistics]
-  );
-
   return (
     <ReactNativeModal
       isVisible={visible}
@@ -154,9 +50,9 @@ export const StatsModal = ({
       <View style={styles.container}>
         <InCallButton
           onPress={() => {
-            console.log('Closing');
             clearInterval(statsIntervalID);
-            close();
+            clearStatistics();
+            onClose();
           }}
           iconName="Close"
         />
@@ -166,95 +62,16 @@ export const StatsModal = ({
               {labels.map((name, id) => {
                 return (
                   <View key={id}>
-                    <Collapse>
-                      <CollapseHeader>
-                        <Typo variant="h5">{name}</Typo>
-                      </CollapseHeader>
-                      <CollapseBody>
-                        <View>
-                          <Typo variant="label">
-                            kind:{' '}
-                            {statistics[statistics.length - 1][name]['kind']}
-                          </Typo>
-                          <Typo variant="label">
-                            rid:{' '}
-                            {statistics[statistics.length - 1][name]['rid']}
-                          </Typo>
-                        </View>
-
-                        {Object.keys(
-                          statistics[statistics.length - 1][name]
-                        ).map((obj, objId) => {
-                          if (notPlottableStats.includes(obj)) {
-                            return;
-                          }
-                          if (obj === 'qualityLimitationDurations') {
-                            return (
-                              <View key={objId}>
-                                <LineChart
-                                  style={styles.chart}
-                                  data={{
-                                    dataSets: getLimitationDurationsDataset(
-                                      name,
-                                      obj
-                                    ),
-                                  }}
-                                  yAxis={{
-                                    left: {
-                                      enabled: false,
-                                    },
-                                  }}
-                                />
-                              </View>
-                            );
-                          }
-
-                          return (
-                            <View key={objId}>
-                              <Typo variant="label">{obj}</Typo>
-                              <LineChart
-                                style={styles.chart}
-                                data={{
-                                  dataSets: [
-                                    {
-                                      label: obj,
-                                      values: getValues(name, obj),
-                                      config: {
-                                        drawValues: false,
-                                        drawCircles: false,
-                                      },
-                                    },
-                                  ],
-                                }}
-                                yAxis={{
-                                  left: {
-                                    enabled: false,
-                                  },
-                                  right: {
-                                    enabled: true,
-                                  },
-                                }}
-                                xAxis={{
-                                  drawLabels: false,
-                                }}
-                                chartDescription={{
-                                  text: '',
-                                  textSize: 0,
-                                }}
-                                legend={{ enabled: false, drawInside: false }}
-                                marker={{ enabled: false }}
-                                logEnabled={false}
-                              />
-                            </View>
-                          );
-                        })}
-                      </CollapseBody>
-                    </Collapse>
+                    <Stats stats={statistics} label={name} />
                   </View>
                 );
               })}
             </>
-          ) : null}
+          ) : (
+            <View style={styles.loading}>
+              <ActivityIndicator size="large" color={BrandColors.darkBlue100} />
+            </View>
+          )}
         </ScrollView>
       </View>
     </ReactNativeModal>
@@ -271,9 +88,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5FCFF',
   },
-  chart: {
-    height: 125,
-    width: '100%',
-    paddingHorizontal: 20,
+  loading: {
+    justifyContent: 'center',
   },
 });

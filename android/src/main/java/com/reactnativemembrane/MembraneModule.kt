@@ -18,7 +18,6 @@ import org.membraneframework.rtc.transport.PhoenixTransport
 import org.membraneframework.rtc.utils.Metadata
 import org.webrtc.Logging
 import java.util.*
-import android.util.Log
 
 
 class MembraneModule(reactContext: ReactApplicationContext) :

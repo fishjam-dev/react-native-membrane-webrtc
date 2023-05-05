@@ -837,8 +837,7 @@ export function useRTCStatistics() {
         if (statistics.length === MAX_SIZE) {
           statistics.shift();
         }
-        stats = preprocessIncomingStats(stats);
-        statistics.push(stats);
+        statistics.push(preprocessIncomingStats(stats));
 
         setStatistics([...statistics]);
       }
