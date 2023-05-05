@@ -849,7 +849,7 @@ export function useRTCStatistics() {
     await Membrane.getStatistics();
   }, []);
 
-  const clearStatistics = useCallback(async () => {
+  const clearStatistics = useCallback(() => {
     setStatistics([]);
   }, []);
 

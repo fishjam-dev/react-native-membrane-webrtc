@@ -51,7 +51,7 @@ export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
         <InCallButton
           onPress={() => {
             clearInterval(statsIntervalID);
-            clearStatistics();
+            setLabels([]);
             onClose();
           }}
           iconName="Close"
@@ -86,9 +86,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    width: '100%',
     backgroundColor: '#F5FCFF',
   },
   loading: {
-    justifyContent: 'center',
+    flex: 1,
   },
 });

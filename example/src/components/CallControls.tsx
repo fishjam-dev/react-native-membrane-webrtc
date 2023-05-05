@@ -5,6 +5,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
+import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 
 import { StatsModal } from './StatsModal';
 
@@ -27,6 +28,8 @@ export const CallControls = () => {
     navigation.navigate('LeaveRoom');
   }, [disconnect]);
 
+  const { statistics, getStatistics, clearStatistics } =
+    Membrane.useRTCStatistics();
   return (
     <View style={styles.iconsContainer}>
       <View style={styles.iconInRow}>
@@ -53,6 +56,7 @@ export const CallControls = () => {
             <InCallButton
               iconName="Info"
               onPress={() => {
+                clearStatistics();
                 setIsStatsModalVisible(true);
               }}
             />
