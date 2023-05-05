@@ -827,7 +827,7 @@ export function useBandwidthEstimation() {
 }
 
 export function useRTCStatistics() {
-  const MAX_SIZE = 240;
+  const MAX_SIZE = 120;
   const [statistics, setStatistics] = useState<any[]>([]);
 
   useEffect(() => {
@@ -837,9 +837,7 @@ export function useRTCStatistics() {
         if (statistics.length === MAX_SIZE) {
           statistics.shift();
         }
-        statistics.push(preprocessIncomingStats(stats));
-
-        setStatistics([...statistics]);
+        setStatistics([...statistics, processIncomingStats(stats)]);
       }
     );
     return () => eventListener.remove();
@@ -853,7 +851,7 @@ export function useRTCStatistics() {
     setStatistics([]);
   }, []);
 
-  const preprocessIncomingStats = useCallback(
+  const processIncomingStats = useCallback(
     (stats) => {
       Object.keys(stats).forEach((obj) => {
         if (obj.includes('Inbound')) {

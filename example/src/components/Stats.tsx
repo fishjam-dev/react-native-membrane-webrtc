@@ -40,7 +40,7 @@ const yAxisConfig = {
 
 export const Stats = ({ stats, label }: StatsProp) => {
   const getValues = useCallback(
-    (label, chart) => {
+    (label: string, chart: string) => {
       const timestampsWithLabel = stats.filter((obj) => {
         return Object.keys(obj).includes(label);
       });
@@ -54,8 +54,23 @@ export const Stats = ({ stats, label }: StatsProp) => {
     [stats]
   );
 
+  const generateLimitationDurationInitData = useCallback(
+    (name: string, color: string) => {
+      return {
+        label: name,
+        values: [{ y: 0 }],
+        config: {
+          drawValues: false,
+          drawCircles: false,
+          color: processColor(color),
+        },
+      };
+    },
+    []
+  );
+
   const getLimitationDurationsDataset = useCallback(
-    (label, chart) => {
+    (label: string, chart: string) => {
       const timestampsWithLabel = stats.filter((obj) => {
         return Object.keys(obj).includes(label);
       });
@@ -65,43 +80,12 @@ export const Stats = ({ stats, label }: StatsProp) => {
       });
 
       const res = [
-        {
-          label: 'bandwidth',
-          values: [{ y: 0 }],
-          config: {
-            drawValues: false,
-            drawCircles: false,
-            color: processColor('blue'),
-          },
-        },
-        {
-          label: 'cpu',
-          values: [{ y: 0 }],
-          config: {
-            drawValues: false,
-            drawCircles: false,
-            color: processColor('red'),
-          },
-        },
-        {
-          label: 'none',
-          values: [{ y: 0 }],
-          config: {
-            drawValues: false,
-            drawCircles: false,
-            color: processColor('green'),
-          },
-        },
-        {
-          label: 'other',
-          values: [{ y: 0 }],
-          config: {
-            drawValues: false,
-            drawCircles: false,
-            color: processColor('yellow'),
-          },
-        },
+        generateLimitationDurationInitData('bandwidth', 'blue'),
+        generateLimitationDurationInitData('cpu', 'red'),
+        generateLimitationDurationInitData('none', 'green'),
+        generateLimitationDurationInitData('other', 'yellow'),
       ];
+
       combinedValues.forEach((obj) => {
         res[0].values.push({ y: obj['bandwidth'] });
         res[1].values.push({ y: obj['cpu'] });
@@ -112,6 +96,26 @@ export const Stats = ({ stats, label }: StatsProp) => {
       return res;
     },
     [stats]
+  );
+
+  const getLineChart = useCallback(
+    (dataSet: object[], isMultiValue: boolean) => {
+      return (
+        <LineChart
+          style={styles.chart}
+          data={{ dataSet }}
+          yAxis={yAxisConfig}
+          xAxis={{
+            drawLabels: false,
+          }}
+          chartDescription={chartDescriptionConfig}
+          legend={{ enabled: isMultiValue, drawInside: isMultiValue }}
+          marker={{ enabled: false }}
+          logEnabled={false}
+        />
+      );
+    },
+    []
   );
 
   return (
@@ -130,56 +134,44 @@ export const Stats = ({ stats, label }: StatsProp) => {
             </Typo>
           </View>
 
-          {Object.keys(stats[stats.length - 1][label]).map((obj, objId) => {
-            if (notPlottableStats.includes(obj)) {
-              return;
-            }
-            if (obj === 'qualityLimitationDurations') {
-              return (
-                <View key={objId}>
-                  <LineChart
-                    style={styles.chart}
-                    data={{
-                      dataSets: getLimitationDurationsDataset(label, obj),
-                    }}
-                    yAxis={yAxisConfig}
-                    chartDescription={chartDescriptionConfig}
-                  />
-                </View>
-              );
-            }
+          {Object.keys(stats[stats.length - 1][label]).map(
+            (statistic, statisticId) => {
+              if (notPlottableStats.includes(statistic)) {
+                return;
+              }
+              if (statistic === 'qualityLimitationDurations') {
+                return (
+                  <View key={statisticId}>
+                    {getLineChart(
+                      getLimitationDurationsDataset(label, statistic),
+                      true
+                    )}
+                  </View>
+                );
+              }
 
-            return (
-              <View key={objId}>
-                <View style={styles.label}>
-                  <Typo variant="label">{obj}</Typo>
-                </View>
-                <LineChart
-                  style={styles.chart}
-                  data={{
-                    dataSets: [
+              return (
+                <View key={statisticId}>
+                  <View style={styles.label}>
+                    <Typo variant="label">{statistic}</Typo>
+                  </View>
+                  {getLineChart(
+                    [
                       {
-                        label: obj,
-                        values: getValues(label, obj),
+                        label: statistic,
+                        values: getValues(label, statistic),
                         config: {
                           drawValues: false,
                           drawCircles: false,
                         },
                       },
                     ],
-                  }}
-                  yAxis={yAxisConfig}
-                  xAxis={{
-                    drawLabels: false,
-                  }}
-                  chartDescription={chartDescriptionConfig}
-                  legend={{ enabled: false, drawInside: false }}
-                  marker={{ enabled: false }}
-                  logEnabled={false}
-                />
-              </View>
-            );
-          })}
+                    false
+                  )}
+                </View>
+              );
+            }
+          )}
         </CollapseBody>
       </Collapse>
     </View>

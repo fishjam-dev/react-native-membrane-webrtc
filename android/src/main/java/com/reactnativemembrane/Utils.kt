@@ -89,9 +89,9 @@ internal fun rtcInboundStatsToRNMap(stats: RTCInboundStats): ReadableMap {
 }
 
 
-internal fun mapToRNMap(map: Map<String, Any>): WritableMap {
+internal fun mapToRNMap(map: Map<String, Any>?): WritableMap {
   val res = Arguments.createMap()
-  map.forEach { entry ->
+  map?.forEach { entry ->
     when(entry.value) {
       is Map<*, *> -> res.putMap(entry.key, mapToRNMap(entry.value as Map<String, Any>))
       is List<*> -> res.putArray(entry.key, listToRNArray(entry.value as List<Any>))

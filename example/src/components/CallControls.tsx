@@ -22,13 +22,13 @@ export const CallControls = () => {
   const navigation = useNavigation<StackNavigationProp<RootStack, 'Room'>>();
   const { isDevMode } = useVideoroomState();
   const [isStatsModalVisible, setIsStatsModalVisible] = useState(false);
+  const { clearStatistics } = Membrane.useRTCStatistics();
 
   const onDisconnectPress = useCallback(async () => {
     await disconnect();
     navigation.navigate('LeaveRoom');
   }, [disconnect]);
 
-  const { clearStatistics } = Membrane.useRTCStatistics();
   return (
     <View style={styles.iconsContainer}>
       <View style={styles.iconInRow}>
