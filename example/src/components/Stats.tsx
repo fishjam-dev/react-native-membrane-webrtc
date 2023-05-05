@@ -67,7 +67,7 @@ export const Stats = ({ stats, label }: StatsProp) => {
       const res = [
         {
           label: 'bandwidth',
-          values: [],
+          values: [{ y: 0 }],
           config: {
             drawValues: false,
             drawCircles: false,
@@ -76,7 +76,7 @@ export const Stats = ({ stats, label }: StatsProp) => {
         },
         {
           label: 'cpu',
-          values: [],
+          values: [{ y: 0 }],
           config: {
             drawValues: false,
             drawCircles: false,
@@ -85,7 +85,7 @@ export const Stats = ({ stats, label }: StatsProp) => {
         },
         {
           label: 'none',
-          values: [],
+          values: [{ y: 0 }],
           config: {
             drawValues: false,
             drawCircles: false,
@@ -94,7 +94,7 @@ export const Stats = ({ stats, label }: StatsProp) => {
         },
         {
           label: 'other',
-          values: [],
+          values: [{ y: 0 }],
           config: {
             drawValues: false,
             drawCircles: false,
@@ -121,7 +121,7 @@ export const Stats = ({ stats, label }: StatsProp) => {
           <Typo variant="h5">{label}</Typo>
         </CollapseHeader>
         <CollapseBody>
-          <View>
+          <View style={styles.label}>
             <Typo variant="label">
               kind: {stats[stats.length - 1][label]['kind']}
             </Typo>

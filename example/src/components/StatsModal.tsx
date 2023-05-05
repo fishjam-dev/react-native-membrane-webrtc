@@ -15,8 +15,7 @@ type StatsModalProps = {
 
 export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
   const [statsIntervalID, setStatsIntervalID] = useState<number>(0);
-  const { statistics, getStatistics, clearStatistics } =
-    Membrane.useRTCStatistics();
+  const { statistics, getStatistics } = Membrane.useRTCStatistics();
   const [labels, setLabels] = useState<string[]>([]);
 
   const getListOfPlotNames = useCallback(() => {

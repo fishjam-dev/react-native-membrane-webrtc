@@ -1,11 +1,11 @@
 import { InCallButton } from '@components/buttons/InCallButton';
+import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
-import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 
 import { StatsModal } from './StatsModal';
 
@@ -28,8 +28,7 @@ export const CallControls = () => {
     navigation.navigate('LeaveRoom');
   }, [disconnect]);
 
-  const { statistics, getStatistics, clearStatistics } =
-    Membrane.useRTCStatistics();
+  const { clearStatistics } = Membrane.useRTCStatistics();
   return (
     <View style={styles.iconsContainer}>
       <View style={styles.iconInRow}>
