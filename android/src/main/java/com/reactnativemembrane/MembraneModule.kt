@@ -461,13 +461,6 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun getStatistics(promise: Promise) {
-    val x = room?.getStats()
-    Log.e("KAROL", x.toString())
-    val y = x as Map<String, Any>
-    Log.e("KAROL", y.toString())
-    val z = mapToRNMap(y)
-    Log.e("KAROL", z.toString())
-
     emitEvent("StatisticsUpdated", mapToRNMap(room?.getStats() as Map<String, Any>))
     promise.resolve(null)
   }
