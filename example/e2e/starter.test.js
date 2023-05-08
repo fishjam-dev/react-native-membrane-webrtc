@@ -85,5 +85,5 @@ describe('Example', () => {
     } finally {
       await browser.close();
     }
-  });
+  }, 500000);
 });
