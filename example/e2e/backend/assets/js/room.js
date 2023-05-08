@@ -1,11 +1,11 @@
-import { MembraneWebRTC } from "@jellyfish-dev/membrane-webrtc-js";
+import { MembraneWebRTC } from '@jellyfish-dev/membrane-webrtc-js';
 
-import { Socket } from "phoenix";
+import { Socket } from 'phoenix';
 
-const videos = document.querySelector("#videos");
+const videos = document.querySelector('#videos');
 
 function addVideoElement(id) {
-  const video = document.createElement("video");
+  const video = document.createElement('video');
   video.id = id;
   video.autoplay = true;
   video.playsInline = true;
@@ -25,14 +25,14 @@ class Room {
   constructor(localStream, simulcast) {
     this.localStream = localStream;
     this.peers = [];
-    this.socket = new Socket("/socket");
+    this.socket = new Socket('/socket');
     this.socket.connect();
-    this.displayName = "web";
-    this.webrtcChannel = this.socket.channel("room:room");
+    this.displayName = 'web';
+    this.webrtcChannel = this.socket.channel('room:room');
     this.videoTrack = null;
     this.audioTrack = null;
-    this.peerEncoding = "m";
-    this.encodings = ["l", "m", "h"];
+    this.peerEncoding = 'm';
+    this.encodings = ['l', 'm', 'h'];
     this.peerMetadata = null;
     this.trackMetadata = null;
     this.selfId = null;
@@ -46,13 +46,17 @@ class Room {
     this.webrtc = new MembraneWebRTC({
       callbacks: {
         onSendMediaEvent: (mediaEvent) => {
-          this.webrtcChannel.push("mediaEvent", { data: mediaEvent });
+          console.log('SEND MEDIA EVENT', mediaEvent);
+          this.webrtcChannel.push('mediaEvent', { data: mediaEvent });
         },
         onConnectionError: setErrorMessage,
         onJoinSuccess: (peerId, peersInRoom) => {
+          console.log('ON JOIN SUCCESS');
           this.selfId = peerId;
           if (this.localStream) {
-            this.localStream.getTracks().forEach((track) => this.addTrack(track));
+            this.localStream
+              .getTracks()
+              .forEach((track) => this.addTrack(track));
           }
 
           this.peers = peersInRoom;
@@ -71,7 +75,7 @@ class Room {
           this.remoteTracks.set(ctx.trackId, ctx);
         },
         onTrackAdded: (ctx) => {
-          console.log(this.selfId, " track added ", ctx.trackId);
+          console.log(this.selfId, ' track added ', ctx.trackId);
         },
         onTrackRemoved: (ctx) => {
           this.remoteTracks.delete(ctx.trackId);
@@ -93,18 +97,26 @@ class Room {
           this.trackMetadata = ctx.metadata;
         },
         onTrackEncodingChanged: (peerId, trackId, encoding) => {
-          console.log(this.selfId, "received info that ", peerId, "changed encoding to ", encoding);
+          console.log(
+            this.selfId,
+            'received info that ',
+            peerId,
+            'changed encoding to ',
+            encoding
+          );
           this.peerEncoding = encoding;
         },
       },
     });
 
-    this.webrtcChannel.on("mediaEvent", (event) => this.webrtc.receiveMediaEvent(event.data));
+    this.webrtcChannel.on('mediaEvent', (event) =>
+      this.webrtc.receiveMediaEvent(event.data)
+    );
   }
 
   addTrack = (track) => {
     let trackId =
-      !this.simulcast || track.kind == "audio"
+      !this.simulcast || track.kind == 'audio'
         ? this.webrtc.addTrack(track, this.localStream)
         : this.webrtc.addTrack(
             track,
@@ -112,18 +124,24 @@ class Room {
             {},
             { enabled: true, active_encodings: this.encodings },
             new Map([
-              ["h", 1500],
-              ["m", 500],
-              ["l", 100],
+              ['h', 1500],
+              ['m', 500],
+              ['l', 100],
             ])
           );
 
-    if (track.kind == "audio") {
+    if (track.kind == 'audio') {
       this.audioTrack = [trackId, track];
-      this.webrtc.updateTrackMetadata(this.audioTrack[0], { type: "audio", active: true });
+      this.webrtc.updateTrackMetadata(this.audioTrack[0], {
+        type: 'audio',
+        active: true,
+      });
     } else {
       this.videoTrack = [trackId, track];
-      this.webrtc.updateTrackMetadata(this.videoTrack[0], { type: "camera", active: true });
+      this.webrtc.updateTrackMetadata(this.videoTrack[0], {
+        type: 'camera',
+        active: true,
+      });
     }
   };
 
@@ -155,8 +173,8 @@ class Room {
   phoenixChannelPushResult = async (push) => {
     return new Promise((resolve, reject) => {
       push
-        .receive("ok", (response) => resolve(response))
-        .receive("error", (response) => reject(response));
+        .receive('ok', (response) => resolve(response))
+        .receive('error', (response) => reject(response));
     });
   };
 
@@ -172,17 +190,20 @@ class Room {
     const peer = this.peers[0];
     const trackIds = Array.from(peer.trackIdToMetadata.keys());
     const videoTrackIds = trackIds.filter(
-      (trackId) => this.remoteTracks.get(trackId).track.kind == "video"
+      (trackId) => this.remoteTracks.get(trackId).track.kind == 'video'
     );
-    videoTrackIds.forEach((trackId) => this.webrtc.setTargetTrackEncoding(trackId, encoding));
+    videoTrackIds.forEach((trackId) =>
+      this.webrtc.setTargetTrackEncoding(trackId, encoding)
+    );
   };
 
   getPeerEncoding = () => {
     return this.peerEncoding;
   };
 
-  updateMetadata = () => this.webrtc.updatePeerMetadata("test");
-  updateTrackMetadata = () => this.webrtc.updateTrackMetadata(this.videoTrack[0], "trackMetadata");
+  updateMetadata = () => this.webrtc.updatePeerMetadata('test');
+  updateTrackMetadata = () =>
+    this.webrtc.updateTrackMetadata(this.videoTrack[0], 'trackMetadata');
 }
 
 export default Room;

@@ -1,40 +1,44 @@
-import Room from "./room";
+import Room from './room';
 import {
   remoteStreamsStats,
   inboundSimulcastStreamStats,
   outboundSimulcastStreamStats,
-} from "./stats";
+} from './stats';
 
-const videos = document.querySelector("#videos");
-const localVideo = document.querySelector("video#local-video");
-const data = document.querySelector("div#data");
+console.log('LOGGING WORKS?');
+
+const videos = document.querySelector('#videos');
+const localVideo = document.querySelector('video#local-video');
+const data = document.querySelector('div#data');
 
 const getButtonsWithPrefix = (types, prefix) => {
-  return types.map((type) => document.querySelector(`button#${prefix}-${type}`));
+  return types.map((type) =>
+    document.querySelector(`button#${prefix}-${type}`)
+  );
 };
 
 const startButtons = getButtonsWithPrefix(
-  ["simulcast", "all", "mic-only", "camera-only", "none"],
-  "start"
+  ['simulcast', 'all', 'mic-only', 'camera-only', 'none'],
+  'start'
 );
 
 const simulcastButtons = getButtonsWithPrefix(
   [
-    "local-low-encoding",
-    "local-medium-encoding",
-    "local-high-encoding",
-    "peer-low-encoding",
-    "peer-medium-encoding",
-    "peer-high-encoding",
-    "inbound-stats",
-    "outbound-stats",
+    'local-low-encoding',
+    'local-medium-encoding',
+    'local-high-encoding',
+    'peer-low-encoding',
+    'peer-medium-encoding',
+    'peer-high-encoding',
+    'inbound-stats',
+    'outbound-stats',
   ],
-  "simulcast"
+  'simulcast'
 );
 
 const metadataButtons = getButtonsWithPrefix(
-  ["update-peer", "update-track", "peer", "track"],
-  "metadata"
+  ['update-peer', 'update-track', 'peer', 'track'],
+  'metadata'
 );
 
 const [
@@ -62,8 +66,8 @@ const [
   trackMetadataButton,
 ] = metadataButtons;
 
-const stopButton = document.querySelector("button#stop");
-const statsButton = document.querySelector("button#stats");
+const stopButton = document.querySelector('button#stop');
+const statsButton = document.querySelector('button#stats');
 
 startButtons.forEach((button) => (button.disabled = false));
 metadataButtons.forEach((button) => (button.disabled = false));
@@ -80,22 +84,27 @@ const simulcastPreferences = {
 };
 
 async function start(media, simulcast = false) {
+  console.log('START CLICKED', media);
   if (room) return;
 
-  const useVideo = ["all", "camera"].includes(media);
+  const useVideo = ['all', 'camera'].includes(media);
 
   if (simulcast) {
     simulcastButtons.map((elem) => (elem.disabled = false));
   }
 
   const preferences = {
-    audio: ["all", "mic"].includes(media),
+    audio: ['all', 'mic'].includes(media),
     video: useVideo && simulcast ? simulcastPreferences : useVideo,
   };
 
+  console.log('PREFERENCES: ', preferences);
+
   let localStream = undefined;
   if (preferences.audio || preferences.video) {
+    console.log('GETTING USER MEDIA');
     localStream = await navigator.mediaDevices.getUserMedia(preferences);
+    console.log('GOT USER MEDIA');
     window.stream = localStream;
   }
   localVideo.srcObject = localStream;
@@ -103,10 +112,13 @@ async function start(media, simulcast = false) {
   startButtons.forEach((button) => (button.disabled = true));
   stopButton.disabled = false;
 
+  console.log('CREATING ROOM');
   room = new Room(localStream, simulcast);
 
   await room.init();
+  console.log('JOINING');
   await room.join();
+  console.log('JOINED');
 }
 
 async function stop() {
@@ -147,25 +159,25 @@ async function refreshStats(statsFunction) {
 }
 
 const toggleSimulcastEncoding = function (button, encoding) {
-  const isEnabled = button.textContent.startsWith("Disable");
+  const isEnabled = button.textContent.startsWith('Disable');
   let text = button.textContent;
   if (isEnabled) {
     room.disableSimulcastEncoding(encoding);
-    text = text.replace("Disable", "Enable");
+    text = text.replace('Disable', 'Enable');
   } else {
     room.enableSimulcastEncoding(encoding);
-    text = text.replace("Enable", "Disable");
+    text = text.replace('Enable', 'Disable');
   }
   button.textContent = text;
 };
 
 // setup all button callbacks
-startSimulcastButton.onclick = () => start("all", true);
-startAllButton.onclick = () => start("all");
-startAllButton.onclick = () => start("all");
-startMicOnlyButton.onclick = () => start("mic");
-startCameraOnlyButton.onclick = () => start("camera");
-startNoneButton.onclick = () => start("none");
+startSimulcastButton.onclick = () => start('all', true);
+startAllButton.onclick = () => start('all');
+startAllButton.onclick = () => start('all');
+startMicOnlyButton.onclick = () => start('mic');
+startCameraOnlyButton.onclick = () => start('camera');
+startNoneButton.onclick = () => start('none');
 stopButton.onclick = stop;
 statsButton.onclick = () => {
   refreshStats(remoteStreamsStats);
@@ -183,22 +195,22 @@ trackMetadataButton.onclick = () => {
   putStats(room.trackMetadata);
 };
 localLowEncodingButton.onclick = () => {
-  toggleSimulcastEncoding(localLowEncodingButton, "l");
+  toggleSimulcastEncoding(localLowEncodingButton, 'l');
 };
 localMediumEncodingButton.onclick = () => {
-  toggleSimulcastEncoding(localMediumEncodingButton, "m");
+  toggleSimulcastEncoding(localMediumEncodingButton, 'm');
 };
 localHighEncodingButton.onclick = () => {
-  toggleSimulcastEncoding(localHighEncodingButton, "h");
+  toggleSimulcastEncoding(localHighEncodingButton, 'h');
 };
 peerLowEncodingButton.onclick = () => {
-  room.selectPeerSimulcastEncoding("l");
+  room.selectPeerSimulcastEncoding('l');
 };
 peerMediumEncodingButton.onclick = () => {
-  room.selectPeerSimulcastEncoding("m");
+  room.selectPeerSimulcastEncoding('m');
 };
 peerHighEncodingButton.onclick = () => {
-  room.selectPeerSimulcastEncoding("h");
+  room.selectPeerSimulcastEncoding('h');
 };
 inboundSimulcastStatsButton.onclick = () => {
   refreshStats(async (connection) => {
