@@ -19,7 +19,17 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Check and set up local ip
-        run: ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}'
+        run: |
+          LOCAL_IP=ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}'
+          echo "LOCAL_IP=$LOCAL_IP" >> "$GITHUB_ENV"
+          sed -i '' "s/LOCAL_IP/$LOCAL_IP/g" example/.env.production
+          sed -i '' "s/LOCAL_IP/$LOCAL_IP/g" example/android/app/src/main/res/xml/network_security_config.xml
+          cat example/.env.production
+          cat example/android/app/src/main/res/xml/network_security_config.xml
+      
+      - name: Check env
+        run: echo "${{ env.LOCAL_IP }}"
+
 
       # - name: Setup JDK 11
       #   uses: actions/setup-java@v2
