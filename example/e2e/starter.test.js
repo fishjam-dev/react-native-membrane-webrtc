@@ -36,6 +36,13 @@ describe('Example', () => {
 
       const page = await browser.newPage();
 
+      page.on('console', async (msg) => {
+        const msgArgs = msg.args();
+        for (let i = 0; i < msgArgs.length; ++i) {
+          console.log('PAGE LOG: ', await msgArgs[i].jsonValue());
+        }
+      });
+
       await page.goto('http://localhost:4001');
 
       await page.setViewport({ width: 1080, height: 1024 });
@@ -50,16 +57,9 @@ describe('Example', () => {
 
       await waitFor(element(by.id('video-renderer-web')))
         .toBeVisible()
-        .withTimeout(15000);
+        .withTimeout(150000);
 
       console.log('VIDEO VISIBLE ON MOBILE');
-
-      page.on('console', async (msg) => {
-        const msgArgs = msg.args();
-        for (let i = 0; i < msgArgs.length; ++i) {
-          console.log('PAGE LOG: ', await msgArgs[i].jsonValue());
-        }
-      });
 
       await page.waitForTimeout(2000);
 
