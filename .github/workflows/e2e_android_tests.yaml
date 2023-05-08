@@ -20,7 +20,7 @@ jobs:
       
       - name: Check and set up local ip
         run: |
-          LOCAL_IP=ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}'
+          LOCAL_IP=$(ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}')
           echo "LOCAL_IP=$LOCAL_IP" >> "$GITHUB_ENV"
           sed -i '' "s/LOCAL_IP/$LOCAL_IP/g" example/.env.production
           sed -i '' "s/LOCAL_IP/$LOCAL_IP/g" example/android/app/src/main/res/xml/network_security_config.xml
