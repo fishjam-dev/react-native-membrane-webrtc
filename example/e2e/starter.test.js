@@ -8,15 +8,6 @@ describe('Example', () => {
   });
 
   it('should have welcome screen', async () => {
-    await waitFor(element(by.id('create-room')))
-      .toBeVisible()
-      .withTimeout(2000);
-    await element(by.id('create-room')).tap();
-    await element(by.id('room-name')).typeText('room');
-    await element(by.id('user-name')).typeText('android\n');
-    await element(by.id('create-room-btn')).tap();
-    await element(by.id('join-room-btn')).tap();
-
     const browser = await puppeteer.launch({
       headless: true,
       args: [
@@ -27,58 +18,72 @@ describe('Example', () => {
       ],
     });
 
-    const context = browser.defaultBrowserContext();
-    await context.overridePermissions('http://localhost:4001/', [
-      'camera',
-      'microphone',
-    ]);
+    try {
+      await waitFor(element(by.id('create-room')))
+        .toBeVisible()
+        .withTimeout(2000);
+      await element(by.id('create-room')).tap();
+      await element(by.id('room-name')).typeText('room');
+      await element(by.id('user-name')).typeText('android\n');
+      await element(by.id('create-room-btn')).tap();
+      await element(by.id('join-room-btn')).tap();
 
-    const page = await browser.newPage();
+      const context = browser.defaultBrowserContext();
+      await context.overridePermissions('http://localhost:4001/', [
+        'camera',
+        'microphone',
+      ]);
 
-    await page.goto('http://localhost:4001');
+      const page = await browser.newPage();
 
-    await page.setViewport({ width: 1080, height: 1024 });
+      await page.goto('http://localhost:4001');
 
-    await page.click('button[id="start-simulcast"]');
+      await page.setViewport({ width: 1080, height: 1024 });
 
-    console.log('WAITING FOR CONNECTION');
+      await page.click('button[id="start-simulcast"]');
 
-    await waitFor(element(by.id('video-renderer-android')))
-      .toBeVisible()
-      .withTimeout(15000);
+      console.log('WAITING FOR CONNECTION');
 
-    await waitFor(element(by.id('video-renderer-web')))
-      .toBeVisible()
-      .withTimeout(15000);
+      await waitFor(element(by.id('video-renderer-android')))
+        .toBeVisible()
+        .withTimeout(15000);
 
-    console.log('VIDEO VISIBLE ON MOBILE');
+      await waitFor(element(by.id('video-renderer-web')))
+        .toBeVisible()
+        .withTimeout(15000);
 
-    page.on('console', async (msg) => {
-      const msgArgs = msg.args();
-      for (let i = 0; i < msgArgs.length; ++i) {
-        console.log('PAGE LOG: ', await msgArgs[i].jsonValue());
-      }
-    });
+      console.log('VIDEO VISIBLE ON MOBILE');
 
-    await page.waitForTimeout(2000);
+      page.on('console', async (msg) => {
+        const msgArgs = msg.args();
+        for (let i = 0; i < msgArgs.length; ++i) {
+          console.log('PAGE LOG: ', await msgArgs[i].jsonValue());
+        }
+      });
 
-    // todo: extract stats checking to separate function
-    await page.click('button[id="simulcast-inbound-stats"]');
+      await page.waitForTimeout(2000);
 
-    console.log('STATS CLICKED');
+      // todo: extract stats checking to separate function
+      await page.click('button[id="simulcast-inbound-stats"]');
 
-    await page.waitForTimeout(2000);
+      console.log('STATS CLICKED');
 
-    const dataDiv = await page.$('div[id="data"]');
-    const data = JSON.parse(
-      await (await dataDiv.getProperty('textContent')).jsonValue()
-    );
+      await page.waitForTimeout(2000);
 
-    console.log('STATS:', data);
+      const dataDiv = await page.$('div[id="data"]');
+      const data = JSON.parse(
+        await (await dataDiv.getProperty('textContent')).jsonValue()
+      );
 
-    jestExpect(data.framesReceived).toBeGreaterThan(0);
-    jestExpect(data.framesPerSecond).toBeGreaterThan(0);
+      console.log('STATS:', data);
 
-    await browser.close();
+      jestExpect(data.framesReceived).toBeGreaterThan(0);
+      jestExpect(data.framesPerSecond).toBeGreaterThan(0);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    } finally {
+      await browser.close();
+    }
   });
 });
