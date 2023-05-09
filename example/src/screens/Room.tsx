@@ -13,10 +13,10 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useKeepAwake } from 'expo-keep-awake';
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import IdleTimerManager from 'react-native-idle-timer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
@@ -25,17 +25,13 @@ import { CallControls } from '../components/CallControls';
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
 export const Room = ({ navigation }: Props) => {
+  useKeepAwake();
+
   const { isDevMode, roomName, disconnect } = useVideoroomState();
   const { selectedAudioOutputDevice } = Membrane.useAudioSettings();
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
-
-  useEffect(() => {
-    IdleTimerManager.setIdleTimerDisabled(true, 'room');
-
-    return () => IdleTimerManager.setIdleTimerDisabled(false, 'room');
-  }, []);
 
   const participantsWithTracks = participants
     .map((p) => {
