@@ -19,6 +19,7 @@ describe('Example', () => {
         '--disable-accelerated-2d-canvas',
         '--disable-gpu',
         '--ignore-certificate-errors',
+        '--enable-features=ExperimentalJavaScript',
       ],
     });
 
@@ -76,6 +77,8 @@ describe('Example', () => {
       //   .withTimeout(150000);
 
       // console.log('VIDEO VISIBLE ON MOBILE');
+
+      await page.goto('http://localhost:4001/assets/app.js');
 
       await page.waitForTimeout(5000);
 
