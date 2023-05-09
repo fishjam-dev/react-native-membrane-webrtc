@@ -61,7 +61,7 @@ describe('Example', () => {
         }
       });
 
-      await page.screenshot({ path: 'screen1.png' });
+      await page.screenshot({ path: 'screen3.png' });
 
       await page.click('button[id="start-simulcast"]');
 
@@ -86,7 +86,7 @@ describe('Example', () => {
 
       await page.waitForTimeout(5000);
 
-      await page.screenshot({ path: 'screen2.png' });
+      await page.screenshot({ path: 'screen4.png' });
 
       const dataDiv = await page.$('div[id="data"]');
       const data = JSON.parse(

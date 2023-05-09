@@ -94,14 +94,14 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: screen1
-          path: example/screen1.png
+          name: screen3
+          path: example/screen3.png
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: screen2
-          path: example/screen2.png
+          name: screen4
+          path: example/screen4.png
 
       
       
