@@ -59,7 +59,7 @@ export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
         <ScrollView style={styles.content}>
           {labels.length > 0 ? (
             <>
-              {labels.map((name, id) => {
+              {labels.sort().map((name, id) => {
                 return (
                   <View key={id}>
                     <Stats stats={statistics} label={name} />

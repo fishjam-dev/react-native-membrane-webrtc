@@ -133,8 +133,9 @@ export const Stats = ({ stats, label }: StatsProp) => {
             </Typo>
           </View>
 
-          {Object.keys(stats[stats.length - 1][label]).map(
-            (statistic, statisticId) => {
+          {Object.keys(stats[stats.length - 1][label])
+            .sort()
+            .map((statistic, statisticId) => {
               if (notPlottableStats.includes(statistic)) {
                 return;
               }
@@ -169,8 +170,7 @@ export const Stats = ({ stats, label }: StatsProp) => {
                   )}
                 </View>
               );
-            }
-          )}
+            })}
         </CollapseBody>
       </Collapse>
     </View>
