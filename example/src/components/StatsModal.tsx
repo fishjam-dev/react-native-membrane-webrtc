@@ -26,6 +26,7 @@ export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
 
   const statsCallback = useCallback(() => {
     getStatistics();
+    console.log(statistics);
   }, []);
 
   useEffect(() => {
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
   container: {
     felx: 1,
     width: '100%',
-    height: '100%',
+    height: '90%',
   },
   content: {
     flex: 1,

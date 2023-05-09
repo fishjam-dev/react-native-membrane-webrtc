@@ -349,8 +349,6 @@ PODS:
     - Charts (= 4.1.0)
     - React
     - SwiftyJSON (= 5.0)
-  - react-native-idle-timer (2.2.0):
-    - React-Core
   - react-native-membrane (5.0.0):
     - MembraneRTC (~> 4.4.0)
     - React-Core
@@ -538,7 +536,6 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-charts-wrapper (from `../node_modules/react-native-charts-wrapper`)
-  - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
   - react-native-membrane (from `../..`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -654,8 +651,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-charts-wrapper:
     :path: "../node_modules/react-native-charts-wrapper"
-  react-native-idle-timer:
-    :path: "../node_modules/react-native-idle-timer"
   react-native-membrane:
     :path: "../.."
   react-native-safe-area-context:
@@ -748,7 +743,6 @@ SPEC CHECKSUMS:
   React-jsinspector: 5e5497c844f2381e8648ec3a7d0ad25b3f27f23e
   React-logger: b277ad8f4473f2506fb30b762b6348534a3de10e
   react-native-charts-wrapper: 4461b72f48e737a490e968bf2468cc0fd2281681
-  react-native-idle-timer: 186294075478d59249be48c0ac4097c97105d890
   react-native-membrane: da58aa1c1fcc25bb1a7060baebad500709b7f14f
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   React-perflogger: e9249a18e055cae96fdf685bf6145cbea62506c8
