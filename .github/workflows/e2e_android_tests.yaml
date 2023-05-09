@@ -89,19 +89,8 @@ jobs:
       #   run: cd example && npx detox test -c android.emu.release --loglevel verbose
 
       - name: Run tests
-        run: cd example && yarn test
+        run: cd example && env DEBUG="puppeteer:*" yarn test
       
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: screen1
-          path: example/screen1.png
-
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: screen2
-          path: example/screen2.png
 
       
       
