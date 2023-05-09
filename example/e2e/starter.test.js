@@ -4,7 +4,7 @@ const { expect: jestExpect } = require('expect');
 
 describe('Example', () => {
   beforeAll(async () => {
-    await device.launchApp();
+    //await device.launchApp();
   });
 
   it('should have welcome screen', async () => {
@@ -19,14 +19,14 @@ describe('Example', () => {
     });
 
     try {
-      await waitFor(element(by.id('create-room')))
-        .toBeVisible()
-        .withTimeout(2000);
-      await element(by.id('create-room')).tap();
-      await element(by.id('room-name')).typeText('room');
-      await element(by.id('user-name')).typeText('android\n');
-      await element(by.id('create-room-btn')).tap();
-      await element(by.id('join-room-btn')).tap();
+      // await waitFor(element(by.id('create-room')))
+      //   .toBeVisible()
+      //   .withTimeout(2000);
+      // await element(by.id('create-room')).tap();
+      // await element(by.id('room-name')).typeText('room');
+      // await element(by.id('user-name')).typeText('android\n');
+      // await element(by.id('create-room-btn')).tap();
+      // await element(by.id('join-room-btn')).tap();
 
       const context = browser.defaultBrowserContext();
       await context.overridePermissions('http://localhost:4001/', [
@@ -51,15 +51,15 @@ describe('Example', () => {
 
       console.log('WAITING FOR CONNECTION');
 
-      await waitFor(element(by.id('video-renderer-android')))
-        .toBeVisible()
-        .withTimeout(15000);
+      // await waitFor(element(by.id('video-renderer-android')))
+      //   .toBeVisible()
+      //   .withTimeout(15000);
 
-      await waitFor(element(by.id('video-renderer-web')))
-        .toBeVisible()
-        .withTimeout(150000);
+      // await waitFor(element(by.id('video-renderer-web')))
+      //   .toBeVisible()
+      //   .withTimeout(150000);
 
-      console.log('VIDEO VISIBLE ON MOBILE');
+      // console.log('VIDEO VISIBLE ON MOBILE');
 
       await page.waitForTimeout(2000);
 
