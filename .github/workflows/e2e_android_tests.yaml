@@ -51,7 +51,7 @@ jobs:
           cache: 'yarn'
 
       - name: Brew
-        run: brew install srtp elixir clang-format ffmpeg tree && yes | mix local.hex && yes | mix local.rebar
+        run: brew install srtp elixir clang-format ffmpeg && yes | mix local.hex && yes | mix local.rebar
     
       - name: Cache elixir deps
         id: cache-deps
@@ -77,7 +77,7 @@ jobs:
         run: cd example/e2e/backend/assets && yarn
       
       - name: Start backend
-        run: cd example/e2e/backend && INTEGRATED_TURN_IP=${{ env.LOCAL_IP }} mix phx.server &
+        run: cd example/e2e/backend && INTEGRATED_TURN_IP=${{ env.LOCAL_IP }} mix phx.server &> logs.txt &
       
       - name: Install js deps
         run: yarn && cd example && yarn
@@ -87,9 +87,6 @@ jobs:
       
       # - name: Run tests
       #   run: cd example && npx detox test -c android.emu.release --loglevel verbose
-
-      - name: Tree
-        run: cd example/e2e/backend && tree
 
       - name: Run tests
         run: cd example && yarn test
@@ -103,8 +100,8 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: screen4
-          path: example/screen4.png
+          name: logs
+          path: example/e2e/backend/logs.txt
 
       
       
