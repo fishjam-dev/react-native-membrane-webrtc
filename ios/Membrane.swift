@@ -626,82 +626,77 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     resolve(nil)
   }
     
-    
-    func getMapFromStatsObject(obj: RTCInboundStats) -> [String: Any] {
-        var res: [String:Any] = [:]
-        res["kind"] = obj.kind
-        res["jitter"] = obj.jitter
-        res["packetsLost"] = obj.packetsLost
-        res["packetsReceived"] = obj.packetsReceived
-        res["bytesReceived"] = obj.bytesReceived
-        res["framesReceived"] = obj.framesReceived
-        res["frameWidth"] = obj.frameWidth
-        res["frameHeight"] = obj.frameHeight
-        res["framesPerSecond"] = obj.framesPerSecond
-        res["framesDropped"] = obj.framesDropped
-        
-        return res
-    }
-    
-    func getMapFromStatsObject(obj: RTCOutboundStats) -> [String: Any] {
-        var innerMap: [String: Double] = [:]
-        if let bandwidth = obj.qualityLimitationDurations?.bandwidth {
-            innerMap["bandwidth"] = bandwidth
-        } else {
-            innerMap["bandwidth"] = 0.0
-        }
-        if let cpu = obj.qualityLimitationDurations?.bandwidth {
-            innerMap["cpu"] = cpu
-        } else {
-            innerMap["cpu"] = 0.0
-        }
-        if let none = obj.qualityLimitationDurations?.bandwidth {
-            innerMap["none"] = none
-        } else {
-            innerMap["none"] = 0.0
-        }
-        if let other = obj.qualityLimitationDurations?.bandwidth {
-            innerMap["other"] = other
-        } else {
-            innerMap["other"] = 0.0
-        }
+  private func getMapFromStatsObject(obj: RTCInboundStats) -> [String: Any] {
+      var res: [String:Any] = [:]
+      res["kind"] = obj.kind
+      res["jitter"] = obj.jitter
+      res["packetsLost"] = obj.packetsLost
+      res["packetsReceived"] = obj.packetsReceived
+      res["bytesReceived"] = obj.bytesReceived
+      res["framesReceived"] = obj.framesReceived
+      res["frameWidth"] = obj.frameWidth
+      res["frameHeight"] = obj.frameHeight
+      res["framesPerSecond"] = obj.framesPerSecond
+      res["framesDropped"] = obj.framesDropped
+      
+      return res
+  }
 
-        var res: [String: Any] = [:]
-        res["kind"] = obj.kind
-        res["rid"] = obj.rid
-        res["bytesSent"] = obj.bytesSent
-        res["targetBitrate"] = obj.targetBitrate
-        res["packetsSent"] = obj.packetsSent
-        res["framesEncoded"] = obj.framesEncoded
-        res["framesPerSecond"] = obj.framesPerSecond
-        res["frameWidth"] = obj.frameWidth
-        res["frameHeight"] = obj.frameHeight
-        res["qualityLimitationDurations"] = innerMap
-        
-        return res
-    }
-    
-    
-func statsToRNMap(stats: [String: RTCStats]?) -> [String: Any] {
-    var res: [String: Any] = [:]
-    stats?.forEach{ pair in
-        if let val = pair.value as? RTCOutboundStats {
-            res[pair.key] = getMapFromStatsObject(obj: val)
-        } else {
-            res[pair.key] = getMapFromStatsObject(obj: pair.value as! RTCInboundStats)
-        }
-    }
-    return res
-}
+  private func getMapFromStatsObject(obj: RTCOutboundStats) -> [String: Any] {
+      var innerMap: [String: Double] = [:]
+      if let bandwidth = obj.qualityLimitationDurations?.bandwidth {
+          innerMap["bandwidth"] = bandwidth
+      } else {
+          innerMap["bandwidth"] = 0.0
+      }
+      if let cpu = obj.qualityLimitationDurations?.bandwidth {
+          innerMap["cpu"] = cpu
+      } else {
+          innerMap["cpu"] = 0.0
+      }
+      if let none = obj.qualityLimitationDurations?.bandwidth {
+          innerMap["none"] = none
+      } else {
+          innerMap["none"] = 0.0
+      }
+      if let other = obj.qualityLimitationDurations?.bandwidth {
+          innerMap["other"] = other
+      } else {
+          innerMap["other"] = 0.0
+      }
+      
+      var res: [String: Any] = [:]
+      res["kind"] = obj.kind
+      res["rid"] = obj.rid
+      res["bytesSent"] = obj.bytesSent
+      res["targetBitrate"] = obj.targetBitrate
+      res["packetsSent"] = obj.packetsSent
+      res["framesEncoded"] = obj.framesEncoded
+      res["framesPerSecond"] = obj.framesPerSecond
+      res["frameWidth"] = obj.frameWidth
+      res["frameHeight"] = obj.frameHeight
+      res["qualityLimitationDurations"] = innerMap
+      
+      return res
+  }
+
+  private func statsToRNMap(stats: [String: RTCStats]?) -> [String: Any] {
+      var res: [String: Any] = [:]
+      stats?.forEach{ pair in
+          if let val = pair.value as? RTCOutboundStats {
+              res[pair.key] = getMapFromStatsObject(obj: val)
+          } else {
+              res[pair.key] = getMapFromStatsObject(obj: pair.value as! RTCInboundStats)
+          }
+      }
+      return res
+  }
     
   @objc(getStatistics:withRejecter:)
   func getStatistics(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) {
-      var y = room?.getStats()
-      print(y)
-      var x = statsToRNMap(stats:y)
-    print(x)
-    emitEvent(name:"StatisticsUpdated", data:x)
-    resolve(x)
+    let mapped = statsToRNMap(stats:room?.getStats())
+    emitEvent(name:"StatisticsUpdated", data:mapped)
+    resolve(mapped)
   }
   
   func setAudioSessionMode() {

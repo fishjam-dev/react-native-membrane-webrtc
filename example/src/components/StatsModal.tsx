@@ -26,7 +26,6 @@ export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
 
   const statsCallback = useCallback(() => {
     getStatistics();
-    console.log(statistics);
   }, []);
 
   useEffect(() => {
