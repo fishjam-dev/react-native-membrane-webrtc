@@ -15,6 +15,10 @@ describe('Example', () => {
         `--use-fake-ui-for-media-stream`,
         `--no-sandbox`,
         `--use-file-for-fake-video-capture=./e2e/sample_1280x720.mjpeg`,
+        '--disable-setuid-sandbox',
+        '--disable-accelerated-2d-canvas',
+        '--disable-gpu',
+        '--ignore-certificate-errors',
       ],
     });
 
@@ -47,6 +51,18 @@ describe('Example', () => {
 
       await page.setViewport({ width: 1080, height: 1024 });
 
+      await page.waitForNetworkIdle();
+
+      page.on('console', async (msg) => {
+        console.log('PAGE LOG');
+        const msgArgs = msg.args();
+        for (let i = 0; i < msgArgs.length; ++i) {
+          console.log('PAGE LOG: ', await msgArgs[i].jsonValue());
+        }
+      });
+
+      await page.screenshot({ path: 'screen1.png' });
+
       await page.click('button[id="start-simulcast"]');
 
       console.log('WAITING FOR CONNECTION');
@@ -62,8 +78,6 @@ describe('Example', () => {
       // console.log('VIDEO VISIBLE ON MOBILE');
 
       await page.waitForTimeout(5000);
-
-      await page.screenshot({ path: 'screen1.png' });
 
       // todo: extract stats checking to separate function
       await page.click('button[id="simulcast-inbound-stats"]');
