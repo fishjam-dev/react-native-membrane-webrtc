@@ -90,6 +90,16 @@ jobs:
 
       - name: Run tests
         run: cd example && yarn test
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: screen1
+          path: example/screen1.png
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: screen2
+          path: example/screen2.png
 
       
       

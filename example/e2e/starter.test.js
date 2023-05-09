@@ -61,14 +61,18 @@ describe('Example', () => {
 
       // console.log('VIDEO VISIBLE ON MOBILE');
 
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(5000);
+
+      await page.screenshot({ path: 'screen1.png' });
 
       // todo: extract stats checking to separate function
       await page.click('button[id="simulcast-inbound-stats"]');
 
       console.log('STATS CLICKED');
 
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(5000);
+
+      await page.screenshot({ path: 'screen2.png' });
 
       const dataDiv = await page.$('div[id="data"]');
       const data = JSON.parse(
