@@ -13,7 +13,8 @@ defmodule TestVideoroomWeb.Endpoint do
 
   plug Plug.Static,
     at: "/",
-    from: :test_videoroom,
+    #from: "/Users/angelikaserwa/Projects/react-native-membrane-webrtc/example/e2e/backend/priv/static/",
+    from: "/Users/runner/work/react-native-membrane-webrtc/react-native-membrane-webrtc/eexample/e2e/backend/priv/static/",
     gzip: false,
     only: ~w(assets fonts images favicon.ico robots.txt)
 
