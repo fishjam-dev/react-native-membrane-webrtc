@@ -369,13 +369,6 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       ]
     }]
   }
-  
-//    func getStatsAsRNMap(stats: [String: RTCStats]) -> [String: Any] {
-//  return [
-//    "enabled": simulcastConfig.enabled,
-//  ]
-//}
-
     
   func getSimulcastConfigAsRNMap(simulcastConfig: SimulcastConfig) -> [String: Any] {
     return [

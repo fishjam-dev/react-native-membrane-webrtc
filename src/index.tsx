@@ -826,9 +826,12 @@ export function useBandwidthEstimation() {
   return { estimation };
 }
 
+/**
+ * This hook provides access to current rtc statistics data.
+ */
 export function useRTCStatistics() {
   const MAX_SIZE = 120;
-  const [statistics, setStatistics] = useState<any[]>([]);
+  const [statistics, setStatistics] = useState<object[]>([]);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener(
@@ -844,14 +847,23 @@ export function useRTCStatistics() {
     return () => eventListener.remove();
   }, []);
 
+  /**
+   * Collects current RTC statistics.
+   */
   const getStatistics = useCallback(async () => {
     await Membrane.getStatistics();
   }, []);
 
+  /**
+   * Clears statistics array,
+   * efectivly starts collecting statistics from the beginning.
+   */
   const clearStatistics = useCallback(() => {
     setStatistics([]);
   }, []);
 
+  // Calculates diff between pervious and current stats,
+  // providing end users with a per second metric.
   const processIncomingStats = useCallback(
     (stats) => {
       Object.keys(stats).forEach((obj) => {
