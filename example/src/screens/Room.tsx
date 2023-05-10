@@ -133,7 +133,9 @@ export const Room = ({ navigation }: Props) => {
         <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
           <View style={styles.header}>
             <View style={styles.headerTitle}>
-              <Typo variant="h4">{roomName}</Typo>
+              <Typo variant="h4" numberOfLines={1}>
+                {roomName}
+              </Typo>
             </View>
             <View style={styles.headerIcon}>
               <TouchableOpacity onPress={switchCamera}>
@@ -197,6 +199,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     marginLeft: 16,
+    maxWidth: '80%',
   },
   headerIcon: {
     justifyContent: 'center',
