@@ -66,6 +66,9 @@ jobs:
       
       # - name: Install emulator
       #   run: ./example/e2e/avd-setup.sh
+
+      - name: Install js deps
+        run: yarn && cd example && yarn
       
       - name: Download elixir deps
         run: cd example/e2e/backend && mix deps.get
@@ -77,10 +80,7 @@ jobs:
         run: cd example/e2e/backend/assets && yarn
       
       - name: Start backend
-        run: cd example/e2e/backend && INTEGRATED_TURN_IP=${{ env.LOCAL_IP }} mix phx.server &
-      
-      - name: Install js deps
-        run: yarn && cd example && yarn
+        run: cd example/e2e/backend && INTEGRATED_TURN_IP=${{ env.LOCAL_IP }} mix phx.server &> logs.txt &
       
       # - name: Build android
       #   run: cd example && npx detox build -c android.emu.release
@@ -96,12 +96,18 @@ jobs:
         with:
           name: screen3
           path: example/screen3.png
+      
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: screen4
+          path: example/screen4.png
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: logs
-          path: example/e2e/backend/priv/static/assets/app.js
+          path: example/e2e/backend/logs.txt
 
       
       
