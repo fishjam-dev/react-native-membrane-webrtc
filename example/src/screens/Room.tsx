@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     marginLeft: 16,
-    maxWidth: '80%',
+    flex: 1,
   },
   headerIcon: {
     justifyContent: 'center',
