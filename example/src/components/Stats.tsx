@@ -63,6 +63,7 @@ export const Stats = ({ stats, label }: StatsProp) => {
           drawValues: false,
           drawCircles: false,
           color: processColor(color),
+          lineWidth: 2,
         },
       };
     },
@@ -159,6 +160,8 @@ export const Stats = ({ stats, label }: StatsProp) => {
                             config: {
                               drawValues: false,
                               drawCircles: false,
+                              color: processColor('red'),
+                              lineWidth: 2,
                             },
                           },
                         ],
