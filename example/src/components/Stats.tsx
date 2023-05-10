@@ -113,6 +113,7 @@ export const Stats = ({ stats, label }: StatsProp) => {
         legend={{ enabled: isMultiValue, drawInside: isMultiValue }}
         marker={{ enabled: false }}
         logEnabled={false}
+        touchEnabled={false}
       />
     );
   }, []);
@@ -139,35 +140,30 @@ export const Stats = ({ stats, label }: StatsProp) => {
               if (notPlottableStats.includes(statistic)) {
                 return;
               }
-              if (statistic === 'qualityLimitationDurations') {
-                return (
-                  <View key={statisticId}>
-                    {getLineChart(
-                      getLimitationDurationsDataset(label, statistic),
-                      true
-                    )}
-                  </View>
-                );
-              }
 
               return (
                 <View key={statisticId}>
                   <View style={styles.label}>
                     <Typo variant="label">{statistic}</Typo>
                   </View>
-                  {getLineChart(
-                    [
-                      {
-                        label: statistic,
-                        values: getValues(label, statistic),
-                        config: {
-                          drawValues: false,
-                          drawCircles: false,
-                        },
-                      },
-                    ],
-                    false
-                  )}
+                  {statistic === 'qualityLimitationDurations'
+                    ? getLineChart(
+                        getLimitationDurationsDataset(label, statistic),
+                        true
+                      )
+                    : getLineChart(
+                        [
+                          {
+                            label: statistic,
+                            values: getValues(label, statistic),
+                            config: {
+                              drawValues: false,
+                              drawCircles: false,
+                            },
+                          },
+                        ],
+                        false
+                      )}
                 </View>
               );
             })}
