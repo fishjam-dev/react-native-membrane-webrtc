@@ -10,7 +10,6 @@ export const handlePermissions = async (callback: Function) => {
     const granted = await PermissionsAndroid.requestMultiple([
       PermissionsAndroid.PERMISSIONS.CAMERA,
       PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
     ]);
     if (
       granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
