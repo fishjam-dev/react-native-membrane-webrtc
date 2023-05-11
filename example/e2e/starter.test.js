@@ -78,6 +78,8 @@ describe('Example', () => {
 
       console.log('VIDEO VISIBLE ON MOBILE');
 
+      await page.waitForTimeout(5000);
+
       // todo: extract stats checking to separate function
       await page.click('button[id="simulcast-inbound-stats"]');
 
