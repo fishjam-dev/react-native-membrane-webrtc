@@ -8,7 +8,7 @@ env:
   PKG_CONFIG_PATH: "/usr/local/opt/openssl@1.1/lib/pkgconfig"
 jobs:
   check:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     env:
       MEMBRANE_UPLOAD_STORE_FILE: ${{ secrets.MEMBRANE_UPLOAD_STORE_FILE }}
       MEMBRANE_UPLOAD_KEY_ALIAS: ${{ secrets.MEMBRANE_UPLOAD_KEY_ALIAS }}
@@ -50,8 +50,11 @@ jobs:
           node-version: 16
           cache: 'yarn'
 
-      - name: Brew
-        run: brew install srtp elixir clang-format ffmpeg && yes | mix local.hex && yes | mix local.rebar
+      # - name: Brew
+      #   run: brew install srtp elixir clang-format ffmpeg && yes | mix local.hex && yes | mix local.rebar
+
+      - name: apt
+        run: sudo apt-get install libsrtp2-dev libavcodec-dev libavformat-dev libavutil-dev
     
       - name: Cache elixir deps
         id: cache-deps
@@ -80,7 +83,7 @@ jobs:
         run: cd example/e2e/backend/assets && yarn
       
       - name: Start backend
-        run: cd example/e2e/backend && INTEGRATED_TURN_IP=${{ env.LOCAL_IP }} mix phx.server &> logs.txt &
+        run: cd example/e2e/backend && INTEGRATED_TURN_IP=${{ env.LOCAL_IP }} mix phx.server &
       
       # - name: Build android
       #   run: cd example && npx detox build -c android.emu.release
@@ -103,11 +106,6 @@ jobs:
           name: screen4
           path: example/screen4.png
 
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: logs
-          path: example/e2e/backend/logs.txt
 
       
       
