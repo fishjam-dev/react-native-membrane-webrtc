@@ -52,22 +52,22 @@ internal fun listToRNArray(array: List<Any>): WritableArray {
 
 internal fun rtcOutboundStatsToRNMap(stats: RTCOutboundStats): ReadableMap{
   val innerMap = Arguments.createMap()
-  innerMap.putDouble("bandwidth", if (stats.qualityLimitationDurations?.bandwidth != null) stats.qualityLimitationDurations!!.bandwidth else  0.0)
-  innerMap.putDouble("cpu", if (stats.qualityLimitationDurations?.cpu != null) stats.qualityLimitationDurations!!.cpu else  0.0)
-  innerMap.putDouble("none", if (stats.qualityLimitationDurations?.none != null) stats.qualityLimitationDurations!!.none else  0.0)
-  innerMap.putDouble("other", if (stats.qualityLimitationDurations?.other != null) stats.qualityLimitationDurations!!.other else  0.0)
+  innerMap.putDouble("bandwidth", stats.qualityLimitationDurations?.bandwidth ?: 0.0)
+  innerMap.putDouble("cpu", stats.qualityLimitationDurations?.cpu ?: 0.0)
+  innerMap.putDouble("none", stats.qualityLimitationDurations?.none ?: 0.0)
+  innerMap.putDouble("other", stats.qualityLimitationDurations?.other ?: 0.0)
 
   val res = Arguments.createMap()
   res.putString("kind", stats.kind)
   res.putString("rid", stats.rid)
-  res.putInt("bytesSent",  if (stats.bytesSent?.toInt() != null) stats.bytesSent!!.toInt() else  0)
-  res.putDouble("targetBitrate", if (stats.targetBitrate != null) stats.targetBitrate!! else  0.0)
-  res.putInt("packetsSent", if (stats.packetsSent?.toInt() != null) stats.packetsSent!!.toInt() else  0)
-  res.putInt("framesEncoded", if (stats.framesEncoded?.toInt() != null) stats.framesEncoded!!.toInt() else  0)
-  res.putDouble("framesPerSecond", if (stats.framesPerSecond != null) stats.framesPerSecond!! else  0.0)
-  res.putInt("frameWidth", if (stats.frameWidth?.toInt() != null) stats.frameWidth!!.toInt() else  0)
-  res.putInt("frameHeight", if (stats.frameHeight?.toInt() != null) stats.frameHeight!!.toInt() else  0)
-  res.putMap("qualityLimitationDurations", innerMap)
+  res.putInt("bytesSent",  stats.bytesSent?.toInt() ?:  0)
+  res.putDouble("targetBitrate",  stats.targetBitrate ?:  0.0)
+  res.putInt("packetsSent",  stats.packetsSent?.toInt() ?:  0)
+  res.putInt("framesEncoded",  stats.framesEncoded?.toInt() ?:  0)
+  res.putDouble("framesPerSecond",  stats.framesPerSecond ?:  0.0)
+  res.putInt("frameWidth",  stats.frameWidth?.toInt() ?:  0)
+  res.putInt("frameHeight",  stats.frameHeight?.toInt() ?:  0)
+  res.putMap("qualityLimitationDurations",  innerMap)
 
   return res
 }
@@ -75,15 +75,15 @@ internal fun rtcOutboundStatsToRNMap(stats: RTCOutboundStats): ReadableMap{
 internal fun rtcInboundStatsToRNMap(stats: RTCInboundStats): ReadableMap {
   val res = Arguments.createMap()
   res.putString("kind", stats.kind)
-  res.putDouble("jitter", if (stats.jitter != null) stats.jitter!! else  0.0)
-  res.putInt("packetsLost",  if (stats.packetsLost != null) stats.packetsLost!! else  0)
-  res.putInt("packetsReceived", if (stats.packetsReceived?.toInt() != null) stats.packetsReceived!!.toInt() else  0)
-  res.putInt("bytesReceived", if (stats.bytesReceived?.toInt() != null) stats.bytesReceived!!.toInt() else  0)
-  res.putInt("framesReceived", if (stats.framesReceived != null) stats.framesReceived!! else  0)
-  res.putInt("frameWidth", if (stats.frameWidth?.toInt() != null) stats.frameWidth!!.toInt() else  0)
-  res.putInt("frameHeight", if (stats.frameHeight?.toInt() != null) stats.frameHeight!!.toInt() else  0)
-  res.putDouble("framesPerSecond", if (stats.framesPerSecond != null) stats.framesPerSecond!! else  0.0)
-  res.putInt("framesDropped", if (stats.framesDropped?.toInt() != null) stats.framesDropped!!.toInt() else  0)
+  res.putDouble("jitter",  stats.jitter ?:  0.0)
+  res.putInt("packetsLost",  stats.packetsLost ?:  0)
+  res.putInt("packetsReceived",  stats.packetsReceived?.toInt() ?:  0)
+  res.putInt("bytesReceived",  stats.bytesReceived?.toInt() ?:  0)
+  res.putInt("framesReceived",  stats.framesReceived ?:  0)
+  res.putInt("frameWidth",  stats.frameWidth?.toInt() ?:  0)
+  res.putInt("frameHeight",  stats.frameHeight?.toInt() ?:  0)
+  res.putDouble("framesPerSecond",  stats.framesPerSecond ?:  0.0)
+  res.putInt("framesDropped",  stats.framesDropped?.toInt() ?:  0)
 
   return res
 }

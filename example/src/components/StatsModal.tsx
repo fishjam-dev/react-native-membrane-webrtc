@@ -1,6 +1,6 @@
 import { AdditionalColors, BrandColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ReactNativeModal } from 'react-native-modal';
@@ -14,8 +14,8 @@ type StatsModalProps = {
 };
 
 export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
-  const [statsIntervalID, setStatsIntervalID] = useState<number>(0);
-  const { statistics, getStatistics } = Membrane.useRTCStatistics();
+  const { statistics } = Membrane.useRTCStatistics(1000);
+  const stopCollectingStats = useRef<Function>(() => {});
   const [labels, setLabels] = useState<string[]>([]);
 
   const getListOfPlotNames = useCallback(() => {
@@ -24,16 +24,11 @@ export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
     }
   }, [statistics]);
 
-  const statsCallback = useCallback(() => {
-    getStatistics();
-  }, []);
+  // useEffect(() => {
+  //   if (visible) {
 
-  useEffect(() => {
-    if (visible) {
-      const intervalID = window.setInterval(statsCallback, 1000);
-      setStatsIntervalID(intervalID);
-    }
-  }, [visible]);
+  //   }
+  // }, [visible]);
 
   useEffect(() => {
     getListOfPlotNames();
@@ -49,7 +44,7 @@ export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
       <View style={styles.container}>
         <InCallButton
           onPress={() => {
-            clearInterval(statsIntervalID);
+            stopCollectingStats.current();
             setLabels([]);
             onClose();
           }}

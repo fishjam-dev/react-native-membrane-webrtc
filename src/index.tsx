@@ -1,3 +1,4 @@
+import { takeRight } from 'lodash';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   NativeModules,
@@ -277,6 +278,49 @@ export enum LoggingSeverity {
   Error = 'error',
   None = 'none',
 }
+
+export type QualityLimitationDurations = {
+  bandwidth: number;
+  cpu: number;
+  none: number;
+  other: number;
+};
+
+export type RTCOutboundStats = {
+  'kind': string;
+  'rid': string;
+  'bytesSent': number;
+  'targetBitrate': number;
+  'packetsSent': number;
+  'framesEncoded': number;
+  'framesPerSecond': number;
+  'frameWidth': number;
+  'frameHeight': number;
+  'qualityLimitationDurations': QualityLimitationDurations;
+  'bytesSent/s': number;
+  'packetsSent/s': number;
+  'framesEncoded/s': number;
+};
+
+export type RTCInboundStats = {
+  'kind': number;
+  'jitter': number;
+  'packetsLost': number;
+  'packetsReceived': number;
+  'bytesReceived': number;
+  'framesReceived': number;
+  'frameWidth': number;
+  'frameHeight': number;
+  'framesPerSecond': number;
+  'framesDropped': number;
+  'packetsLost/s': number;
+  'packetsReceived/s': number;
+  'bytesReceived/s': number;
+  'framesReceived/s': number;
+  'framesDropped/s': number;
+};
+
+export type RTCStats = RTCOutboundStats | RTCInboundStats;
 
 const defaultSimulcastConfig = () => ({
   enabled: false,
@@ -829,46 +873,38 @@ export function useBandwidthEstimation() {
 /**
  * This hook provides access to current rtc statistics data.
  */
-export function useRTCStatistics() {
+export function useRTCStatistics(refershInterval: number) {
   const MAX_SIZE = 120;
-  const [statistics, setStatistics] = useState<object[]>([]);
+  const [statistics, setStatistics] = useState<RTCStats[]>([]);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener(
-      'StatisticsUpdated',
-      (stats) => {
-        if (statistics.length === MAX_SIZE) {
-          statistics.shift();
-        }
-        statistics.push(processIncomingStats(stats));
-        setStatistics([...statistics]);
-      }
-    );
-    return () => eventListener.remove();
+    const intervalId = setInterval(getStatistics, refershInterval);
+    return () => {
+      clearInterval(intervalId);
+      setStatistics([]);
+    };
   }, []);
 
-  /**
-   * Collects current RTC statistics.
-   */
+  // Gets stats from the native libraries.
   const getStatistics = useCallback(async () => {
-    await Membrane.getStatistics();
-  }, []);
-
-  /**
-   * Clears statistics array,
-   * efectivly starts collecting statistics from the beginning.
-   */
-  const clearStatistics = useCallback(() => {
-    setStatistics([]);
+    const stats = await Membrane.getStatistics();
+    setStatistics((prev) => {
+      const newStats = [...prev, processIncomingStats(prev, stats)];
+      takeRight(newStats, MAX_SIZE);
+      return newStats;
+    });
   }, []);
 
   // Calculates diff between pervious and current stats,
   // providing end users with a per second metric.
   const processIncomingStats = useCallback(
-    (stats) => {
+    (statistics: RTCStats[], stats: RTCStats) => {
       Object.keys(stats).forEach((obj) => {
         if (obj.includes('Inbound')) {
-          if (Object.keys(statistics[statistics.length - 1]).includes(obj)) {
+          if (
+            statistics.length > 0 &&
+            Object.keys(statistics[statistics.length - 1]).includes(obj)
+          ) {
             stats[obj]['packetsLost/s'] =
               stats[obj]['packetsLost'] -
               statistics[statistics.length - 1][obj]['packetsLost'];
@@ -894,7 +930,10 @@ export function useRTCStatistics() {
           return stats;
         }
         // Outbound
-        if (Object.keys(statistics[statistics.length - 1]).includes(obj)) {
+        if (
+          statistics.length > 0 &&
+          Object.keys(statistics[statistics.length - 1]).includes(obj)
+        ) {
           stats[obj]['bytesSent/s'] =
             stats[obj]['bytesSent'] -
             statistics[statistics.length - 1][obj]['bytesSent'];
@@ -909,13 +948,14 @@ export function useRTCStatistics() {
           stats[obj]['packetsSent/s'] = 0;
           stats[obj]['framesEncoded/s'] = 0;
         }
+        return stats;
       });
       return stats;
     },
-    [statistics]
+    []
   );
 
-  return { statistics, getStatistics, clearStatistics };
+  return { statistics };
 }
 
 export type VideoRendererProps = {

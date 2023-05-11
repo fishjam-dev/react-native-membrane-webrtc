@@ -1,5 +1,4 @@
 import { InCallButton } from '@components/buttons/InCallButton';
-import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -22,7 +21,6 @@ export const CallControls = () => {
   const navigation = useNavigation<StackNavigationProp<RootStack, 'Room'>>();
   const { isDevMode } = useVideoroomState();
   const [isStatsModalVisible, setIsStatsModalVisible] = useState(false);
-  const { clearStatistics } = Membrane.useRTCStatistics();
 
   const onDisconnectPress = useCallback(async () => {
     await disconnect();
@@ -55,7 +53,6 @@ export const CallControls = () => {
             <InCallButton
               iconName="Info"
               onPress={() => {
-                clearStatistics();
                 setIsStatsModalVisible(true);
               }}
             />

@@ -637,26 +637,11 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
 
   private func getMapFromStatsObject(obj: RTCOutboundStats) -> [String: Any] {
       var innerMap: [String: Double] = [:]
-      if let bandwidth = obj.qualityLimitationDurations?.bandwidth {
-          innerMap["bandwidth"] = bandwidth
-      } else {
-          innerMap["bandwidth"] = 0.0
-      }
-      if let cpu = obj.qualityLimitationDurations?.bandwidth {
-          innerMap["cpu"] = cpu
-      } else {
-          innerMap["cpu"] = 0.0
-      }
-      if let none = obj.qualityLimitationDurations?.bandwidth {
-          innerMap["none"] = none
-      } else {
-          innerMap["none"] = 0.0
-      }
-      if let other = obj.qualityLimitationDurations?.bandwidth {
-          innerMap["other"] = other
-      } else {
-          innerMap["other"] = 0.0
-      }
+
+      innerMap["bandwidth"] = obj.qualityLimitationDurations?.bandwidth ?? 0.0
+      innerMap["cpu"] = obj.qualityLimitationDurations?.cpu ?? 0.0
+      innerMap["none"] = obj.qualityLimitationDurations?.none ?? 0.0
+      innerMap["other"] = obj.qualityLimitationDurations?.other ?? 0.0
       
       var res: [String: Any] = [:]
       res["kind"] = obj.kind
@@ -688,7 +673,6 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   @objc(getStatistics:withRejecter:)
   func getStatistics(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) {
     let mapped = statsToRNMap(stats:room?.getStats())
-    emitEvent(name:"StatisticsUpdated", data:mapped)
     resolve(mapped)
   }
   
@@ -752,7 +736,6 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       "BandwidthEstimation",
       "AudioDeviceUpdate",
       "SimulcastConfigUpdate",
-      "StatisticsUpdated"
     ]
   }
   

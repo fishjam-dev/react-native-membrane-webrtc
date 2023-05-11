@@ -10,7 +10,6 @@ import {
   useMicrophoneState,
   useScreencast,
   ScreencastQuality,
-  useRTCStatistics,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useNotifications } from '@model/NotificationsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -72,7 +71,6 @@ const VideoroomContextProvider = (props) => {
 
   const { updateVideoTrackMetadata } = useVideoTrackMetadata();
   const { updateAudioTrackMetadata } = useAudioTrackMetadata();
-  const { clearStatistics } = useRTCStatistics();
 
   const [videoroomState, setVideoroomState] =
     useState<VideoroomState>('BeforeMeeting');
@@ -102,7 +100,6 @@ const VideoroomContextProvider = (props) => {
   }, []);
 
   const connectAndJoinRoom = useCallback(async () => {
-    clearStatistics();
     const trimmedRoomName = roomName.trimEnd();
     const trimmedUserName = username.trimEnd();
 

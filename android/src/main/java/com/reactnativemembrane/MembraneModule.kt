@@ -460,8 +460,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun getStatistics(promise: Promise) {
-    emitEvent("StatisticsUpdated", mapToRNMap(room?.getStats() as? Map<String, Any>))
-    promise.resolve(null)
+    promise.resolve(mapToRNMap(room?.getStats() as? Map<String, Any>))
   }
 
   fun startScreencast(mediaProjectionPermission: Intent) {
