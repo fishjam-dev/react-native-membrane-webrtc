@@ -4,7 +4,7 @@ const { expect: jestExpect } = require('expect');
 
 describe('Example', () => {
   beforeAll(async () => {
-    //await device.launchApp();
+    await device.launchApp();
   });
 
   it('should have welcome screen', async () => {
@@ -24,14 +24,14 @@ describe('Example', () => {
     });
 
     try {
-      // await waitFor(element(by.id('create-room')))
-      //   .toBeVisible()
-      //   .withTimeout(2000);
-      // await element(by.id('create-room')).tap();
-      // await element(by.id('room-name')).typeText('room');
-      // await element(by.id('user-name')).typeText('android\n');
-      // await element(by.id('create-room-btn')).tap();
-      // await element(by.id('join-room-btn')).tap();
+      await waitFor(element(by.id('create-room')))
+        .toBeVisible()
+        .withTimeout(2000);
+      await element(by.id('create-room')).tap();
+      await element(by.id('room-name')).typeText('room');
+      await element(by.id('user-name')).typeText('android\n');
+      await element(by.id('create-room-btn')).tap();
+      await element(by.id('join-room-btn')).tap();
 
       const context = browser.defaultBrowserContext();
       await context.overridePermissions('http://localhost:4001/', [
@@ -64,42 +64,38 @@ describe('Example', () => {
         }
       });
 
-      await page.screenshot({ path: 'screen3.png' });
-
       await page.click('button[id="start-simulcast"]');
 
-      // console.log('WAITING FOR CONNECTION');
+      console.log('WAITING FOR CONNECTION');
 
-      // await waitFor(element(by.id('video-renderer-android')))
-      //   .toBeVisible()
-      //   .withTimeout(15000);
+      await waitFor(element(by.id('video-renderer-android')))
+        .toBeVisible()
+        .withTimeout(15000);
 
-      // await waitFor(element(by.id('video-renderer-web')))
-      //   .toBeVisible()
-      //   .withTimeout(150000);
+      await waitFor(element(by.id('video-renderer-web')))
+        .toBeVisible()
+        .withTimeout(150000);
 
-      // console.log('VIDEO VISIBLE ON MOBILE');
+      console.log('VIDEO VISIBLE ON MOBILE');
+
+      // todo: extract stats checking to separate function
+      await page.click('button[id="simulcast-inbound-stats"]');
+
+      console.log('STATS CLICKED');
 
       await page.waitForTimeout(5000);
 
-      // todo: extract stats checking to separate function
-      // await page.click('button[id="simulcast-inbound-stats"]');
-
-      // console.log('STATS CLICKED');
-
-      // await page.waitForTimeout(5000);
-
       await page.screenshot({ path: 'screen4.png' });
 
-      // const dataDiv = await page.$('div[id="data"]');
-      // const data = JSON.parse(
-      //   await (await dataDiv.getProperty('textContent')).jsonValue()
-      // );
+      const dataDiv = await page.$('div[id="data"]');
+      const data = JSON.parse(
+        await (await dataDiv.getProperty('textContent')).jsonValue()
+      );
 
-      // console.log('STATS:', data);
+      console.log('STATS:', data);
 
-      // jestExpect(data.framesReceived).toBeGreaterThan(0);
-      // jestExpect(data.framesPerSecond).toBeGreaterThan(0);
+      jestExpect(data.framesReceived).toBeGreaterThan(0);
+      jestExpect(data.framesPerSecond).toBeGreaterThan(0);
     } catch (e) {
       console.error(e);
       throw e;
