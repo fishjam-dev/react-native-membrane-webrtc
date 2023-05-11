@@ -48,6 +48,8 @@ describe('Example', () => {
         }
       });
 
+      await page.waitForTimeout(5000);
+
       await page.goto('http://localhost:4001');
 
       await page.setViewport({ width: 1080, height: 1024 });
