@@ -80,7 +80,7 @@ jobs:
         run: cd example/e2e/backend/assets && yarn
       
       - name: Start backend
-        run: cd example/e2e/backend && INTEGRATED_TURN_IP=${{ env.LOCAL_IP }} mix phx.server &
+        run: cd example/e2e/backend && mix esbuild default && INTEGRATED_TURN_IP=${{ env.LOCAL_IP }} mix phx.server &
       
       # - name: Build android
       #   run: cd example && npx detox build -c android.emu.release

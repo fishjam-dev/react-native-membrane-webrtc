@@ -64,7 +64,7 @@ describe('Example', () => {
 
       await page.screenshot({ path: 'screen3.png' });
 
-      // await page.click('button[id="start-simulcast"]');
+      await page.click('button[id="start-simulcast"]');
 
       // console.log('WAITING FOR CONNECTION');
 
@@ -77,8 +77,6 @@ describe('Example', () => {
       //   .withTimeout(150000);
 
       // console.log('VIDEO VISIBLE ON MOBILE');
-
-      await page.goto('http://localhost:4001/assets/app.js');
 
       await page.waitForTimeout(5000);
 
