@@ -15,6 +15,6 @@ jobs:
       - name: Install node dependencies
         run: yarn && cd example && yarn
       - name: Run unit tests for the library
-        run: cd src && yarn test
+        run: yarn test -- src/__tests__/index.test.tsx
       - name: Run unit tests for the example app
         run: cd ../example && yarn test

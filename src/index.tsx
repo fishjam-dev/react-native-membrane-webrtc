@@ -889,7 +889,6 @@ export function useRTCStatistics(refreshInterval: number) {
   const [statistics, setStatistics] = useState<RTCStats[]>([]);
 
   useEffect(() => {
-    //todo literowka
     const intervalId = setInterval(getStatistics, refreshInterval);
     return () => {
       clearInterval(intervalId);
