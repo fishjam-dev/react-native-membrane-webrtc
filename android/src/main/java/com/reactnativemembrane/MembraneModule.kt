@@ -458,6 +458,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     promise.resolve(null)
   }
 
+  @ReactMethod
+  fun getStatistics(promise: Promise) {
+    promise.resolve(mapToRNMap(room?.getStats() as? Map<String, Any>))
+  }
+
   fun startScreencast(mediaProjectionPermission: Intent) {
     if (localScreencastTrack != null) return
 

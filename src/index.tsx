@@ -1,3 +1,4 @@
+import { takeRight } from 'lodash';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   NativeModules,
@@ -277,6 +278,61 @@ export enum LoggingSeverity {
   Error = 'error',
   None = 'none',
 }
+
+/**
+ * A record of the total time, in seconds,
+ * that this stream has spent in each quality limitation state.
+ * none: The resolution and/or framerate is not limited.
+ * bandwidth: The resolution and/or framerate is primarily limited due to
+ * congestion cues during bandwidth estimation.
+ * Typical, congestion control algorithms use inter-arrival time,
+ * round-trip time, packet or other congestion cues to perform bandwidth estimation.
+ * cpu: The resolution and/or framerate is primarily limited due to CPU load.
+ * other: The resolution and/or framerate is primarily limited
+ * for a reason other than the above.
+ */
+export type QualityLimitationDurations = {
+  bandwidth: number;
+  cpu: number;
+  none: number;
+  other: number;
+};
+
+export type RTCOutboundStats = {
+  'kind': string;
+  'rid': string;
+  'bytesSent': number;
+  'targetBitrate': number;
+  'packetsSent': number;
+  'framesEncoded': number;
+  'framesPerSecond': number;
+  'frameWidth': number;
+  'frameHeight': number;
+  'qualityLimitationDurations': QualityLimitationDurations;
+  'bytesSent/s': number;
+  'packetsSent/s': number;
+  'framesEncoded/s': number;
+};
+
+export type RTCInboundStats = {
+  'kind': number;
+  'jitter': number;
+  'packetsLost': number;
+  'packetsReceived': number;
+  'bytesReceived': number;
+  'framesReceived': number;
+  'frameWidth': number;
+  'frameHeight': number;
+  'framesPerSecond': number;
+  'framesDropped': number;
+  'packetsLost/s': number;
+  'packetsReceived/s': number;
+  'bytesReceived/s': number;
+  'framesReceived/s': number;
+  'framesDropped/s': number;
+};
+
+export type RTCStats = RTCOutboundStats | RTCInboundStats;
 
 const defaultSimulcastConfig = () => ({
   enabled: false,
@@ -824,6 +880,94 @@ export function useBandwidthEstimation() {
   }, []);
 
   return { estimation };
+}
+
+/**
+ * This hook provides access to current rtc statistics data.
+ */
+export function useRTCStatistics(refershInterval: number) {
+  const MAX_SIZE = 120;
+  const [statistics, setStatistics] = useState<RTCStats[]>([]);
+
+  useEffect(() => {
+    const intervalId = setInterval(getStatistics, refershInterval);
+    return () => {
+      clearInterval(intervalId);
+      setStatistics([]);
+    };
+  }, []);
+
+  // Gets stats from the native libraries.
+  const getStatistics = useCallback(async () => {
+    const stats = await Membrane.getStatistics();
+    setStatistics((prev) => {
+      const newStats = [...prev, processIncomingStats(prev, stats)];
+      takeRight(newStats, MAX_SIZE);
+      return newStats;
+    });
+  }, []);
+
+  // Calculates diff between pervious and current stats,
+  // providing end users with a per second metric.
+  const processIncomingStats = useCallback(
+    (statistics: RTCStats[], stats: RTCStats) => {
+      Object.keys(stats).forEach((obj) => {
+        if (obj.includes('Inbound')) {
+          if (
+            statistics.length > 0 &&
+            Object.keys(statistics[statistics.length - 1]).includes(obj)
+          ) {
+            stats[obj]['packetsLost/s'] =
+              stats[obj]['packetsLost'] -
+              statistics[statistics.length - 1][obj]['packetsLost'];
+            stats[obj]['packetsReceived/s'] =
+              stats[obj]['packetsReceived'] -
+              statistics[statistics.length - 1][obj]['packetsReceived'];
+            stats[obj]['bytesReceived/s'] =
+              stats[obj]['bytesReceived'] -
+              statistics[statistics.length - 1][obj]['bytesReceived'];
+            stats[obj]['framesReceived/s'] =
+              stats[obj]['framesReceived'] -
+              statistics[statistics.length - 1][obj]['framesReceived'];
+            stats[obj]['framesDropped/s'] =
+              stats[obj]['framesDropped'] -
+              statistics[statistics.length - 1][obj]['framesDropped'];
+          } else {
+            stats[obj]['packetsLost/s'] = 0;
+            stats[obj]['packetsReceived/s'] = 0;
+            stats[obj]['bytesReceived/s'] = 0;
+            stats[obj]['framesReceived/s'] = 0;
+            stats[obj]['framesDropped/s'] = 0;
+          }
+          return stats;
+        }
+        // Outbound
+        if (
+          statistics.length > 0 &&
+          Object.keys(statistics[statistics.length - 1]).includes(obj)
+        ) {
+          stats[obj]['bytesSent/s'] =
+            stats[obj]['bytesSent'] -
+            statistics[statistics.length - 1][obj]['bytesSent'];
+          stats[obj]['packetsSent/s'] =
+            stats[obj]['packetsSent'] -
+            statistics[statistics.length - 1][obj]['packetsSent'];
+          stats[obj]['framesEncoded/s'] =
+            stats[obj]['framesEncoded'] -
+            statistics[statistics.length - 1][obj]['framesEncoded'];
+        } else {
+          stats[obj]['bytesSent/s'] = 0;
+          stats[obj]['packetsSent/s'] = 0;
+          stats[obj]['framesEncoded/s'] = 0;
+        }
+        return stats;
+      });
+      return stats;
+    },
+    []
+  );
+
+  return { statistics };
 }
 
 export type VideoRendererProps = {

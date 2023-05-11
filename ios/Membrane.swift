@@ -369,7 +369,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       ]
     }]
   }
-  
+    
   func getSimulcastConfigAsRNMap(simulcastConfig: SimulcastConfig) -> [String: Any] {
     return [
       "enabled": simulcastConfig.enabled,
@@ -618,6 +618,63 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     resolve(nil)
   }
+    
+  private func getMapFromStatsObject(obj: RTCInboundStats) -> [String: Any] {
+      var res: [String:Any] = [:]
+      res["kind"] = obj.kind
+      res["jitter"] = obj.jitter
+      res["packetsLost"] = obj.packetsLost
+      res["packetsReceived"] = obj.packetsReceived
+      res["bytesReceived"] = obj.bytesReceived
+      res["framesReceived"] = obj.framesReceived
+      res["frameWidth"] = obj.frameWidth
+      res["frameHeight"] = obj.frameHeight
+      res["framesPerSecond"] = obj.framesPerSecond
+      res["framesDropped"] = obj.framesDropped
+      
+      return res
+  }
+
+  private func getMapFromStatsObject(obj: RTCOutboundStats) -> [String: Any] {
+      var innerMap: [String: Double] = [:]
+
+      innerMap["bandwidth"] = obj.qualityLimitationDurations?.bandwidth ?? 0.0
+      innerMap["cpu"] = obj.qualityLimitationDurations?.cpu ?? 0.0
+      innerMap["none"] = obj.qualityLimitationDurations?.none ?? 0.0
+      innerMap["other"] = obj.qualityLimitationDurations?.other ?? 0.0
+      
+      var res: [String: Any] = [:]
+      res["kind"] = obj.kind
+      res["rid"] = obj.rid
+      res["bytesSent"] = obj.bytesSent
+      res["targetBitrate"] = obj.targetBitrate
+      res["packetsSent"] = obj.packetsSent
+      res["framesEncoded"] = obj.framesEncoded
+      res["framesPerSecond"] = obj.framesPerSecond
+      res["frameWidth"] = obj.frameWidth
+      res["frameHeight"] = obj.frameHeight
+      res["qualityLimitationDurations"] = innerMap
+      
+      return res
+  }
+
+  private func statsToRNMap(stats: [String: RTCStats]?) -> [String: Any] {
+      var res: [String: Any] = [:]
+      stats?.forEach{ pair in
+          if let val = pair.value as? RTCOutboundStats {
+              res[pair.key] = getMapFromStatsObject(obj: val)
+          } else {
+              res[pair.key] = getMapFromStatsObject(obj: pair.value as! RTCInboundStats)
+          }
+      }
+      return res
+  }
+    
+  @objc(getStatistics:withRejecter:)
+  func getStatistics(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) {
+    let mapped = statsToRNMap(stats:room?.getStats())
+    resolve(mapped)
+  }
   
   func setAudioSessionMode() {
     guard let localAudioTrack = localAudioTrack else {
@@ -678,7 +735,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       "IsScreencastOn",
       "BandwidthEstimation",
       "AudioDeviceUpdate",
-      "SimulcastConfigUpdate"
+      "SimulcastConfigUpdate",
     ]
   }
   

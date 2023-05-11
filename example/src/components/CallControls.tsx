@@ -2,9 +2,11 @@ import { InCallButton } from '@components/buttons/InCallButton';
 import { RootStack } from '@model/NavigationTypes';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
+
+import { StatsModal } from './StatsModal';
 
 export const CallControls = () => {
   const {
@@ -17,6 +19,8 @@ export const CallControls = () => {
     disconnect,
   } = useVideoroomState();
   const navigation = useNavigation<StackNavigationProp<RootStack, 'Room'>>();
+  const { isDevMode } = useVideoroomState();
+  const [isStatsModalVisible, setIsStatsModalVisible] = useState(false);
 
   const onDisconnectPress = useCallback(async () => {
     await disconnect();
@@ -43,6 +47,24 @@ export const CallControls = () => {
           onPress={toggleScreencastAndUpdateMetadata}
         />
       </View>
+      {isDevMode ? (
+        <>
+          <View style={styles.iconInRow}>
+            <InCallButton
+              iconName="Info"
+              onPress={() => {
+                setIsStatsModalVisible(true);
+              }}
+            />
+          </View>
+          <StatsModal
+            visible={isStatsModalVisible}
+            onClose={() => {
+              setIsStatsModalVisible(false);
+            }}
+          />
+        </>
+      ) : null}
       <InCallButton
         type="disconnect"
         iconName="Hangup"
