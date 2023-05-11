@@ -8,7 +8,7 @@ env:
   PKG_CONFIG_PATH: "/usr/local/opt/openssl@1.1/lib/pkgconfig"
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       MEMBRANE_UPLOAD_STORE_FILE: ${{ secrets.MEMBRANE_UPLOAD_STORE_FILE }}
       MEMBRANE_UPLOAD_KEY_ALIAS: ${{ secrets.MEMBRANE_UPLOAD_KEY_ALIAS }}
@@ -18,12 +18,12 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
       
-      # - name: Check and set up local ip
-      #   run: |
-      #     LOCAL_IP=$(ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}')
-      #     echo "LOCAL_IP=$LOCAL_IP" >> "$GITHUB_ENV"
-      #     sed -i '' "s/LOCAL_IP/$LOCAL_IP/g" example/.env.production
-      #     sed -i '' "s/LOCAL_IP/$LOCAL_IP/g" example/android/app/src/main/res/xml/network_security_config.xml
+      - name: Check and set up local ip
+        run: |
+          LOCAL_IP=$(ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}')
+          echo "LOCAL_IP=$LOCAL_IP" >> "$GITHUB_ENV"
+          sed -i '' "s/LOCAL_IP/$LOCAL_IP/g" example/.env.production
+          sed -i '' "s/LOCAL_IP/$LOCAL_IP/g" example/android/app/src/main/res/xml/network_security_config.xml
 
       # - name: Setup JDK 11
       #   uses: actions/setup-java@v2
@@ -33,11 +33,6 @@ jobs:
 
       # - name: Setup Android SDK
       #   uses: android-actions/setup-android@v2
-
-      - uses: actions/setup-elixir@v1
-        with:
-          otp-version: '22.2'
-          elixir-version: '1.9.4'
 
       - name: Caching Gradle packages
         uses: actions/cache@v2
@@ -55,11 +50,8 @@ jobs:
           node-version: 16
           cache: 'yarn'
 
-      # - name: Brew
-      #   run: brew install srtp elixir clang-format ffmpeg && yes | mix local.hex && yes | mix local.rebar
-
-      - name: apt
-        run: sudo apt-get install libsrtp2-dev libavcodec-dev libavformat-dev libavutil-dev
+      - name: Brew
+        run: brew install srtp elixir clang-format ffmpeg && yes | mix local.hex && yes | mix local.rebar
     
       - name: Cache elixir deps
         id: cache-deps
@@ -88,7 +80,7 @@ jobs:
         run: cd example/e2e/backend/assets && yarn
       
       - name: Start backend
-        run: cd example/e2e/backend && mix phx.server &
+        run: cd example/e2e/backend && INTEGRATED_TURN_IP=${{ env.LOCAL_IP }} mix phx.server &
       
       # - name: Build android
       #   run: cd example && npx detox build -c android.emu.release
