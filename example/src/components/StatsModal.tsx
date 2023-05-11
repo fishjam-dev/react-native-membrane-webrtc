@@ -1,6 +1,6 @@
 import { AdditionalColors, BrandColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ReactNativeModal } from 'react-native-modal';
@@ -15,7 +15,6 @@ type StatsModalProps = {
 
 export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
   const { statistics } = Membrane.useRTCStatistics(1000);
-  const stopCollectingStats = useRef<Function>(() => {});
   const [labels, setLabels] = useState<string[]>([]);
 
   const getListOfPlotNames = useCallback(() => {
@@ -23,12 +22,6 @@ export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
       setLabels(Object.keys(statistics[statistics.length - 1]));
     }
   }, [statistics]);
-
-  // useEffect(() => {
-  //   if (visible) {
-
-  //   }
-  // }, [visible]);
 
   useEffect(() => {
     getListOfPlotNames();
@@ -44,7 +37,6 @@ export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
       <View style={styles.container}>
         <InCallButton
           onPress={() => {
-            stopCollectingStats.current();
             setLabels([]);
             onClose();
           }}
