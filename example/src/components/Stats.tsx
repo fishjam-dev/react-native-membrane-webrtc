@@ -1,10 +1,5 @@
-import {
-  Collapse,
-  CollapseHeader,
-  CollapseBody,
-} from 'accordion-collapse-react-native';
-import React, { useCallback } from 'react';
-import { View, StyleSheet, processColor } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, StyleSheet, processColor, Pressable } from 'react-native';
 import { LineChart } from 'react-native-charts-wrapper';
 
 import { Typo } from './Typo';
@@ -39,6 +34,7 @@ const yAxisConfig = {
 };
 
 export const Stats = ({ stats, label }: StatsProp) => {
+  const [showBody, setShowBody] = useState(false);
   const getValues = useCallback(
     (label: string, chart: string) => {
       const timestampsWithLabel = stats.filter((obj) => {
@@ -121,11 +117,12 @@ export const Stats = ({ stats, label }: StatsProp) => {
 
   return (
     <View>
-      <Collapse>
-        <CollapseHeader>
-          <Typo variant="h5">{label}</Typo>
-        </CollapseHeader>
-        <CollapseBody>
+      <Pressable onPress={() => setShowBody(!showBody)}>
+        <Typo variant="h5">{label}</Typo>
+      </Pressable>
+
+      {showBody && (
+        <>
           <View style={styles.label}>
             <Typo variant="label">
               kind: {stats[stats.length - 1][label]['kind']}
@@ -170,8 +167,8 @@ export const Stats = ({ stats, label }: StatsProp) => {
                 </View>
               );
             })}
-        </CollapseBody>
-      </Collapse>
+        </>
+      )}
     </View>
   );
 };
