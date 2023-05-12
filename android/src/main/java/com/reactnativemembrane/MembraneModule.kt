@@ -1,21 +1,20 @@
 package com.reactnativemembrane
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.media.AudioManager
 import android.media.projection.MediaProjectionManager
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.twilio.audioswitch.AudioDevice
-import kotlinx.coroutines.Dispatchers
-import org.membraneframework.rtc.*
+import org.membraneframework.rtc.MembraneRTC
+import org.membraneframework.rtc.MembraneRTCListener
+import org.membraneframework.rtc.SimulcastConfig
 import org.membraneframework.rtc.media.*
 import org.membraneframework.rtc.models.Peer
 import org.membraneframework.rtc.models.TrackContext
-import org.membraneframework.rtc.transport.PhoenixTransport
 import org.membraneframework.rtc.utils.Metadata
+import org.membraneframework.rtc.utils.SerializedMediaEvent
 import org.webrtc.Logging
 import java.util.*
 
@@ -39,14 +38,10 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   private val globalToLocalTrackId = HashMap<String, String>()
 
-  private var connectPromise: Promise? = null
   private var joinPromise: Promise? = null
   private var screencastPromise: Promise? = null
 
-  var videoQuality: String? = null
-  var flipVideo: Boolean = true
   var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
-  var videoMaxBandwidth: TrackBandwidthLimit = TrackBandwidthLimit.BandwidthLimit(0)
 
   private var localUserMetadata: MutableMap<String, Any> = mutableMapOf()
 
@@ -56,12 +51,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   var screencastMetadata: MutableMap<String, Any> = mutableMapOf()
 
-  var videoTrackMetadata: MutableMap<String, Any> = mutableMapOf()
-  var audioTrackMetadata: MutableMap<String, Any> = mutableMapOf()
-
   var trackContexts: MutableMap<String, TrackContext> = mutableMapOf()
 
-  var captureDeviceId: String? = null
   val audioSwitchManager = AudioSwitchManager(reactContext)
 
   companion object {
@@ -80,7 +71,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       resultCode: Int,
       data: Intent?
     ) {
-      if(requestCode != SCREENCAST_REQUEST) return
+      if (requestCode != SCREENCAST_REQUEST) return
       if (resultCode != Activity.RESULT_OK) {
         screencastPromise?.resolve(false)
         screencastPromise = null
@@ -104,7 +95,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   private fun getSimulcastConfigFromOptions(options: ReadableMap): SimulcastConfig {
     val simulcastConfigMap = options.getMap("simulcastConfig")
     val simulcastEnabled = simulcastConfigMap?.getBoolean("enabled") ?: false
-    val activeEncodings = simulcastConfigMap?.getArray("activeEncodings")?.toArrayList()?.map { e ->  (e as String).toTrackEncoding() } ?: emptyList()
+    val activeEncodings = simulcastConfigMap?.getArray("activeEncodings")?.toArrayList()?.map { e -> (e as String).toTrackEncoding() }
+      ?: emptyList()
     return SimulcastConfig(
       enabled = simulcastEnabled,
       activeEncodings = activeEncodings
@@ -112,9 +104,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   private fun getMaxBandwidthFromOptions(options: ReadableMap): TrackBandwidthLimit {
-    return if(!options.hasKey("maxBandwidth")) {
+    return if (!options.hasKey("maxBandwidth")) {
       TrackBandwidthLimit.BandwidthLimit(0)
-    } else if(options.getMap("maxBandwidth") != null) {
+    } else if (options.getMap("maxBandwidth") != null) {
       val maxBandwidthSimulcast = mutableMapOf<String, TrackBandwidthLimit.BandwidthLimit>()
       options.getMap("maxBandwidth")?.entryIterator?.forEach {
         maxBandwidthSimulcast[it.key] = TrackBandwidthLimit.BandwidthLimit((it.value as Double).toInt())
@@ -130,41 +122,80 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun connect(url: String, roomName: String, connectionOptions: ReadableMap, promise: Promise) {
-    this.videoQuality = connectionOptions.getString("quality")
-    if(connectionOptions.hasKey("flipVideo"))
-      this.flipVideo = connectionOptions.getBoolean("flipVideo")
-    this.localUserMetadata = connectionOptions.getMap("userMetadata")?.toMap() ?: mutableMapOf()
-    this.videoTrackMetadata = connectionOptions.getMap("videoTrackMetadata")?.toMap() ?: mutableMapOf()
-    this.audioTrackMetadata = connectionOptions.getMap("audioTrackMetadata")?.toMap() ?: mutableMapOf()
+  fun create(url: String, roomName: String, createOptions: ReadableMap, promise: Promise) {
+    val videoQuality = createOptions.getString("quality")
+    var flipVideo = true
+    if (createOptions.hasKey("flipVideo"))
+      flipVideo = createOptions.getBoolean("flipVideo")
+    val videoTrackMetadata = createOptions.getMap("videoTrackMetadata")?.toMap() ?: mutableMapOf()
+    val audioTrackMetadata = createOptions.getMap("audioTrackMetadata")?.toMap() ?: mutableMapOf()
 
-    if(connectionOptions.hasKey("videoTrackEnabled"))
-      this.isCameraOn = connectionOptions.getBoolean("videoTrackEnabled")
-    if(connectionOptions.hasKey("audioTrackEnabled"))
-      this.isMicrophoneOn = connectionOptions.getBoolean("audioTrackEnabled")
+    if (createOptions.hasKey("videoTrackEnabled"))
+      this.isCameraOn = createOptions.getBoolean("videoTrackEnabled")
+    if (createOptions.hasKey("audioTrackEnabled"))
+      this.isMicrophoneOn = createOptions.getBoolean("audioTrackEnabled")
 
-    val socketConnectionParams = connectionOptions.getMap("connectionParams")?.toMap() ?: mutableMapOf()
+    val captureDeviceId = createOptions.getString("captureDeviceId")
 
-    val socketChannelParams = connectionOptions.getMap("socketChannelParams")?.toMap() ?: mutableMapOf()
+    this.videoSimulcastConfig = getSimulcastConfigFromOptions(createOptions)
+    val videoMaxBandwidth = getMaxBandwidthFromOptions(createOptions)
 
-    this.captureDeviceId = connectionOptions.getString("captureDeviceId")
-
-    this.videoSimulcastConfig = getSimulcastConfigFromOptions(connectionOptions)
-    this.videoMaxBandwidth = getMaxBandwidthFromOptions(connectionOptions)
-
-    connectPromise = promise
-    room = MembraneRTC.connect(
+    val room = MembraneRTC.create(
       appContext = reactApplicationContext,
-      options = ConnectOptions(
-        transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO, socketConnectionParams, socketChannelParams),
-        config = this.localUserMetadata
-      ),
       listener = this@MembraneModule
     )
+    this.room = room
+
+    localAudioTrack = room.createAudioTrack(audioTrackMetadata)
+    localAudioTrack?.setEnabled(isMicrophoneOn)
+
+    var videoParameters = when (videoQuality) {
+      "QVGA169" -> VideoParameters.presetQVGA169
+      "VGA169" -> VideoParameters.presetVGA169
+      "QHD169" -> VideoParameters.presetQHD169
+      "HD169" -> VideoParameters.presetHD169
+      "FHD169" -> VideoParameters.presetFHD169
+      "QVGA43" -> VideoParameters.presetQVGA43
+      "VGA43" -> VideoParameters.presetVGA43
+      "QHD43" -> VideoParameters.presetQHD43
+      "HD43" -> VideoParameters.presetHD43
+      "FHD43" -> VideoParameters.presetFHD43
+      else -> VideoParameters.presetVGA169
+    }
+    videoParameters = videoParameters.copy(
+      dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions,
+      simulcastConfig = videoSimulcastConfig,
+      maxBitrate = videoMaxBandwidth
+    )
+
+    localVideoTrack = room.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
+    localVideoTrack?.setEnabled(isCameraOn)
+
+    isCameraOn = localVideoTrack?.enabled() ?: false
+    isMicrophoneOn = localAudioTrack?.enabled() ?: false
+
+    emitEvent("IsCameraOn", isCameraOn)
+    emitEvent("IsMicrophoneOn", isMicrophoneOn)
+
+    localParticipantId = UUID.randomUUID().toString()
+    val participant = Participant(
+      id = localParticipantId!!,
+      metadata = localUserMetadata,
+    )
+    if (localVideoTrack != null) {
+      participant.addOrUpdateTrack(localVideoTrack!!, videoTrackMetadata)
+    }
+    if (localAudioTrack != null) {
+      participant.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
+    }
+    participants[localParticipantId!!] = participant
+
+    emitParticipants()
+    promise.resolve(null)
   }
 
   private fun ensureConnected(promise: Promise): Boolean {
-    if(room == null) {
+    if (room == null) {
       promise.reject("E_NOT_CONNECTED", "Client not connected to server yet. Make sure to call connect() first!")
       return false
     }
@@ -172,7 +203,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   private fun ensureVideoTrack(promise: Promise): Boolean {
-    if(localVideoTrack == null) {
+    if (localVideoTrack == null) {
       promise.reject("E_NO_LOCAL_VIDEO_TRACK", "No local video track. Make sure to call connect() first!")
       return false
     }
@@ -180,7 +211,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   private fun ensureAudioTrack(promise: Promise): Boolean {
-    if(localAudioTrack == null) {
+    if (localAudioTrack == null) {
       promise.reject("E_NO_LOCAL_AUDIO_TRACK", "No local audio track. Make sure to call connect() first!")
       return false
     }
@@ -188,7 +219,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   private fun ensureScreencastTrack(promise: Promise): Boolean {
-    if(localScreencastTrack == null) {
+    if (localScreencastTrack == null) {
       promise.reject("E_NO_LOCAL_SCREENCAST_TRACK", "No local screencast track. Make sure to toggle screencast on first!")
       return false
     }
@@ -196,10 +227,20 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun join(promise: Promise) {
-    if(!ensureConnected(promise)) return
+  fun receiveMediaEvent(data: String, promise: Promise) {
+    if (!ensureConnected(promise)) return
+    room?.receiveMediaEvent(data)
+  }
+
+  @ReactMethod
+  fun join(peerMetadata: ReadableMap, promise: Promise) {
+    if (!ensureConnected(promise)) return
     joinPromise = promise
-    room?.join()
+    localUserMetadata = peerMetadata.toMap()
+    val id = localParticipantId ?: return
+    val participant = participants[id] ?: return
+    participants[id] = participant.copy(metadata = localUserMetadata)
+    room?.join(localUserMetadata)
   }
 
   @ReactMethod
@@ -217,7 +258,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun toggleMicrophone(promise: Promise) {
-    if(!ensureAudioTrack(promise)) return
+    if (!ensureAudioTrack(promise)) return
     localAudioTrack?.let {
       val enabled = !it.enabled()
       it.setEnabled(enabled)
@@ -233,7 +274,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun toggleCamera(promise: Promise) {
-    if(!ensureVideoTrack(promise)) return
+    if (!ensureVideoTrack(promise)) return
     localVideoTrack?.let {
       val enabled = !it.enabled()
       it.setEnabled(enabled)
@@ -244,14 +285,14 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun flipCamera(promise: Promise) {
-    if(!ensureVideoTrack(promise)) return
+    if (!ensureVideoTrack(promise)) return
     localVideoTrack?.flipCamera()
     promise.resolve(null)
   }
 
   @ReactMethod
   fun switchCamera(captureDeviceId: String, promise: Promise) {
-    if(!ensureVideoTrack(promise)) return
+    if (!ensureVideoTrack(promise)) return
     localVideoTrack?.switchCamera(captureDeviceId)
     promise.resolve(null)
   }
@@ -273,13 +314,14 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun toggleScreencast(screencastOptions: ReadableMap, promise: Promise) {
-    this.screencastMetadata = screencastOptions.getMap("screencastMetadata")?.toMap() ?: mutableMapOf()
+    this.screencastMetadata = screencastOptions.getMap("screencastMetadata")?.toMap()
+      ?: mutableMapOf()
     this.screencastQuality = screencastOptions.getString("quality")
     this.screencastSimulcastConfig = getSimulcastConfigFromOptions(screencastOptions)
     this.screencastMaxBandwidth = getMaxBandwidthFromOptions(screencastOptions)
     screencastPromise = promise
-    if(!isScreenCastOn) {
-      if(!ensureConnected(promise)) return
+    if (!isScreenCastOn) {
+      if (!ensureConnected(promise)) return
       val currentActivity = currentActivity
       if (currentActivity == null) {
         promise.reject("E_ACTIVITY_DOES_NOT_EXIST", "Activity doesn't exist")
@@ -302,7 +344,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun updatePeerMetadata(metadata: ReadableMap, promise: Promise) {
-    if(!ensureConnected(promise)) return
+    if (!ensureConnected(promise)) return
     room?.updatePeerMetadata(metadata.toMap())
     promise.resolve(null)
   }
@@ -317,7 +359,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun updateVideoTrackMetadata(metadata: ReadableMap, promise: Promise) {
-    if(!ensureVideoTrack(promise)) return
+    if (!ensureVideoTrack(promise)) return
     val trackId = localVideoTrack?.rtcTrack()?.id() ?: return
     updateTrackMetadata(trackId, metadata.toMap())
     promise.resolve(null)
@@ -325,7 +367,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun updateAudioTrackMetadata(metadata: ReadableMap, promise: Promise) {
-    if(!ensureAudioTrack(promise)) return
+    if (!ensureAudioTrack(promise)) return
     val trackId = localAudioTrack?.rtcTrack()?.id() ?: return
     updateTrackMetadata(trackId, metadata.toMap())
     promise.resolve(null)
@@ -333,7 +375,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun updateScreencastTrackMetadata(metadata: ReadableMap, promise: Promise) {
-    if(!ensureScreencastTrack(promise)) return
+    if (!ensureScreencastTrack(promise)) return
     val trackId = localScreencastTrack?.rtcTrack()?.id() ?: return
     updateTrackMetadata(trackId, metadata.toMap())
     promise.resolve(null)
@@ -360,7 +402,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   private fun toggleTrackEncoding(encoding: String, trackId: String, simulcastConfig: SimulcastConfig): SimulcastConfig {
     val trackEncoding = encoding.toTrackEncoding()
-    if(simulcastConfig.activeEncodings.contains(trackEncoding)) {
+    if (simulcastConfig.activeEncodings.contains(trackEncoding)) {
       room?.disableTrackEncoding(trackId, trackEncoding)
       return SimulcastConfig(
         enabled = true,
@@ -377,7 +419,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun toggleScreencastTrackEncoding(encoding: String, promise: Promise) {
-    if(!ensureScreencastTrack(promise)) return
+    if (!ensureScreencastTrack(promise)) return
     val trackId = localScreencastTrack?.id() ?: return
     screencastSimulcastConfig = toggleTrackEncoding(encoding, trackId, screencastSimulcastConfig)
     promise.resolve(getSimulcastConfigAsRNMap(screencastSimulcastConfig))
@@ -385,7 +427,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun setScreencastTrackBandwidth(bandwidth: Int, promise: Promise) {
-    if(!ensureScreencastTrack(promise)) return
+    if (!ensureScreencastTrack(promise)) return
     val trackId = localScreencastTrack?.id() ?: return
     room?.setTrackBandwidth(trackId, TrackBandwidthLimit.BandwidthLimit(bandwidth))
     promise.resolve(null)
@@ -393,7 +435,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun setScreencastTrackEncodingBandwidth(encoding: String, bandwidth: Int, promise: Promise) {
-    if(!ensureScreencastTrack(promise)) return
+    if (!ensureScreencastTrack(promise)) return
     val trackId = localScreencastTrack?.id() ?: return
     room?.setEncodingBandwidth(trackId, encoding, TrackBandwidthLimit.BandwidthLimit(bandwidth))
     promise.resolve(null)
@@ -401,9 +443,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun setTargetTrackEncoding(trackId: String, encoding: String, promise: Promise) {
-    if(!ensureConnected(promise)) return
+    if (!ensureConnected(promise)) return
     val globalTrackId = getGlobalTrackId(trackId)
-    if(globalTrackId == null) {
+    if (globalTrackId == null) {
       promise.reject("E_INVALID_TRACK_ID", "Remote track with id=${trackId} not found")
       return
     }
@@ -413,7 +455,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun toggleVideoTrackEncoding(encoding: String, promise: Promise) {
-    if(!ensureVideoTrack(promise)) return
+    if (!ensureVideoTrack(promise)) return
     val trackId = localVideoTrack?.id() ?: return
     videoSimulcastConfig = toggleTrackEncoding(encoding, trackId, videoSimulcastConfig)
     emitEvent("SimulcastConfigUpdate", getSimulcastConfigAsRNMap(videoSimulcastConfig))
@@ -422,7 +464,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun setVideoTrackEncodingBandwidth(encoding: String, bandwidth: Int, promise: Promise) {
-    if(!ensureVideoTrack(promise)) return
+    if (!ensureVideoTrack(promise)) return
     val trackId = localVideoTrack?.id() ?: return
     room?.setEncodingBandwidth(trackId, encoding, TrackBandwidthLimit.BandwidthLimit(bandwidth))
     promise.resolve(null)
@@ -430,21 +472,23 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun setVideoTrackBandwidth(bandwidth: Int, promise: Promise) {
-    if(!ensureVideoTrack(promise)) return
+    if (!ensureVideoTrack(promise)) return
     val trackId = localVideoTrack?.id() ?: return
     room?.setTrackBandwidth(trackId, TrackBandwidthLimit.BandwidthLimit(bandwidth))
     promise.resolve(null)
   }
 
   @ReactMethod
-  fun addListener(eventName: String?) {}
+  fun addListener(eventName: String?) {
+  }
 
   @ReactMethod
-  fun removeListeners(count: Int?) {}
+  fun removeListeners(count: Int?) {
+  }
 
   @ReactMethod
   fun changeWebRTCLoggingSeverity(severity: String, promise: Promise) {
-    when(severity) {
+    when (severity) {
       "verbose" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_VERBOSE)
       "info" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_INFO)
       "error" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_ERROR)
@@ -470,7 +514,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
     localScreencastId = UUID.randomUUID().toString()
 
-    var videoParameters = when(screencastQuality) {
+    var videoParameters = when (screencastQuality) {
       "VGA" -> VideoParameters.presetScreenShareVGA
       "HD5" -> VideoParameters.presetScreenShareHD5
       "HD15" -> VideoParameters.presetScreenShareHD15
@@ -522,8 +566,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       val participantMap = Arguments.createMap()
       participantMap.putString("id", it.id)
       val participantType = when (it.id) {
-          localParticipantId -> "Local"
-          else -> "Remote"
+        localParticipantId -> "Local"
+        else -> "Remote"
       }
       participantMap.putString("type", participantType)
       participantMap.putMap("metadata", mapToRNMap(it.metadata))
@@ -570,7 +614,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   private fun emitAudioDeviceEvent(audioDevices: List<AudioDevice>, selectedDevice: AudioDevice?) {
     val map = Arguments.createMap()
-    map.putMap("selectedDevice",  if (selectedDevice != null) audioDeviceAsRNMap(selectedDevice) else null)
+    map.putMap("selectedDevice", if (selectedDevice != null) audioDeviceAsRNMap(selectedDevice) else null)
     val audioDevicesRNArray = Arguments.createArray()
     audioDevices.forEach { audioDevice -> audioDevicesRNArray.pushMap(audioDeviceAsRNMap(audioDevice)) }
     map.putArray("availableDevices", audioDevicesRNArray)
@@ -586,58 +630,6 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     map.putBoolean("enabled", simulcastConfig.enabled)
     map.putArray("activeEncodings", activeEncodings)
     return map
-  }
-
-  override fun onConnected() {
-    room?.let {
-      localAudioTrack = it.createAudioTrack(audioTrackMetadata)
-      localAudioTrack?.setEnabled(isMicrophoneOn)
-
-      var videoParameters = when (videoQuality) {
-        "QVGA169" -> VideoParameters.presetQVGA169
-        "VGA169" -> VideoParameters.presetVGA169
-        "QHD169" -> VideoParameters.presetQHD169
-        "HD169" -> VideoParameters.presetHD169
-        "FHD169" -> VideoParameters.presetFHD169
-        "QVGA43" -> VideoParameters.presetQVGA43
-        "VGA43" -> VideoParameters.presetVGA43
-        "QHD43" -> VideoParameters.presetQHD43
-        "HD43" -> VideoParameters.presetHD43
-        "FHD43" -> VideoParameters.presetFHD43
-        else -> VideoParameters.presetVGA169
-      }
-      videoParameters = videoParameters.copy(
-        dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions,
-        simulcastConfig = videoSimulcastConfig,
-        maxBitrate = videoMaxBandwidth
-      )
-
-      localVideoTrack = it.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
-      localVideoTrack?.setEnabled(isCameraOn)
-
-      isCameraOn = localVideoTrack?.enabled() ?: false
-      isMicrophoneOn = localAudioTrack?.enabled() ?: false
-
-      emitEvent("IsCameraOn", isCameraOn)
-      emitEvent("IsMicrophoneOn", isMicrophoneOn)
-
-      localParticipantId = UUID.randomUUID().toString()
-      var participant = Participant(
-        id = localParticipantId!!,
-        metadata = localUserMetadata,
-      )
-      if(localVideoTrack != null) {
-        participant.addOrUpdateTrack(localVideoTrack!!, videoTrackMetadata)
-      }
-      if(localAudioTrack != null) {
-        participant.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
-      }
-      participants[localParticipantId!!] = participant
-
-      connectPromise?.resolve(null)
-      connectPromise = null
-      emitParticipants()
-    }
   }
 
   override fun onJoinSuccess(peerID: String, peersInRoom: List<Peer>) {
@@ -656,14 +648,15 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   private fun addOrUpdateTrack(ctx: TrackContext) {
-    val participant = participants[ctx.peer.id] ?: throw IllegalArgumentException("participant with id ${ctx.peer.id} not found")
+    val participant = participants[ctx.peer.id]
+      ?: throw IllegalArgumentException("participant with id ${ctx.peer.id} not found")
 
     when (ctx.track) {
       is RemoteVideoTrack -> {
         val localTrackId = (ctx.track as RemoteVideoTrack).id()
         globalToLocalTrackId[ctx.trackId] = localTrackId
         participant.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata)
-        if(trackContexts[localTrackId] == null) {
+        if (trackContexts[localTrackId] == null) {
           trackContexts[localTrackId] = ctx
           ctx.setOnEncodingChangedListener {
             emitParticipants()
@@ -674,7 +667,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         val localTrackId = (ctx.track as RemoteAudioTrack).id()
         globalToLocalTrackId[ctx.trackId] = localTrackId
         participant.addOrUpdateTrack(ctx.track as RemoteAudioTrack, ctx.metadata)
-        if(trackContexts[localTrackId] == null) {
+        if (trackContexts[localTrackId] == null) {
           trackContexts[localTrackId] = ctx
           ctx.setOnVoiceActivityChangedListener {
             emitParticipants()
@@ -697,7 +690,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   override fun onTrackRemoved(ctx: TrackContext) {
-    val participant = participants[ctx.peer.id] ?: throw IllegalArgumentException("participant with id ${ctx.peer.id} not found")
+    val participant = participants[ctx.peer.id]
+      ?: throw IllegalArgumentException("participant with id ${ctx.peer.id} not found")
 
     when (ctx.track) {
       is RemoteVideoTrack -> participant.removeTrack(ctx.track as RemoteVideoTrack)
@@ -731,21 +725,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   override fun onPeerUpdated(peer: Peer) {
   }
 
-  override fun onBandwidthEstimationChanged(estimation: Long) {
-    emitEvent("BandwidthEstimation", estimation.toFloat())
+  override fun onSendMediaEvent(event: SerializedMediaEvent) {
+    emitEvent("SendMediaEvent", event)
   }
 
-  override fun onError(error: MembraneRTCError) {
-    when {
-        connectPromise != null -> {
-          connectPromise?.reject("E_MEMBRANE_ERROR", error.toString())
-          connectPromise = null
-        }
-        joinPromise != null -> {
-          joinPromise?.reject("E_MEMBRANE_ERROR", error.toString())
-          joinPromise = null
-        }
-    }
-    emitEvent("MembraneError", error.toString())
+  override fun onBandwidthEstimationChanged(estimation: Long) {
+    emitEvent("BandwidthEstimation", estimation.toFloat())
   }
 }
