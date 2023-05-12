@@ -35,7 +35,7 @@ public extension AnyJson {
   func toDict() -> [String: Any] {
     var res: [String: Any] = [:]
     self.keys.forEach { key in
-        res[key] = self[key]
+      res[key] = self[key]
     }
     return res
   }
@@ -105,7 +105,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   @objc static override func requiresMainQueueSetup() -> Bool {
-      return false
+    return false
   }
   
   private func getSimulcastConfigFrom(options: NSDictionary, reject: RCTPromiseRejectBlock) -> SimulcastConfig? {
@@ -177,8 +177,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     return trackEncoding
   }
   
-    @objc(create:withConnectionOptions:withResolver:withRejecter:)
-    func create(url: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
+  @objc(create:withConnectionOptions:withResolver:withRejecter:)
+  func create(url: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
     let videoQuality = connectionOptions["quality"] as? String ?? ""
     let flipVideo = connectionOptions["flipVideo"] as? Bool ?? true
     let videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
@@ -186,74 +186,74 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     self.isMicEnabled = connectionOptions["audioTrackEnabled"] as? Bool ?? true
     self.isCameraEnabled = connectionOptions["videoTrackEnabled"] as? Bool ?? true
     let captureDeviceId = connectionOptions["captureDeviceId"] as? String
-      
+    
     guard let videoSimulcastConfig = getSimulcastConfigFrom(options: connectionOptions, reject: reject) else {
       return
     }
     self.videoSimulcastConfig = videoSimulcastConfig
     let videoBandwidthLimit = getBandwidthLimitFrom(options: connectionOptions)
-        
+    
     let room = MembraneRTC.create(delegate: self)
-      self.room = room
-      
-      let preset: VideoParameters = {
-        switch videoQuality {
-        case "QVGA169":
-          return VideoParameters.presetQVGA169
-        case "VGA169":
-          return VideoParameters.presetVGA169
-        case "VQHD169":
-          return VideoParameters.presetQHD169
-        case "HD169":
-          return VideoParameters.presetHD169
-        case "FHD169":
-          return VideoParameters.presetFHD169
-        case "QVGA43":
-          return VideoParameters.presetQVGA43
-        case "VGA43":
-          return VideoParameters.presetVGA43
-        case "VQHD43":
-          return VideoParameters.presetQHD43
-        case "HD43":
-          return VideoParameters.presetHD43
-        case "FHD43":
-          return VideoParameters.presetFHD43
-        default:
-          return VideoParameters.presetVGA169
-        }
-      }()
-      let videoParameters = VideoParameters(
-        dimensions: flipVideo ? preset.dimensions.flip() : preset.dimensions,
-        maxBandwidth: videoBandwidthLimit,
-        simulcastConfig: self.videoSimulcastConfig
-      )
-      
-      let localParticipantId = UUID().uuidString
-      self.localParticipantId = localParticipantId
-      
-      localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata, captureDeviceId: captureDeviceId)
-      localVideoTrack?.setEnabled(isCameraEnabled)
-      localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
-      localAudioTrack?.setEnabled(isMicEnabled)
-      setAudioSessionMode()
-      
-      var localParticipant = Participant(
-        id: localParticipantId,
-        metadata: localUserMetadata)
-      
-      if let localVideoTrack = localVideoTrack {
-        localParticipant.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
-        localParticipant.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
+    self.room = room
+    
+    let preset: VideoParameters = {
+      switch videoQuality {
+      case "QVGA169":
+        return VideoParameters.presetQVGA169
+      case "VGA169":
+        return VideoParameters.presetVGA169
+      case "VQHD169":
+        return VideoParameters.presetQHD169
+      case "HD169":
+        return VideoParameters.presetHD169
+      case "FHD169":
+        return VideoParameters.presetFHD169
+      case "QVGA43":
+        return VideoParameters.presetQVGA43
+      case "VGA43":
+        return VideoParameters.presetVGA43
+      case "VQHD43":
+        return VideoParameters.presetQHD43
+      case "HD43":
+        return VideoParameters.presetHD43
+      case "FHD43":
+        return VideoParameters.presetFHD43
+      default:
+        return VideoParameters.presetVGA169
       }
-      
-      if let localAudioTrack = localAudioTrack {
-        localParticipant.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
-        localParticipant.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
-      }
-      
-      MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant
-      
-      resolve(nil)
+    }()
+    let videoParameters = VideoParameters(
+      dimensions: flipVideo ? preset.dimensions.flip() : preset.dimensions,
+      maxBandwidth: videoBandwidthLimit,
+      simulcastConfig: self.videoSimulcastConfig
+    )
+    
+    let localParticipantId = UUID().uuidString
+    self.localParticipantId = localParticipantId
+    
+    localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata, captureDeviceId: captureDeviceId)
+    localVideoTrack?.setEnabled(isCameraEnabled)
+    localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
+    localAudioTrack?.setEnabled(isMicEnabled)
+    setAudioSessionMode()
+    
+    var localParticipant = Participant(
+      id: localParticipantId,
+      metadata: localUserMetadata)
+    
+    if let localVideoTrack = localVideoTrack {
+      localParticipant.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
+      localParticipant.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
+    }
+    
+    if let localAudioTrack = localAudioTrack {
+      localParticipant.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
+      localParticipant.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
+    }
+    
+    MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant
+    
+    resolve(nil)
   }
   
   @objc(join:withResolver:withRejecter:)
@@ -293,8 +293,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     guard let screencastExtensionBundleId = screencastExtensionBundleId,
           let appGroupName = appGroupName else {
-            return
-          }
+      return
+    }
     
     // if screensharing is enabled it must be closed by the Broadcast Extension, not by our application
     // the only thing we can do is to display stop recording button, which we already do
@@ -307,23 +307,23 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     if(!ensureConnected(reject)) { return }
     guard let room = room else {
-        return
+      return
     }
     
     let preset: VideoParameters = {
       switch(screencastOptions["quality"] as? String) {
-        case "VGA":
-          return VideoParameters.presetScreenShareVGA
-        case "HD5":
-          return VideoParameters.presetScreenShareHD5
-        case "HD15":
-          return VideoParameters.presetScreenShareHD15
-        case "FHD15":
-          return VideoParameters.presetScreenShareFHD15
-        case "FHD30":
-          return VideoParameters.presetScreenShareFHD30
-        default:
-          return VideoParameters.presetScreenShareHD15
+      case "VGA":
+        return VideoParameters.presetScreenShareVGA
+      case "HD5":
+        return VideoParameters.presetScreenShareHD5
+      case "HD15":
+        return VideoParameters.presetScreenShareHD15
+      case "FHD15":
+        return VideoParameters.presetScreenShareFHD15
+      case "FHD30":
+        return VideoParameters.presetScreenShareFHD30
+      default:
+        return VideoParameters.presetScreenShareHD15
       }
     }()
     guard let screenshareSimulcastConfig = getSimulcastConfigFrom(options: screencastOptions, reject: reject) else {
@@ -340,7 +340,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     
     let screencastMetadata = (screencastOptions["screencastMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     
-      self.localScreencastTrack = room.createScreencastTrack(appGroup: appGroupName, videoParameters: videoParameters, metadata: screencastMetadata, onStart: { [weak self] screencastTrack in
+    self.localScreencastTrack = room.createScreencastTrack(appGroup: appGroupName, videoParameters: videoParameters, metadata: screencastMetadata, onStart: { [weak self] screencastTrack in
       guard let self = self else {
         DispatchQueue.main.async {
           RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
@@ -349,12 +349,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       }
       
       guard let localParticipantId = self.localParticipantId, let screencastTrackId = self.localScreencastTrack?.trackId() else {
-         return
+        return
       }
-        
+      
       MembraneRoom.sharedInstance.participants[localParticipantId]?.videoTracks[screencastTrackId] = screencastTrack
       MembraneRoom.sharedInstance.participants[localParticipantId]?.tracksMetadata[screencastTrackId] = screencastMetadata
-        
+      
       self.isScreensharingEnabled = true
       self.emitEvent(name: "IsScreencastOn", data: true)
       self.emitParticipants()
@@ -406,7 +406,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         "metadata": p.tracksMetadata[trackId]?.toDict() ?? [:],
         "vadStatus": tracksContexts[trackId]?.vadStatus.rawValue as Any,
       ]}
-        
+      
       return [
         "id": p.id,
         "metadata": p.metadata.toDict(),
@@ -415,7 +415,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       ]
     }]
   }
-    
+  
   func getSimulcastConfigAsRNMap(simulcastConfig: SimulcastConfig) -> [String: Any] {
     return [
       "enabled": simulcastConfig.enabled,
@@ -458,9 +458,9 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   func flipCamera(resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
     if(!ensureVideoTrack(reject)) { return }
     guard let cameraTrack = localVideoTrack as? LocalCameraVideoTrack else {
-        return
+      return
     }
-
+    
     cameraTrack.switchCamera()
     resolve(nil)
   }
@@ -490,13 +490,13 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     resolve(rnArray)
   }
-    
+  
   @objc(updatePeerMetadata:withResolver:withRejecter:)
   func updatePeerMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
-        if(!ensureConnected(reject)) { return }
-        room?.updatePeerMetadata(peerMetadata: metadata.toMetadata())
-        resolve(nil)
-    }
+    if(!ensureConnected(reject)) { return }
+    room?.updatePeerMetadata(peerMetadata: metadata.toMetadata())
+    resolve(nil)
+  }
   
   func updateTrackMetadata(trackId: String, metadata:NSDictionary) {
     guard let room = room, let peerId = localParticipantId else {
@@ -507,39 +507,39 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     MembraneRoom.sharedInstance.participants[peerId]?.tracksMetadata[trackId] = metadata.toMetadata()
     emitParticipants()
   }
-    
-    @objc(updateVideoTrackMetadata:withResolver:withRejecter:)
-    func updateVideoTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
-        if(!ensureVideoTrack(reject)) { return }
-        guard let trackId = localVideoTrack?.trackId() else {
-            return
-        }
-
-        updateTrackMetadata(trackId: trackId, metadata: metadata)
-        resolve(nil)
+  
+  @objc(updateVideoTrackMetadata:withResolver:withRejecter:)
+  func updateVideoTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureVideoTrack(reject)) { return }
+    guard let trackId = localVideoTrack?.trackId() else {
+      return
     }
     
-    @objc(updateAudioTrackMetadata:withResolver:withRejecter:)
-    func updateAudioTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
-      if(!ensureAudioTrack(reject)) { return }
-        guard let trackId = localAudioTrack?.trackId() else {
-            return
-        }
-
-      updateTrackMetadata(trackId: trackId, metadata: metadata)
-        resolve(nil)
+    updateTrackMetadata(trackId: trackId, metadata: metadata)
+    resolve(nil)
+  }
+  
+  @objc(updateAudioTrackMetadata:withResolver:withRejecter:)
+  func updateAudioTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureAudioTrack(reject)) { return }
+    guard let trackId = localAudioTrack?.trackId() else {
+      return
     }
     
-    @objc(updateScreencastTrackMetadata:withResolver:withRejecter:)
-    func updateScreencastTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
-      if(!ensureScreencastTrack(reject)) { return }
-        guard let trackId = localScreencastTrack?.trackId() else {
-            return
-        }
-
-      updateTrackMetadata(trackId: trackId, metadata: metadata)
-        resolve(nil)
+    updateTrackMetadata(trackId: trackId, metadata: metadata)
+    resolve(nil)
+  }
+  
+  @objc(updateScreencastTrackMetadata:withResolver:withRejecter:)
+  func updateScreencastTrackMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+    if(!ensureScreencastTrack(reject)) { return }
+    guard let trackId = localScreencastTrack?.trackId() else {
+      return
     }
+    
+    updateTrackMetadata(trackId: trackId, metadata: metadata)
+    resolve(nil)
+  }
   
   private func toggleTrackEncoding(encoding: TrackEncoding, trackId: String, simulcastConfig: SimulcastConfig) -> SimulcastConfig? {
     guard let room = room else {
@@ -644,78 +644,78 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     }
     room.setTrackBandwidth(trackId: trackId, bandwidth: BandwidthLimit(truncating: bandwidth))
   }
-
+  
   @objc(changeWebRTCLoggingSeverity:withResolver:withRejecter:)
   func changeWebRTCLoggingSeverity(severity: NSString, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) {
     switch severity {
     case "verbose":
-       room?.changeWebRTCLoggingSeverity(severity: .verbose)
+      room?.changeWebRTCLoggingSeverity(severity: .verbose)
     case "info":
-       room?.changeWebRTCLoggingSeverity(severity: .info)
+      room?.changeWebRTCLoggingSeverity(severity: .info)
     case "warning":
-       room?.changeWebRTCLoggingSeverity(severity: .warning)
+      room?.changeWebRTCLoggingSeverity(severity: .warning)
     case "error":
-       room?.changeWebRTCLoggingSeverity(severity: .error)
+      room?.changeWebRTCLoggingSeverity(severity: .error)
     case "none":
-       room?.changeWebRTCLoggingSeverity(severity: .none)
+      room?.changeWebRTCLoggingSeverity(severity: .none)
     default:
       reject("E_INVALID_SEVERITY_LEVEL", "Severity with name=\(severity) not found", nil)
       return
     }
     resolve(nil)
   }
-    
+  
   private func getMapFromStatsObject(obj: RTCInboundStats) -> [String: Any] {
-      var res: [String:Any] = [:]
-      res["kind"] = obj.kind
-      res["jitter"] = obj.jitter
-      res["packetsLost"] = obj.packetsLost
-      res["packetsReceived"] = obj.packetsReceived
-      res["bytesReceived"] = obj.bytesReceived
-      res["framesReceived"] = obj.framesReceived
-      res["frameWidth"] = obj.frameWidth
-      res["frameHeight"] = obj.frameHeight
-      res["framesPerSecond"] = obj.framesPerSecond
-      res["framesDropped"] = obj.framesDropped
-      
-      return res
-  }
-
-  private func getMapFromStatsObject(obj: RTCOutboundStats) -> [String: Any] {
-      var innerMap: [String: Double] = [:]
-
-      innerMap["bandwidth"] = obj.qualityLimitationDurations?.bandwidth ?? 0.0
-      innerMap["cpu"] = obj.qualityLimitationDurations?.cpu ?? 0.0
-      innerMap["none"] = obj.qualityLimitationDurations?.none ?? 0.0
-      innerMap["other"] = obj.qualityLimitationDurations?.other ?? 0.0
-      
-      var res: [String: Any] = [:]
-      res["kind"] = obj.kind
-      res["rid"] = obj.rid
-      res["bytesSent"] = obj.bytesSent
-      res["targetBitrate"] = obj.targetBitrate
-      res["packetsSent"] = obj.packetsSent
-      res["framesEncoded"] = obj.framesEncoded
-      res["framesPerSecond"] = obj.framesPerSecond
-      res["frameWidth"] = obj.frameWidth
-      res["frameHeight"] = obj.frameHeight
-      res["qualityLimitationDurations"] = innerMap
-      
-      return res
-  }
-
-  private func statsToRNMap(stats: [String: RTCStats]?) -> [String: Any] {
-      var res: [String: Any] = [:]
-      stats?.forEach{ pair in
-          if let val = pair.value as? RTCOutboundStats {
-              res[pair.key] = getMapFromStatsObject(obj: val)
-          } else {
-              res[pair.key] = getMapFromStatsObject(obj: pair.value as! RTCInboundStats)
-          }
-      }
-      return res
-  }
+    var res: [String:Any] = [:]
+    res["kind"] = obj.kind
+    res["jitter"] = obj.jitter
+    res["packetsLost"] = obj.packetsLost
+    res["packetsReceived"] = obj.packetsReceived
+    res["bytesReceived"] = obj.bytesReceived
+    res["framesReceived"] = obj.framesReceived
+    res["frameWidth"] = obj.frameWidth
+    res["frameHeight"] = obj.frameHeight
+    res["framesPerSecond"] = obj.framesPerSecond
+    res["framesDropped"] = obj.framesDropped
     
+    return res
+  }
+  
+  private func getMapFromStatsObject(obj: RTCOutboundStats) -> [String: Any] {
+    var innerMap: [String: Double] = [:]
+    
+    innerMap["bandwidth"] = obj.qualityLimitationDurations?.bandwidth ?? 0.0
+    innerMap["cpu"] = obj.qualityLimitationDurations?.cpu ?? 0.0
+    innerMap["none"] = obj.qualityLimitationDurations?.none ?? 0.0
+    innerMap["other"] = obj.qualityLimitationDurations?.other ?? 0.0
+    
+    var res: [String: Any] = [:]
+    res["kind"] = obj.kind
+    res["rid"] = obj.rid
+    res["bytesSent"] = obj.bytesSent
+    res["targetBitrate"] = obj.targetBitrate
+    res["packetsSent"] = obj.packetsSent
+    res["framesEncoded"] = obj.framesEncoded
+    res["framesPerSecond"] = obj.framesPerSecond
+    res["frameWidth"] = obj.frameWidth
+    res["frameHeight"] = obj.frameHeight
+    res["qualityLimitationDurations"] = innerMap
+    
+    return res
+  }
+  
+  private func statsToRNMap(stats: [String: RTCStats]?) -> [String: Any] {
+    var res: [String: Any] = [:]
+    stats?.forEach{ pair in
+      if let val = pair.value as? RTCOutboundStats {
+        res[pair.key] = getMapFromStatsObject(obj: val)
+      } else {
+        res[pair.key] = getMapFromStatsObject(obj: pair.value as! RTCInboundStats)
+      }
+    }
+    return res
+  }
+  
   @objc(getStatistics:withRejecter:)
   func getStatistics(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) {
     let mapped = statsToRNMap(stats:room?.getStats())
@@ -726,7 +726,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     guard let localAudioTrack = localAudioTrack else {
       return
     }
-
+    
     switch self.audioSessionMode {
     case AVAudioSession.Mode.videoChat:
       localAudioTrack.setVideoChatMode()
