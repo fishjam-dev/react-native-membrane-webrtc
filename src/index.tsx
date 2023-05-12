@@ -10,6 +10,8 @@ import {
   NativeEventEmitter,
 } from 'react-native';
 
+import { NativeMembraneMock } from './__mocks__/native';
+
 function isJest() {
   // @ts-ignore
   return process.env.NODE_ENV === 'test';
@@ -24,10 +26,7 @@ const LINKING_ERROR =
 const Membrane = NativeModules.Membrane
   ? NativeModules.Membrane
   : isJest()
-  ? {
-      addListener: () => {},
-      removeListeners: () => {},
-    }
+  ? NativeMembraneMock
   : new Proxy(
       {},
       {
@@ -947,12 +946,12 @@ export function useBandwidthEstimation() {
 /**
  * This hook provides access to current rtc statistics data.
  */
-export function useRTCStatistics(refershInterval: number) {
+export function useRTCStatistics(refreshInterval: number) {
   const MAX_SIZE = 120;
   const [statistics, setStatistics] = useState<RTCStats[]>([]);
 
   useEffect(() => {
-    const intervalId = setInterval(getStatistics, refershInterval);
+    const intervalId = setInterval(getStatistics, refreshInterval);
     return () => {
       clearInterval(intervalId);
       setStatistics([]);
