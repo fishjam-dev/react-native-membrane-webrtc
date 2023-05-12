@@ -96,3 +96,9 @@ jobs:
         with:
           name: screen4
           path: example/screen4.png
+      
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: screen3
+          path: example/screen3.png
