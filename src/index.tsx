@@ -352,11 +352,6 @@ export function useMembraneServer() {
   const webrtcChannel = useRef<any>(null);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener('MembraneError', setError);
-    return () => eventListener.remove();
-  }, []);
-
-  useEffect(() => {
     const eventListener = eventEmitter.addListener(
       'SendMediaEvent',
       sendMediaEvent
@@ -437,7 +432,7 @@ export function useMembraneServer() {
         socket.current = _socket;
         webrtcChannel.current = _webrtcChannel;
 
-        await Membrane.create(url, roomName, connectionOptions);
+        await Membrane.create(url, connectionOptions);
 
         await new Promise<void>((resolve, reject) => {
           _webrtcChannel

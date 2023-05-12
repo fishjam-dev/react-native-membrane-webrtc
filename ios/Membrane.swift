@@ -64,26 +64,18 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var localAudioTrack: LocalAudioTrack?
   var localScreencastTrack: LocalScreenBroadcastTrack?
   var localUserMetadata: Metadata = .init()
-  var videoTrackMetadata: Metadata = .init()
-  var audioTrackMetadata: Metadata = .init()
   
   var errorMessage: String?
   var isMicEnabled: Bool = true
   var isCameraEnabled: Bool = true
   var isScreensharingEnabled: Bool = false
   
-  
   var localParticipantId: String?
   
   var room: MembraneRTC? = nil;
-  var connectResolve: RCTPromiseResolveBlock? = nil
-  var connectReject: RCTPromiseRejectBlock? = nil
   var joinResolve: RCTPromiseResolveBlock? = nil
   var joinReject: RCTPromiseRejectBlock? = nil
-  var videoQuality: String? = nil
-  var flipVideo: Bool = true
   var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
-  var videoBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
   var screenshareSimulcastConfig: SimulcastConfig = SimulcastConfig()
   var screenshareBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
   var globalToLocalTrackId: [String:String] = [:]
@@ -185,43 +177,91 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     return trackEncoding
   }
   
-    @objc(connect:withRoomName:withConnectionOptions:withResolver:withRejecter:)
-    func connect(url: String, roomName: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
-    connectResolve = resolve
-    connectReject = reject
-    self.videoQuality = connectionOptions["quality"] as? String ?? ""
-    self.flipVideo = connectionOptions["flipVideo"] as? Bool ?? true
-    self.localUserMetadata = (connectionOptions["userMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
-    self.videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
-    self.audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    @objc(create:withConnectionOptions:withResolver:withRejecter:)
+    func create(url: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
+    let videoQuality = connectionOptions["quality"] as? String ?? ""
+    let flipVideo = connectionOptions["flipVideo"] as? Bool ?? true
+    let videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    let audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.isMicEnabled = connectionOptions["audioTrackEnabled"] as? Bool ?? true
     self.isCameraEnabled = connectionOptions["videoTrackEnabled"] as? Bool ?? true
-    self.captureDeviceId = connectionOptions["captureDeviceId"] as? String
-        
-    let socketConnectionParams = (connectionOptions["connectionParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
-    let socketChannelParams = (connectionOptions["socketChannelParams"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    let captureDeviceId = connectionOptions["captureDeviceId"] as? String
       
     guard let videoSimulcastConfig = getSimulcastConfigFrom(options: connectionOptions, reject: reject) else {
       return
     }
     self.videoSimulcastConfig = videoSimulcastConfig
-    self.videoBandwidthLimit = getBandwidthLimitFrom(options: connectionOptions)
+    let videoBandwidthLimit = getBandwidthLimitFrom(options: connectionOptions)
         
-    room = MembraneRTC.connect(
-      with: MembraneRTC.ConnectOptions(
-        transport: PhoenixTransport(url: url, topic: "room:\(roomName)", params: socketConnectionParams.toDict(), channelParams: socketChannelParams.toDict()),
-        config: self.localUserMetadata
-      ),
-      delegate: self
-    )
+    let room = MembraneRTC.create(delegate: self)
+      self.room = room
+      
+      let preset: VideoParameters = {
+        switch videoQuality {
+        case "QVGA169":
+          return VideoParameters.presetQVGA169
+        case "VGA169":
+          return VideoParameters.presetVGA169
+        case "VQHD169":
+          return VideoParameters.presetQHD169
+        case "HD169":
+          return VideoParameters.presetHD169
+        case "FHD169":
+          return VideoParameters.presetFHD169
+        case "QVGA43":
+          return VideoParameters.presetQVGA43
+        case "VGA43":
+          return VideoParameters.presetVGA43
+        case "VQHD43":
+          return VideoParameters.presetQHD43
+        case "HD43":
+          return VideoParameters.presetHD43
+        case "FHD43":
+          return VideoParameters.presetFHD43
+        default:
+          return VideoParameters.presetVGA169
+        }
+      }()
+      let videoParameters = VideoParameters(
+        dimensions: flipVideo ? preset.dimensions.flip() : preset.dimensions,
+        maxBandwidth: videoBandwidthLimit,
+        simulcastConfig: self.videoSimulcastConfig
+      )
+      
+      let localParticipantId = UUID().uuidString
+      self.localParticipantId = localParticipantId
+      
+      localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata, captureDeviceId: captureDeviceId)
+      localVideoTrack?.setEnabled(isCameraEnabled)
+      localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
+      localAudioTrack?.setEnabled(isMicEnabled)
+      setAudioSessionMode()
+      
+      var localParticipant = Participant(
+        id: localParticipantId,
+        metadata: localUserMetadata)
+      
+      if let localVideoTrack = localVideoTrack {
+        localParticipant.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
+        localParticipant.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
+      }
+      
+      if let localAudioTrack = localAudioTrack {
+        localParticipant.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
+        localParticipant.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
+      }
+      
+      MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant
+      
+      resolve(nil)
   }
   
-  @objc(join:withRejecter:)
-  func join(resolve:@escaping RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+  @objc(join:withResolver:withRejecter:)
+  func join(peerMetadata: NSDictionary, resolve:@escaping RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
     if(!ensureConnected(reject)) { return }
     joinResolve = resolve
     joinReject = reject
-    room?.join()
+    room?.join(peerMetadata: peerMetadata.toMetadata())
   }
   
   @objc(disconnect:withRejecter:)
@@ -231,6 +271,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     room = nil
     MembraneRoom.sharedInstance.participants = [:]
     resolve(nil)
+  }
+  
+  @objc(receiveMediaEvent:withResolver:withRejecter:)
+  func receiveMediaEvent(data: NSString, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    if(!ensureConnected(reject)) { return }
+    room?.receiveMediaEvent(mediaEvent: data as SerializedMediaEvent)
   }
   
   @objc(toggleScreencast:withResolver:withRejecter:)
@@ -729,13 +775,13 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   override func supportedEvents() -> [String]! {
     return [
       "ParticipantsUpdate",
-      "MembraneError",
       "IsMicrophoneOn",
       "IsCameraOn",
       "IsScreencastOn",
       "BandwidthEstimation",
       "AudioDeviceUpdate",
       "SimulcastConfigUpdate",
+      "SendMediaEvent",
     ]
   }
   
@@ -772,73 +818,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     emitEvent(name: "AudioDeviceUpdate", data: ["selectedDevice": ["name": output.portName, "type": deviceTypeString], "availableDevices": []])
   }
   
-  func onConnected() {
-    guard let room = room else {
-      return
-    }
-    
-    let preset: VideoParameters = {
-      switch videoQuality {
-      case "QVGA169":
-        return VideoParameters.presetQVGA169
-      case "VGA169":
-        return VideoParameters.presetVGA169
-      case "VQHD169":
-        return VideoParameters.presetQHD169
-      case "HD169":
-        return VideoParameters.presetHD169
-      case "FHD169":
-        return VideoParameters.presetFHD169
-      case "QVGA43":
-        return VideoParameters.presetQVGA43
-      case "VGA43":
-        return VideoParameters.presetVGA43
-      case "VQHD43":
-        return VideoParameters.presetQHD43
-      case "HD43":
-        return VideoParameters.presetHD43
-      case "FHD43":
-        return VideoParameters.presetFHD43
-      default:
-        return VideoParameters.presetVGA169
-      }
-    }()
-    let videoParameters = VideoParameters(
-      dimensions: flipVideo ? preset.dimensions.flip() : preset.dimensions,
-      maxBandwidth: self.videoBandwidthLimit,
-      simulcastConfig: self.videoSimulcastConfig
-    )
-    
-    let localParticipantId = UUID().uuidString
-    self.localParticipantId = localParticipantId
-    
-    localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata, captureDeviceId: captureDeviceId)
-    localVideoTrack?.setEnabled(isCameraEnabled)
-    localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
-    localAudioTrack?.setEnabled(isMicEnabled)
-    setAudioSessionMode()
-    
-    var localParticipant = Participant(
-      id: localParticipantId,
-      metadata: localUserMetadata)
-    
-    if let localVideoTrack = localVideoTrack {
-      localParticipant.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
-      localParticipant.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
-    }
-    
-    if let localAudioTrack = localAudioTrack {
-      localParticipant.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
-      localParticipant.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
-    }
-    
-    MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant
-    
-    if let connectResolve = connectResolve {
-      connectResolve(nil)
-    }
-    connectResolve = nil
-    connectReject = nil
+  func onSendMediaEvent(event: SerializedMediaEvent) {
+    emitEvent(name: "SendMediaEvent", data: event)
   }
   
   func onJoinSuccess(peerID: String, peersInRoom: [Peer]) {
@@ -936,31 +917,6 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   func onPeerUpdated(peer: Peer) {
     
-  }
-  
-  func onError(_ error: MembraneRTCError) {
-    if let joinReject = joinReject {
-      joinReject("E_MEMBRANE_JOIN", "Failed to join room: \(error)", nil)
-    }
-    if let connectReject = connectReject {
-      connectReject("E_MEMBRANE_CONNECT", "Failed to connect: \(error)", nil)
-    }
-    joinReject = nil
-    joinResolve = nil
-    connectReject = nil
-    connectResolve = nil
-    var errorMessage: String? = nil
-    switch error {
-    case let .rtc(message):
-        errorMessage = message
-
-    case let .transport(message):
-        errorMessage = message
-
-    case let .unknown(message):
-        errorMessage = message
-    }
-    emitEvent(name: "MembraneError", data: errorMessage)
   }
   
   func onBandwidthEstimationChanged(estimation: Int) {

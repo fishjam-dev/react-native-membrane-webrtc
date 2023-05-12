@@ -122,7 +122,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun create(url: String, roomName: String, createOptions: ReadableMap, promise: Promise) {
+  fun create(url: String, createOptions: ReadableMap, promise: Promise) {
     val videoQuality = createOptions.getString("quality")
     var flipVideo = true
     if (createOptions.hasKey("flipVideo"))
