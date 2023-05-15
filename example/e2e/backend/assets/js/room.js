@@ -110,7 +110,7 @@ class Room {
     });
 
     this.webrtcChannel.on('mediaEvent', (event) => {
-      console.log('RECEIVE MEDIA EVENT', mediaEvent);
+      console.log('RECEIVE MEDIA EVENT', event);
       return this.webrtc.receiveMediaEvent(event.data);
     });
   }
