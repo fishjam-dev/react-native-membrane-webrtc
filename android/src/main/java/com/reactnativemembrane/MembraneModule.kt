@@ -157,7 +157,10 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       appContext = reactApplicationContext,
       options = ConnectOptions(
         transport = PhoenixTransport(url, "room:$roomName", Dispatchers.IO, socketConnectionParams, socketChannelParams),
-        config = this.localUserMetadata
+        config = this.localUserMetadata,
+        encoderOptions = EncoderOptions(
+          encoderType = EncoderType.SOFTWARE
+        )
       ),
       listener = this@MembraneModule
     )

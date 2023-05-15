@@ -109,9 +109,10 @@ class Room {
       },
     });
 
-    this.webrtcChannel.on('mediaEvent', (event) =>
-      this.webrtc.receiveMediaEvent(event.data)
-    );
+    this.webrtcChannel.on('mediaEvent', (event) => {
+      console.log('RECEIVE MEDIA EVENT', mediaEvent);
+      return this.webrtc.receiveMediaEvent(event.data);
+    });
   }
 
   addTrack = (track) => {
