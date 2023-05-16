@@ -123,10 +123,6 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun create(url: String, createOptions: ReadableMap, promise: Promise) {
-    val videoQuality = createOptions.getString("quality")
-    var flipVideo = true
-    if (createOptions.hasKey("flipVideo"))
-      flipVideo = createOptions.getBoolean("flipVideo")
     val videoTrackMetadata = createOptions.getMap("videoTrackMetadata")?.toMap() ?: mutableMapOf()
     val audioTrackMetadata = createOptions.getMap("audioTrackMetadata")?.toMap() ?: mutableMapOf()
 
@@ -138,7 +134,6 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     val captureDeviceId = createOptions.getString("captureDeviceId")
 
     this.videoSimulcastConfig = getSimulcastConfigFromOptions(createOptions)
-    val videoMaxBandwidth = getMaxBandwidthFromOptions(createOptions)
 
     val room = MembraneRTC.create(
       appContext = reactApplicationContext,
@@ -149,24 +144,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     localAudioTrack = room.createAudioTrack(audioTrackMetadata)
     localAudioTrack?.setEnabled(isMicrophoneOn)
 
-    var videoParameters = when (videoQuality) {
-      "QVGA169" -> VideoParameters.presetQVGA169
-      "VGA169" -> VideoParameters.presetVGA169
-      "QHD169" -> VideoParameters.presetQHD169
-      "HD169" -> VideoParameters.presetHD169
-      "FHD169" -> VideoParameters.presetFHD169
-      "QVGA43" -> VideoParameters.presetQVGA43
-      "VGA43" -> VideoParameters.presetVGA43
-      "QHD43" -> VideoParameters.presetQHD43
-      "HD43" -> VideoParameters.presetHD43
-      "FHD43" -> VideoParameters.presetFHD43
-      else -> VideoParameters.presetVGA169
-    }
-    videoParameters = videoParameters.copy(
-      dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions,
-      simulcastConfig = videoSimulcastConfig,
-      maxBitrate = videoMaxBandwidth
-    )
+    val videoParameters = getVideoParametersFromOptions(createOptions)
 
     localVideoTrack = room.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
     localVideoTrack?.setEnabled(isCameraOn)
@@ -192,6 +170,33 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
     emitParticipants()
     promise.resolve(null)
+  }
+
+  private fun getVideoParametersFromOptions(createOptions: ReadableMap): VideoParameters {
+    val videoQuality = createOptions.getString("quality")
+    val flipVideo = if (createOptions.hasKey("flipVideo")) createOptions.getBoolean("flipVideo") else true
+    val videoMaxBandwidth = getMaxBandwidthFromOptions(createOptions)
+
+    var videoParameters = when (videoQuality) {
+      "QVGA169" -> VideoParameters.presetQVGA169
+      "VGA169" -> VideoParameters.presetVGA169
+      "QHD169" -> VideoParameters.presetQHD169
+      "HD169" -> VideoParameters.presetHD169
+      "FHD169" -> VideoParameters.presetFHD169
+      "QVGA43" -> VideoParameters.presetQVGA43
+      "VGA43" -> VideoParameters.presetVGA43
+      "QHD43" -> VideoParameters.presetQHD43
+      "HD43" -> VideoParameters.presetHD43
+      "FHD43" -> VideoParameters.presetFHD43
+      else -> VideoParameters.presetVGA169
+    }
+    videoParameters = videoParameters.copy(
+      dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions,
+      simulcastConfig = videoSimulcastConfig,
+      maxBitrate = videoMaxBandwidth
+    )
+
+    return videoParameters
   }
 
   private fun ensureConnected(promise: Promise): Boolean {

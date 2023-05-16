@@ -3107,6 +3107,11 @@
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
 
+"@types/phoenix@^1.5.6":
+  version "1.5.6"
+  resolved "https://registry.yarnpkg.com/@types/phoenix/-/phoenix-1.5.6.tgz#fca4e7315c7f743bf6f04805588b7261b11818db"
+  integrity sha512-e7jZ6I9uyRGsg7MNwQcarmBvRlbGb9DibbocE9crVnxqsy6C23RMxLWbJ2CQ3vgCW7taoL1L+F02EcjA6ld7XA==
+
 "@types/prettier@^1.19.0":
   version "1.19.1"
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-1.19.1.tgz#33509849f8e679e4add158959fdb086440e9553f"

@@ -1,5 +1,5 @@
 import { takeRight } from 'lodash';
-import { Socket } from 'phoenix';
+import { Channel, Socket, MessageRef } from 'phoenix';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   NativeModules,
@@ -346,9 +346,10 @@ export function useMembraneServer() {
   const [error, setError] = useState<string | null>(null);
   // prevent user from calling connect methods multiple times
   const lock = useRef(false);
-  // phoenix sockets are not ts typed :(
-  const socket = useRef<any>(null);
-  const webrtcChannel = useRef<any>(null);
+  const socket = useRef<Socket | null>(null);
+  const webrtcChannel = useRef<Channel | null>(null);
+  const onSocketError = useRef<MessageRef | null>(null);
+  const onSocketClose = useRef<MessageRef | null>(null);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener(
@@ -404,6 +405,12 @@ export function useMembraneServer() {
           params: connectionOptions.connectionParams,
         });
         _socket.connect();
+
+        onSocketClose.current = _socket.onClose(cleanUp);
+        onSocketError.current = _socket.onError(() => {
+          setError(`Socket error occured.`);
+          cleanUp();
+        });
 
         const _webrtcChannel = _socket.channel(
           `room:${roomName}`,
@@ -476,8 +483,11 @@ export function useMembraneServer() {
   );
 
   const cleanUp = (): Promise<void> => {
-    webrtcChannel.current.leave();
-    socket.current.off();
+    webrtcChannel.current?.leave();
+    const refs: MessageRef[] = [];
+    if (onSocketClose.current) refs.push(onSocketClose.current);
+    if (onSocketError.current) refs.push(onSocketError.current);
+    socket.current?.off(refs);
     return Membrane.disconnect();
   };
 

@@ -179,8 +179,6 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   @objc(create:withConnectionOptions:withResolver:withRejecter:)
   func create(url: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
-    let videoQuality = connectionOptions["quality"] as? String ?? ""
-    let flipVideo = connectionOptions["flipVideo"] as? Bool ?? true
     let videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     let audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
     self.isMicEnabled = connectionOptions["audioTrackEnabled"] as? Bool ?? true
@@ -191,10 +189,44 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       return
     }
     self.videoSimulcastConfig = videoSimulcastConfig
-    let videoBandwidthLimit = getBandwidthLimitFrom(options: connectionOptions)
     
     let room = MembraneRTC.create(delegate: self)
     self.room = room
+    
+    let localParticipantId = UUID().uuidString
+    self.localParticipantId = localParticipantId
+    
+    let videoParameters = getVideoParametersFromOptions(connectionOptions: connectionOptions)
+    
+    localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata, captureDeviceId: captureDeviceId)
+    localVideoTrack?.setEnabled(isCameraEnabled)
+    localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
+    localAudioTrack?.setEnabled(isMicEnabled)
+    setAudioSessionMode()
+    
+    var localParticipant = Participant(
+      id: localParticipantId,
+      metadata: localUserMetadata)
+    
+    if let localVideoTrack = localVideoTrack {
+      localParticipant.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
+      localParticipant.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
+    }
+    
+    if let localAudioTrack = localAudioTrack {
+      localParticipant.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
+      localParticipant.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
+    }
+    
+    MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant
+    
+    resolve(nil)
+  }
+  
+  func getVideoParametersFromOptions(connectionOptions: NSDictionary) -> VideoParameters {
+    let videoQuality = connectionOptions["quality"] as? String ?? ""
+    let flipVideo = connectionOptions["flipVideo"] as? Bool ?? true
+    let videoBandwidthLimit = getBandwidthLimitFrom(options: connectionOptions)
     
     let preset: VideoParameters = {
       switch videoQuality {
@@ -227,33 +259,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
       maxBandwidth: videoBandwidthLimit,
       simulcastConfig: self.videoSimulcastConfig
     )
-    
-    let localParticipantId = UUID().uuidString
-    self.localParticipantId = localParticipantId
-    
-    localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata, captureDeviceId: captureDeviceId)
-    localVideoTrack?.setEnabled(isCameraEnabled)
-    localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
-    localAudioTrack?.setEnabled(isMicEnabled)
-    setAudioSessionMode()
-    
-    var localParticipant = Participant(
-      id: localParticipantId,
-      metadata: localUserMetadata)
-    
-    if let localVideoTrack = localVideoTrack {
-      localParticipant.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
-      localParticipant.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
-    }
-    
-    if let localAudioTrack = localAudioTrack {
-      localParticipant.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
-      localParticipant.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
-    }
-    
-    MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant
-    
-    resolve(nil)
+    return videoParameters
   }
   
   @objc(join:withResolver:withRejecter:)
