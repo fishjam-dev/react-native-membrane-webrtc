@@ -1,4 +1,5 @@
 import { takeRight } from 'lodash';
+import { Channel, Socket, MessageRef } from 'phoenix';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   NativeModules,
@@ -196,10 +197,6 @@ export type ConnectionOptions = {
    */
   flipVideo: boolean;
   /**
-   * a map `string -> any` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
-   */
-  userMetadata: Metadata;
-  /**
    * a map `string -> any` containing video track metadata to be sent to the server.
    */
   videoTrackMetadata: Metadata;
@@ -349,11 +346,24 @@ export function useMembraneServer() {
   const [error, setError] = useState<string | null>(null);
   // prevent user from calling connect methods multiple times
   const lock = useRef(false);
+  const socket = useRef<Socket | null>(null);
+  const webrtcChannel = useRef<Channel | null>(null);
+  const onSocketError = useRef<MessageRef | null>(null);
+  const onSocketClose = useRef<MessageRef | null>(null);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener('MembraneError', setError);
+    const eventListener = eventEmitter.addListener(
+      'SendMediaEvent',
+      sendMediaEvent
+    );
     return () => eventListener.remove();
   }, []);
+
+  const sendMediaEvent = (mediaEvent: string) => {
+    if (webrtcChannel.current) {
+      webrtcChannel.current.push('mediaEvent', { data: mediaEvent });
+    }
+  };
 
   const withLock =
     (f: any) =>
@@ -370,7 +380,7 @@ export function useMembraneServer() {
     };
 
   /**
-   * Connects to a room.
+   * Connects to a server.
    * @returns A promise that resolves on success or rejects in case of an error.
    */
   const connect: (
@@ -382,15 +392,65 @@ export function useMembraneServer() {
     connectionOptions?: Partial<ConnectionOptions>
   ) => Promise<void> = useCallback(
     withLock(
-      (
+      async (
         url: string,
         roomName: string,
         connectionOptions: Partial<ConnectionOptions> = {}
-      ): Promise<void> => {
+      ) => {
         setError(null);
         videoSimulcastConfig =
           connectionOptions.simulcastConfig || defaultSimulcastConfig();
-        return Membrane.connect(url, roomName, connectionOptions);
+
+        const _socket = new Socket(url, {
+          params: connectionOptions.connectionParams,
+        });
+        _socket.connect();
+
+        onSocketClose.current = _socket.onClose(cleanUp);
+        onSocketError.current = _socket.onError(() => {
+          setError(`Socket error occured.`);
+          cleanUp();
+        });
+
+        const _webrtcChannel = _socket.channel(
+          `room:${roomName}`,
+          connectionOptions.socketChannelParams
+        );
+
+        _webrtcChannel.on('mediaEvent', (event) => {
+          Membrane.receiveMediaEvent(event.data);
+        });
+
+        _webrtcChannel.on('error', (error) => {
+          console.error(error);
+          setError(
+            `Received error report from the server: ${error.message ?? ''}`
+          );
+          cleanUp();
+        });
+
+        _webrtcChannel.onError((reason) => {
+          console.error(reason);
+          setError(`Webrtc channel error occurred: ${reason}.`);
+          cleanUp();
+        });
+
+        socket.current = _socket;
+        webrtcChannel.current = _webrtcChannel;
+
+        await Membrane.create(url, connectionOptions);
+
+        await new Promise<void>((resolve, reject) => {
+          _webrtcChannel
+            .join()
+            .receive('ok', () => {
+              resolve();
+            })
+            .receive('error', (_response) => {
+              console.error(_response);
+              reject(_response);
+            });
+        });
       }
     ),
     []
@@ -398,12 +458,14 @@ export function useMembraneServer() {
 
   /**
    * Call this after successfully connecting with the server to join the room. Other participants' tracks will be sent and the user will be visible to other room participants.
+   *
+   * @param peerMetadata a map `string -> any` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
    * @returns A promise that resolves on success or rejects in case of an error.
    */
-  const joinRoom: () => Promise<void> = useCallback(
-    withLock((): Promise<void> => {
+  const joinRoom: (peerMetadata: Metadata) => Promise<void> = useCallback(
+    withLock((peerMetadata: Metadata): Promise<void> => {
       setError(null);
-      return Membrane.join();
+      return Membrane.join(peerMetadata);
     }),
     []
   );
@@ -415,10 +477,20 @@ export function useMembraneServer() {
   const disconnect: () => Promise<void> = useCallback(
     withLock((): Promise<void> => {
       setError(null);
-      return Membrane.disconnect();
+      return cleanUp();
     }),
     []
   );
+
+  const cleanUp = (): Promise<void> => {
+    webrtcChannel.current?.leave();
+    const refs: MessageRef[] = [];
+    if (onSocketClose.current) refs.push(onSocketClose.current);
+    if (onSocketError.current) refs.push(onSocketError.current);
+    socket.current?.off(refs);
+    return Membrane.disconnect();
+  };
+
   return {
     connect,
     disconnect,

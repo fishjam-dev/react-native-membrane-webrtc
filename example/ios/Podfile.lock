@@ -516,7 +516,8 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - MembraneRTC/Broadcast
+  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, branch `graszka22/socket-refactor`)
+  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, branch `graszka22/socket-refactor`)
   - OpenSSL-Universal (= 1.1.1100)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -574,7 +575,6 @@ SPEC REPOS:
     - fmt
     - libevent
     - Logging
-    - MembraneRTC
     - OpenSSL-Universal
     - OrderedObjectSet
     - PromisesObjC
@@ -619,6 +619,9 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes/hermes-engine.podspec"
+  MembraneRTC:
+    :branch: graszka22/socket-refactor
+    :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -691,6 +694,11 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@sentry/react-native"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
+
+CHECKOUT OPTIONS:
+  MembraneRTC:
+    :commit: 5532e9a99224bb8455b9034779e4f3807d5fda52
+    :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
 
 SPEC CHECKSUMS:
   AssociatedValues: 33dfc4f4d0ec2f1177a2558e176364e2ac849cd1
@@ -774,6 +782,6 @@ SPEC CHECKSUMS:
   Yoga: d6133108734e69e8c0becc6ba587294b94829687
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: e38aa9e9f463a3b3260c491618d93c4c965da37d
+PODFILE CHECKSUM: 54f2feb52315c3c82c2f1ec76f6009c6cf26a482
 
 COCOAPODS: 1.12.1

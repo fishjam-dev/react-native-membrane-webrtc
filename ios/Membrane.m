@@ -3,13 +3,12 @@
 
 @interface RCT_EXTERN_MODULE(Membrane, RCTEventEmitter <RCTBridgeModule>)
 
-RCT_EXTERN_METHOD(connect:(NSString)url
-                  withRoomName:(NSString)roomName
+RCT_EXTERN_METHOD(create:(NSString)url
                   withConnectionOptions:(NSDictionary)connectionOptions
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(join:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(join:(NSDictionary)peerMetadata withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(disconnect:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(getParticipants:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(toggleCamera:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
@@ -36,5 +35,6 @@ RCT_EXTERN_METHOD(getStatistics:(RCTPromiseResolveBlock)resolve withRejecter:(RC
 RCT_EXTERN_METHOD(selectAudioSessionMode:(NSString)sessionMode withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(showAudioRoutePicker:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(startAudioSwitcher:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(receiveMediaEvent:(NSString)data withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 @end
 
