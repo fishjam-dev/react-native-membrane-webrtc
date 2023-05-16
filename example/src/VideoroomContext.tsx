@@ -110,7 +110,6 @@ const VideoroomContextProvider = (props) => {
     Sentry.setExtra('user name', trimmedUserName);
 
     await connect(getServerUrl(), trimmedRoomName, {
-      userMetadata: { displayName: trimmedUserName },
       socketChannelParams: {
         isSimulcastOn: true,
       },
@@ -133,7 +132,7 @@ const VideoroomContextProvider = (props) => {
       audioTrackEnabled: isMicrophoneOn,
       captureDeviceId: currentCamera?.id,
     });
-    await joinRoom();
+    await joinRoom({ displayName: trimmedUserName });
     setVideoroomState('InMeeting');
   }, [roomName, username, isCameraOn, isMicrophoneOn, currentCamera]);
 
