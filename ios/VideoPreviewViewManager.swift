@@ -23,16 +23,15 @@ class VideoPreviewView : UIView {
     videoView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     videoView?.clipsToBounds = true
     addSubview(videoView!)
-   
-    localVideoTrack = LocalVideoTrack.create(videoParameters: VideoParameters.presetFHD169) as? LocalCameraVideoTrack
-    videoView?.track = localVideoTrack
   }
   
   override func willMove(toWindow newWindow: UIWindow?) {
     if(newWindow == nil) {
       localVideoTrack?.stop()
     } else {
+      localVideoTrack = LocalVideoTrack.create(videoParameters: VideoParameters.presetFHD169) as? LocalCameraVideoTrack
       localVideoTrack?.start()
+      videoView?.track = localVideoTrack
     }
   }
   
