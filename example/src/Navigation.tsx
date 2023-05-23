@@ -19,7 +19,7 @@ const linking = {
       JoinRoom: {
         path: ':roomName',
         parse: {
-          roomName: decodeURI,
+          roomName: decodeURIComponent,
         },
       },
     },
