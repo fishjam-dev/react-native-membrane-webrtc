@@ -66,7 +66,7 @@ export const JoinRoom = ({ navigation, route }: Props) => {
 
   const openPreview = () => {
     if (checkIfUrl(roomName)) {
-      setRoomName(decodeURI(extractRoomNameFromUrl(roomName)));
+      setRoomName(decodeURIComponent(extractRoomNameFromUrl(roomName)));
     }
     navigation.push('Preview', { title: 'Join meeting' });
   };
