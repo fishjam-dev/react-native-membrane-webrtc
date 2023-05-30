@@ -132,10 +132,14 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
       maxBandwidth: { l: 150, m: 500, h: 1500 },
       videoTrackMetadata: { active: isCameraOn, type: 'camera' },
       audioTrackMetadata: { active: isMicrophoneOn, type: 'audio' },
-      videoTrackEnabled: isCameraOn,
-      audioTrackEnabled: isMicrophoneOn,
       captureDeviceId: currentCamera?.id,
     });
+    if (!isCameraOn) {
+      await membraneToggleCamera();
+    }
+    if (!isMicrophoneOn) {
+      await membraneToggleMicrophone();
+    }
     await joinRoom({ displayName: trimmedUserName });
     setVideoroomState('InMeeting');
   }, [roomName, username, isCameraOn, isMicrophoneOn, currentCamera]);
