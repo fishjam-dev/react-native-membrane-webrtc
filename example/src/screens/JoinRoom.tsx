@@ -99,8 +99,8 @@ export const JoinRoom = ({ navigation, route }: Props) => {
           >
             <DiscardModal
               headline="Cancel joining meeting"
-              body="Are you sure you want to cancel joining to this meeting?"
-              buttonText="Yes, don't join"
+              body="Are you sure you don’t want to join this meeting?"
+              buttonText="Don’t join the meeting"
               handleBeforeRemoveEvent={handleBeforeRemoveEvent}
             />
             <View style={styles.inner}>
