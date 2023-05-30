@@ -221,12 +221,12 @@ export type ConnectionOptions = {
    */
   socketChannelParams: SocketChannelParams;
   /**
-   * whether the video track is initially enabled
+   * whether the video track is enabled
    * @default `true`
    */
   videoTrackEnabled: boolean;
   /**
-   * whether the audio track is initially enabled
+   * whether the audio track is enabled
    * @default `true`
    */
   audioTrackEnabled: boolean;

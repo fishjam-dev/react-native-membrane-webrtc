@@ -153,13 +153,18 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     )
     this.room = room
 
-    localAudioTrack = room.createAudioTrack(audioTrackMetadata)
-    localAudioTrack?.setEnabled(isMicrophoneOn)
+    if(isMicrophoneOn) {
+      localAudioTrack = room.createAudioTrack(audioTrackMetadata)
+      localAudioTrack?.setEnabled(isMicrophoneOn)
+    }
 
     val videoParameters = getVideoParametersFromOptions(createOptions)
 
-    localVideoTrack = room.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
-    localVideoTrack?.setEnabled(isCameraOn)
+    if(isCameraOn) {
+      localVideoTrack = room.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
+      localVideoTrack?.setEnabled(isCameraOn)
+    }
+
 
     isCameraOn = localVideoTrack?.enabled() ?: false
     isMicrophoneOn = localAudioTrack?.enabled() ?: false
