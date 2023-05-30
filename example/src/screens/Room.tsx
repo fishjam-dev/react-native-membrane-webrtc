@@ -11,7 +11,7 @@ import { Participants } from '@components/Participants';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useKeepAwake } from 'expo-keep-awake';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -27,6 +27,7 @@ type Props = NativeStackScreenProps<RootStack, 'Room'>;
 export const Room = ({ navigation }: Props) => {
   useKeepAwake();
 
+  const { setOptions } = useNavigation();
   const { isDevMode, roomName, disconnect } = useVideoroomState();
   const { selectedAudioOutputDevice } = Membrane.useAudioSettings();
   const participants = Membrane.useRoomParticipants();
@@ -48,6 +49,10 @@ export const Room = ({ navigation }: Props) => {
     .flat();
 
   const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
+
+  useEffect(() => {
+    setOptions({ gestureEnabled: false });
+  }, [setOptions]);
 
   useFocusEffect(
     React.useCallback(() => {
