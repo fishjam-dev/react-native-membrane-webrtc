@@ -58,6 +58,7 @@ export const Navigation = () => {
           component={Room}
           options={{
             headerShown: false,
+            gestureEnabled: false,
           }}
         />
         <Stack.Screen
@@ -65,6 +66,7 @@ export const Navigation = () => {
           component={LeaveRoomScreen}
           options={{
             headerShown: false,
+            gestureEnabled: false,
           }}
         />
         <Stack.Screen

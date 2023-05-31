@@ -48,6 +48,14 @@ export const DiscardModal = ({
     }, [navigation, roomName, username])
   );
 
+  const goBack = useCallback(() => {
+    setIsModalVisible(false);
+    setRoomName('');
+    setUsername('');
+    navigation.dispatch(modalAction.current!);
+    onDiscard();
+  }, []);
+
   return (
     <Modal
       headline={headline}
@@ -55,16 +63,7 @@ export const DiscardModal = ({
       visible={isModalVisible}
       onClose={() => setIsModalVisible(false)}
     >
-      <StandardButton
-        type="danger"
-        onPress={() => {
-          setIsModalVisible(false);
-          setRoomName('');
-          setUsername('');
-          navigation.dispatch(modalAction.current!);
-          onDiscard();
-        }}
-      >
+      <StandardButton type="danger" onPress={goBack}>
         {buttonText}
       </StandardButton>
     </Modal>
