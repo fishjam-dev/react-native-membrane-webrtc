@@ -3,23 +3,17 @@ import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
 import { RootStack } from '@model/NavigationTypes';
 import { useNotifications } from '@model/NotificationsContext';
-import { useNavigation } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Sentry from '@sentry/react-native';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'LeaveRoom'>;
 
 export const LeaveRoomScreen = ({ navigation }: Props) => {
-  const { setOptions } = useNavigation();
   const { connectAndJoinRoom, goToMainScreen } = useVideoroomState();
   const { showNotification } = useNotifications();
-
-  useEffect(() => {
-    setOptions({ gestureEnabled: false });
-  }, [setOptions]);
 
   const rejoinMeeting = useCallback(async () => {
     try {
