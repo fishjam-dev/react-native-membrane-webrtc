@@ -105,6 +105,31 @@ export const RoomParticipant = ({
       : styles.videoTrack;
   };
 
+  const getAudioIcon = () => {
+    if (videoTrackType === 'screensharing') {
+      return null;
+    }
+    if (!audioTrack?.metadata.active) {
+      return (
+        <View style={styles.audioIcon}>
+          <Icon
+            name="Microphone-off"
+            size={16}
+            color={BrandColors.darkBlue100}
+          />
+        </View>
+      );
+    }
+    if (audioTrack?.vadStatus === 'speech') {
+      return (
+        <View style={styles.audioIcon}>
+          <Icon name="Sound-big" size={20} color={BrandColors.darkBlue100} />
+        </View>
+      );
+    }
+    return null;
+  };
+
   return (
     <View style={styles.fill}>
       <Pressable onPress={triggerShowingPinButton} style={styles.fill}>
@@ -145,15 +170,7 @@ export const RoomParticipant = ({
           </View>
         ) : null}
 
-        {videoTrackType !== 'screensharing' && !audioTrack?.metadata.active && (
-          <View style={styles.mutedIcon}>
-            <Icon
-              name="Microphone-off"
-              size={16}
-              color={BrandColors.darkBlue100}
-            />
-          </View>
-        )}
+        {getAudioIcon()}
       </Pressable>
 
       {isDevMode ? (
@@ -213,7 +230,7 @@ const styles = StyleSheet.create({
   videoTrackScreencastFocused: {
     flex: 1,
   },
-  mutedIcon: {
+  audioIcon: {
     position: 'absolute',
     left: 16,
     top: 16,
