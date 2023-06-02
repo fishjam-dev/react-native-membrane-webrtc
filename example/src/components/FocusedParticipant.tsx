@@ -24,8 +24,17 @@ export const FocusedParticipant = ({
     focusedParticipant.participant.type === Membrane.ParticipantType.Local &&
     focusedTrack?.metadata.type === 'screensharing';
 
+  const isParticipantSpeaking =
+    focusedParticipant.participant.tracks.find((t) => t.type === 'Audio')
+      ?.vadStatus === 'speech';
+
   return (
-    <View style={styles.focusedParticipantContainer}>
+    <View
+      style={[
+        styles.focusedParticipantContainer,
+        isParticipantSpeaking ? styles.activeSpeakerContainer : {},
+      ]}
+    >
       {isLocalScreenshareTrack ? (
         <StopScreencastingWithFocus />
       ) : (
@@ -36,11 +45,27 @@ export const FocusedParticipant = ({
           focused
         />
       )}
+      {isParticipantSpeaking ? (
+        <View style={styles.activeSpeakerBorder} />
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  activeSpeakerContainer: {
+    borderColor: BrandColors.green60,
+  },
+  activeSpeakerBorder: {
+    borderColor: BrandColors.green60,
+    borderWidth: 5,
+    borderRadius: 12,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
   focusedParticipantContainer: {
     flex: 1,
     justifyContent: 'center',
