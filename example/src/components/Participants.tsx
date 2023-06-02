@@ -48,6 +48,13 @@ export const Participants = ({ participants, onPress }: ParticipantsProp) => {
     ];
   };
 
+  const isParticipantSpeaking = (participant: Participant) => {
+    return (
+      participant.participant.tracks.find((t) => t.type === 'Audio')
+        ?.vadStatus === 'speech'
+    );
+  };
+
   return (
     <View style={styles.participantsContainer}>
       <View
@@ -68,7 +75,9 @@ export const Participants = ({ participants, onPress }: ParticipantsProp) => {
               key={p.participant.id + p.trackId}
               style={[
                 getStylesForParticipants(),
-                styles.shownParticipantBorder,
+                isParticipantSpeaking(p)
+                  ? styles.shownActiveParticipantBorder
+                  : styles.shownParticipantBorder,
               ]}
             >
               <RoomParticipant
@@ -77,6 +86,9 @@ export const Participants = ({ participants, onPress }: ParticipantsProp) => {
                 onPinButtonPressed={onPress}
                 tileSmall={participants.length > FLEX_BRAKPOINT || width < 350}
               />
+              {isParticipantSpeaking(p) ? (
+                <View style={styles.activeSpeakerBorder} />
+              ) : null}
             </View>
           ))}
 
@@ -127,5 +139,19 @@ const styles = StyleSheet.create({
   shownParticipantBorder: {
     borderWidth: 1,
     borderColor: BrandColors.darkBlue60,
+  },
+  shownActiveParticipantBorder: {
+    borderWidth: 1,
+    borderColor: BrandColors.green60,
+  },
+  activeSpeakerBorder: {
+    borderColor: BrandColors.green60,
+    borderWidth: 5,
+    borderRadius: 12,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
 });
