@@ -2,7 +2,7 @@ import { AdditionalColors, BrandColors, TextColors } from '@colors';
 import { Typo } from '@components/Typo';
 import React, { ReactNode } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { useDebounce } from 'src/shared/debouncer';
+import { useDebouncedCallback } from 'use-debounce';
 
 const StandardButtonStyles = StyleSheet.create({
   common: {
@@ -42,7 +42,10 @@ export const StandardButton = ({
   onPress,
   children,
 }: StandardButtonProps) => {
-  const debouncedOnPress = useDebounce(onPress);
+  const debouncedOnPress = useDebouncedCallback(onPress, 500, {
+    leading: true,
+    trailing: false,
+  });
 
   const GetBackgroundColorStyle = (
     type: StandardButtonTypeName,
