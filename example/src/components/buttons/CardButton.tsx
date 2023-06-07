@@ -9,7 +9,7 @@ import Animated, {
   withTiming,
   useSharedValue,
 } from 'react-native-reanimated';
-import { useDebounce } from 'src/shared/debouncer';
+import { useDebouncedCallback } from 'use-debounce';
 
 const CardButtonStyles = StyleSheet.create({
   wrapper: {
@@ -42,7 +42,10 @@ export const CardButton = ({
   children,
 }: CardButtonProps) => {
   const progress = useSharedValue(0);
-  const debouncedOnPress = useDebounce(onPress);
+  const debouncedOnPress = useDebouncedCallback(onPress, 500, {
+    leading: true,
+    trailing: false,
+  });
 
   const backgroundColorStyle = useAnimatedStyle(
     () => ({
