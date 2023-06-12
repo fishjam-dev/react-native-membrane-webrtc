@@ -55,42 +55,18 @@ export const Room = ({ navigation }: Props) => {
   );
 
   const [participantsLastSpoken, setParticipantsLastSpoken] = useState({});
-
   const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
 
   const participantsOrder = (
     a: ParticipantWithTrack,
     b: ParticipantWithTrack
   ) => {
-    // Check for local user, they should be always on the top
+    // Check for local user, they should be always on the top.
     if (a.participant.type === 'Local') {
       return -1;
     } else if (b.participant.type === 'Local') {
       return 1;
     }
-
-    // if (
-    //   b.participant.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-    //   'speech'
-    // ) {
-    //   if (
-    //     a.participant.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-    //     'speech'
-    //   ) {
-    //     console.log('bez mizny');
-    //     return 0;
-    //   } else {
-    //     console.log('zmiana');
-    //     return 1;
-    //   }
-    // }
-
-    // if (
-    //   a.participant.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-    //   'speech'
-    // ) {
-    //   return -1;
-    // }
 
     if (
       participantsLastSpoken[b.participant.id] >
