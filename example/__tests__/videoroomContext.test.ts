@@ -33,18 +33,16 @@ sentry.setExtra = setExtra;
 
 const useCameraStateMock = jest.fn(NOOP);
 const useMicrophoneStateMock = jest.fn(NOOP);
-const useVideoTrackMetadataMock = jest.fn(NOOP);
-const useAudioTrackMetadataMock = jest.fn(NOOP);
+const updateVideoTrackMetadataMock = jest.fn(NOOP);
+const updateAudioTrackMetadataMock = jest.fn(NOOP);
 const connectCallback = jest.fn(NOOP);
-const joinCallback = jest.fn(NOOP);
 const disconnectCallback = jest.fn(NOOP);
 
 const membraneWebRTC = require('../../src/index');
-membraneWebRTC.useMembraneServer = () => {
+membraneWebRTC.useWebRTC = () => {
   return {
     connect: voidPromise(connectCallback),
     disconnect: voidPromise(disconnectCallback),
-    joinRoom: voidPromise(joinCallback),
     error: null,
   };
 };
@@ -54,12 +52,8 @@ membraneWebRTC.useCameraState = () => {
 membraneWebRTC.useMicrophoneState = () => {
   return { toggleMicrophone: useMicrophoneStateMock };
 };
-membraneWebRTC.useVideoTrackMetadata = () => {
-  return { updateVideoTrackMetadata: useVideoTrackMetadataMock };
-};
-membraneWebRTC.useAudioTrackMetadata = () => {
-  return { updateAudioTrackMetadata: useAudioTrackMetadataMock };
-};
+membraneWebRTC.updateVideoTrackMetadata = updateVideoTrackMetadataMock;
+membraneWebRTC.updateAudioTrackMetadata = updateAudioTrackMetadataMock;
 
 describe('Videoroom context', () => {
   afterEach(() => {
@@ -105,7 +99,7 @@ describe('Videoroom context', () => {
     });
 
     expect(useCameraStateMock).toBeCalledTimes(1);
-    expect(useVideoTrackMetadataMock).toBeCalledTimes(1);
+    expect(updateVideoTrackMetadataMock).toBeCalledTimes(1);
     expect(result.current.isCameraOn).toBe(false);
   });
 
@@ -130,7 +124,7 @@ describe('Videoroom context', () => {
     });
 
     expect(useMicrophoneStateMock).toBeCalledTimes(1);
-    expect(useAudioTrackMetadataMock).toBeCalledTimes(1);
+    expect(updateAudioTrackMetadataMock).toBeCalledTimes(1);
     expect(result.current.isMicrophoneOn).toBe(false);
   });
 
@@ -153,7 +147,6 @@ describe('Videoroom context', () => {
     expect(setExtra).toHaveBeenNthCalledWith(1, 'room name', 'test room');
     expect(setExtra).toHaveBeenNthCalledWith(2, 'user name', 'test user');
     expect(connectCallback).toBeCalledTimes(1);
-    expect(joinCallback).toBeCalledTimes(1);
     expect(result.current.videoroomState).toBe('InMeeting');
   });
 

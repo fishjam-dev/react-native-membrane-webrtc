@@ -3,7 +3,6 @@ package com.reactnativemembrane
 import android.app.Activity
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.BaseActivityEventListener
@@ -19,10 +18,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.membraneframework.rtc.MembraneRTC
+import org.membraneframework.rtc.models.Endpoint
 import org.membraneframework.rtc.MembraneRTCListener
 import org.membraneframework.rtc.SimulcastConfig
 import org.membraneframework.rtc.media.*
-import org.membraneframework.rtc.models.Peer
 import org.membraneframework.rtc.models.TrackContext
 import org.membraneframework.rtc.utils.Metadata
 import org.membraneframework.rtc.utils.SerializedMediaEvent
@@ -39,7 +38,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   var localAudioTrack: LocalAudioTrack? = null
   var localVideoTrack: LocalVideoTrack? = null
   var localScreencastTrack: LocalScreencastTrack? = null
-  var localParticipantId: String? = null
+  var localEndpointId: String? = null
 
   var isScreenCastOn = false
   private var localScreencastId: String? = null
@@ -49,7 +48,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   private val globalToLocalTrackId = HashMap<String, String>()
 
-  private var joinPromise: Promise? = null
+  private var connectPromise: Promise? = null
   private var screencastPromise: Promise? = null
 
   var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
@@ -67,7 +66,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   val audioSwitchManager = AudioSwitchManager(reactContext)
 
   companion object {
-    val participants = LinkedHashMap<String, Participant>()
+    val endpoints = LinkedHashMap<String, com.reactnativemembrane.Endpoint>()
     var onTracksUpdate: (() -> Unit)? = null
   }
 
@@ -172,20 +171,21 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     emitEvent("IsCameraOn", isCameraOn)
     emitEvent("IsMicrophoneOn", isMicrophoneOn)
 
-    localParticipantId = UUID.randomUUID().toString()
-    val participant = Participant(
-      id = localParticipantId!!,
+    localEndpointId = UUID.randomUUID().toString()
+    val endpoint = Endpoint(
+      id = localEndpointId!!,
       metadata = localUserMetadata,
+      type = "webrtc",
     )
     if (localVideoTrack != null) {
-      participant.addOrUpdateTrack(localVideoTrack!!, videoTrackMetadata)
+      endpoint.addOrUpdateTrack(localVideoTrack!!, videoTrackMetadata)
     }
     if (localAudioTrack != null) {
-      participant.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
+      endpoint.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
     }
-    participants[localParticipantId!!] = participant
+    endpoints[localEndpointId!!] = endpoint
 
-    emitParticipants()
+    emitEndpoints()
     promise.resolve(null)
   }
 
@@ -269,15 +269,15 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun join(peerMetadata: ReadableMap, promise: Promise) {
+  fun connect(enpointMetadata: ReadableMap, promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
       if (!ensureConnected(promise)) return@launch
-      joinPromise = promise
-      localUserMetadata = peerMetadata.toMap()
-      val id = localParticipantId ?: return@launch
-      val participant = participants[id] ?: return@launch
-      participants[id] = participant.copy(metadata = localUserMetadata)
-      room?.join(localUserMetadata)
+      connectPromise = promise
+      localUserMetadata = enpointMetadata.toMap()
+      val id = localEndpointId ?: return@launch
+      val endpoint = endpoints[id] ?: return@launch
+      endpoints[id] = endpoint.copy(metadata = localUserMetadata)
+      room?.connect(localUserMetadata)
     }
   }
 
@@ -286,7 +286,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     CoroutineScope(Dispatchers.Main).launch {
       room?.disconnect()
       room = null
-      participants.clear()
+      endpoints.clear()
       promise.resolve(null)
     }
   }
@@ -387,27 +387,27 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun getParticipants(promise: Promise) {
+  fun getEndpoints(promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
-      promise.resolve(getParticipantsAsRNMap())
+      promise.resolve(getEndpointsAsRNMap())
     }
   }
 
   @ReactMethod
-  fun updatePeerMetadata(metadata: ReadableMap, promise: Promise) {
+  fun updateEndpointMetadata(metadata: ReadableMap, promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
       if (!ensureConnected(promise)) return@launch
-      room?.updatePeerMetadata(metadata.toMap())
+      room?.updateEndpointMetadata(metadata.toMap())
       promise.resolve(null)
     }
   }
 
   private fun updateTrackMetadata(trackId: String, metadata: Metadata) {
     room?.updateTrackMetadata(trackId, metadata)
-    val id = localParticipantId ?: return
-    val participant = participants[id] ?: return
-    participant.tracksMetadata[trackId] = metadata
-    emitParticipants()
+    val id = localEndpointId ?: return
+    val endpoint = endpoints[id] ?: return
+    endpoint.tracksMetadata[trackId] = metadata
+    emitEndpoints()
   }
 
   @ReactMethod
@@ -617,9 +617,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       room?.createScreencastTrack(mediaProjectionPermission, videoParameters, screencastMetadata)
 
     localScreencastTrack?.let {
-      val participant = participants[localParticipantId]
-      participant!!.addOrUpdateTrack(it, screencastMetadata)
-      emitParticipants()
+      val endpoint = endpoints[localEndpointId]
+      endpoint!!.addOrUpdateTrack(it, screencastMetadata)
+      emitEndpoints()
     }
     screencastPromise?.resolve(isScreenCastOn)
   }
@@ -628,12 +628,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     isScreenCastOn = false
 
     localScreencastTrack?.let {
-      participants[localParticipantId]?.removeTrack(it)
+      endpoints[localEndpointId]?.removeTrack(it)
       room?.removeTrack(it.id())
-      emitParticipants()
+      emitEndpoints()
       localScreencastTrack = null
     }
-    emitParticipants()
+    emitEndpoints()
     screencastPromise?.resolve(isScreenCastOn)
     screencastPromise = null
   }
@@ -644,18 +644,15 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       .emit(eventName, data)
   }
 
-  private fun getParticipantsAsRNMap(): WritableMap? {
+  private fun getEndpointsAsRNMap(): WritableMap? {
     val params = Arguments.createMap()
-    val participantsArray = Arguments.createArray()
-    participants.values.forEach {
-      val participantMap = Arguments.createMap()
-      participantMap.putString("id", it.id)
-      val participantType = when (it.id) {
-        localParticipantId -> "Local"
-        else -> "Remote"
-      }
-      participantMap.putString("type", participantType)
-      participantMap.putMap("metadata", mapToRNMap(it.metadata))
+    val endpointsArray = Arguments.createArray()
+    endpoints.values.forEach {
+      val endpointsMap = Arguments.createMap()
+      endpointsMap.putString("id", it.id)
+      endpointsMap.putBoolean("isLocal", it.id == localEndpointId)
+      endpointsMap.putString("type", it.type)
+      endpointsMap.putMap("metadata", mapToRNMap(it.metadata))
 
       val tracksArray = Arguments.createArray()
 
@@ -678,16 +675,16 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         tracksArray.pushMap(track)
       }
 
-      participantMap.putArray("tracks", tracksArray)
+      endpointsMap.putArray("tracks", tracksArray)
 
-      participantsArray.pushMap(participantMap)
+      endpointsArray.pushMap(endpointsMap)
     }
-    params.putArray("participants", participantsArray)
+    params.putArray("endpoints", endpointsArray)
     return params
   }
 
-  private fun emitParticipants() {
-    emitEvent("ParticipantsUpdate", getParticipantsAsRNMap())
+  private fun emitEndpoints() {
+    emitEvent("EndpointsUpdate", getEndpointsAsRNMap())
   }
 
   private fun audioDeviceAsRNMap(audioDevice: AudioDevice): WritableMap {
@@ -720,39 +717,38 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     return map
   }
 
-  override fun onJoinSuccess(peerID: String, peersInRoom: List<Peer>) {
+  override fun onConnected(endpointID: String, otherEndpoints: List<Endpoint>) {
     CoroutineScope(Dispatchers.Main).launch {
-      Log.d("MEM", "JOIN SUCCESS" + Thread.currentThread().name)
-      participants.remove(peerID)
-      peersInRoom.forEach {
-        participants[it.id] = Participant(it.id, it.metadata)
+      endpoints.remove(endpointID)
+      otherEndpoints.forEach {
+        endpoints[it.id] = Endpoint(it.id, it.metadata, it.type)
       }
-      joinPromise?.resolve(null)
-      joinPromise = null
-      emitParticipants()
+      connectPromise?.resolve(null)
+      connectPromise = null
+      emitEndpoints()
     }
   }
 
-  override fun onJoinError(metadata: Any) {
+  override fun onConnectError(metadata: Any) {
     CoroutineScope(Dispatchers.Main).launch {
-      joinPromise?.reject("E_JOIN_ERROR", metadata.toString())
-      joinPromise = null
+      connectPromise?.reject("E_CONNECT_ERROR", metadata.toString())
+      connectPromise = null
     }
   }
 
   private fun addOrUpdateTrack(ctx: TrackContext) {
-    val participant = participants[ctx.peer.id]
-      ?: throw IllegalArgumentException("participant with id ${ctx.peer.id} not found")
+    val endpoint = endpoints[ctx.endpoint.id]
+      ?: throw IllegalArgumentException("endpoint with id ${ctx.endpoint.id} not found")
 
     when (ctx.track) {
       is RemoteVideoTrack -> {
         val localTrackId = (ctx.track as RemoteVideoTrack).id()
         globalToLocalTrackId[ctx.trackId] = localTrackId
-        participant.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata)
+        endpoint.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata)
         if (trackContexts[localTrackId] == null) {
           trackContexts[localTrackId] = ctx
           ctx.setOnEncodingChangedListener {
-            emitParticipants()
+            emitEndpoints()
           }
         }
       }
@@ -760,11 +756,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       is RemoteAudioTrack -> {
         val localTrackId = (ctx.track as RemoteAudioTrack).id()
         globalToLocalTrackId[ctx.trackId] = localTrackId
-        participant.addOrUpdateTrack(ctx.track as RemoteAudioTrack, ctx.metadata)
+        endpoint.addOrUpdateTrack(ctx.track as RemoteAudioTrack, ctx.metadata)
         if (trackContexts[localTrackId] == null) {
           trackContexts[localTrackId] = ctx
           ctx.setOnVoiceActivityChangedListener {
-            emitParticipants()
+            emitEndpoints()
           }
         }
       }
@@ -773,7 +769,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         throw IllegalArgumentException("invalid type of incoming remote track")
     }
 
-    emitParticipants()
+    emitEndpoints()
     onTracksUpdate?.let { it1 -> it1() }
   }
 
@@ -788,12 +784,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   override fun onTrackRemoved(ctx: TrackContext) {
     CoroutineScope(Dispatchers.Main).launch {
-      val participant = participants[ctx.peer.id]
-        ?: throw IllegalArgumentException("participant with id ${ctx.peer.id} not found")
+      val endpoint = endpoints[ctx.endpoint.id]
+        ?: throw IllegalArgumentException("endpoint with id ${ctx.endpoint.id} not found")
 
       when (ctx.track) {
-        is RemoteVideoTrack -> participant.removeTrack(ctx.track as RemoteVideoTrack)
-        is RemoteAudioTrack -> participant.removeTrack(ctx.track as RemoteAudioTrack)
+        is RemoteVideoTrack -> endpoint.removeTrack(ctx.track as RemoteVideoTrack)
+        is RemoteAudioTrack -> endpoint.removeTrack(ctx.track as RemoteAudioTrack)
         else -> throw IllegalArgumentException("invalid type of incoming remote track")
       }
 
@@ -801,7 +797,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       ctx.setOnEncodingChangedListener(null)
       ctx.setOnVoiceActivityChangedListener(null)
       trackContexts.remove(ctx.trackId)
-      emitParticipants()
+      emitEndpoints()
       onTracksUpdate?.let { it1 -> it1() }
     }
   }
@@ -812,22 +808,22 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun onPeerJoined(peer: Peer) {
+  override fun onEndpointAdded(endpoint: Endpoint) {
     CoroutineScope(Dispatchers.Main).launch {
-      participants[peer.id] =
-        Participant(id = peer.id, metadata = peer.metadata)
-      emitParticipants()
+      endpoints[endpoint.id] =
+        Endpoint(id = endpoint.id, metadata = endpoint.metadata, type = endpoint.type)
+      emitEndpoints()
     }
   }
 
-  override fun onPeerLeft(peer: Peer) {
+  override fun onEndpointRemoved(endpoint: Endpoint) {
     CoroutineScope(Dispatchers.Main).launch {
-      participants.remove(peer.id)
-      emitParticipants()
+      endpoints.remove(endpoint.id)
+      emitEndpoints()
     }
   }
 
-  override fun onPeerUpdated(peer: Peer) {
+  override fun onEndpointUpdated(endpoint: Endpoint) {
   }
 
   override fun onSendMediaEvent(event: SerializedMediaEvent) {
@@ -836,5 +832,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   override fun onBandwidthEstimationChanged(estimation: Long) {
     emitEvent("BandwidthEstimation", estimation.toFloat())
+  }
+
+  override fun onDisconnected() {
+
   }
 }

@@ -23,7 +23,7 @@ class VideoRendererView : UIView {
     videoView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     videoView?.clipsToBounds = true
     addSubview(videoView!)
-    cancellableParticipants = MembraneRoom.sharedInstance.$participants
+    cancellableParticipants = MembraneRoom.sharedInstance.$endpoints
       .sink { _ in
         self.updateVideoTrack()
       }

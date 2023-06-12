@@ -1,5 +1,4 @@
 import { BrandColors, AdditionalColors } from '@colors';
-import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
@@ -21,7 +20,7 @@ export const FocusedParticipant = ({
   );
 
   const isLocalScreenshareTrack =
-    focusedParticipant.participant.type === Membrane.ParticipantType.Local &&
+    focusedParticipant.participant.isLocal &&
     focusedTrack?.metadata.type === 'screensharing';
 
   const isParticipantSpeaking =

@@ -31,7 +31,7 @@ target 'MembraneExample' do
 
   pod 'react-native-membrane', :path => '../..'
 
-  pod 'MembraneRTC', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :branch => 'graszka22/socket-refactor'
+  pod 'MembraneRTC', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :branch => 'jellyfish'
 
   # Enables Flipper.
   #
@@ -50,5 +50,5 @@ target 'MembraneExample' do
 end
 
 target 'ScreenBroadcast' do
-  pod 'MembraneRTC/Broadcast', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :branch => 'graszka22/socket-refactor'
+  pod 'MembraneRTC/Broadcast', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :branch => 'jellyfish'
 end

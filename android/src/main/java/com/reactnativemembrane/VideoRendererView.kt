@@ -22,8 +22,8 @@ class VideoRendererView(context: Context): VideoTextureViewRenderer(context) {
 
   fun update() {
     CoroutineScope(Dispatchers.Main).launch {
-      val participant = MembraneModule.participants.values.firstOrNull { it.videoTracks[trackId] != null }
-      val videoTrack = participant?.videoTracks?.get(trackId) ?: return@launch
+      val endpoint = MembraneModule.endpoints.values.firstOrNull { it.videoTracks[trackId] != null }
+      val videoTrack = endpoint?.videoTracks?.get(trackId) ?: return@launch
       if(!isInitialized) {
         isInitialized = true
         this@VideoRendererView.init(videoTrack.eglContext, null)
