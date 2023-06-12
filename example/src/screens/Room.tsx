@@ -27,6 +27,7 @@ type Props = NativeStackScreenProps<RootStack, 'Room'>;
 type ParticipantWithTrack = {
   participant: Membrane.Participant;
   trackId?: string;
+  lastSpoken: number;
 };
 
 export const Room = ({ navigation }: Props) => {
@@ -38,19 +39,24 @@ export const Room = ({ navigation }: Props) => {
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
 
-  const participantsWithTracks = participants
-    .map((p) => {
-      if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
-        return p.tracks
-          .filter((t) => t.metadata.type !== 'audio')
-          .map((t) => ({
-            participant: p,
-            trackId: t.id,
-          }));
-      }
-      return { participant: p };
-    })
-    .flat();
+  const [participantsWithTracks, setParticipantsWithTracks] = useState(
+    participants
+      .map((p) => {
+        if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
+          return p.tracks
+            .filter((t) => t.metadata.type !== 'audio')
+            .map((t) => ({
+              participant: p,
+              trackId: t.id,
+              lastSpoken: Date.now(),
+            }));
+        }
+        return { participant: p, lastSpoken: 0 };
+      })
+      .flat()
+  );
+
+  const [participantsLastSpoken, setParticipantsLastSpoken] = useState({});
 
   const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
 
@@ -65,18 +71,39 @@ export const Room = ({ navigation }: Props) => {
       return 1;
     }
 
+    // if (
+    //   b.participant.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
+    //   'speech'
+    // ) {
+    //   if (
+    //     a.participant.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
+    //     'speech'
+    //   ) {
+    //     console.log('bez mizny');
+    //     return 0;
+    //   } else {
+    //     console.log('zmiana');
+    //     return 1;
+    //   }
+    // }
+
+    // if (
+    //   a.participant.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
+    //   'speech'
+    // ) {
+    //   return -1;
+    // }
+
     if (
-      b.participant.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-      'speech'
+      participantsLastSpoken[b.participant.id] >
+      participantsLastSpoken[a.participant.id]
     ) {
-      if (
-        a.participant.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-        'speech'
-      ) {
-        return 0;
-      } else {
-        return 1;
-      }
+      return 1;
+    } else if (
+      participantsLastSpoken[a.participant.id] >
+      participantsLastSpoken[b.participant.id]
+    ) {
+      return -1;
     }
     return 0;
   };
@@ -95,12 +122,60 @@ export const Room = ({ navigation }: Props) => {
     return track.metadata.type === 'screensharing';
   };
 
+  const getNumberOfCurrentlySpeakingParticipants = () => {
+    return participants.filter(
+      (p) => p.tracks.find((t) => t.type === 'Audio')?.vadStatus === 'speech'
+    ).length;
+  };
+
   const isTrackFocused = (p: Participant) => {
     return (
       p.participant.id === focusedParticipantData?.participant.id &&
       p.trackId === focusedParticipantData?.trackId
     );
   };
+
+  useEffect(() => {
+    const newPartsWithSpokenData = {};
+    participantsWithTracks.forEach((p) => {
+      newPartsWithSpokenData[p.participant.id] = participantsLastSpoken[
+        p.participant.id
+      ]
+        ? p.lastSpoken > participantsLastSpoken[p.participant.id]
+          ? p.lastSpoken
+          : participantsLastSpoken[p.participant.id]
+        : p.lastSpoken;
+    });
+
+    setParticipantsLastSpoken(newPartsWithSpokenData);
+
+    setParticipantsWithTracks(
+      participants
+        .map((p) => {
+          if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
+            return p.tracks
+              .filter((t) => t.metadata.type !== 'audio')
+              .map((t) => ({
+                participant: p,
+                trackId: t.id,
+                lastSpoken:
+                  p.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
+                  'speech'
+                    ? Date.now()
+                    : 0,
+              }));
+          }
+          return { participant: p, lastSpoken: 0 };
+        })
+        .flat()
+    );
+  }, [participants, getNumberOfCurrentlySpeakingParticipants()]);
+
+  useEffect(() => {
+    setParticipantsWithTracks([
+      ...participantsWithTracks.sort(participantsOrder),
+    ]);
+  }, [participantsLastSpoken]);
 
   useEffect(() => {
     const curretStateOfFocusedParticipant = participants.find(
@@ -120,8 +195,6 @@ export const Room = ({ navigation }: Props) => {
         trackId: focusedParticipantData?.trackId,
       });
     }
-
-    participantsWithTracks.sort(participantsOrder);
   }, [participants]);
 
   useEffect(() => {
