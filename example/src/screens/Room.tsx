@@ -27,7 +27,6 @@ type Props = NativeStackScreenProps<RootStack, 'Room'>;
 type ParticipantWithTrack = {
   participant: Membrane.Participant;
   trackId?: string;
-  lastSpoken: number;
 };
 
 export const Room = ({ navigation }: Props) => {
@@ -48,7 +47,6 @@ export const Room = ({ navigation }: Props) => {
             .map((t) => ({
               participant: p,
               trackId: t.id,
-              lastSpoken: Date.now(),
             }));
         }
         return { participant: p, lastSpoken: 0 };
@@ -137,14 +135,14 @@ export const Room = ({ navigation }: Props) => {
 
   useEffect(() => {
     const newPartsWithSpokenData = {};
-    participantsWithTracks.forEach((p) => {
-      newPartsWithSpokenData[p.participant.id] = participantsLastSpoken[
-        p.participant.id
-      ]
-        ? p.lastSpoken > participantsLastSpoken[p.participant.id]
-          ? p.lastSpoken
-          : participantsLastSpoken[p.participant.id]
-        : p.lastSpoken;
+    participants.forEach((p) => {
+      const audioTrack = p.tracks.find((t) => t.type === 'Audio');
+      const lastSpoken = audioTrack?.vadStatus === 'speech' ? Date.now() : 0;
+      newPartsWithSpokenData[p.id] = participantsLastSpoken[p.id]
+        ? lastSpoken > participantsLastSpoken[p.id]
+          ? lastSpoken
+          : participantsLastSpoken[p.id]
+        : lastSpoken;
     });
 
     setParticipantsLastSpoken(newPartsWithSpokenData);
@@ -158,11 +156,6 @@ export const Room = ({ navigation }: Props) => {
               .map((t) => ({
                 participant: p,
                 trackId: t.id,
-                lastSpoken:
-                  p.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
-                  'speech'
-                    ? Date.now()
-                    : 0,
               }));
           }
           return { participant: p, lastSpoken: 0 };
