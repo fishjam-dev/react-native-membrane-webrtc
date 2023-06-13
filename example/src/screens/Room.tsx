@@ -38,21 +38,19 @@ export const Room = ({ navigation }: Props) => {
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
 
-  const [participantsWithTracks, setParticipantsWithTracks] = useState(
-    participants
-      .map((p) => {
-        if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
-          return p.tracks
-            .filter((t) => t.metadata.type !== 'audio')
-            .map((t) => ({
-              participant: p,
-              trackId: t.id,
-            }));
-        }
-        return { participant: p, lastSpoken: 0 };
-      })
-      .flat()
-  );
+  let participantsWithTracks = participants
+    .map((p) => {
+      if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
+        return p.tracks
+          .filter((t) => t.metadata.type !== 'audio')
+          .map((t) => ({
+            participant: p,
+            trackId: t.id,
+          }));
+      }
+      return { participant: p, lastSpoken: 0 };
+    })
+    .flat();
 
   const [participantsLastSpoken, setParticipantsLastSpoken] = useState({});
   const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
@@ -110,6 +108,20 @@ export const Room = ({ navigation }: Props) => {
   };
 
   useEffect(() => {
+    participantsWithTracks = participants
+      .map((p) => {
+        if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
+          return p.tracks
+            .filter((t) => t.metadata.type !== 'audio')
+            .map((t) => ({
+              participant: p,
+              trackId: t.id,
+            }));
+        }
+        return { participant: p, lastSpoken: 0 };
+      })
+      .flat();
+
     const newPartsWithSpokenData = {};
     participants.forEach((p) => {
       const audioTrack = p.tracks.find((t) => t.type === 'Audio');
@@ -122,28 +134,10 @@ export const Room = ({ navigation }: Props) => {
     });
 
     setParticipantsLastSpoken(newPartsWithSpokenData);
-
-    setParticipantsWithTracks(
-      participants
-        .map((p) => {
-          if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
-            return p.tracks
-              .filter((t) => t.metadata.type !== 'audio')
-              .map((t) => ({
-                participant: p,
-                trackId: t.id,
-              }));
-          }
-          return { participant: p, lastSpoken: 0 };
-        })
-        .flat()
-    );
   }, [participants, getNumberOfCurrentlySpeakingParticipants()]);
 
   useEffect(() => {
-    setParticipantsWithTracks([
-      ...participantsWithTracks.sort(participantsOrder),
-    ]);
+    participantsWithTracks.sort(participantsOrder);
   }, [participantsLastSpoken]);
 
   useEffect(() => {
