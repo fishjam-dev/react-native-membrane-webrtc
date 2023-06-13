@@ -187,26 +187,25 @@ We strongly recommend checking out our example app that implements a basic video
 
 # Usage
 
-Start with connecting to the membrane server. Use `useMembraneServer()` hook to manage connection:
+Start with connecting to the membrane webrtc server. Use `useWebRTC()` hook to manage connection:
 
 ```ts
-const { connect, joinRoom, disconnect, error } = useMembraneServer();
+const { connect, disconnect, error } = useWebRTC();
 ```
 
-Connect to the server using the `connect` function and then join the room. Use user metadata to pass things like usernames etc. to the server. After joining the room the user is visible to their peers and vice-versa. You can also pass connection params that will be sent to the socket when establishing the connection tries.
+Connect to the server and join the room using the `connect` function. Use user metadata to pass things like usernames etc. to the server. After joining the room the user is visible to their peers and vice-versa. You can also pass connection params that will be sent to the socket when establishing the connection tries.
 
 ```ts
 const startServerConnection = () => {
   try {
     await connect('https://example.com', "Annie's room", {
-      userMetadata: {
+      endpointMetadata: {
         displayName: 'Annie',
       },
       connectionParams: {
         token: 'TOKEN',
       },
     });
-    await joinRoom();
   } catch (e) {
     console.log('error!');
   }
@@ -229,17 +228,17 @@ useEffect(() => {
 }, [error]);
 ```
 
-If you have the connection set up, then use `useRoomParticipants()` hook to track the participants. One of the participants will be a local participant (the one who's using the device). When peer joins or leaves the room, the participants will be updated automatically. Simply call the hook like this:
+If you have the connection set up, then use `useEndpoints()` hook to track the other endpoints in the room. One of the endpoints will be a local participant (the one who's using the device). When endpoints is added or removed because an user joins or leaves the room, the endpoints will be updated automatically. Simply call the hook like this:
 
 ```ts
-const participants = useRoomParticipants();
+const endpoints = useEndpoints();
 ```
 
-When you have the participants all that's left is to render their video tracks. Use `<VideoRendererView />` component like this:
+When you have the endpoints all that's left is to render their video tracks. Use `<VideoRendererView />` component like this:
 
 ```ts
 {
-  participant.videoTracks.map((track) => (
+  endpoint.videoTracks.map((track) => (
     <VideoRendererView trackId={track.id} />
   ));
 }
@@ -254,13 +253,14 @@ const { isCameraOn, toggleCamera } = useCameraState();
 const { isMicrophoneOn, toggleMicrophone } = useMicrophoneState();
 ```
 
-For screencasting use `useScreencast()` hook. A new participant will be added with type `LocalScreencasting` and you can render it just like any other participant with <VideoRendererView />:
+For screencasting use `useScreencast()` hook. The local endpoint will have a new video track which you can render just like an ordinary video track with <VideoRendererView />:
 
 ```ts
 const { isScreencastOn, toggleScreencast } = useScreencast();
 ...
 toggleScreencast({screencastMetadata: { displayName: "Annie's desktop" }});
 ```
+Use track metadata to differentiate between video and screencast tracks.
 
 ### Developing
 To release a new version of the lib just run `yarn release`, follow the prompts to bump version, make tags, commits and upload to npm

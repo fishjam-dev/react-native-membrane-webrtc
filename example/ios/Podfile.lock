@@ -99,15 +99,15 @@ PODS:
   - hermes-engine (0.70.8)
   - libevent (2.1.12)
   - Logging (1.4.0)
-  - MembraneRTC (4.4.1):
+  - MembraneRTC (4.4.0):
     - Logging
-    - MembraneRTC/Broadcast (= 4.4.1)
+    - MembraneRTC/Broadcast (= 4.4.0)
     - PromisesSwift
     - SwiftCollection
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
-  - MembraneRTC/Broadcast (4.4.1):
+  - MembraneRTC/Broadcast (4.4.0):
     - Logging
     - PromisesSwift
     - SwiftCollection
@@ -350,7 +350,7 @@ PODS:
     - React
     - SwiftyJSON (= 5.0)
   - react-native-membrane (5.1.2):
-    - MembraneRTC (~> 4.4.1)
+    - MembraneRTC
     - React-Core
   - react-native-safe-area-context (4.5.0):
     - RCT-Folly
@@ -516,8 +516,8 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, branch `graszka22/socket-refactor`)
-  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, branch `graszka22/socket-refactor`)
+  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, branch `jellyfish`)
+  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, branch `jellyfish`)
   - OpenSSL-Universal (= 1.1.1100)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -620,7 +620,7 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes/hermes-engine.podspec"
   MembraneRTC:
-    :branch: graszka22/socket-refactor
+    :branch: jellyfish
     :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
@@ -697,13 +697,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   MembraneRTC:
-    :commit: 5532e9a99224bb8455b9034779e4f3807d5fda52
+    :commit: 9e73bf1b86c36b68e19252eb7547659d36504904
     :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
 
 SPEC CHECKSUMS:
   AssociatedValues: 33dfc4f4d0ec2f1177a2558e176364e2ac849cd1
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  Charts: 354f86803d11d9c35de280587fef50d1af063978
+  Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EXApplication: 034b1c40a8e9fe1bff76a1e511ee90dff64ad834
@@ -730,7 +730,7 @@ SPEC CHECKSUMS:
   hermes-engine: 0b19f33a9c2ec1dbdede3232606eeb1101db4cec
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
-  MembraneRTC: 1d81833cdd6d8e2a014bfcb88d714a8c3d029641
+  MembraneRTC: ab8d41f01cfba4887445190dfbef40f70721c2e9
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   OrderedObjectSet: 7eb2d546c515a9dc5ac321ce5605d4e96f5d4c3c
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
@@ -751,7 +751,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 5e5497c844f2381e8648ec3a7d0ad25b3f27f23e
   React-logger: b277ad8f4473f2506fb30b762b6348534a3de10e
   react-native-charts-wrapper: 4461b72f48e737a490e968bf2468cc0fd2281681
-  react-native-membrane: 5ed02ba85be1aef4df07d0a80951a23246a2ec77
+  react-native-membrane: 1a0a46a227365344929ca4943896c89beb67ee0c
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   React-perflogger: e9249a18e055cae96fdf685bf6145cbea62506c8
   React-RCTActionSheet: a6d2a544a4605a111ce80fa9319cc870ca3ea778
@@ -782,6 +782,6 @@ SPEC CHECKSUMS:
   Yoga: d6133108734e69e8c0becc6ba587294b94829687
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 54f2feb52315c3c82c2f1ec76f6009c6cf26a482
+PODFILE CHECKSUM: d9a794c4a70017390b67200b3964f2fc3c0a9551
 
 COCOAPODS: 1.12.1

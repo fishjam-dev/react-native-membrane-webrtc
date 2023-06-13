@@ -19,7 +19,7 @@ import { Typo } from './Typo';
 import { PinButton } from './buttons/PinButton';
 
 type RoomParticipantProps = {
-  participant: Membrane.Participant;
+  participant: Membrane.Endpoint;
   trackId?: string;
   onPinButtonPressed?: (string) => void;
   focused?: boolean;
@@ -35,7 +35,7 @@ export const RoomParticipant = ({
   pinButtonHiddden = false,
   tileSmall = false,
 }: RoomParticipantProps) => {
-  const { metadata, tracks, type } = participant;
+  const { metadata, tracks, isLocal } = participant;
 
   const [showPinButton, setShowPinButton] = useState(false);
   const isPinButtonShown = useRef(false);
@@ -155,11 +155,11 @@ export const RoomParticipant = ({
           <View
             style={[
               styles.displayName,
-              type === 'Local' ? styles.localUser : styles.remoteUser,
+              isLocal ? styles.localUser : styles.remoteUser,
             ]}
           >
             <Typo variant="label" color={TextColors.white} numberOfLines={1}>
-              {type === 'Local' ? 'You' : metadata.displayName}
+              {isLocal ? 'You' : metadata.displayName}
             </Typo>
           </View>
         </View>
@@ -175,7 +175,10 @@ export const RoomParticipant = ({
 
       {isDevMode ? (
         <View style={styles.simulcastMenu}>
-          <SimulcastMenu type={type} encoding={videoTrack?.encoding} />
+          <SimulcastMenu
+            isLocalParticipant={isLocal}
+            encoding={videoTrack?.encoding}
+          />
         </View>
       ) : null}
 
