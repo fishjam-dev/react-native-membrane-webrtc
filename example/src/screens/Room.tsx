@@ -74,7 +74,7 @@ export const Room = ({ navigation }: Props) => {
             trackId: t.id,
           }));
       }
-      return { participant: p, lastSpoken: 0 };
+      return { participant: p };
     })
     .flat()
     .sort(participantsOrder);
