@@ -37,7 +37,9 @@ export const Room = ({ navigation }: Props) => {
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
-  const [participantsLastSpoken, setParticipantsLastSpoken] = useState({});
+  const [participantsLastSpoken, setParticipantsLastSpoken] = useState(
+    new Map<string, number>()
+  );
 
   const participantsOrder = (
     a: ParticipantWithTrack,
@@ -109,7 +111,7 @@ export const Room = ({ navigation }: Props) => {
   };
 
   useEffect(() => {
-    const newPartsWithSpokenData = {};
+    const newPartsWithSpokenData = new Map<string, number>();
     participants.forEach((p) => {
       const audioTrack = p.tracks.find((t) => t.type === 'Audio');
       const lastSpoken = audioTrack?.vadStatus === 'speech' ? Date.now() : 0;
