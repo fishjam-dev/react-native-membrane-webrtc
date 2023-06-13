@@ -1,11 +1,11 @@
 import { SERVER_URL } from '@env';
 import {
-  useMembraneServer,
+  useWebRTC,
   useAudioSettings,
   VideoQuality,
   CaptureDevice,
-  useVideoTrackMetadata,
-  useAudioTrackMetadata,
+  updateVideoTrackMetadata,
+  updateAudioTrackMetadata,
   useCameraState,
   useMicrophoneState,
   useScreencast,
@@ -65,16 +65,8 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
   const { isScreencastOn, toggleScreencast: membraneToggleScreencast } =
     useScreencast();
 
-  const {
-    connect,
-    joinRoom,
-    error,
-    disconnect: membraneDisconnect,
-  } = useMembraneServer();
+  const { connect, error, disconnect: membraneDisconnect } = useWebRTC();
   useAudioSettings();
-
-  const { updateVideoTrackMetadata } = useVideoTrackMetadata();
-  const { updateAudioTrackMetadata } = useAudioTrackMetadata();
 
   const [videoroomState, setVideoroomState] =
     useState<VideoroomState>('BeforeMeeting');
@@ -133,6 +125,7 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
       videoTrackMetadata: { active: isCameraOn, type: 'camera' },
       audioTrackMetadata: { active: isMicrophoneOn, type: 'audio' },
       captureDeviceId: currentCamera?.id,
+      endpointMetadata: { displayName: trimmedUserName },
     });
     if (!isCameraOn) {
       await membraneToggleCamera();
@@ -140,7 +133,6 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
     if (!isMicrophoneOn) {
       await membraneToggleMicrophone();
     }
-    await joinRoom({ displayName: trimmedUserName });
     setVideoroomState('InMeeting');
   }, [roomName, username, isCameraOn, isMicrophoneOn, currentCamera]);
 

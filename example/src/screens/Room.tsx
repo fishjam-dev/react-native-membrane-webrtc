@@ -30,7 +30,7 @@ export const Room = ({ navigation }: Props) => {
 
   const { isDevMode, roomName, disconnect } = useVideoroomState();
   const { selectedAudioOutputDevice } = Membrane.useAudioSettings();
-  const participants = Membrane.useRoomParticipants();
+  const participants = Membrane.useEndpoints();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
   const { orderParticipantsAccordingToVadStatus, isScreensharingTrack } =
