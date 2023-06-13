@@ -15,7 +15,7 @@ class VideoRendererViewManager: RCTViewManager {
 
 class VideoRendererView : UIView {
   var videoView: VideoView? = nil
-  var cancellableParticipants: Cancellable? = nil
+  var cancellableEndpoints: Cancellable? = nil
   
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -23,7 +23,7 @@ class VideoRendererView : UIView {
     videoView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     videoView?.clipsToBounds = true
     addSubview(videoView!)
-    cancellableParticipants = MembraneRoom.sharedInstance.$participants
+    cancellableEndpoints = MembraneRoom.sharedInstance.$endpoints
       .sink { _ in
         self.updateVideoTrack()
       }

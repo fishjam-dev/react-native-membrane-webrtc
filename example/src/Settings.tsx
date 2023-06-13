@@ -1,8 +1,8 @@
 import {
-  Participant,
+  Endpoint,
   Track,
   useSimulcast,
-  useBandwidthLimit,
+  setVideoTrackBandwidth,
   useScreencast,
   TrackEncoding,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
@@ -19,10 +19,10 @@ import {
 const allEncodings: TrackEncoding[] = ['h', 'm', 'l'];
 
 export const Settings = ({
-  participant: { type, id },
+  participant: { isLocal, id },
   track,
 }: {
-  participant: Participant;
+  participant: Endpoint;
   track: Track;
 }) => {
   const {
@@ -30,7 +30,6 @@ export const Settings = ({
     toggleVideoTrackEncoding,
     simulcastConfig: { activeEncodings },
   } = useSimulcast();
-  const { setVideoTrackBandwidth } = useBandwidthLimit();
   const {
     simulcastConfig: { activeEncodings: screencastActiveEncodings },
     toggleScreencastTrackEncoding,
@@ -39,7 +38,7 @@ export const Settings = ({
 
   const [bandwidthLimit, setBandwidthLimit] = useState<string>('0');
 
-  if (type === 'Local') {
+  if (isLocal) {
     return (
       <View style={styles.container}>
         <Text>Encodings to send:</Text>

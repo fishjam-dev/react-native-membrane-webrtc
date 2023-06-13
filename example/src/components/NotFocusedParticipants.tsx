@@ -8,7 +8,7 @@ import { OtherParticipants } from './OtherParticipants';
 import { RoomParticipant } from './RoomParticipant';
 
 export type Participant = {
-  participant: Membrane.Participant;
+  participant: Membrane.Endpoint;
   trackId?: string;
 };
 

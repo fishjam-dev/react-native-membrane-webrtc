@@ -70,11 +70,11 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   var isCameraEnabled: Bool = true
   var isScreensharingEnabled: Bool = false
   
-  var localParticipantId: String?
+  var localEndpointId: String?
   
   var room: MembraneRTC? = nil;
-  var joinResolve: RCTPromiseResolveBlock? = nil
-  var joinReject: RCTPromiseRejectBlock? = nil
+  var connectResolve: RCTPromiseResolveBlock? = nil
+  var connectReject: RCTPromiseRejectBlock? = nil
   var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
   var screenshareSimulcastConfig: SimulcastConfig = SimulcastConfig()
   var screenshareBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
@@ -193,8 +193,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     let room = MembraneRTC.create(delegate: self)
     self.room = room
     
-    let localParticipantId = UUID().uuidString
-    self.localParticipantId = localParticipantId
+    let localEndpointId = UUID().uuidString
+    self.localEndpointId = localEndpointId
     
     let videoParameters = getVideoParametersFromOptions(connectionOptions: connectionOptions)
     
@@ -204,21 +204,22 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     localAudioTrack?.setEnabled(isMicEnabled)
     setAudioSessionMode()
     
-    var localParticipant = Participant(
-      id: localParticipantId,
-      metadata: localUserMetadata)
+    var localEndpoint = RNEndpoint(
+      id: localEndpointId,
+      metadata: localUserMetadata,
+      type: "webrtc")
     
     if let localVideoTrack = localVideoTrack {
-      localParticipant.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
-      localParticipant.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
+      localEndpoint.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
+      localEndpoint.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
     }
     
     if let localAudioTrack = localAudioTrack {
-      localParticipant.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
-      localParticipant.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
+      localEndpoint.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
+      localEndpoint.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
     }
     
-    MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant
+    MembraneRoom.sharedInstance.endpoints[localEndpointId] = localEndpoint
     
     resolve(nil)
   }
@@ -262,12 +263,12 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     return videoParameters
   }
   
-  @objc(join:withResolver:withRejecter:)
-  func join(peerMetadata: NSDictionary, resolve:@escaping RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+  @objc(connect:withResolver:withRejecter:)
+  func connect(metadata: NSDictionary, resolve:@escaping RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
     if(!ensureConnected(reject)) { return }
-    joinResolve = resolve
-    joinReject = reject
-    room?.join(peerMetadata: peerMetadata.toMetadata())
+    connectResolve = resolve
+    connectReject = reject
+    room?.connect(metadata: metadata.toMetadata())
   }
   
   @objc(disconnect:withRejecter:)
@@ -275,7 +276,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     room?.remove(delegate: self)
     room?.disconnect()
     room = nil
-    MembraneRoom.sharedInstance.participants = [:]
+    MembraneRoom.sharedInstance.endpoints = [:]
     resolve(nil)
   }
   
@@ -354,33 +355,33 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         return
       }
       
-      guard let localParticipantId = self.localParticipantId, let screencastTrackId = self.localScreencastTrack?.trackId() else {
+      guard let localEndpointId = self.localEndpointId, let screencastTrackId = self.localScreencastTrack?.trackId() else {
         return
       }
       
-      MembraneRoom.sharedInstance.participants[localParticipantId]?.videoTracks[screencastTrackId] = screencastTrack
-      MembraneRoom.sharedInstance.participants[localParticipantId]?.tracksMetadata[screencastTrackId] = screencastMetadata
+      MembraneRoom.sharedInstance.endpoints[localEndpointId]?.videoTracks[screencastTrackId] = screencastTrack
+      MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksMetadata[screencastTrackId] = screencastMetadata
       
       self.isScreensharingEnabled = true
       self.emitEvent(name: "IsScreencastOn", data: true)
-      self.emitParticipants()
+      self.emitEndpoints()
     }, onStop: { [weak self] in
       guard let self = self else {
         return
       }
       
-      guard let localParticipantId = self.localParticipantId, let screencastTrackId = self.localScreencastTrack?.trackId() else {
+      guard let localEndpointId = self.localEndpointId, let screencastTrackId = self.localScreencastTrack?.trackId() else {
         return
       }
       
-      let localParticipant = MembraneRoom.sharedInstance.participants[localParticipantId]
-      MembraneRoom.sharedInstance.participants[localParticipantId] = localParticipant?.removeTrack(trackId: screencastTrackId)
+      let localEndpoint = MembraneRoom.sharedInstance.endpoints[localEndpointId]
+      MembraneRoom.sharedInstance.endpoints[localEndpointId] = localEndpoint?.removeTrack(trackId: screencastTrackId)
       room.removeTrack(trackId: screencastTrackId)
       self.localScreencastTrack = nil
       
       self.isScreensharingEnabled = false
       self.emitEvent(name: "IsScreencastOn", data: false)
-      self.emitParticipants()
+      self.emitEndpoints()
     })
     DispatchQueue.main.async {
       RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
@@ -388,16 +389,9 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     resolve(nil)
   }
   
-  func getParticipantsForRN() -> Dictionary<String, Array<Dictionary<String, Any>>> {
-    return ["participants": MembraneRoom.sharedInstance.participants.values.sorted(by: {$0.order < $1.order}).map {
+  func getEndpointsForRN() -> Dictionary<String, Array<Dictionary<String, Any>>> {
+    return ["endpoints": MembraneRoom.sharedInstance.endpoints.values.sorted(by: {$0.order < $1.order}).map {
       (p) -> Dictionary in
-      var participantType = ""
-      if (p.id == localParticipantId) {
-        participantType = "Local"
-      } else {
-        participantType = "Remote"
-      }
-      
       let videoTracks = p.videoTracks.keys.map { trackId in [
         "id": trackId,
         "type": "Video",
@@ -417,7 +411,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
         "id": p.id,
         "metadata": p.metadata.toDict(),
         "tracks": videoTracks + audioTracks,
-        "type": participantType
+        "isLocal": p.id == localEndpointId,
+        "type": p.type,
       ]
     }]
   }
@@ -429,9 +424,9 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     ]
   }
   
-  @objc(getParticipants:withRejecter:)
-  func getParticipants(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-    resolve(getParticipantsForRN())
+  @objc(getEndpoints:withRejecter:)
+  func getEndpoints(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    resolve(getEndpointsForRN())
   }
   
   @objc(toggleCamera:withRejecter:)
@@ -497,21 +492,21 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     resolve(rnArray)
   }
   
-  @objc(updatePeerMetadata:withResolver:withRejecter:)
-  func updatePeerMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
+  @objc(updateEndpointMetadata:withResolver:withRejecter:)
+  func updateEndpointMetadata(metadata:NSDictionary, resolve:RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
     if(!ensureConnected(reject)) { return }
-    room?.updatePeerMetadata(peerMetadata: metadata.toMetadata())
+    room?.updateEndpointMetadata(metadata: metadata.toMetadata())
     resolve(nil)
   }
   
   func updateTrackMetadata(trackId: String, metadata:NSDictionary) {
-    guard let room = room, let peerId = localParticipantId else {
+    guard let room = room, let endpointId = localEndpointId else {
       return
     }
     
     room.updateTrackMetadata(trackId: trackId, trackMetadata: metadata.toMetadata())
-    MembraneRoom.sharedInstance.participants[peerId]?.tracksMetadata[trackId] = metadata.toMetadata()
-    emitParticipants()
+    MembraneRoom.sharedInstance.endpoints[endpointId]?.tracksMetadata[trackId] = metadata.toMetadata()
+    emitEndpoints()
   }
   
   @objc(updateVideoTrackMetadata:withResolver:withRejecter:)
@@ -780,7 +775,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   override func supportedEvents() -> [String]! {
     return [
-      "ParticipantsUpdate",
+      "EndpointsUpdate",
       "IsMicrophoneOn",
       "IsCameraOn",
       "IsScreencastOn",
@@ -795,8 +790,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     sendEvent(withName: name, body: data)
   }
   
-  func emitParticipants() -> Void {
-    emitEvent(name: "ParticipantsUpdate", data: getParticipantsForRN())
+  func emitEndpoints() -> Void {
+    emitEvent(name: "EndpointsUpdate", data: getEndpointsForRN())
   }
   
   @objc func onRouteChangeNotification() {
@@ -828,41 +823,41 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     emitEvent(name: "SendMediaEvent", data: event)
   }
   
-  func onJoinSuccess(peerID: String, peersInRoom: [Peer]) {
-    peersInRoom.forEach { peer in
-      MembraneRoom.sharedInstance.participants[peer.id] = Participant(id: peer.id, metadata: peer.metadata)
+  func onConnected(endpointId: String, otherEndpoints: [Endpoint]) {
+    otherEndpoints.forEach { endpoint in
+      MembraneRoom.sharedInstance.endpoints[endpoint.id] = RNEndpoint(id: endpoint.id, metadata: endpoint.metadata, type: endpoint.type)
     }
     
-    emitParticipants()
-    if let joinResolve = joinResolve {
-      joinResolve(nil)
+    emitEndpoints()
+    if let connectResolve = connectResolve {
+      connectResolve(nil)
     }
-    joinResolve = nil
-    joinReject = nil
+    connectResolve = nil
+    connectReject = nil
   }
   
-  func onJoinError(metadata: Any) {
-    if let joinReject = joinReject {
-      joinReject("E_MEMBRANE_JOIN", "Failed to join room: \(metadata)", nil)
+  func onConnectionError(metadata: Any) {
+    if let connectReject = connectReject {
+      connectReject("E_MEMBRANE_CONNECT", "Failed to connect: \(metadata)", nil)
     }
-    joinResolve = nil
-    joinReject = nil
+    connectResolve = nil
+    connectReject = nil
   }
   
   func updateOrAddTrack(ctx: TrackContext) {
-    guard var participant = MembraneRoom.sharedInstance.participants[ctx.peer.id] else {
+    guard var endpoint = MembraneRoom.sharedInstance.endpoints[ctx.endpoint.id] else {
       return
     }
     if let audioTrack = ctx.track as? RemoteAudioTrack {
       let localTrackId = (ctx.track as? RemoteAudioTrack)?.track.trackId
       globalToLocalTrackId[ctx.trackId] = localTrackId
-      participant.audioTracks[audioTrack.track.trackId] = audioTrack
-      participant.tracksMetadata[audioTrack.track.trackId] = ctx.metadata
+      endpoint.audioTracks[audioTrack.track.trackId] = audioTrack
+      endpoint.tracksMetadata[audioTrack.track.trackId] = ctx.metadata
       if let localTrackId = localTrackId,
          tracksContexts[localTrackId] == nil {
         tracksContexts[localTrackId] = ctx
         ctx.setOnVoiceActivityChangedListener { ctx in
-          self.emitParticipants()
+          self.emitEndpoints()
         }
       }
     }
@@ -870,18 +865,18 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     if let videoTrack = ctx.track as? RemoteVideoTrack {
       let localTrackId = (ctx.track as? RemoteVideoTrack)?.track.trackId
       globalToLocalTrackId[ctx.trackId] = localTrackId
-      participant.videoTracks[videoTrack.track.trackId] = videoTrack
-      participant.tracksMetadata[videoTrack.track.trackId] = ctx.metadata
+      endpoint.videoTracks[videoTrack.track.trackId] = videoTrack
+      endpoint.tracksMetadata[videoTrack.track.trackId] = ctx.metadata
       if let localTrackId = localTrackId,
          tracksContexts[localTrackId] == nil {
         tracksContexts[localTrackId] = ctx
         ctx.setOnEncodingChangedListener { ctx in
-          self.emitParticipants()
+          self.emitEndpoints()
         }
       }
     }
-    MembraneRoom.sharedInstance.participants[ctx.peer.id] = participant
-    emitParticipants()
+    MembraneRoom.sharedInstance.endpoints[ctx.endpoint.id] = endpoint
+    emitEndpoints()
   }
   
   func onTrackReady(ctx: TrackContext) {
@@ -893,35 +888,35 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   }
   
   func onTrackRemoved(ctx: TrackContext) {
-    guard var participant = MembraneRoom.sharedInstance.participants[ctx.peer.id] else {
+    guard var endpoint = MembraneRoom.sharedInstance.endpoints[ctx.endpoint.id] else {
       return
     }
     if let audioTrack = ctx.track as? RemoteAudioTrack {
-      participant = participant.removeTrack(trackId: audioTrack.track.trackId)
+      endpoint = endpoint.removeTrack(trackId: audioTrack.track.trackId)
     }
     if let videoTrack = ctx.track as? RemoteVideoTrack {
-      participant = participant.removeTrack(trackId: videoTrack.track.trackId)
+      endpoint = endpoint.removeTrack(trackId: videoTrack.track.trackId)
     }
     globalToLocalTrackId.removeValue(forKey: ctx.trackId)
-    MembraneRoom.sharedInstance.participants[ctx.peer.id] = participant
-    emitParticipants()
+    MembraneRoom.sharedInstance.endpoints[ctx.endpoint.id] = endpoint
+    emitEndpoints()
   }
   
   func onTrackUpdated(ctx: TrackContext) {
     updateOrAddTrack(ctx: ctx)
   }
   
-  func onPeerJoined(peer: Peer) {
-    MembraneRoom.sharedInstance.participants[peer.id] = Participant(id: peer.id, metadata: peer.metadata)
-    emitParticipants()
+  func onEndpointAdded(endpoint: Endpoint) {
+    MembraneRoom.sharedInstance.endpoints[endpoint.id] = RNEndpoint(id: endpoint.id, metadata: endpoint.metadata, type: endpoint.type)
+    emitEndpoints()
   }
   
-  func onPeerLeft(peer: Peer) {
-    MembraneRoom.sharedInstance.participants.removeValue(forKey: peer.id)
-    emitParticipants()
+  func onEndpointRemoved(endpoint: Endpoint) {
+    MembraneRoom.sharedInstance.endpoints.removeValue(forKey: endpoint.id)
+    emitEndpoints()
   }
   
-  func onPeerUpdated(peer: Peer) {
+  func onEndpointUpdated(endpoint: Endpoint) {
     
   }
   
