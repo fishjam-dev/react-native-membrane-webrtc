@@ -29,6 +29,8 @@ type ParticipantWithTrack = {
   trackId?: string;
 };
 
+const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
+
 export const Room = ({ navigation }: Props) => {
   useKeepAwake();
 
@@ -41,45 +43,51 @@ export const Room = ({ navigation }: Props) => {
     new Map<string, number>()
   );
 
-  const participantsOrder = (
-    a: ParticipantWithTrack,
-    b: ParticipantWithTrack
-  ) => {
-    // Check for local user, they should be always on the top.
-    if (a.participant.type === 'Local') {
-      return -1;
-    } else if (b.participant.type === 'Local') {
-      return 1;
+  const getFreeSpotIndex = (participants: ParticipantWithTrack[]) => {
+    for (let index = 0; index < MAX_NUM_OF_USERS_ON_THE_SCREEN; index++) {
+      const p = participants[index].participant;
+      const audioTrack = p.tracks.find((t) => t.type === 'Audio');
+      if (audioTrack?.vadStatus !== 'speech' && p.type !== 'Local') {
+        return index;
+      }
     }
 
-    if (
-      participantsLastSpoken[b.participant.id] >
-      participantsLastSpoken[a.participant.id]
-    ) {
-      return 1;
-    } else if (
-      participantsLastSpoken[a.participant.id] >
-      participantsLastSpoken[b.participant.id]
-    ) {
-      return -1;
-    }
-    return 0;
+    return 1;
   };
 
-  const participantsWithTracks = participants
-    .map((p) => {
-      if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
-        return p.tracks
-          .filter((t) => t.metadata.type !== 'audio')
-          .map((t) => ({
-            participant: p,
-            trackId: t.id,
-          }));
+  const mantainOrder = (participants: ParticipantWithTrack[]) => {
+    for (
+      let index = MAX_NUM_OF_USERS_ON_THE_SCREEN;
+      index < participants.length;
+      index++
+    ) {
+      const p = participants[index].participant;
+      const audioTrack = p.tracks.find((t) => t.type === 'Audio');
+      if (audioTrack?.vadStatus === 'speech') {
+        const tmp = participants[index];
+        participants[index] = participants[getFreeSpotIndex(participants)];
+        participants[getFreeSpotIndex(participants)] = tmp;
       }
-      return { participant: p };
-    })
-    .flat()
-    .sort(participantsOrder);
+    }
+
+    return participants;
+  };
+
+  const participantsWithTracks = mantainOrder(
+    participants
+      .map((p) => {
+        if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
+          return p.tracks
+            .filter((t) => t.metadata.type !== 'audio')
+            .map((t) => ({
+              participant: p,
+              trackId: t.id,
+            }));
+        }
+        return { participant: p };
+      })
+      .flat()
+  );
 
   const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
 
