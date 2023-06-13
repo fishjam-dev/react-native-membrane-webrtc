@@ -823,8 +823,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun onEndpointUpdated(endpoint: Endpoint) {
-  }
+  override fun onEndpointUpdated(endpoint: Endpoint) {}
 
   override fun onSendMediaEvent(event: SerializedMediaEvent) {
     emitEvent("SendMediaEvent", event)
@@ -834,7 +833,5 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     emitEvent("BandwidthEstimation", estimation.toFloat())
   }
 
-  override fun onDisconnected() {
-
-  }
+  override fun onDisconnected() {}
 }
