@@ -29,7 +29,7 @@ type ParticipantWithTrack = {
   trackId?: string;
 };
 
-const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
+const MAX_NUM_OF_USERS_ON_THE_SCREEN = 3;
 
 export const Room = ({ navigation }: Props) => {
   useKeepAwake();
@@ -41,6 +41,9 @@ export const Room = ({ navigation }: Props) => {
     useState<Participant | null>(null);
   const [participantsLastSpoken, setParticipantsLastSpoken] = useState(
     new Map<string, number>()
+  );
+  const [participantsOrder, setParticipantsOrder] = useState<string[] | null>(
+    null
   );
 
   const getFreeSpotIndex = (participants: ParticipantWithTrack[]) => {
@@ -55,7 +58,22 @@ export const Room = ({ navigation }: Props) => {
     return 1;
   };
 
+  const checkIfTheSame = (arr1: string[] | null, arr2: string[] | null) => {
+    if (arr1 == null || arr2 == null || arr1.length !== arr2.length) {
+      console.log('ROZNE');
+      return false;
+    }
+
+    for (let index = 0; index < arr1.length; index++) {
+      if (arr1[index] !== arr2[index]) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const mantainOrder = (participants: ParticipantWithTrack[]) => {
+    console.log(participants);
     for (
       let index = MAX_NUM_OF_USERS_ON_THE_SCREEN;
       index < participants.length;
@@ -70,23 +88,57 @@ export const Room = ({ navigation }: Props) => {
       }
     }
 
+    const newOrder: string[] = [];
+    for (let index = 0; index < participants.length; index++) {
+      newOrder.push(participants[index].participant.id);
+    }
+    console.log('NEW', newOrder);
+    if (checkIfTheSame(participantsOrder, newOrder) === false) {
+      console.log('RODERS');
+      setParticipantsOrder(newOrder);
+    }
     return participants;
   };
 
+  const applyOrder = (participants: ParticipantWithTrack[]) => {
+    const properlyOrderedParticipants: ParticipantWithTrack[] = [];
+
+    if (participantsOrder === null || participantsOrder.length < 2) {
+      console.log('NULL');
+      return participants;
+    }
+
+    participantsOrder.forEach((id) => {
+      properlyOrderedParticipants.push(
+        participants.find((p) => p.participant.id === id)!
+      );
+    });
+    const tmp = participants.filter(
+      (p) =>
+        participantsOrder.find((po) => po === p.participant.id) === undefined
+    );
+    tmp.forEach((p) => {
+      properlyOrderedParticipants.push(p);
+    });
+    return properlyOrderedParticipants;
+  };
+
   const participantsWithTracks = mantainOrder(
-    participants
-      .map((p) => {
-        if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
-          return p.tracks
-            .filter((t) => t.metadata.type !== 'audio')
-            .map((t) => ({
-              participant: p,
-              trackId: t.id,
-            }));
-        }
-        return { participant: p };
-      })
-      .flat()
+    applyOrder(
+      participants
+        .map((p) => {
+          if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
+            return p.tracks
+              .filter((t) => t.metadata.type !== 'audio')
+              .map((t) => ({
+                participant: p,
+                trackId: t.id,
+              }));
+          }
+          return { participant: p };
+        })
+        .flat()
+    )
   );
 
   const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
