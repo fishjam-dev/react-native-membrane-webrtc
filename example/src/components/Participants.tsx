@@ -51,7 +51,9 @@ export const Participants = ({ participants, onPress }: ParticipantsProp) => {
   const isParticipantSpeaking = (participant: Participant) => {
     return (
       participant.participant.tracks.find((t) => t.type === 'Audio')
-        ?.vadStatus === 'speech'
+        ?.vadStatus === 'speech' &&
+      participant.participant.tracks.find((t) => t.id === participant.trackId)
+        ?.metadata.type !== 'screensharing'
     );
   };
 
