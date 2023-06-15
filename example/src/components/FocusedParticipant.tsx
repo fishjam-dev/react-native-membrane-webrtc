@@ -28,7 +28,7 @@ export const FocusedParticipant = ({
     focusedParticipant.participant.tracks.find((t) => t.type === 'Audio')
       ?.vadStatus === 'speech';
 
-  const isScreenshare = focusedTrack?.metadata.type !== 'screensharing';
+  const isScreenshare = focusedTrack?.metadata.type === 'screensharing';
 
   return (
     <View

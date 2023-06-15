@@ -58,7 +58,7 @@ export const Participants = ({ participants, onPress }: ParticipantsProp) => {
   const isVideoTrackScreenshare = (participant: Participant) => {
     return (
       participant.participant.tracks.find((t) => t.id === participant.trackId)
-        ?.metadata.type !== 'screensharing'
+        ?.metadata.type === 'screensharing'
     );
   };
 
@@ -82,7 +82,7 @@ export const Participants = ({ participants, onPress }: ParticipantsProp) => {
               key={p.participant.id + p.trackId}
               style={[
                 getStylesForParticipants(),
-                isParticipantSpeaking(p)
+                isParticipantSpeaking(p) && isVideoTrackScreenshare(p) === false
                   ? styles.shownActiveParticipantBorder
                   : styles.shownParticipantBorder,
               ]}
@@ -93,7 +93,8 @@ export const Participants = ({ participants, onPress }: ParticipantsProp) => {
                 onPinButtonPressed={onPress}
                 tileSmall={participants.length > FLEX_BRAKPOINT || width < 350}
               />
-              {isParticipantSpeaking(p) && isVideoTrackScreenshare(p) ? (
+              {isParticipantSpeaking(p) &&
+              isVideoTrackScreenshare(p) === false ? (
                 <View style={styles.activeSpeakerBorder} />
               ) : null}
             </View>
