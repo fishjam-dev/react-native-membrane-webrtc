@@ -44,6 +44,8 @@ export const Room = ({ navigation }: Props) => {
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
+  // This string array will containg strings in a form of participantId+trackId
+  // to differentiate between camera and screenshare video tracks.
   const [participantsOrder, setParticipantsOrder] = useState<string[] | null>(
     null
   );
@@ -75,7 +77,9 @@ export const Room = ({ navigation }: Props) => {
     const newOrder: string[] = [];
 
     for (let index = 0; index < participants.length; index++) {
-      newOrder.push(participants[index].participant.id);
+      newOrder.push(
+        participants[index].participant.id + participants[index].trackId
+      );
     }
 
     if (checkIfArraysAreTheSame(participantsOrder, newOrder) === false) {
@@ -118,7 +122,9 @@ export const Room = ({ navigation }: Props) => {
     }
 
     participantsOrder.forEach((id) => {
-      const participant = participants.find((p) => p.participant.id === id);
+      const participant = participants.find(
+        (p) => p.participant.id + p.trackId === id
+      );
       // This check is needed since if user will leave participantsOrder
       // won't know this until after this function is executed.
       // This makes sure no null/undefined object will make it to the displayed participants.
@@ -131,7 +137,8 @@ export const Room = ({ navigation }: Props) => {
     // prev order (meaning that they have just joined).
     const newParticipants = participants.filter(
       (p) =>
-        participantsOrder.find((po) => po === p.participant.id) === undefined
+        participantsOrder.find((po) => po === p.participant.id + p.trackId) ===
+        undefined
     );
     newParticipants.forEach((p) => {
       properlyOrderedParticipants.push(p);
