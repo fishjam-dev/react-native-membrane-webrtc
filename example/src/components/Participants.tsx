@@ -53,7 +53,7 @@ export const Participants = ({ participants, onPress }: ParticipantsProp) => {
       participant.participant.tracks.find((t) => t.type === 'Audio')
         ?.vadStatus === 'speech' &&
       participant.participant.tracks.find((t) => t.id === participant.trackId)
-        ?.metadata.type === 'screensharing'
+        ?.metadata.type !== 'screensharing'
     );
   };
 
