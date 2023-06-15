@@ -16,6 +16,10 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  checkIfArraysAreTheSame,
+  getNumberOfCurrentlyVisiblePlaces,
+} from '@utils';
 import { useKeepAwake } from 'expo-keep-awake';
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, InteractionManager } from 'react-native';
@@ -44,8 +48,18 @@ export const Room = ({ navigation }: Props) => {
     null
   );
 
-  const getFreeSpotIndex = (participants: ParticipantWithTrack[]) => {
-    for (let index = 0; index < MAX_NUM_OF_USERS_ON_THE_SCREEN; index++) {
+  const getFirstNotSpeakingVisablePlace = (
+    participants: ParticipantWithTrack[]
+  ) => {
+    for (
+      let index = 0;
+      index <
+      getNumberOfCurrentlyVisiblePlaces(
+        MAX_NUM_OF_USERS_ON_THE_SCREEN,
+        participants.length
+      );
+      index++
+    ) {
       const p = participants[index].participant;
       const audioTrack = p.tracks.find((t) => t.type === 'Audio');
       if (audioTrack?.vadStatus !== 'speech' && p.type !== 'Local') {
@@ -53,90 +67,99 @@ export const Room = ({ navigation }: Props) => {
       }
     }
 
+    // In case that there are no free spots at the moment.
     return -1;
   };
 
-  const checkIfTheSame = (arr1: string[] | null, arr2: string[] | null) => {
-    if (arr1 == null || arr2 == null || arr1.length !== arr2.length) {
-      return false;
+  const saveCurrentOrder = (participants: ParticipantWithTrack[]) => {
+    const newOrder: string[] = [];
+
+    for (let index = 0; index < participants.length; index++) {
+      newOrder.push(participants[index].participant.id);
     }
 
-    for (let index = 0; index < arr1.length; index++) {
-      if (arr1[index] !== arr2[index]) {
-        return false;
-      }
+    if (checkIfArraysAreTheSame(participantsOrder, newOrder) === false) {
+      setParticipantsOrder(newOrder);
     }
-    return true;
   };
 
-  const mantainOrder = (participants: ParticipantWithTrack[]) => {
+  const orderAndSave = (participants: ParticipantWithTrack[]) => {
     for (
       let index = MAX_NUM_OF_USERS_ON_THE_SCREEN - 1;
       index < participants.length;
       index++
     ) {
-      if (getFreeSpotIndex(participants) === -1) {
+      // If there are no more non speaking spots then don't move anyone.
+      if (getFirstNotSpeakingVisablePlace(participants) === -1) {
         break;
       }
 
       const p = participants[index].participant;
       const audioTrack = p.tracks.find((t) => t.type === 'Audio');
       if (audioTrack?.vadStatus === 'speech') {
+        // Swap speaking with non speaking participants.
         const tmp = participants[index];
-        participants[index] = participants[getFreeSpotIndex(participants)];
-        participants[getFreeSpotIndex(participants)] = tmp;
+        participants[index] =
+          participants[getFirstNotSpeakingVisablePlace(participants)];
+        participants[getFirstNotSpeakingVisablePlace(participants)] = tmp;
       }
     }
 
-    const newOrder: string[] = [];
-    for (let index = 0; index < participants.length; index++) {
-      newOrder.push(participants[index].participant.id);
-    }
-    if (checkIfTheSame(participantsOrder, newOrder) === false) {
-      setParticipantsOrder(newOrder);
-    }
+    saveCurrentOrder(participants);
     return participants;
   };
 
-  const applyOrder = (participants: ParticipantWithTrack[]) => {
+  const applyPrevOrder = (participants: ParticipantWithTrack[]) => {
     const properlyOrderedParticipants: ParticipantWithTrack[] = [];
 
-    if (participantsOrder === null || participantsOrder.length < 2) {
+    // Base case, nothing to apply order to.
+    if (participantsOrder === null || participantsOrder.length === 1) {
       return participants;
     }
 
     participantsOrder.forEach((id) => {
-      const tmpParticipant = participants.find((p) => p.participant.id === id);
-      if (tmpParticipant) {
-        properlyOrderedParticipants.push(tmpParticipant);
+      const participant = participants.find((p) => p.participant.id === id);
+      // This check is needed since if user will leave participantsOrder
+      // won't know this until after this function is executed.
+      // This makes sure no null/undefined object will make it to the displayed participants.
+      if (participant) {
+        properlyOrderedParticipants.push(participant);
       }
     });
-    const tmp = participants.filter(
+
+    // Collects participants that are not part of the
+    // prev order (meaning that they have just joined).
+    const newParticipants = participants.filter(
       (p) =>
         participantsOrder.find((po) => po === p.participant.id) === undefined
     );
-    tmp.forEach((p) => {
+    newParticipants.forEach((p) => {
       properlyOrderedParticipants.push(p);
     });
+
     return properlyOrderedParticipants;
   };
 
-  const participantsWithTracks = mantainOrder(
-    applyOrder(
-      participants
-        .map((p) => {
-          if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
-            return p.tracks
-              .filter((t) => t.metadata.type !== 'audio')
-              .map((t) => ({
-                participant: p,
-                trackId: t.id,
-              }));
-          }
-          return { participant: p };
-        })
-        .flat()
-    )
+  const orderParticipantsAccordingToVadStatus = (
+    participants: ParticipantWithTrack[]
+  ) => {
+    return orderAndSave(applyPrevOrder(participants));
+  };
+
+  const participantsWithTracks = orderParticipantsAccordingToVadStatus(
+    participants
+      .map((p) => {
+        if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
+          return p.tracks
+            .filter((t) => t.metadata.type !== 'audio')
+            .map((t) => ({
+              participant: p,
+              trackId: t.id,
+            }));
+        }
+        return { participant: p };
+      })
+      .flat()
   );
 
   const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
