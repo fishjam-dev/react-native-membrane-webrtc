@@ -26,14 +26,17 @@ export const FocusedParticipant = ({
 
   const isParticipantSpeaking =
     focusedParticipant.participant.tracks.find((t) => t.type === 'Audio')
-      ?.vadStatus === 'speech' &&
-    focusedTrack?.metadata.type !== 'screensharing';
+      ?.vadStatus === 'speech';
+
+  const isScreenshare = focusedTrack?.metadata.type !== 'screensharing';
 
   return (
     <View
       style={[
         styles.focusedParticipantContainer,
-        isParticipantSpeaking ? styles.activeSpeakerContainer : {},
+        isParticipantSpeaking && isScreenshare === false
+          ? styles.activeSpeakerContainer
+          : {},
       ]}
     >
       {isLocalScreenshareTrack ? (
@@ -46,7 +49,7 @@ export const FocusedParticipant = ({
           focused
         />
       )}
-      {isParticipantSpeaking ? (
+      {isParticipantSpeaking && isScreenshare === false ? (
         <View style={styles.activeSpeakerBorder} />
       ) : null}
     </View>
