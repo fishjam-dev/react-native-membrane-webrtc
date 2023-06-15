@@ -1,5 +1,5 @@
 import { VIDEOROOM_URL } from '@env';
-import { isEmpty, isEqual } from 'lodash';
+import { isEmpty } from 'lodash';
 
 /**
  * Used to generate short representation of a username.
@@ -24,17 +24,6 @@ export const checkIfUrl = (val: string) => {
 
 export const extractRoomNameFromUrl = (url: string) => {
   return url.substring(url.indexOf(VIDEOROOM_URL) + VIDEOROOM_URL.length);
-};
-
-export const checkIfArraysAreTheSame = (
-  arr1: string[] | null,
-  arr2: string[] | null
-) => {
-  if (arr1 == null || arr2 == null) {
-    return false;
-  }
-
-  return isEqual(arr1, arr2);
 };
 
 export const getNumberOfCurrentlyVisiblePlaces = (

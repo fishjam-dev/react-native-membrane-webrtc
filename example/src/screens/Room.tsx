@@ -16,12 +16,9 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {
-  checkIfArraysAreTheSame,
-  getNumberOfCurrentlyVisiblePlaces,
-} from '@utils';
+import { getNumberOfCurrentlyVisiblePlaces } from '@utils';
 import { useKeepAwake } from 'expo-keep-awake';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -46,9 +43,7 @@ export const Room = ({ navigation }: Props) => {
     useState<Participant | null>(null);
   // This string array will containg strings in a form of participantId+trackId
   // to differentiate between camera and screenshare video tracks.
-  const [participantsOrder, setParticipantsOrder] = useState<string[] | null>(
-    null
-  );
+  const participantsOrder = useRef<string[] | null>(null);
 
   const getFirstNotSpeakingVisiblePlace = (
     participants: ParticipantWithTrack[]
@@ -70,11 +65,9 @@ export const Room = ({ navigation }: Props) => {
   };
 
   const saveCurrentOrder = (participants: ParticipantWithTrack[]) => {
-    const newOrder = participants.map((p) => p.participant.id + p.trackId);
-
-    if (checkIfArraysAreTheSame(participantsOrder, newOrder) === false) {
-      setParticipantsOrder(newOrder);
-    }
+    participantsOrder.current = participants.map(
+      (p) => p.participant.id + p.trackId
+    );
   };
 
   const orderAndSave = (participants: ParticipantWithTrack[]) => {
@@ -108,11 +101,14 @@ export const Room = ({ navigation }: Props) => {
     const properlyOrderedParticipants: ParticipantWithTrack[] = [];
 
     // Base case, nothing to apply order to.
-    if (participantsOrder === null || participantsOrder.length === 1) {
+    if (
+      participantsOrder.current === null ||
+      participantsOrder.current.length === 1
+    ) {
       return participants;
     }
 
-    participantsOrder.forEach((id) => {
+    participantsOrder.current.forEach((id) => {
       const participant = participants.find(
         (p) => p.participant.id + p.trackId === id
       );
@@ -128,8 +124,9 @@ export const Room = ({ navigation }: Props) => {
     // prev order (meaning that they have just joined).
     const newParticipants = participants.filter(
       (p) =>
-        participantsOrder.find((po) => po === p.participant.id + p.trackId) ===
-        undefined
+        participantsOrder.current?.find(
+          (po) => po === p.participant.id + p.trackId
+        ) === undefined
     );
     newParticipants.forEach((p) => {
       properlyOrderedParticipants.push(p);
