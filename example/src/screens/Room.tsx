@@ -50,22 +50,18 @@ export const Room = ({ navigation }: Props) => {
     null
   );
 
-  const getFirstNotSpeakingVisablePlace = (
+  const getFirstNotSpeakingVisiblePlace = (
     participants: ParticipantWithTrack[]
   ) => {
-    for (
-      let index = 0;
-      index <
-      getNumberOfCurrentlyVisiblePlaces(
-        MAX_NUM_OF_USERS_ON_THE_SCREEN,
-        participants.length
-      );
-      index++
-    ) {
-      const p = participants[index].participant;
+    const currentlyVisiblePlaces = getNumberOfCurrentlyVisiblePlaces(
+      MAX_NUM_OF_USERS_ON_THE_SCREEN,
+      participants.length
+    );
+    for (let i = 0; i < currentlyVisiblePlaces; i++) {
+      const p = participants[i].participant;
       const audioTrack = p.tracks.find((t) => t.type === 'Audio');
       if (audioTrack?.vadStatus !== 'speech' && p.type !== 'Local') {
-        return index;
+        return i;
       }
     }
 
@@ -74,13 +70,7 @@ export const Room = ({ navigation }: Props) => {
   };
 
   const saveCurrentOrder = (participants: ParticipantWithTrack[]) => {
-    const newOrder: string[] = [];
-
-    for (let index = 0; index < participants.length; index++) {
-      newOrder.push(
-        participants[index].participant.id + participants[index].trackId
-      );
-    }
+    const newOrder = participants.map((p) => p.participant.id + p.trackId);
 
     if (checkIfArraysAreTheSame(participantsOrder, newOrder) === false) {
       setParticipantsOrder(newOrder);
@@ -88,24 +78,25 @@ export const Room = ({ navigation }: Props) => {
   };
 
   const orderAndSave = (participants: ParticipantWithTrack[]) => {
-    for (
-      let index = MAX_NUM_OF_USERS_ON_THE_SCREEN - 1;
-      index < participants.length;
-      index++
-    ) {
+    const currentlyVisiblePlaces = getNumberOfCurrentlyVisiblePlaces(
+      MAX_NUM_OF_USERS_ON_THE_SCREEN,
+      participants.length
+    );
+
+    for (let i = currentlyVisiblePlaces; i < participants.length; i++) {
+      const freeSpot = getFirstNotSpeakingVisiblePlace(participants);
       // If there are no more non speaking spots then don't move anyone.
-      if (getFirstNotSpeakingVisablePlace(participants) === -1) {
+      if (freeSpot === -1) {
         break;
       }
 
-      const p = participants[index].participant;
+      const p = participants[i].participant;
       const audioTrack = p.tracks.find((t) => t.type === 'Audio');
       if (audioTrack?.vadStatus === 'speech') {
         // Swap speaking with non speaking participants.
-        const tmp = participants[index];
-        participants[index] =
-          participants[getFirstNotSpeakingVisablePlace(participants)];
-        participants[getFirstNotSpeakingVisablePlace(participants)] = tmp;
+        const tmp = participants[i];
+        participants[i] = participants[freeSpot];
+        participants[freeSpot] = tmp;
       }
     }
 

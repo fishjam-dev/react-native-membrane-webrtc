@@ -1,5 +1,5 @@
 import { VIDEOROOM_URL } from '@env';
-import { isEmpty } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 
 /**
  * Used to generate short representation of a username.
@@ -30,16 +30,11 @@ export const checkIfArraysAreTheSame = (
   arr1: string[] | null,
   arr2: string[] | null
 ) => {
-  if (arr1 == null || arr2 == null || arr1.length !== arr2.length) {
+  if (arr1 == null || arr2 == null) {
     return false;
   }
 
-  for (let index = 0; index < arr1.length; index++) {
-    if (arr1[index] !== arr2[index]) {
-      return false;
-    }
-  }
-  return true;
+  return isEqual(arr1, arr2);
 };
 
 export const getNumberOfCurrentlyVisiblePlaces = (
