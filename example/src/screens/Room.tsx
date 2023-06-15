@@ -7,7 +7,10 @@ import {
   NotFocusedParticipants,
   Participant,
 } from '@components/NotFocusedParticipants';
-import { Participants } from '@components/Participants';
+import {
+  Participants,
+  MAX_NUM_OF_USERS_ON_THE_SCREEN,
+} from '@components/Participants';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
@@ -28,8 +31,6 @@ type ParticipantWithTrack = {
   participant: Membrane.Participant;
   trackId?: string;
 };
-
-const MAX_NUM_OF_USERS_ON_THE_SCREEN = 3;
 
 export const Room = ({ navigation }: Props) => {
   useKeepAwake();
@@ -55,12 +56,11 @@ export const Room = ({ navigation }: Props) => {
       }
     }
 
-    return 1;
+    return -1;
   };
 
   const checkIfTheSame = (arr1: string[] | null, arr2: string[] | null) => {
     if (arr1 == null || arr2 == null || arr1.length !== arr2.length) {
-      console.log('ROZNE');
       return false;
     }
 
@@ -73,12 +73,15 @@ export const Room = ({ navigation }: Props) => {
   };
 
   const mantainOrder = (participants: ParticipantWithTrack[]) => {
-    console.log(participants);
     for (
-      let index = MAX_NUM_OF_USERS_ON_THE_SCREEN;
+      let index = MAX_NUM_OF_USERS_ON_THE_SCREEN - 1;
       index < participants.length;
       index++
     ) {
+      if (getFreeSpotIndex(participants) === -1) {
+        break;
+      }
+
       const p = participants[index].participant;
       const audioTrack = p.tracks.find((t) => t.type === 'Audio');
       if (audioTrack?.vadStatus === 'speech') {
@@ -92,9 +95,7 @@ export const Room = ({ navigation }: Props) => {
     for (let index = 0; index < participants.length; index++) {
       newOrder.push(participants[index].participant.id);
     }
-    console.log('NEW', newOrder);
     if (checkIfTheSame(participantsOrder, newOrder) === false) {
-      console.log('RODERS');
       setParticipantsOrder(newOrder);
     }
     return participants;
@@ -104,14 +105,14 @@ export const Room = ({ navigation }: Props) => {
     const properlyOrderedParticipants: ParticipantWithTrack[] = [];
 
     if (participantsOrder === null || participantsOrder.length < 2) {
-      console.log('NULL');
       return participants;
     }
 
     participantsOrder.forEach((id) => {
-      properlyOrderedParticipants.push(
-        participants.find((p) => p.participant.id === id)!
-      );
+      const tmpParticipant = participants.find((p) => p.participant.id === id);
+      if (tmpParticipant) {
+        properlyOrderedParticipants.push(tmpParticipant);
+      }
     });
     const tmp = participants.filter(
       (p) =>
@@ -170,20 +171,20 @@ export const Room = ({ navigation }: Props) => {
     );
   };
 
-  useEffect(() => {
-    const newPartsWithSpokenData = new Map<string, number>();
-    participants.forEach((p) => {
-      const audioTrack = p.tracks.find((t) => t.type === 'Audio');
-      const lastSpoken = audioTrack?.vadStatus === 'speech' ? Date.now() : 0;
-      newPartsWithSpokenData[p.id] = participantsLastSpoken[p.id]
-        ? lastSpoken > participantsLastSpoken[p.id]
-          ? lastSpoken
-          : participantsLastSpoken[p.id]
-        : lastSpoken;
-    });
+  // useEffect(() => {
+  //   const newPartsWithSpokenData = new Map<string, number>();
+  //   participants.forEach((p) => {
+  //     const audioTrack = p.tracks.find((t) => t.type === 'Audio');
+  //     const lastSpoken = audioTrack?.vadStatus === 'speech' ? Date.now() : 0;
+  //     newPartsWithSpokenData[p.id] = participantsLastSpoken[p.id]
+  //       ? lastSpoken > participantsLastSpoken[p.id]
+  //         ? lastSpoken
+  //         : participantsLastSpoken[p.id]
+  //       : lastSpoken;
+  //   });
 
-    setParticipantsLastSpoken(newPartsWithSpokenData);
-  }, [participants, getNumberOfCurrentlySpeakingParticipants()]);
+  //   setParticipantsLastSpoken(newPartsWithSpokenData);
+  // }, [participants, getNumberOfCurrentlySpeakingParticipants()]);
 
   useEffect(() => {
     const curretStateOfFocusedParticipant = participants.find(
