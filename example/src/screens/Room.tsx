@@ -40,9 +40,6 @@ export const Room = ({ navigation }: Props) => {
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
-  const [participantsLastSpoken, setParticipantsLastSpoken] = useState(
-    new Map<string, number>()
-  );
   const [participantsOrder, setParticipantsOrder] = useState<string[] | null>(
     null
   );
@@ -158,33 +155,12 @@ export const Room = ({ navigation }: Props) => {
     return track.metadata.type === 'screensharing';
   };
 
-  const getNumberOfCurrentlySpeakingParticipants = () => {
-    return participants.filter(
-      (p) => p.tracks.find((t) => t.type === 'Audio')?.vadStatus === 'speech'
-    ).length;
-  };
-
   const isTrackFocused = (p: Participant) => {
     return (
       p.participant.id === focusedParticipantData?.participant.id &&
       p.trackId === focusedParticipantData?.trackId
     );
   };
-
-  // useEffect(() => {
-  //   const newPartsWithSpokenData = new Map<string, number>();
-  //   participants.forEach((p) => {
-  //     const audioTrack = p.tracks.find((t) => t.type === 'Audio');
-  //     const lastSpoken = audioTrack?.vadStatus === 'speech' ? Date.now() : 0;
-  //     newPartsWithSpokenData[p.id] = participantsLastSpoken[p.id]
-  //       ? lastSpoken > participantsLastSpoken[p.id]
-  //         ? lastSpoken
-  //         : participantsLastSpoken[p.id]
-  //       : lastSpoken;
-  //   });
-
-  //   setParticipantsLastSpoken(newPartsWithSpokenData);
-  // }, [participants, getNumberOfCurrentlySpeakingParticipants()]);
 
   useEffect(() => {
     const curretStateOfFocusedParticipant = participants.find(
