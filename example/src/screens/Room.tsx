@@ -33,6 +33,15 @@ type ParticipantWithTrack = {
   trackId?: string;
 };
 
+type LRUNode = {
+  lastActive: number;
+  isActive: boolean;
+  index: number;
+  // Local user and screenshare tracks
+  // are not movable and should stay on top.
+  isMovable: boolean;
+};
+
 export const Room = ({ navigation }: Props) => {
   useKeepAwake();
 
@@ -44,20 +53,63 @@ export const Room = ({ navigation }: Props) => {
   // This string array will containg strings in a form of participantId+trackId
   // to differentiate between camera and screenshare video tracks.
   const participantsOrder = useRef<string[] | null>(null);
+  // TODO JAKIS KOMENTARZ BO ZAPOMNE O TYM DO JUTRA!!!!
+  const lru = useRef<LRUNode[]>([]);
+  const currentScreencasts = useRef<string[]>([]);
 
-  const getFirstNotSpeakingVisiblePlace = (
+  // LRU initialization
+  useEffect(() => {
+    for (let i = 1; i < MAX_NUM_OF_USERS_ON_THE_SCREEN; i++) {
+      lru.current.push({
+        lastActive: i,
+        isActive: false,
+        index: i,
+        isMovable: true,
+      });
+    }
+
+    return () => {
+      lru.current = [];
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log(lru.current.length);
+  }, [participants]);
+
+  // First not movable tracks(local and screenshares) then least recently used.
+  const lruComparator = (a: LRUNode, b: LRUNode) => {
+    if (a.isMovable) {
+      if (b.isMovable) {
+        return a.lastActive > b.lastActive ? 1 : -1;
+      } else {
+        return -1;
+      }
+    } else if (b.isMovable) {
+      return 1;
+    }
+    return 0;
+  };
+
+  const getNextNotSpeakingVisiblePlace = (
     participants: ParticipantWithTrack[]
   ) => {
     const currentlyVisiblePlaces = getNumberOfCurrentlyVisiblePlaces(
       MAX_NUM_OF_USERS_ON_THE_SCREEN,
       participants.length
     );
-    for (let i = 0; i < currentlyVisiblePlaces; i++) {
-      const p = participants[i].participant;
-      const audioTrack = p.tracks.find((t) => t.type === 'Audio');
-      if (audioTrack?.vadStatus !== 'speech' && p.type !== 'Local') {
-        return i;
-      }
+
+    // DO I need to sort? no! but I dont want to write min fucntion B)
+    const sortedLRU = lru.current.slice().sort(lruComparator);
+
+    // This takes care of a case where there is one spot taken by
+    // "Other Participants" tile.
+    let node = sortedLRU[0];
+    if (node.index >= currentlyVisiblePlaces) {
+      node = sortedLRU[1];
+    }
+    if (node.isActive === false && node.isMovable === true) {
+      return node.index;
     }
 
     // In case that there are no free spots at the moment.
@@ -70,6 +122,33 @@ export const Room = ({ navigation }: Props) => {
     );
   };
 
+  const updateLRU = (participants: ParticipantWithTrack[]) => {
+    const currentlyVisiblePlaces = getNumberOfCurrentlyVisiblePlaces(
+      MAX_NUM_OF_USERS_ON_THE_SCREEN,
+      participants.length
+    );
+    const lruIterationLimit =
+      Math.min(currentlyVisiblePlaces, participants.length) - 1;
+
+    const now = Date.now();
+
+    for (let i = 0; i < lruIterationLimit; i++) {
+      if (participants[lru.current[i].index] === undefined) {
+        break;
+      }
+      if (
+        participants[lru.current[i].index].participant.tracks.find(
+          (t) => t.type === 'Audio'
+        )?.vadStatus === 'speech'
+      ) {
+        lru.current[i].isActive = true;
+        lru.current[i].lastActive = now;
+      } else {
+        lru.current[i].isActive = false;
+      }
+    }
+  };
+
   const orderAndSave = (participants: ParticipantWithTrack[]) => {
     const currentlyVisiblePlaces = getNumberOfCurrentlyVisiblePlaces(
       MAX_NUM_OF_USERS_ON_THE_SCREEN,
@@ -77,7 +156,8 @@ export const Room = ({ navigation }: Props) => {
     );
 
     for (let i = currentlyVisiblePlaces; i < participants.length; i++) {
-      const freeSpot = getFirstNotSpeakingVisiblePlace(participants);
+      const freeSpot = getNextNotSpeakingVisiblePlace(participants);
+
       // If there are no more non speaking spots then don't move anyone.
       if (freeSpot === -1) {
         break;
@@ -94,6 +174,7 @@ export const Room = ({ navigation }: Props) => {
     }
 
     saveCurrentOrder(participants);
+    updateLRU(participants);
     return participants;
   };
 
@@ -180,6 +261,8 @@ export const Room = ({ navigation }: Props) => {
     );
   };
 
+  const pushScreencastVideotrackToTheFront = () => {};
+
   useEffect(() => {
     const curretStateOfFocusedParticipant = participants.find(
       (p) => p.id === focusedParticipantData?.participant.id
@@ -205,12 +288,15 @@ export const Room = ({ navigation }: Props) => {
       .reverse()
       .find((p) => p.tracks.some((t) => isScreensharingTrack(t)));
 
+    // Screencast was added.
     if (screencast) {
+      pushScreencastVideotrackToTheFront();
       setFocusedParticipantData({
         participant: screencast,
         trackId: screencast.tracks.find((t) => isScreensharingTrack(t))!.id,
       });
     } else {
+      // Screencast removed.
       setFocusedParticipantData(null);
     }
   }, [
