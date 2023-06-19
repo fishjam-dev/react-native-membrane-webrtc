@@ -34,7 +34,7 @@ describe('Participants Tracks Manager', () => {
             {
               id: 't2',
               type: 'Audio',
-              vadStatus: 'speaking',
+              vadStatus: 'silience',
             },
           ],
         },
@@ -62,7 +62,7 @@ describe('Participants Tracks Manager', () => {
             {
               id: 't2',
               type: 'Audio',
-              vadStatus: 'speaking',
+              vadStatus: 'silience',
             },
           ],
         },
@@ -110,7 +110,7 @@ describe('Participants Tracks Manager', () => {
             {
               id: 't2',
               type: 'Audio',
-              vadStatus: 'speaking',
+              vadStatus: 'silience',
             },
           ],
         },
@@ -522,6 +522,84 @@ describe('Participants Tracks Manager', () => {
       't20',
       't32',
       't34',
+    ]);
+  });
+
+  test('Participants leaving', () => {
+    const { result } = renderHook(() => useParticipantsTracksManager());
+    let ordered;
+
+    // Populating participants
+    const participants = [
+      {
+        participant: {
+          id: '1',
+          type: 'Local',
+          tracks: [
+            {
+              id: 't1',
+              type: 'Video',
+              metadata: { type: 'camera' },
+            },
+            {
+              id: 't2',
+              type: 'Audio',
+              vadStatus: 'speaking',
+            },
+          ],
+        },
+        trackId: 't1',
+      },
+    ];
+    for (let i = 10; i < 20; i++) {
+      participants.push({
+        participant: {
+          id: i.toString(),
+          type: 'Remote',
+          tracks: [
+            {
+              id: 't' + (i * 2).toString(),
+              type: 'Video',
+              metadata: { type: 'camera' },
+            },
+            {
+              id: 't' + (i * 2 + 1).toString(),
+              type: 'Audio',
+              vadStatus: 'silience',
+            },
+          ],
+        },
+        trackId: 't' + (i * 2).toString(),
+      });
+    }
+
+    act(() => {
+      ordered =
+        result.current.orderParticipantsAccordingToVadStatus(participants);
+    });
+
+    expect(ordered.length).toBe(11);
+
+    // 3rd participant(2nd remote) left.
+    participants.splice(3, 1);
+
+    act(() => {
+      ordered =
+        result.current.orderParticipantsAccordingToVadStatus(participants);
+    });
+
+    expect(ordered.length).toBe(10);
+    expect(ordered.map((t) => t.trackId)).toEqual([
+      't1',
+      't20',
+      't22',
+      't26',
+      't28',
+      't30',
+      't32',
+      't34',
+      't36',
+      't38',
     ]);
   });
 });
