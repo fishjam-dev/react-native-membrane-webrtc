@@ -1,6 +1,7 @@
+import { MAX_NUM_OF_USERS_ON_THE_SCREEN } from '@components/Participants';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { getNumberOfCurrentlyVisiblePlaces } from '@utils';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 type ParticipantWithTrack = {
   participant: Membrane.Participant;
@@ -17,13 +18,37 @@ type LRUNode = {
 };
 
 // Used to manage order in which participants tracks are displayed.
-export const ParticipantsTracksWindowManager = (
-  maxNumUsersOnScreen: number
-) => {
+export const useParticipantsTracksManager = () => {
   // This string array will containg strings in a form of participantId+trackId
   // to differentiate between camera and screenshare video tracks.
   const participantsOrder = useRef<string[] | null>(null);
   const lru = useRef<LRUNode[]>([]);
+
+  // LRU initialization
+  useEffect(() => {
+    for (let i = 1; i < MAX_NUM_OF_USERS_ON_THE_SCREEN; i++) {
+      lru.current.push({
+        lastActive: i,
+        isActive: false,
+        index: i,
+        isMovable: true,
+      });
+    }
+
+    return () => {
+      lru.current = [];
+    };
+  }, []);
+
+  const isScreensharingTrack = (track: Membrane.Track | undefined) => {
+    return track?.metadata.type === 'screensharing';
+  };
+
+  const isParticipantScreensharing = (participant: ParticipantWithTrack) => {
+    return isScreensharingTrack(
+      participant.participant.tracks.find((t) => t.id === participant.trackId)
+    );
+  };
 
   // First not movable tracks(local and screenshares) then least recently used.
   const lruComparator = (a: LRUNode, b: LRUNode) => {
@@ -50,14 +75,8 @@ export const ParticipantsTracksWindowManager = (
       return 1;
     }
 
-    if (
-      a.participant.tracks.find((t) => t.id === a.trackId)?.metadata.type ===
-      'screensharing'
-    ) {
-      if (
-        b.participant.tracks.find((t) => t.id === b.trackId)?.metadata.type ===
-        'screensharing'
-      ) {
+    if (isParticipantScreensharing(a)) {
+      if (isParticipantScreensharing(b)) {
         return 0;
       } else {
         return -1;
@@ -76,7 +95,7 @@ export const ParticipantsTracksWindowManager = (
 
   const updateLRU = (participants: ParticipantWithTrack[]) => {
     const currentlyVisiblePlaces = getNumberOfCurrentlyVisiblePlaces(
-      maxNumUsersOnScreen,
+      MAX_NUM_OF_USERS_ON_THE_SCREEN,
       participants.length
     );
     const lruIterationLimit =
@@ -114,7 +133,7 @@ export const ParticipantsTracksWindowManager = (
     participants: ParticipantWithTrack[]
   ) => {
     const currentlyVisiblePlaces = getNumberOfCurrentlyVisiblePlaces(
-      maxNumUsersOnScreen,
+      MAX_NUM_OF_USERS_ON_THE_SCREEN,
       participants.length
     );
 
@@ -180,7 +199,7 @@ export const ParticipantsTracksWindowManager = (
 
   const orderAndSave = (participants: ParticipantWithTrack[]) => {
     const currentlyVisiblePlaces = getNumberOfCurrentlyVisiblePlaces(
-      maxNumUsersOnScreen,
+      MAX_NUM_OF_USERS_ON_THE_SCREEN,
       participants.length
     );
 
@@ -208,5 +227,11 @@ export const ParticipantsTracksWindowManager = (
     return participants;
   };
 
-  return { participantsOrder, applyPrevOrder, orderAndSave, lru };
+  const orderParticipantsAccordingToVadStatus = (
+    participants: ParticipantWithTrack[]
+  ) => {
+    return orderAndSave(applyPrevOrder(participants));
+  };
+
+  return { orderParticipantsAccordingToVadStatus, isScreensharingTrack };
 };

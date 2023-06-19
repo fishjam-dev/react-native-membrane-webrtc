@@ -7,10 +7,7 @@ import {
   NotFocusedParticipants,
   Participant,
 } from '@components/NotFocusedParticipants';
-import {
-  Participants,
-  MAX_NUM_OF_USERS_ON_THE_SCREEN,
-} from '@components/Participants';
+import { Participants } from '@components/Participants';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
@@ -24,14 +21,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
-import { ParticipantsTracksWindowManager } from '../shared/participantsWindowManager';
+import { useParticipantsTracksManager } from '../shared/participantsTracksManager';
 
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
-
-type ParticipantWithTrack = {
-  participant: Membrane.Participant;
-  trackId?: string;
-};
 
 export const Room = ({ navigation }: Props) => {
   useKeepAwake();
@@ -41,31 +33,8 @@ export const Room = ({ navigation }: Props) => {
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
-  const { applyPrevOrder, orderAndSave, lru } = ParticipantsTracksWindowManager(
-    MAX_NUM_OF_USERS_ON_THE_SCREEN
-  );
-
-  // LRU initialization
-  useEffect(() => {
-    for (let i = 1; i < MAX_NUM_OF_USERS_ON_THE_SCREEN; i++) {
-      lru.current.push({
-        lastActive: i,
-        isActive: false,
-        index: i,
-        isMovable: true,
-      });
-    }
-
-    return () => {
-      lru.current = [];
-    };
-  }, []);
-
-  const orderParticipantsAccordingToVadStatus = (
-    participants: ParticipantWithTrack[]
-  ) => {
-    return orderAndSave(applyPrevOrder(participants));
-  };
+  const { orderParticipantsAccordingToVadStatus, isScreensharingTrack } =
+    useParticipantsTracksManager();
 
   const participantsWithTracks = orderParticipantsAccordingToVadStatus(
     participants
@@ -94,10 +63,6 @@ export const Room = ({ navigation }: Props) => {
       return () => setShouldShowParticipants(false);
     }, [])
   );
-
-  const isScreensharingTrack = (track: Membrane.Track) => {
-    return track.metadata.type === 'screensharing';
-  };
 
   const isTrackFocused = (p: Participant) => {
     return (
