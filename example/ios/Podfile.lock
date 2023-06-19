@@ -1,5 +1,4 @@
 PODS:
-  - AssociatedValues (5.0.0)
   - boost (1.76.0)
   - Charts (4.1.0):
     - Charts/Core (= 4.1.0)
@@ -98,24 +97,20 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.70.8)
   - libevent (2.1.12)
-  - Logging (1.4.0)
   - MembraneRTC (4.4.0):
-    - Logging
     - MembraneRTC/Broadcast (= 4.4.0)
     - PromisesSwift
-    - SwiftCollection
+    - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
   - MembraneRTC/Broadcast (4.4.0):
-    - Logging
     - PromisesSwift
-    - SwiftCollection
+    - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
   - OpenSSL-Universal (1.1.1100)
-  - OrderedObjectSet (5.0.0)
   - PromisesObjC (2.2.0)
   - PromisesSwift (2.2.0):
     - PromisesObjC (= 2.2.0)
@@ -466,9 +461,7 @@ PODS:
   - SentryPrivate (8.3.3)
   - SocketRocket (0.6.0)
   - SwiftAlgorithms (1.0.0)
-  - SwiftCollection (0.5.0):
-    - AssociatedValues (~> 5.0.0)
-    - OrderedObjectSet (~> 5.0.0)
+  - SwiftLogJellyfish (1.5.2)
   - SwiftPhoenixClient (4.0.0):
     - SwiftPhoenixClient/Core (= 4.0.0)
   - SwiftPhoenixClient/Core (4.0.0)
@@ -516,8 +509,8 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, branch `jellyfish`)
-  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, branch `jellyfish`)
+  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, commit `d68ef73ed0a62dfda843dc2bd105a7853c26234d`)
+  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, commit `d68ef73ed0a62dfda843dc2bd105a7853c26234d`)
   - OpenSSL-Universal (= 1.1.1100)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -560,7 +553,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - AssociatedValues
     - Charts
     - CocoaAsyncSocket
     - Flipper
@@ -574,16 +566,14 @@ SPEC REPOS:
     - FlipperKit
     - fmt
     - libevent
-    - Logging
     - OpenSSL-Universal
-    - OrderedObjectSet
     - PromisesObjC
     - PromisesSwift
     - Sentry
     - SentryPrivate
     - SocketRocket
     - SwiftAlgorithms
-    - SwiftCollection
+    - SwiftLogJellyfish
     - SwiftPhoenixClient
     - SwiftProtobuf
     - SwiftyJSON
@@ -620,7 +610,7 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes/hermes-engine.podspec"
   MembraneRTC:
-    :branch: jellyfish
+    :commit: d68ef73ed0a62dfda843dc2bd105a7853c26234d
     :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
@@ -697,11 +687,10 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   MembraneRTC:
-    :commit: 9e73bf1b86c36b68e19252eb7547659d36504904
+    :commit: d68ef73ed0a62dfda843dc2bd105a7853c26234d
     :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
 
 SPEC CHECKSUMS:
-  AssociatedValues: 33dfc4f4d0ec2f1177a2558e176364e2ac849cd1
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
@@ -729,10 +718,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 0b19f33a9c2ec1dbdede3232606eeb1101db4cec
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  Logging: beeb016c9c80cf77042d62e83495816847ef108b
-  MembraneRTC: ab8d41f01cfba4887445190dfbef40f70721c2e9
+  MembraneRTC: e0b18800c7b272f9d59a918546f9537ee0234c64
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
-  OrderedObjectSet: 7eb2d546c515a9dc5ac321ce5605d4e96f5d4c3c
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
   PromisesSwift: cf9eb58666a43bbe007302226e510b16c1e10959
   RCT-Folly: 0080d0a6ebf2577475bda044aa59e2ca1f909cda
@@ -774,7 +761,7 @@ SPEC CHECKSUMS:
   SentryPrivate: bf776a47a131648f5023097215987b40fbd47025
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
-  SwiftCollection: 9f83c97b993bfad6298d7765631b409a00f57779
+  SwiftLogJellyfish: 6207ec91ef3913d303ac797b73298248ee360eb0
   SwiftPhoenixClient: 4e36f35d00e43d11881c255bd60c20efc0f39c91
   SwiftProtobuf: 40bd808372cb8706108f22d28f8ab4a6b9bc6989
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
@@ -782,6 +769,6 @@ SPEC CHECKSUMS:
   Yoga: d6133108734e69e8c0becc6ba587294b94829687
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: d9a794c4a70017390b67200b3964f2fc3c0a9551
+PODFILE CHECKSUM: 5df0d7e46e600acb9e2b25dc9c3c2860841146fa
 
 COCOAPODS: 1.12.1

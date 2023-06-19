@@ -14,7 +14,7 @@ import { RootStack } from '@model/NavigationTypes';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useKeepAwake } from 'expo-keep-awake';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,7 +27,7 @@ type Props = NativeStackScreenProps<RootStack, 'Room'>;
 export const Room = ({ navigation }: Props) => {
   useKeepAwake();
 
-  const { isDevMode, roomName, disconnect } = useVideoroomState();
+  const { isDevMode, roomName, disconnect, flipCamera } = useVideoroomState();
   const { selectedAudioOutputDevice } = Membrane.useAudioSettings();
   const participants = Membrane.useEndpoints();
   const [focusedParticipantData, setFocusedParticipantData] =
@@ -108,10 +108,6 @@ export const Room = ({ navigation }: Props) => {
       .length,
   ]);
 
-  const switchCamera = useCallback(() => {
-    Membrane.flipCamera();
-  }, []);
-
   const handleBeforeRemoveEvent = (e, setIsModalVisible) => {
     e.preventDefault();
     // reset action comes from deeplink
@@ -138,7 +134,7 @@ export const Room = ({ navigation }: Props) => {
               </Typo>
             </View>
             <View style={styles.headerIcon}>
-              <TouchableOpacity onPress={switchCamera}>
+              <TouchableOpacity onPress={flipCamera}>
                 <Icon
                   name="Cam-switch"
                   size={24}
