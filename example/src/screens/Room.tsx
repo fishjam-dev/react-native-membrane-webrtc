@@ -21,6 +21,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
+import { useParticipantsTracksManager } from '../shared/participantsTracksManager';
 
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
@@ -32,20 +33,24 @@ export const Room = ({ navigation }: Props) => {
   const participants = Membrane.useRoomParticipants();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
+  const { orderParticipantsAccordingToVadStatus, isScreensharingTrack } =
+    useParticipantsTracksManager();
 
-  const participantsWithTracks = participants
-    .map((p) => {
-      if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
-        return p.tracks
-          .filter((t) => t.metadata.type !== 'audio')
-          .map((t) => ({
-            participant: p,
-            trackId: t.id,
-          }));
-      }
-      return { participant: p };
-    })
-    .flat();
+  const participantsWithTracks = orderParticipantsAccordingToVadStatus(
+    participants
+      .map((p) => {
+        if (p.tracks.some((t) => t.type === Membrane.TrackType.Video)) {
+          return p.tracks
+            .filter((t) => t.metadata.type !== 'audio')
+            .map((t) => ({
+              participant: p,
+              trackId: t.id,
+            }));
+        }
+        return { participant: p };
+      })
+      .flat()
+  );
 
   const [shouldShowParticipants, setShouldShowParticipants] = useState(false);
 
@@ -58,10 +63,6 @@ export const Room = ({ navigation }: Props) => {
       return () => setShouldShowParticipants(false);
     }, [])
   );
-
-  const isScreensharingTrack = (track: Membrane.Track) => {
-    return track.metadata.type === 'screensharing';
-  };
 
   const isTrackFocused = (p: Participant) => {
     return (
@@ -95,12 +96,14 @@ export const Room = ({ navigation }: Props) => {
       .reverse()
       .find((p) => p.tracks.some((t) => isScreensharingTrack(t)));
 
+    // Screencast was added.
     if (screencast) {
       setFocusedParticipantData({
         participant: screencast,
         trackId: screencast.tracks.find((t) => isScreensharingTrack(t))!.id,
       });
     } else {
+      // Screencast removed.
       setFocusedParticipantData(null);
     }
   }, [

@@ -25,3 +25,10 @@ export const checkIfUrl = (val: string) => {
 export const extractRoomNameFromUrl = (url: string) => {
   return url.substring(url.indexOf(VIDEOROOM_URL) + VIDEOROOM_URL.length);
 };
+
+export const getNumberOfCurrentlyVisiblePlaces = (
+  numOfSpots: number,
+  numOfParticipants: number
+) => {
+  return numOfParticipants > numOfSpots ? numOfSpots - 1 : numOfSpots;
+};
