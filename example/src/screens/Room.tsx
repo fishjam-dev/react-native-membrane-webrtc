@@ -55,7 +55,6 @@ export const Room = ({ navigation }: Props) => {
   const participantsOrder = useRef<string[] | null>(null);
   // TODO JAKIS KOMENTARZ BO ZAPOMNE O TYM DO JUTRA!!!!
   const lru = useRef<LRUNode[]>([]);
-  const currentScreencasts = useRef<string[]>([]);
 
   // LRU initialization
   useEffect(() => {
@@ -72,10 +71,6 @@ export const Room = ({ navigation }: Props) => {
       lru.current = [];
     };
   }, []);
-
-  useEffect(() => {
-    console.log(lru.current.length);
-  }, [participants]);
 
   // First not movable tracks(local and screenshares) then least recently used.
   const lruComparator = (a: LRUNode, b: LRUNode) => {
@@ -99,7 +94,6 @@ export const Room = ({ navigation }: Props) => {
       participants.length
     );
 
-    // DO I need to sort? no! but I dont want to write min fucntion B)
     const sortedLRU = lru.current.slice().sort(lruComparator);
 
     // This takes care of a case where there is one spot taken by
@@ -133,20 +127,63 @@ export const Room = ({ navigation }: Props) => {
     const now = Date.now();
 
     for (let i = 0; i < lruIterationLimit; i++) {
-      if (participants[lru.current[i].index] === undefined) {
+      const p = participants[lru.current[i].index];
+      if (p === undefined) {
         break;
       }
       if (
-        participants[lru.current[i].index].participant.tracks.find(
-          (t) => t.type === 'Audio'
-        )?.vadStatus === 'speech'
+        p.participant.tracks.find((t) => t.type === 'Audio')?.vadStatus ===
+        'speech'
       ) {
         lru.current[i].isActive = true;
         lru.current[i].lastActive = now;
       } else {
         lru.current[i].isActive = false;
       }
+
+      if (
+        p.participant.tracks.find((t) => t.id === p.trackId)?.metadata.type ===
+        'screensharing'
+      ) {
+        lru.current[i].isMovable = false;
+      } else {
+        lru.current[i].isMovable = true;
+      }
     }
+  };
+
+  const sortParticipants = (
+    a: ParticipantWithTrack,
+    b: ParticipantWithTrack
+  ) => {
+    if (a.participant.type === 'Local') {
+      return -1;
+    } else if (b.participant.type === 'Local') {
+      return 1;
+    }
+
+    if (
+      a.participant.tracks.find((t) => t.id === a.trackId)?.metadata.type ===
+      'screensharing'
+    ) {
+      if (
+        b.participant.tracks.find((t) => t.id === b.trackId)?.metadata.type ===
+        'screensharing'
+      ) {
+        return 0;
+      } else {
+        return -1;
+      }
+    }
+
+    if (
+      b.participant.tracks.find((t) => t.id === a.trackId)?.metadata.type ===
+      'screensharing'
+    ) {
+      return 1;
+    }
+
+    return 0;
   };
 
   const orderAndSave = (participants: ParticipantWithTrack[]) => {
@@ -173,6 +210,7 @@ export const Room = ({ navigation }: Props) => {
       }
     }
 
+    participants = participants.sort(sortParticipants);
     saveCurrentOrder(participants);
     updateLRU(participants);
     return participants;
@@ -261,8 +299,6 @@ export const Room = ({ navigation }: Props) => {
     );
   };
 
-  const pushScreencastVideotrackToTheFront = () => {};
-
   useEffect(() => {
     const curretStateOfFocusedParticipant = participants.find(
       (p) => p.id === focusedParticipantData?.participant.id
@@ -290,7 +326,6 @@ export const Room = ({ navigation }: Props) => {
 
     // Screencast was added.
     if (screencast) {
-      pushScreencastVideotrackToTheFront();
       setFocusedParticipantData({
         participant: screencast,
         trackId: screencast.tracks.find((t) => isScreensharingTrack(t))!.id,
