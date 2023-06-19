@@ -77,16 +77,13 @@ export const useParticipantsTracksManager = () => {
 
     if (isParticipantScreensharing(a)) {
       if (isParticipantScreensharing(b)) {
-        return 0;
+        return -1;
       } else {
         return -1;
       }
     }
 
-    if (
-      b.participant.tracks.find((t) => t.id === a.trackId)?.metadata.type ===
-      'screensharing'
-    ) {
+    if (isParticipantScreensharing(b)) {
       return 1;
     }
 
@@ -118,10 +115,7 @@ export const useParticipantsTracksManager = () => {
         lru.current[i].isActive = false;
       }
 
-      if (
-        p.participant.tracks.find((t) => t.id === p.trackId)?.metadata.type ===
-        'screensharing'
-      ) {
+      if (isParticipantScreensharing(p)) {
         lru.current[i].isMovable = false;
       } else {
         lru.current[i].isMovable = true;
