@@ -7,7 +7,7 @@ import { OtherParticipants } from './OtherParticipants';
 import { RoomParticipant } from './RoomParticipant';
 
 const HEADER_AND_FOOTER_SIZE = 126;
-export const MAX_NUM_OF_USERS_ON_THE_SCREEN = 4;
+export const MAX_NUM_OF_USERS_ON_THE_SCREEN = 8;
 const OFFSET_PER_ROW = 16;
 const FLEX_BRAKPOINT = 3;
 
