@@ -14,7 +14,7 @@ import {
 import { useNotifications } from '@model/NotificationsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Sentry from '@sentry/react-native';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, ReactNode } from 'react';
 import { Platform } from 'react-native';
 
 type VideoroomState = 'BeforeMeeting' | 'InMeeting' | 'AfterMeeting';
@@ -46,7 +46,11 @@ const VideoroomContext = React.createContext<
   | undefined
 >(undefined);
 
-const VideoroomContextProvider = (props) => {
+type VideoroomContextProps = {
+  children: ReactNode;
+};
+
+const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
   const [roomName, setRoomName] = useState('');
   const [username, setUsername] = useState('');
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -213,7 +217,7 @@ const VideoroomContextProvider = (props) => {
 
   return (
     <VideoroomContext.Provider value={value}>
-      {props.children}
+      {children}
     </VideoroomContext.Provider>
   );
 };

@@ -333,6 +333,10 @@ export type RTCInboundStats = {
 
 export type RTCStats = RTCOutboundStats | RTCInboundStats;
 
+type RTCStatsKeys = keyof RTCInboundStats | keyof RTCOutboundStats;
+
+type RTCStatsObject = { [key: string]: RTCStats };
+
 const defaultSimulcastConfig = () => ({
   enabled: false,
   activeEncodings: [],
@@ -886,7 +890,7 @@ export function useBandwidthEstimation() {
  */
 export function useRTCStatistics(refreshInterval: number) {
   const MAX_SIZE = 120;
-  const [statistics, setStatistics] = useState<RTCStats[]>([]);
+  const [statistics, setStatistics] = useState<RTCStatsObject[]>([]);
 
   useEffect(() => {
     const intervalId = setInterval(getStatistics, refreshInterval);
@@ -909,55 +913,59 @@ export function useRTCStatistics(refreshInterval: number) {
   // Calculates diff between pervious and current stats,
   // providing end users with a per second metric.
   const processIncomingStats = useCallback(
-    (statistics: RTCStats[], stats: RTCStats) => {
+    (statistics: RTCStatsObject[], stats: RTCStatsObject) => {
       Object.keys(stats).forEach((obj) => {
         if (obj.includes('Inbound')) {
+          const rtcStats = stats[obj] as RTCInboundStats;
+
           if (
             statistics.length > 0 &&
             Object.keys(statistics[statistics.length - 1]).includes(obj)
           ) {
-            stats[obj]['packetsLost/s'] =
-              stats[obj]['packetsLost'] -
-              statistics[statistics.length - 1][obj]['packetsLost'];
-            stats[obj]['packetsReceived/s'] =
-              stats[obj]['packetsReceived'] -
-              statistics[statistics.length - 1][obj]['packetsReceived'];
-            stats[obj]['bytesReceived/s'] =
-              stats[obj]['bytesReceived'] -
-              statistics[statistics.length - 1][obj]['bytesReceived'];
-            stats[obj]['framesReceived/s'] =
-              stats[obj]['framesReceived'] -
-              statistics[statistics.length - 1][obj]['framesReceived'];
-            stats[obj]['framesDropped/s'] =
-              stats[obj]['framesDropped'] -
-              statistics[statistics.length - 1][obj]['framesDropped'];
+            const prevRtcStats = statistics[statistics.length - 1][
+              obj
+            ] as RTCInboundStats;
+
+            rtcStats['packetsLost/s'] =
+              rtcStats['packetsLost'] - prevRtcStats['packetsLost'];
+            rtcStats['packetsReceived/s'] =
+              rtcStats['packetsReceived'] - prevRtcStats['packetsReceived'];
+            rtcStats['bytesReceived/s'] =
+              rtcStats['bytesReceived'] - prevRtcStats['bytesReceived'];
+            rtcStats['framesReceived/s'] =
+              rtcStats['framesReceived'] - prevRtcStats['framesReceived'];
+            rtcStats['framesDropped/s'] =
+              rtcStats['framesDropped'] - prevRtcStats['framesDropped'];
           } else {
-            stats[obj]['packetsLost/s'] = 0;
-            stats[obj]['packetsReceived/s'] = 0;
-            stats[obj]['bytesReceived/s'] = 0;
-            stats[obj]['framesReceived/s'] = 0;
-            stats[obj]['framesDropped/s'] = 0;
+            rtcStats['packetsLost/s'] = 0;
+            rtcStats['packetsReceived/s'] = 0;
+            rtcStats['bytesReceived/s'] = 0;
+            rtcStats['framesReceived/s'] = 0;
+            rtcStats['framesDropped/s'] = 0;
           }
           return stats;
         }
         // Outbound
+        const rtcStats = stats[obj] as RTCOutboundStats;
+
         if (
           statistics.length > 0 &&
           Object.keys(statistics[statistics.length - 1]).includes(obj)
         ) {
-          stats[obj]['bytesSent/s'] =
-            stats[obj]['bytesSent'] -
-            statistics[statistics.length - 1][obj]['bytesSent'];
-          stats[obj]['packetsSent/s'] =
-            stats[obj]['packetsSent'] -
-            statistics[statistics.length - 1][obj]['packetsSent'];
-          stats[obj]['framesEncoded/s'] =
-            stats[obj]['framesEncoded'] -
-            statistics[statistics.length - 1][obj]['framesEncoded'];
+          const prevRtcStats = statistics[statistics.length - 1][
+            obj
+          ] as RTCOutboundStats;
+
+          rtcStats['bytesSent/s'] =
+            rtcStats['bytesSent'] - prevRtcStats['bytesSent'];
+          rtcStats['packetsSent/s'] =
+            rtcStats['packetsSent'] - prevRtcStats['packetsSent'];
+          rtcStats['framesEncoded/s'] =
+            rtcStats['framesEncoded'] - prevRtcStats['framesEncoded'];
         } else {
-          stats[obj]['bytesSent/s'] = 0;
-          stats[obj]['packetsSent/s'] = 0;
-          stats[obj]['framesEncoded/s'] = 0;
+          rtcStats['bytesSent/s'] = 0;
+          rtcStats['packetsSent/s'] = 0;
+          rtcStats['framesEncoded/s'] = 0;
         }
         return stats;
       });

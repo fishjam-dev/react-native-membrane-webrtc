@@ -1,13 +1,17 @@
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Typo } from '@components/Typo';
 import { CardButton } from '@components/buttons/CardButton';
+import { RootStack } from '@model/NavigationTypes';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Application from 'expo-application';
 import React from 'react';
 import { View, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVideoroomState } from 'src/VideoroomContext';
 
-export const InitialScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<RootStack, 'InitialScreen'>;
+
+export const InitialScreen = ({ navigation }: Props) => {
   const { isDevMode, setSavedIsDevMode } = useVideoroomState();
 
   const toggleDevMode = async () => {

@@ -71,6 +71,10 @@ export const Preview = ({ navigation, route }: Props) => {
 
   const switchCamera = useCallback(() => {
     const cameras = availableCameras.current;
+    if (currentCamera === null) {
+      return;
+    }
+
     setCurrentCamera(
       cameras[(findIndex(cameras, currentCamera) + 1) % cameras.length]
     );

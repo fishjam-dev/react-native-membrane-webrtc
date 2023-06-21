@@ -116,7 +116,10 @@ export const Room = ({ navigation }: Props) => {
     Membrane.flipCamera();
   }, []);
 
-  const handleBeforeRemoveEvent = (e, setIsModalVisible) => {
+  const handleBeforeRemoveEvent = (
+    e: any,
+    setIsModalVisible: (isVisible: boolean) => void
+  ) => {
     e.preventDefault();
     // reset action comes from deeplink
     if (e.data.action.type === 'RESET') {
