@@ -79,7 +79,7 @@ export const useParticipantsTracksManager = () => {
     if (isParticipantScreensharing(a)) {
       if (isParticipantScreensharing(b)) {
         if (a.timeAdded > b.timeAdded) {
-          return -11;
+          return -1;
         } else {
           return 1;
         }
