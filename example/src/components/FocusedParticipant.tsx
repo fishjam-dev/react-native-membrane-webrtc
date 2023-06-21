@@ -9,7 +9,7 @@ import { StopScreencastingWithFocus } from './StopScrencastingWithFocus';
 
 type FocusedParticipantProp = {
   focusedParticipant: Participant;
-  onPress: (string) => void;
+  onPress: (value: Participant | null) => void;
 };
 
 export const FocusedParticipant = ({
