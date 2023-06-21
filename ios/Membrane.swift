@@ -179,45 +179,16 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   @objc(create:withConnectionOptions:withResolver:withRejecter:)
   func create(url: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
-    let videoTrackMetadata = (connectionOptions["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
-    let audioTrackMetadata = (connectionOptions["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
-    self.isMicEnabled = connectionOptions["audioTrackEnabled"] as? Bool ?? true
-    self.isCameraEnabled = connectionOptions["videoTrackEnabled"] as? Bool ?? true
-    let captureDeviceId = connectionOptions["captureDeviceId"] as? String
-    
-    guard let videoSimulcastConfig = getSimulcastConfigFrom(options: connectionOptions, reject: reject) else {
-      return
-    }
-    self.videoSimulcastConfig = videoSimulcastConfig
-    
     let room = MembraneRTC.create(delegate: self)
     self.room = room
     
     let localEndpointId = UUID().uuidString
     self.localEndpointId = localEndpointId
     
-    let videoParameters = getVideoParametersFromOptions(connectionOptions: connectionOptions)
-    
-    localVideoTrack = room.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata, captureDeviceId: captureDeviceId)
-    localVideoTrack?.setEnabled(isCameraEnabled)
-    localAudioTrack = room.createAudioTrack(metadata: audioTrackMetadata)
-    localAudioTrack?.setEnabled(isMicEnabled)
-    setAudioSessionMode()
-    
-    var localEndpoint = RNEndpoint(
+    let localEndpoint = RNEndpoint(
       id: localEndpointId,
       metadata: localUserMetadata,
       type: "webrtc")
-    
-    if let localVideoTrack = localVideoTrack {
-      localEndpoint.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
-      localEndpoint.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
-    }
-    
-    if let localAudioTrack = localAudioTrack {
-      localEndpoint.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
-      localEndpoint.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
-    }
     
     MembraneRoom.sharedInstance.endpoints[localEndpointId] = localEndpoint
     
@@ -277,6 +248,49 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     room?.disconnect()
     room = nil
     MembraneRoom.sharedInstance.endpoints = [:]
+    resolve(nil)
+  }
+  
+  @objc(startCamera:withResolver:withRejecter:)
+  func startCamera(config: NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    if(!ensureConnected(reject)) { return }
+    let videoTrackMetadata = (config["videoTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    self.isCameraEnabled = config["cameraEnabled"] as? Bool ?? true
+    let captureDeviceId = config["captureDeviceId"] as? String
+    
+    guard let videoSimulcastConfig = getSimulcastConfigFrom(options: config, reject: reject) else {
+      return
+    }
+    self.videoSimulcastConfig = videoSimulcastConfig
+    let videoParameters = getVideoParametersFromOptions(connectionOptions: config)
+    
+    localVideoTrack = room?.createVideoTrack(videoParameters: videoParameters, metadata: videoTrackMetadata, captureDeviceId: captureDeviceId)
+    localVideoTrack?.setEnabled(isCameraEnabled)
+    
+    if let localVideoTrack = localVideoTrack,
+       let localEndpointId = localEndpointId {
+      MembraneRoom.sharedInstance.endpoints[localEndpointId]?.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
+      MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
+    }
+    emitEndpoints()
+    resolve(nil)
+  }
+  
+  @objc(startMicrophone:withResolver:withRejecter:)
+  func startMicrophone(config: NSDictionary, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    if(!ensureConnected(reject)) { return }
+    let audioTrackMetadata = (config["audioTrackMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    self.isMicEnabled = config["microphoneEnabled"] as? Bool ?? true
+    localAudioTrack = room?.createAudioTrack(metadata: audioTrackMetadata)
+    localAudioTrack?.setEnabled(isMicEnabled)
+    setAudioSessionMode()
+    
+    if let localAudioTrack = localAudioTrack,
+       let localEndpointId = localEndpointId {
+      MembraneRoom.sharedInstance.endpoints[localEndpointId]?.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
+      MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
+    }
+    emitEndpoints()
     resolve(nil)
   }
   

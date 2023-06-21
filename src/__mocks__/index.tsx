@@ -46,25 +46,28 @@ export const useWebRTC = () => {
   };
 };
 export const useEndpoints = () => [];
-export const useCameraState = () => {
+export const useCamera = () => {
   return {
     isCameraOn: false,
     toggleCamera: NOOP,
+    startCamera: NOOP,
+    flipCamera: emptyPromise,
+    switchCamera: emptyPromise,
+    getCaptureDevices: async (): Promise<typeof CaptureDevice[]> => {
+      return new Promise((resolve) => {
+        resolve([]);
+      });
+    },
   };
 };
-export const useMicrophoneState = () => {
+export const useMicrophone = () => {
   return {
     isMicrophoneOn: false,
     toggleMicrophone: NOOP,
+    startMicrophone: NOOP,
   };
 };
-export const flipCamera = emptyPromise;
-export const switchCamera = emptyPromise;
-export const getCaptureDevices = async (): Promise<typeof CaptureDevice[]> => {
-  return new Promise((resolve) => {
-    resolve([]);
-  });
-};
+
 export const useScreencast = () => {
   return {
     isScreencastOn: false,

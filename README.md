@@ -193,7 +193,7 @@ Start with connecting to the membrane webrtc server. Use `useWebRTC()` hook to m
 const { connect, disconnect, error } = useWebRTC();
 ```
 
-Connect to the server and join the room using the `connect` function. Use user metadata to pass things like usernames etc. to the server. After joining the room the user is visible to their peers and vice-versa. You can also pass connection params that will be sent to the socket when establishing the connection tries.
+Connect to the server and join the room using the `connect` function. Use user metadata to pass things like usernames etc. to the server. You can also pass connection params that will be sent to the socket when establishing the connection tries.
 
 ```ts
 const startServerConnection = () => {
@@ -227,6 +227,21 @@ useEffect(() => {
   if (error) console.log('error: ', e);
 }, [error]);
 ```
+
+Start the device's camera and microphone using `useCamera()` and `useMicrophone()` hooks. Use `videoTrackMetadata` and `audioTrackMetadata` options to send metadata about the tracks (for example whether it's a camera or screencast track).
+
+```ts
+const { startCamera } = useCamera();
+const { startMicrophone } = useMicrophone();
+
+await startCamera({
+  quality: VideoQuality.HD_169,
+  videoTrackMetadata: { active: true, type: 'camera' },
+});
+await startMicrophone({ audioTrackMetadata: { active: true, type: 'audio' } });
+```
+
+For more options and functions to control the camera and microphone see the API documentation.
 
 If you have the connection set up, then use `useEndpoints()` hook to track the other endpoints in the room. One of the endpoints will be a local participant (the one who's using the device). When endpoints is added or removed because an user joins or leaves the room, the endpoints will be updated automatically. Simply call the hook like this:
 
