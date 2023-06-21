@@ -3,9 +3,10 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { getNumberOfCurrentlyVisiblePlaces } from '@utils';
 import { useRef, useEffect } from 'react';
 
-type ParticipantWithTrack = {
+export type ParticipantWithTrack = {
   participant: Membrane.Participant;
   trackId?: string;
+  timeAdded: number;
 };
 
 type LRUNode = {
@@ -77,7 +78,11 @@ export const useParticipantsTracksManager = () => {
 
     if (isParticipantScreensharing(a)) {
       if (isParticipantScreensharing(b)) {
-        return -1;
+        if (a.timeAdded > b.timeAdded) {
+          return -11;
+        } else {
+          return 1;
+        }
       } else {
         return -1;
       }

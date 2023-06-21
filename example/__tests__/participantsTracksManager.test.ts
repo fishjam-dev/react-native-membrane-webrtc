@@ -1,6 +1,9 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 
-import { useParticipantsTracksManager } from '../src/shared/participantsTracksManager';
+import {
+  useParticipantsTracksManager,
+  ParticipantWithTrack,
+} from '../src/shared/participantsTracksManager';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
@@ -11,6 +14,59 @@ jest.mock('react-native-reanimated', () =>
   require('react-native-reanimated/mock')
 );
 
+type TestParticipantParameter = {
+  id: string;
+  speaking?: boolean;
+  local?: boolean;
+  isParticipantScreensharing?: boolean;
+  isTrackScreenshare?: boolean;
+  timeAdded?: number;
+};
+
+function createParticipant({
+  id,
+  speaking = false,
+  local = false,
+  isParticipantScreensharing = false,
+  isTrackScreenshare = false,
+  timeAdded = 0,
+}: TestParticipantParameter): ParticipantWithTrack {
+  const participant = {
+    participant: {
+      id,
+      type: local ? 'Local' : 'Remote',
+      tracks: [
+        {
+          id: 'video' + id,
+          type: 'Video',
+          metadata: {
+            type: 'camera',
+          },
+        },
+        {
+          id: 'audio' + id,
+          type: 'Audio',
+          vadStatus: speaking ? 'speech' : 'silence',
+        },
+      ],
+    },
+    trackId: isTrackScreenshare ? 'screensharing' + id : 'video' + id,
+    timeAdded,
+  };
+
+  if (isParticipantScreensharing) {
+    participant.participant.tracks.push({
+      id: 'screensharing' + id,
+      type: 'Video',
+      metadata: {
+        type: 'screensharing',
+      },
+    });
+  }
+
+  return participant;
+}
+
 describe('Participants Tracks Manager', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -19,587 +75,193 @@ describe('Participants Tracks Manager', () => {
   test('Ordering participants according to their vad status', () => {
     const { result } = renderHook(() => useParticipantsTracksManager());
 
-    let ordered;
-    const participants = [
-      {
-        participant: {
-          id: '1',
-          type: 'Local',
-          tracks: [
-            {
-              id: 't1',
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't2',
-              type: 'Audio',
-              vadStatus: 'silience',
-            },
-          ],
-        },
-        trackId: 't1',
-      },
-    ];
+    let participants = [createParticipant({ id: '1', local: true })];
 
     // Adds local participant and check if it's present after 1st exectution of the sorting function
     act(() => {
-      ordered =
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered).toEqual([
-      {
-        participant: {
-          id: '1',
-          type: 'Local',
-          tracks: [
-            {
-              id: 't1',
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't2',
-              type: 'Audio',
-              vadStatus: 'silience',
-            },
-          ],
-        },
-        trackId: 't1',
-      },
-    ]);
+    expect(participants).toEqual([createParticipant({ id: '1', local: true })]);
 
-    participants.push({
-      participant: {
-        id: '2',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't3',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't4',
-            type: 'Audio',
-            vadStatus: 'silience',
-          },
-        ],
-      },
-      trackId: 't3',
-    });
+    participants.push(createParticipant({ id: '2' }));
 
     // Adds one remote participant and checks if it's sorted after the user
     act(() => {
-      ordered =
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered).toEqual([
-      {
-        participant: {
-          id: '1',
-          type: 'Local',
-          tracks: [
-            {
-              id: 't1',
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't2',
-              type: 'Audio',
-              vadStatus: 'silience',
-            },
-          ],
-        },
-        trackId: 't1',
-      },
-      {
-        participant: {
-          id: '2',
-          type: 'Remote',
-          tracks: [
-            {
-              id: 't3',
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't4',
-              type: 'Audio',
-              vadStatus: 'silience',
-            },
-          ],
-        },
-        trackId: 't3',
-      },
+    expect(participants).toEqual([
+      createParticipant({ id: '1', local: true }),
+      createParticipant({ id: '2' }),
     ]);
 
     // Adds 8 more participants and checks if all of them are present in the participants after applying order.
     act(() => {
       for (let i = 10; i < 18; i++) {
-        participants.push({
-          participant: {
-            id: i.toString(),
-            type: 'Remote',
-            tracks: [
-              {
-                id: 't' + (i * 2).toString(),
-                type: 'Video',
-                metadata: { type: 'camera' },
-              },
-              {
-                id: 't' + (i * 2 + 1).toString(),
-                type: 'Audio',
-                vadStatus: 'silience',
-              },
-            ],
-          },
-          trackId: 't' + (i * 2).toString(),
-        });
+        participants.push(createParticipant({ id: i.toString() }));
       }
-      ordered =
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered.length).toBe(10);
+    expect(participants.length).toBe(10);
 
     // Checks if moving talking not displayed user works.
     act(() => {
-      participants[9] = {
-        participant: {
-          id: 't10',
-          type: 'Remote',
-          tracks: [
-            {
-              id: 't20',
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't21'.toString(),
-              type: 'Audio',
-              vadStatus: 'speech',
-            },
-          ],
-        },
-        trackId: 't20',
-      };
-      ordered =
+      participants[9] = createParticipant({ id: '17', speaking: true });
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered[1]).toEqual({
-      participant: {
-        id: 't10',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't20',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't21'.toString(),
-            type: 'Audio',
-            vadStatus: 'speech',
-          },
-        ],
-      },
-      trackId: 't20',
-    });
+    expect(participants[1]).toEqual(
+      createParticipant({ id: '17', speaking: true })
+    );
 
     // Checks if visible talking user is not moved.
     act(() => {
-      participants[2] = {
-        participant: {
-          id: 't11',
-          type: 'Remote',
-          tracks: [
-            {
-              id: 't22',
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't23'.toString(),
-              type: 'Audio',
-              vadStatus: 'speech',
-            },
-          ],
-        },
-        trackId: 't22',
-      };
-      ordered =
+      participants[2] = createParticipant({ id: '10', speaking: true });
+
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered[2]).toEqual({
-      participant: {
-        id: 't11',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't22',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't23'.toString(),
-            type: 'Audio',
-            vadStatus: 'speech',
-          },
-        ],
-      },
-      trackId: 't22',
-    });
+    expect(participants[2]).toEqual(
+      createParticipant({ id: '10', speaking: true })
+    );
 
     // Checks if next not visible participant is moved to a different spot than the previous one.
     act(() => {
-      participants[9] = {
-        participant: {
-          id: 't2',
-          type: 'Remote',
-          tracks: [
-            {
-              id: 't3',
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't4'.toString(),
-              type: 'Audio',
-              vadStatus: 'speech',
-            },
-          ],
-        },
-        trackId: 't3',
-      };
-      ordered =
+      participants[9] = createParticipant({ id: '2', speaking: true });
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered[3]).toEqual({
-      participant: {
-        id: 't2',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't3',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't4'.toString(),
-            type: 'Audio',
-            vadStatus: 'speech',
-          },
-        ],
-      },
-      trackId: 't3',
-    });
+    expect(participants[3]).toEqual(
+      createParticipant({ id: '2', speaking: true })
+    );
   });
 
   test('Ordering participants with screencasts', () => {
     const { result } = renderHook(() => useParticipantsTracksManager());
-    let ordered;
 
     // Populating participants
-    const participants = [
-      {
-        participant: {
-          id: '1',
-          type: 'Local',
-          tracks: [
-            {
-              id: 't1',
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't2',
-              type: 'Audio',
-              vadStatus: 'speaking',
-            },
-          ],
-        },
-        trackId: 't1',
-      },
+    let participants = [
+      createParticipant({ id: '1', speaking: true, local: true }),
     ];
     for (let i = 10; i < 18; i++) {
-      participants.push({
-        participant: {
-          id: i.toString(),
-          type: 'Remote',
-          tracks: [
-            {
-              id: 't' + (i * 2).toString(),
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't' + (i * 2 + 1).toString(),
-              type: 'Audio',
-              vadStatus: 'silience',
-            },
-          ],
-        },
-        trackId: 't' + (i * 2).toString(),
-      });
+      participants.push(createParticipant({ id: i.toString() }));
     }
 
     // One participant starts screencasting
-    participants[8] = {
-      participant: {
-        id: '17',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't34',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't134',
-            type: 'Video',
-            metadata: { type: 'screensharing' },
-          },
-          {
-            id: 't35',
-            type: 'Audio',
-            vadStatus: 'speech',
-          },
-        ],
-      },
-      trackId: 't34',
-    };
-    participants.push({
-      participant: {
-        id: '17',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't34',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't134',
-            type: 'Video',
-            metadata: { type: 'screensharing' },
-          },
-          {
-            id: 't35',
-            type: 'Audio',
-            vadStatus: 'speech',
-          },
-        ],
-      },
-      trackId: 't134',
+    participants[8] = createParticipant({
+      id: '17',
+      isParticipantScreensharing: true,
     });
+    participants.push(
+      createParticipant({
+        id: '17',
+        isParticipantScreensharing: true,
+        isTrackScreenshare: true,
+        timeAdded: 1,
+      })
+    );
 
     act(() => {
-      ordered =
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered[1]).toEqual({
-      participant: {
+    expect(participants[1]).toEqual(
+      createParticipant({
         id: '17',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't34',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't134',
-            type: 'Video',
-            metadata: { type: 'screensharing' },
-          },
-          {
-            id: 't35',
-            type: 'Audio',
-            vadStatus: 'speech',
-          },
-        ],
-      },
-      trackId: 't134',
-    });
+        isParticipantScreensharing: true,
+        isTrackScreenshare: true,
+        timeAdded: 1,
+      })
+    );
 
     // Another one starts screencasting
-    participants[7] = {
-      participant: {
-        id: '16',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't32',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't132',
-            type: 'Video',
-            metadata: { type: 'screensharing' },
-          },
-          {
-            id: 't33',
-            type: 'Audio',
-            vadStatus: 'speech',
-          },
-        ],
-      },
-      trackId: 't32',
-    };
-    participants.push({
-      participant: {
-        id: '16',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't32',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't132',
-            type: 'Video',
-            metadata: { type: 'screensharing' },
-          },
-          {
-            id: 't33',
-            type: 'Audio',
-            vadStatus: 'speech',
-          },
-        ],
-      },
-      trackId: 't132',
+    participants[7] = createParticipant({
+      id: '16',
+      speaking: true,
+      isParticipantScreensharing: true,
     });
+    participants.push(
+      createParticipant({
+        id: '16',
+        isParticipantScreensharing: true,
+        isTrackScreenshare: true,
+        timeAdded: 2,
+      })
+    );
 
     act(() => {
-      ordered =
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered[2]).toEqual({
-      participant: {
+    expect(participants[2]).toEqual(
+      createParticipant({
         id: '17',
-        type: 'Remote',
-        tracks: [
-          {
-            id: 't34',
-            type: 'Video',
-            metadata: { type: 'camera' },
-          },
-          {
-            id: 't134',
-            type: 'Video',
-            metadata: { type: 'screensharing' },
-          },
-          {
-            id: 't35',
-            type: 'Audio',
-            vadStatus: 'speech',
-          },
-        ],
-      },
-      trackId: 't134',
-    });
+        isParticipantScreensharing: true,
+        isTrackScreenshare: true,
+        timeAdded: 1,
+      })
+    );
 
-    expect(ordered.map((t) => t.trackId)).toEqual([
-      't1',
-      't132',
-      't134',
-      't24',
-      't26',
-      't28',
-      't30',
-      't22',
-      't20',
-      't32',
-      't34',
+    expect(participants.map((t) => t.trackId)).toEqual([
+      'video1',
+      'screensharing16',
+      'screensharing17',
+      'video16',
+      'video11',
+      'video12',
+      'video13',
+      'video14',
+      'video10',
+      'video17',
     ]);
   });
 
   test('Participants leaving', () => {
     const { result } = renderHook(() => useParticipantsTracksManager());
-    let ordered;
 
     // Populating participants
-    const participants = [
-      {
-        participant: {
-          id: '1',
-          type: 'Local',
-          tracks: [
-            {
-              id: 't1',
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't2',
-              type: 'Audio',
-              vadStatus: 'speaking',
-            },
-          ],
-        },
-        trackId: 't1',
-      },
-    ];
+    let participants = [createParticipant({ id: '1', local: true })];
     for (let i = 10; i < 20; i++) {
-      participants.push({
-        participant: {
-          id: i.toString(),
-          type: 'Remote',
-          tracks: [
-            {
-              id: 't' + (i * 2).toString(),
-              type: 'Video',
-              metadata: { type: 'camera' },
-            },
-            {
-              id: 't' + (i * 2 + 1).toString(),
-              type: 'Audio',
-              vadStatus: 'silience',
-            },
-          ],
-        },
-        trackId: 't' + (i * 2).toString(),
-      });
+      participants.push(createParticipant({ id: i.toString() }));
     }
 
     act(() => {
-      ordered =
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered.length).toBe(11);
+    expect(participants.length).toBe(11);
 
     // 3rd participant(2nd remote) left.
     participants.splice(3, 1);
 
     act(() => {
-      ordered =
+      participants =
         result.current.orderParticipantsAccordingToVadStatus(participants);
     });
 
-    expect(ordered.length).toBe(10);
-    expect(ordered.map((t) => t.trackId)).toEqual([
-      't1',
-      't20',
-      't22',
-      't26',
-      't28',
-      't30',
-      't32',
-      't34',
-      't36',
-      't38',
+    expect(participants.length).toBe(10);
+    expect(participants.map((t) => t.trackId)).toEqual([
+      'video1',
+      'video10',
+      'video11',
+      'video13',
+      'video14',
+      'video15',
+      'video16',
+      'video17',
+      'video18',
+      'video19',
     ]);
   });
 });
