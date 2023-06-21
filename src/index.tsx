@@ -331,9 +331,9 @@ export type RTCInboundStats = {
   'framesDropped/s': number;
 };
 
-export type RTCStats = RTCOutboundStats | RTCInboundStats;
+export type RTCTrackStats = RTCOutboundStats | RTCInboundStats;
 
-type RTCStatsObject = { [key: string]: RTCStats };
+type RTCStats = { [key: string]: RTCTrackStats };
 
 const defaultSimulcastConfig = () => ({
   enabled: false,
@@ -888,7 +888,7 @@ export function useBandwidthEstimation() {
  */
 export function useRTCStatistics(refreshInterval: number) {
   const MAX_SIZE = 120;
-  const [statistics, setStatistics] = useState<RTCStatsObject[]>([]);
+  const [statistics, setStatistics] = useState<RTCStats[]>([]);
 
   useEffect(() => {
     const intervalId = setInterval(getStatistics, refreshInterval);
@@ -911,7 +911,7 @@ export function useRTCStatistics(refreshInterval: number) {
   // Calculates diff between pervious and current stats,
   // providing end users with a per second metric.
   const processIncomingStats = useCallback(
-    (statistics: RTCStatsObject[], stats: RTCStatsObject) => {
+    (statistics: RTCStats[], stats: RTCStats) => {
       Object.keys(stats).forEach((obj) => {
         if (obj.includes('Inbound')) {
           const rtcStats = stats[obj] as RTCInboundStats;
