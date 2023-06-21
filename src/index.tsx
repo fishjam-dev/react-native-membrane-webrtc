@@ -333,8 +333,6 @@ export type RTCInboundStats = {
 
 export type RTCStats = RTCOutboundStats | RTCInboundStats;
 
-type RTCStatsKeys = keyof RTCInboundStats | keyof RTCOutboundStats;
-
 type RTCStatsObject = { [key: string]: RTCStats };
 
 const defaultSimulcastConfig = () => ({
