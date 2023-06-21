@@ -3,9 +3,10 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { getNumberOfCurrentlyVisiblePlaces } from '@utils';
 import { useRef, useEffect } from 'react';
 
-type ParticipantWithTrack = {
+export type ParticipantWithTrack = {
   participant: Membrane.Participant;
   trackId?: string;
+  timeAdded: number;
 };
 
 type LRUNode = {
@@ -77,16 +78,17 @@ export const useParticipantsTracksManager = () => {
 
     if (isParticipantScreensharing(a)) {
       if (isParticipantScreensharing(b)) {
-        return 0;
+        if (a.timeAdded > b.timeAdded) {
+          return -1;
+        } else {
+          return 1;
+        }
       } else {
         return -1;
       }
     }
 
-    if (
-      b.participant.tracks.find((t) => t.id === a.trackId)?.metadata.type ===
-      'screensharing'
-    ) {
+    if (isParticipantScreensharing(b)) {
       return 1;
     }
 
@@ -118,10 +120,7 @@ export const useParticipantsTracksManager = () => {
         lru.current[i].isActive = false;
       }
 
-      if (
-        p.participant.tracks.find((t) => t.id === p.trackId)?.metadata.type ===
-        'screensharing'
-      ) {
+      if (isParticipantScreensharing(p)) {
         lru.current[i].isMovable = false;
       } else {
         lru.current[i].isMovable = true;

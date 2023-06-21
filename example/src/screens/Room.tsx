@@ -45,9 +45,10 @@ export const Room = ({ navigation }: Props) => {
             .map((t) => ({
               participant: p,
               trackId: t.id,
+              timeAdded: Date.now(),
             }));
         }
-        return { participant: p };
+        return { participant: p, timeAdded: Date.now() };
       })
       .flat()
   );
