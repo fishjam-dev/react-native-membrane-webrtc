@@ -36,5 +36,7 @@ RCT_EXTERN_METHOD(selectAudioSessionMode:(NSString)sessionMode withResolver:(RCT
 RCT_EXTERN_METHOD(showAudioRoutePicker:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(startAudioSwitcher:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(receiveMediaEvent:(NSString)data withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(startCamera:(NSDictionary)config withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(startMicrophone:(NSDictionary)config withResolver:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject)
 @end
 

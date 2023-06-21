@@ -134,42 +134,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun create(url: String, createOptions: ReadableMap, promise: Promise) {
-    val videoTrackMetadata = createOptions.getMap("videoTrackMetadata")?.toMap() ?: mutableMapOf()
-    val audioTrackMetadata = createOptions.getMap("audioTrackMetadata")?.toMap() ?: mutableMapOf()
-
-    if (createOptions.hasKey("videoTrackEnabled"))
-      this.isCameraOn = createOptions.getBoolean("videoTrackEnabled")
-    if (createOptions.hasKey("audioTrackEnabled"))
-      this.isMicrophoneOn = createOptions.getBoolean("audioTrackEnabled")
-
-    val captureDeviceId = createOptions.getString("captureDeviceId")
-
-    this.videoSimulcastConfig = getSimulcastConfigFromOptions(createOptions)
-
     val room = MembraneRTC.create(
       appContext = reactApplicationContext,
       listener = this@MembraneModule
     )
     this.room = room
-
-    if(isMicrophoneOn) {
-      localAudioTrack = room.createAudioTrack(audioTrackMetadata)
-      localAudioTrack?.setEnabled(isMicrophoneOn)
-    }
-
-    val videoParameters = getVideoParametersFromOptions(createOptions)
-
-    if(isCameraOn) {
-      localVideoTrack = room.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
-      localVideoTrack?.setEnabled(isCameraOn)
-    }
-
-
-    isCameraOn = localVideoTrack?.enabled() ?: false
-    isMicrophoneOn = localAudioTrack?.enabled() ?: false
-
-    emitEvent("IsCameraOn", isCameraOn)
-    emitEvent("IsMicrophoneOn", isMicrophoneOn)
 
     localEndpointId = UUID.randomUUID().toString()
     val endpoint = Endpoint(
@@ -177,12 +146,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       metadata = localUserMetadata,
       type = "webrtc",
     )
-    if (localVideoTrack != null) {
-      endpoint.addOrUpdateTrack(localVideoTrack!!, videoTrackMetadata)
-    }
-    if (localAudioTrack != null) {
-      endpoint.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
-    }
+
     endpoints[localEndpointId!!] = endpoint
 
     emitEndpoints()
@@ -269,11 +233,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun connect(enpointMetadata: ReadableMap, promise: Promise) {
+  fun connect(endpointMetadata: ReadableMap, promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
       if (!ensureConnected(promise)) return@launch
       connectPromise = promise
-      localUserMetadata = enpointMetadata.toMap()
+      localUserMetadata = endpointMetadata.toMap()
       val id = localEndpointId ?: return@launch
       val endpoint = endpoints[id] ?: return@launch
       endpoints[id] = endpoint.copy(metadata = localUserMetadata)
@@ -288,6 +252,58 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       room = null
       endpoints.clear()
       promise.resolve(null)
+    }
+  }
+
+  @ReactMethod
+  fun startCamera(config: ReadableMap, promise:Promise) {
+    CoroutineScope(Dispatchers.Main).launch {
+      if (!ensureConnected(promise)) return@launch
+      val videoParameters = getVideoParametersFromOptions(config)
+      val videoTrackMetadata = config.getMap("videoTrackMetadata")?.toMap() ?: mutableMapOf()
+      val captureDeviceId = config.getString("captureDeviceId")
+      this@MembraneModule.videoSimulcastConfig = getSimulcastConfigFromOptions(config)
+      if (config.hasKey("cameraEnabled"))
+        this@MembraneModule.isCameraOn = config.getBoolean("cameraEnabled")
+
+      localVideoTrack =
+        room?.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
+      localVideoTrack?.setEnabled(isCameraOn)
+
+      isCameraOn = localVideoTrack?.enabled() ?: false
+
+      if (localVideoTrack != null) {
+        val localEndpoint = endpoints[localEndpointId]
+        localEndpoint?.addOrUpdateTrack(localVideoTrack!!, videoTrackMetadata)
+      }
+
+      emitEvent("IsCameraOn", isCameraOn)
+      emitEndpoints()
+      promise.resolve(isCameraOn)
+    }
+  }
+
+  @ReactMethod
+  fun startMicrophone(config: ReadableMap, promise: Promise) {
+    CoroutineScope(Dispatchers.Main).launch {
+      if (!ensureConnected(promise)) return@launch
+      val audioTrackMetadata = config.getMap("audioTrackMetadata")?.toMap() ?: mutableMapOf()
+      if (config.hasKey("microphoneEnabled"))
+        this@MembraneModule.isMicrophoneOn = config.getBoolean("microphoneEnabled")
+
+      localAudioTrack = room?.createAudioTrack(audioTrackMetadata)
+      localAudioTrack?.setEnabled(isMicrophoneOn)
+
+      isMicrophoneOn = localAudioTrack?.enabled() ?: false
+
+      if (localAudioTrack != null) {
+        val localEndpoint = endpoints[localEndpointId]
+        localEndpoint?.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
+      }
+
+      emitEvent("IsMicrophoneOn", isMicrophoneOn)
+      emitEndpoints()
+      promise.resolve(isMicrophoneOn)
     }
   }
 

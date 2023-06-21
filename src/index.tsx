@@ -184,6 +184,22 @@ export type TrackBandwidthLimit = BandwidthLimit | SimulcastBandwidthLimit;
 
 export type ConnectionOptions = {
   /**
+   * a map `string -> any` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
+   */
+  endpointMetadata: Metadata;
+
+  /**
+   *  a map `string -> any` containing connection params passed to the socket.
+   */
+  connectionParams: SocketConnectionParams;
+  /**
+   * a map `string -> any` containing params passed to the socket channel.
+   */
+  socketChannelParams: SocketChannelParams;
+};
+
+export type CameraConfig = {
+  /**
    * resolution + aspect ratio of local video track, one of: `QVGA_169`, `VGA_169`, `QHD_169`, `HD_169`,
    * `FHD_169`, `QVGA_43`, `VGA_43`, `QHD_43`, `HD_43`, `FHD_43`. Note that quality might be worse than
    * specified due to device capabilities, internet connection etc.
@@ -196,17 +212,9 @@ export type ConnectionOptions = {
    */
   flipVideo: boolean;
   /**
-   * a map `string -> any` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
-   */
-  endpointMetadata: Metadata;
-  /**
    * a map `string -> any` containing video track metadata to be sent to the server.
    */
   videoTrackMetadata: Metadata;
-  /**
-   * a map `string -> any` containing audio track metadata to be sent to the server.
-   */
-  audioTrackMetadata: Metadata;
   /**
    *  SimulcastConfig of a video track. By default simulcast is disabled.
    */
@@ -216,29 +224,28 @@ export type ConnectionOptions = {
    */
   maxBandwidth: TrackBandwidthLimit;
   /**
-   *  a map `string -> any` containing connection params passed to the socket.
-   */
-  connectionParams: SocketConnectionParams;
-  /**
-   * a map `string -> any` containing params passed to the socket channel.
-   */
-  socketChannelParams: SocketChannelParams;
-  /**
-   * whether the video track is enabled
+   * whether the camera track is initially enabled, you can toggle it on/off later with toggleCamera method
    * @default `true`
    */
-  videoTrackEnabled: boolean;
-  /**
-   * whether the audio track is enabled
-   * @default `true`
-   */
-  audioTrackEnabled: boolean;
+  cameraEnabled: boolean;
   /**
    * id of the camera to start capture with. Get available cameras with `getCaptureDevices()`.
    * You can switch the cameras later with `flipCamera`/`switchCamera` functions.
    * @default the first front camera
    */
   captureDeviceId: string;
+};
+
+export type MicrophoneConfig = {
+  /**
+   * a map `string -> any` containing audio track metadata to be sent to the server.
+   */
+  audioTrackMetadata: Metadata;
+  /**
+   * whether the microphone is initially enabled, you can toggle it on/off later with toggleMicrophone method
+   * @default `true`
+   */
+  microphoneEnabled: boolean;
 };
 
 export type ScreencastOptions = {
@@ -403,9 +410,6 @@ export function useWebRTC() {
         connectionOptions: Partial<ConnectionOptions> = {}
       ) => {
         setError(null);
-        videoSimulcastConfig =
-          connectionOptions.simulcastConfig || defaultSimulcastConfig();
-
         const _socket = new Socket(url, {
           params: connectionOptions.connectionParams,
         });
@@ -517,7 +521,7 @@ export function useEndpoints() {
 /**
  * This hook can toggle camera on/off and provides current camera state.
  */
-export function useCameraState() {
+export function useCamera() {
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -536,13 +540,56 @@ export function useCameraState() {
     setIsCameraOn(state);
   }, []);
 
-  return { isCameraOn, toggleCamera };
+  /**
+   * Starts local camera capture.
+   * @param config configuration of the camera capture
+   * @returns A promise that resolves when camera is started.
+   */
+  const startCamera = useCallback(
+    async (config: Partial<CameraConfig> = {}) => {
+      videoSimulcastConfig = config.simulcastConfig || defaultSimulcastConfig();
+      await Membrane.startCamera(config);
+    },
+    []
+  );
+
+  /**
+   * Function that toggles between front and back camera. By default the front camera is used.
+   * @returns A promise that resolves when camera is toggled.
+   */
+  const flipCamera = useCallback(async () => {
+    return Membrane.flipCamera();
+  }, []);
+
+  /**
+   * Function that switches to the specified camera. By default the front camera is used.
+   * @returns A promise that resolves when camera is switched.
+   */
+  const switchCamera = useCallback(async (captureDeviceId: string) => {
+    return Membrane.switchCamera(captureDeviceId);
+  }, []);
+
+  /** Function that queries available cameras.
+   * @returns A promise that resolves to the list of available cameras.
+   */
+  const getCaptureDevices = useCallback(async () => {
+    return Membrane.getCaptureDevices() as Promise<CaptureDevice[]>;
+  }, []);
+
+  return {
+    isCameraOn,
+    toggleCamera,
+    startCamera,
+    flipCamera,
+    switchCamera,
+    getCaptureDevices,
+  };
 }
 
 /**
  * This hook can toggle microphone on/off and provides current microphone state.
  */
-export function useMicrophoneState() {
+export function useMicrophone() {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -561,30 +608,19 @@ export function useMicrophoneState() {
     setIsMicrophoneOn(state);
   }, []);
 
-  return { isMicrophoneOn, toggleMicrophone };
-}
+  /**
+   * Starts local microphone capturing.
+   * @param config configuration of the microphone capture
+   * @returns A promise that resolves when microphone capturing is started.
+   */
+  const startMicrophone = useCallback(
+    async (config: Partial<MicrophoneConfig> = {}) => {
+      await Membrane.startMicrophone(config);
+    },
+    []
+  );
 
-/**
- * Function that toggles between front and back camera. By default the front camera is used.
- * @returns A promise that resolves when camera is toggled.
- */
-export function flipCamera(): Promise<void> {
-  return Membrane.flipCamera();
-}
-
-/**
- * Function that switches to the specified camera. By default the front camera is used.
- * @returns A promise that resolves when camera is switched.
- */
-export function switchCamera(captureDeviceId: string): Promise<void> {
-  return Membrane.switchCamera(captureDeviceId);
-}
-
-/** Function that queries available cameras.
- * @returns A promise that resolves to the list of available cameras.
- */
-export function getCaptureDevices(): Promise<CaptureDevice[]> {
-  return Membrane.getCaptureDevices();
+  return { isMicrophoneOn, toggleMicrophone, startMicrophone };
 }
 
 /**

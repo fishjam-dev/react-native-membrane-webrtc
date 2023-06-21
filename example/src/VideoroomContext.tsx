@@ -6,8 +6,8 @@ import {
   CaptureDevice,
   updateVideoTrackMetadata,
   updateAudioTrackMetadata,
-  useCameraState,
-  useMicrophoneState,
+  useCamera,
+  useMicrophone,
   useScreencast,
   ScreencastQuality,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
@@ -42,6 +42,8 @@ const VideoroomContext = React.createContext<
       disconnect: () => Promise<void>;
       videoroomState: VideoroomState;
       goToMainScreen: () => void;
+      flipCamera: () => void;
+      getCaptureDevices: () => Promise<CaptureDevice[]>;
     }
   | undefined
 >(undefined);
@@ -60,8 +62,14 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
   );
   const [isDevMode, setIsDevMode] = useState(false);
   const [devServerUrl, setDevServerUrl] = useState(SERVER_URL);
-  const { toggleCamera: membraneToggleCamera } = useCameraState();
-  const { toggleMicrophone: membraneToggleMicrophone } = useMicrophoneState();
+  const {
+    toggleCamera: membraneToggleCamera,
+    startCamera,
+    flipCamera,
+    getCaptureDevices,
+  } = useCamera();
+  const { toggleMicrophone: membraneToggleMicrophone, startMicrophone } =
+    useMicrophone();
   const { isScreencastOn, toggleScreencast: membraneToggleScreencast } =
     useScreencast();
 
@@ -109,6 +117,10 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
       socketChannelParams: {
         isSimulcastOn: true,
       },
+      endpointMetadata: { displayName: trimmedUserName },
+    });
+
+    await startCamera({
       simulcastConfig: {
         enabled: true,
         // a temporary fix for broken screencast on iOS
@@ -123,16 +135,13 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
       quality: VideoQuality.HD_169,
       maxBandwidth: { l: 150, m: 500, h: 1500 },
       videoTrackMetadata: { active: isCameraOn, type: 'camera' },
-      audioTrackMetadata: { active: isMicrophoneOn, type: 'audio' },
       captureDeviceId: currentCamera?.id,
-      endpointMetadata: { displayName: trimmedUserName },
+      cameraEnabled: isCameraOn,
     });
-    if (!isCameraOn) {
-      await membraneToggleCamera();
-    }
-    if (!isMicrophoneOn) {
-      await membraneToggleMicrophone();
-    }
+    await startMicrophone({
+      audioTrackMetadata: { active: isMicrophoneOn, type: 'audio' },
+      microphoneEnabled: isMicrophoneOn,
+    });
     setVideoroomState('InMeeting');
   }, [roomName, username, isCameraOn, isMicrophoneOn, currentCamera]);
 
@@ -155,18 +164,21 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
     }
   }, [error]);
 
-  const toggleCamera = useCallback(() => {
+  const toggleCamera = useCallback(async () => {
     if (videoroomState === 'InMeeting') {
-      membraneToggleCamera();
-      updateVideoTrackMetadata({ active: !isCameraOn, type: 'camera' });
+      await membraneToggleCamera();
+      await updateVideoTrackMetadata({ active: !isCameraOn, type: 'camera' });
     }
     setIsCameraOn(!isCameraOn);
   }, [isCameraOn, videoroomState]);
 
-  const toggleMicrophone = useCallback(() => {
+  const toggleMicrophone = useCallback(async () => {
     if (videoroomState === 'InMeeting') {
-      membraneToggleMicrophone();
-      updateAudioTrackMetadata({ active: !isMicrophoneOn, type: 'audio' });
+      await membraneToggleMicrophone();
+      await updateAudioTrackMetadata({
+        active: !isMicrophoneOn,
+        type: 'audio',
+      });
     }
     setIsMicrophoneOn(!isMicrophoneOn);
   }, [isMicrophoneOn, videoroomState]);
@@ -208,6 +220,8 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
     disconnect,
     videoroomState,
     goToMainScreen,
+    flipCamera,
+    getCaptureDevices,
   };
 
   return (
