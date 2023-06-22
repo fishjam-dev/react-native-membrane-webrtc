@@ -23,10 +23,27 @@ import { useVideoroomState } from 'src/VideoroomContext';
 import { CallControls } from '../components/CallControls';
 import { useParticipantsTracksManager } from '../shared/participantsTracksManager';
 
+import RNSoundLevel from 'react-native-sound-level';
+
+const MONITOR_INTERVAL = 250; // in ms
+
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
 export const Room = ({ navigation }: Props) => {
   useKeepAwake();
+
+  useEffect(() => {
+    RNSoundLevel.start(MONITOR_INTERVAL);
+    RNSoundLevel.onNewFrame = (data) => {
+      // see "Returned data" section below
+      console.log('Sound level info', data.value > -90 ? 'speaking' : '');
+    };
+
+    return () => {
+      // don't forget to stop it
+      RNSoundLevel.stop();
+    };
+  }, []);
 
   const { isDevMode, roomName, disconnect } = useVideoroomState();
   const { selectedAudioOutputDevice } = Membrane.useAudioSettings();
