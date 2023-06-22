@@ -185,6 +185,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     let localEndpointId = UUID().uuidString
     self.localEndpointId = localEndpointId
     
+    self.localUserMetadata = (connectionOptions["endpointMetadata"] as? NSDictionary)?.toMetadata() ?? Metadata()
+    
     let localEndpoint = RNEndpoint(
       id: localEndpointId,
       metadata: localUserMetadata,
