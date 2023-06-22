@@ -4,7 +4,7 @@ import { getNumberOfCurrentlyVisiblePlaces } from '@utils';
 import { useRef, useEffect } from 'react';
 
 export type ParticipantWithTrack = {
-  participant: Membrane.Participant;
+  participant: Membrane.Endpoint;
   trackId?: string;
   timeAdded: number;
 };
