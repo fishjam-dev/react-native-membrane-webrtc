@@ -24,8 +24,8 @@ class VideoRendererView : UIView {
     videoView?.clipsToBounds = true
     addSubview(videoView!)
     cancellableEndpoints = MembraneRoom.sharedInstance.$endpoints
-      .sink { _ in
-        self.updateVideoTrack()
+      .sink { [weak self] _ in
+        self?.updateVideoTrack()
       }
   }
   
