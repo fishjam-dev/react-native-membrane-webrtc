@@ -189,13 +189,13 @@ export const Typo = ({
 }: TypoProps) => {
   const windowWidth = Dimensions.get('window').width;
 
-  const GetStyleForVariant = (variant: string, textColor: string) => {
+  const GetStyleForVariant = (variant: VariantName, textColor: string) => {
     const HeadlineStylesDynamic =
       windowWidth > SMALL_WINDOW_BREAKPOINT ? Headlines : HeadlinesSmall;
     const TextStylesDynamic =
       windowWidth > SMALL_WINDOW_BREAKPOINT ? TextStyles : TextStylesSmall;
 
-    const variantMap = {
+    const variantMap: { [key: string]: TextStyle } = {
       'h1': HeadlineStylesDynamic.h1,
       'h2': HeadlineStylesDynamic.h2,
       'h3': HeadlineStylesDynamic.h3,
@@ -212,7 +212,7 @@ export const Typo = ({
       'chat-title': TextStylesCustom.chatTitle,
     };
 
-    return [{ color: textColor as TextStyle }, variantMap[variant]];
+    return [{ color: textColor } as TextStyle, variantMap[variant]];
   };
 
   return (

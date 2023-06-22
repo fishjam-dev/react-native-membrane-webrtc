@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, processColor, Pressable } from 'react-native';
-import { LineChart } from 'react-native-charts-wrapper';
+import { LineChart, LineDataset } from 'react-native-charts-wrapper';
 
 import { Typo } from './Typo';
 
@@ -95,25 +95,28 @@ export const Stats = ({ stats, label }: StatsProp) => {
     [stats]
   );
 
-  const getLineChart = useCallback((dataSets, isMultiValue: boolean) => {
-    return (
-      <LineChart
-        style={styles.chart}
-        data={{
-          dataSets,
-        }}
-        yAxis={yAxisConfig}
-        xAxis={{
-          drawLabels: false,
-        }}
-        chartDescription={chartDescriptionConfig}
-        legend={{ enabled: isMultiValue, drawInside: isMultiValue }}
-        marker={{ enabled: false }}
-        logEnabled={false}
-        touchEnabled={false}
-      />
-    );
-  }, []);
+  const getLineChart = useCallback(
+    (dataSets: LineDataset[] | undefined, isMultiValue: boolean) => {
+      return (
+        <LineChart
+          style={styles.chart}
+          data={{
+            dataSets,
+          }}
+          yAxis={yAxisConfig}
+          xAxis={{
+            drawLabels: false,
+          }}
+          chartDescription={chartDescriptionConfig}
+          legend={{ enabled: isMultiValue, drawInside: isMultiValue }}
+          marker={{ enabled: false }}
+          logEnabled={false}
+          touchEnabled={false}
+        />
+      );
+    },
+    []
+  );
 
   return (
     <View>

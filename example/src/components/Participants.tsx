@@ -13,7 +13,7 @@ const FLEX_BRAKPOINT = 3;
 
 type ParticipantsProp = {
   participants: Participant[];
-  onPress: (string) => void;
+  onPress: (value: Participant | null) => void;
 };
 
 export const Participants = ({ participants, onPress }: ParticipantsProp) => {

@@ -1,4 +1,8 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import {
+  EventArg,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import React, { useCallback, useRef, useState } from 'react';
 import { useVideoroomState } from 'src/VideoroomContext';
 
@@ -11,12 +15,21 @@ type GoBackAction = Readonly<{
   source?: string | undefined;
   target?: string | undefined;
 }>;
+
+export type GoBackEvent = EventArg<
+  'beforeRemove',
+  true,
+  {
+    action: GoBackAction;
+  }
+>;
+
 type DiscardModalProps = {
   headline: string;
   body: string;
   buttonText: string;
   handleBeforeRemoveEvent: (
-    e: GoBackAction,
+    e: GoBackEvent,
     setIsModalVisible: (isVisible: boolean) => void
   ) => void;
   onDiscard?: () => void;
@@ -36,7 +49,7 @@ export const DiscardModal = ({
 
   useFocusEffect(
     useCallback(() => {
-      const _handleBeforeRemoveEvent = (e) => {
+      const _handleBeforeRemoveEvent = (e: GoBackEvent) => {
         handleBeforeRemoveEvent(e, setIsModalVisible);
         modalAction.current = e.data.action;
       };

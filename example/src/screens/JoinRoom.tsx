@@ -1,6 +1,6 @@
 import { TextColors } from '@colors';
 import { BackgroundAnimation } from '@components/BackgroundAnimation';
-import { DiscardModal } from '@components/DiscardModal';
+import { DiscardModal, GoBackEvent } from '@components/DiscardModal';
 import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
@@ -71,7 +71,10 @@ export const JoinRoom = ({ navigation, route }: Props) => {
     navigation.push('Preview', { title: 'Join meeting' });
   };
 
-  const handleBeforeRemoveEvent = (e, setIsModalVisible) => {
+  const handleBeforeRemoveEvent = (
+    e: GoBackEvent,
+    setIsModalVisible: (value: boolean) => void
+  ) => {
     if (!roomName && !username) {
       // If we don't have unsaved changes, then we don't need to do anything
       return;

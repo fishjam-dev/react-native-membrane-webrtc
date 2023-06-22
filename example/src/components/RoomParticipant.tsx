@@ -14,6 +14,7 @@ import { useVideoroomState } from 'src/VideoroomContext';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';
+import { Participant } from './NotFocusedParticipants';
 import { SimulcastMenu } from './SimulcastMenu';
 import { Typo } from './Typo';
 import { PinButton } from './buttons/PinButton';
@@ -21,7 +22,7 @@ import { PinButton } from './buttons/PinButton';
 type RoomParticipantProps = {
   participant: Membrane.Participant;
   trackId?: string;
-  onPinButtonPressed?: (string) => void;
+  onPinButtonPressed?: (value: Participant | null) => void;
   focused?: boolean;
   pinButtonHiddden?: boolean;
   tileSmall?: boolean;
@@ -30,7 +31,7 @@ type RoomParticipantProps = {
 export const RoomParticipant = ({
   participant,
   trackId,
-  onPinButtonPressed = (string) => {},
+  onPinButtonPressed = () => {},
   focused = false,
   pinButtonHiddden = false,
   tileSmall = false,

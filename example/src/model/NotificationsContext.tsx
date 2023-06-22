@@ -1,5 +1,5 @@
 import { Notification, NotificationType } from '@components/Notification';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,7 +19,13 @@ const NotificationsContext = React.createContext<
   | undefined
 >(undefined);
 
-const NotificationsContextProvider = (props) => {
+type NotificationsContextProps = {
+  children: ReactNode;
+};
+
+const NotificationsContextProvider = ({
+  children,
+}: NotificationsContextProps) => {
   const [notificationText, setNotificationText] = useState<string | null>(null);
   const [notificationType, setNotificationType] =
     useState<NotificationType | null>(null);
@@ -46,7 +52,7 @@ const NotificationsContextProvider = (props) => {
   return (
     <NotificationsContext.Provider value={value}>
       <View style={styles.container}>
-        {props.children}
+        {children}
         <View
           style={[
             styles.notificationWrapper,
