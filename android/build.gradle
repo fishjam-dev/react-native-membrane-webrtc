@@ -43,8 +43,11 @@ android {
     disable 'GradleCompatible'
   }
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
+  }
+  kotlinOptions {
+    jvmTarget = JavaVersion.VERSION_11.toString()
   }
 }
 
@@ -177,4 +180,5 @@ dependencies {
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}"
   implementation 'com.github.jellyfish-dev:membrane-webrtc-android:4.5.3'
   api 'com.github.davidliu:audioswitch:8edf84ee46cdbc84c2b7725aa8f8d66363e19876'
+  implementation project(':expo-modules-core')
 }

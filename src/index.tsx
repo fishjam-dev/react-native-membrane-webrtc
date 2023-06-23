@@ -1,3 +1,4 @@
+import { requireNativeModule } from 'expo-modules-core';
 import { takeRight } from 'lodash';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import {
@@ -10,6 +11,8 @@ import {
 } from 'react-native';
 
 import { NativeMembraneMock } from './__mocks__/native';
+
+export default requireNativeModule('MembraneModuleTEST');
 
 function isJest() {
   // @ts-ignore

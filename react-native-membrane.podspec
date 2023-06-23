@@ -18,5 +18,6 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '13.0'
   
   s.dependency "React-Core"
+  s.dependency 'ExpoModulesCore'
   s.dependency "MembraneRTC", '~> 4.4.1'
 end

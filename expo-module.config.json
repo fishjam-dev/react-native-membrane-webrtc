@@ -1,0 +1,10 @@
+{
+  "name": "membrane-module-test",
+  "platforms": ["ios", "android"],
+  "ios": {
+    "modules": ["MembraneModuleTEST"]
+  },
+  "android": {
+    "modules": ["com.reactnativemembrane.MembraneModuleTEST"]
+  }
+}
