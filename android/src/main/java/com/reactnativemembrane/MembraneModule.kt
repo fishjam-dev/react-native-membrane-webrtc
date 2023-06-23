@@ -133,7 +133,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun create(url: String, createOptions: ReadableMap, promise: Promise) {
+  fun create(url: String, promise: Promise) {
     val room = MembraneRTC.create(
       appContext = reactApplicationContext,
       listener = this@MembraneModule

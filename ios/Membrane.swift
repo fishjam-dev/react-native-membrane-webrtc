@@ -177,8 +177,8 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     return trackEncoding
   }
   
-  @objc(create:withConnectionOptions:withResolver:withRejecter:)
-  func create(url: String, connectionOptions: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
+  @objc(create:withResolver:withRejecter:)
+  func create(url: String, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
     let room = MembraneRTC.create(delegate: self)
     self.room = room
     
@@ -187,7 +187,7 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
     
     let localEndpoint = RNEndpoint(
       id: localEndpointId,
-      metadata: localUserMetadata,
+      metadata: Metadata(),
       type: "webrtc")
     
     MembraneRoom.sharedInstance.endpoints[localEndpointId] = localEndpoint
@@ -237,6 +237,10 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   @objc(connect:withResolver:withRejecter:)
   func connect(metadata: NSDictionary, resolve:@escaping RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void {
     if(!ensureConnected(reject)) { return }
+    self.localUserMetadata = metadata.toMetadata()
+    if let localEndpointId = localEndpointId {
+      MembraneRoom.sharedInstance.endpoints[localEndpointId]?.metadata = metadata.toMetadata()
+    }
     connectResolve = resolve
     connectReject = reject
     room?.connect(metadata: metadata.toMetadata())

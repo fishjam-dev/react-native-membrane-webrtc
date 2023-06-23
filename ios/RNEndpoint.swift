@@ -2,7 +2,7 @@ import MembraneRTC
 
 struct RNEndpoint {
   let id: String
-  let metadata: Metadata
+  var metadata: Metadata
   let type: String
   let order: Int
   var tracksMetadata: [String:Metadata]
