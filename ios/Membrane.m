@@ -4,7 +4,6 @@
 @interface RCT_EXTERN_MODULE(Membrane, RCTEventEmitter <RCTBridgeModule>)
 
 RCT_EXTERN_METHOD(create:(NSString)url
-                  withConnectionOptions:(NSDictionary)connectionOptions
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 

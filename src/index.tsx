@@ -445,7 +445,7 @@ export function useWebRTC() {
         socket.current = _socket;
         webrtcChannel.current = _webrtcChannel;
 
-        await Membrane.create(url, connectionOptions);
+        await Membrane.create(url);
 
         await new Promise<void>((resolve, reject) => {
           _webrtcChannel
