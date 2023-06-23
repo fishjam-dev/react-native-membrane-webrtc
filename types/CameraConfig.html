@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>BandwidthLimit | @jellyfish-dev/react-native-membrane-webrtc</title><meta name="description" content="Documentation for @jellyfish-dev/react-native-membrane-webrtc"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><script>
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>CameraConfig | @jellyfish-dev/react-native-membrane-webrtc</title><meta name="description" content="Documentation for @jellyfish-dev/react-native-membrane-webrtc"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><script>
     window.addEventListener("load", () => {
         // aux function to get function name from element
         const elem2functionName = (elem) => (elem.innerText.match(/^[^\s\(:<]*/) ?? [])[0];
@@ -96,13 +96,53 @@
 <div class="tsd-page-title">
 <ul class="tsd-breadcrumb">
 <li><a href="../modules.html">@jellyfish-dev/react-native-membrane-webrtc</a></li>
-<li><a href="BandwidthLimit.html">BandwidthLimit</a></li></ul>
-<h1>Type alias BandwidthLimit</h1></div>
-<div class="tsd-signature">Bandwidth<wbr/>Limit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-<div class="tsd-comment tsd-typography"><p>Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.</p>
-</div><aside class="tsd-sources">
+<li><a href="CameraConfig.html">CameraConfig</a></li></ul>
+<h1>Type alias CameraConfig</h1></div>
+<div class="tsd-signature">Camera<wbr/>Config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>cameraEnabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>captureDeviceId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>flipVideo<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>maxBandwidth<span class="tsd-signature-symbol">: </span><a href="TrackBandwidthLimit.html" class="tsd-signature-type" data-tsd-kind="Type alias">TrackBandwidthLimit</a><span class="tsd-signature-symbol">; </span><br/><span>    </span>quality<span class="tsd-signature-symbol">: </span><a href="../enums/VideoQuality.html" class="tsd-signature-type" data-tsd-kind="Enumeration">VideoQuality</a><span class="tsd-signature-symbol">; </span><br/><span>    </span>simulcastConfig<span class="tsd-signature-symbol">: </span><a href="SimulcastConfig.html" class="tsd-signature-type" data-tsd-kind="Type alias">SimulcastConfig</a><span class="tsd-signature-symbol">; </span><br/><span>    </span>videoTrackMetadata<span class="tsd-signature-symbol">: </span><a href="Metadata.html" class="tsd-signature-type" data-tsd-kind="Type alias">Metadata</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-type-declaration">
+<h4>Type declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5>camera<wbr/>Enabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>whether the camera track is initially enabled, you can toggle it on/off later with toggleCamera method</p>
+
+<h3>Default</h3><p><code>true</code></p>
+</div></li>
+<li class="tsd-parameter">
+<h5>capture<wbr/>Device<wbr/>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>id of the camera to start capture with. Get available cameras with <code>getCaptureDevices()</code>.
+You can switch the cameras later with <code>flipCamera</code>/<code>switchCamera</code> functions.</p>
+
+<h3>Default</h3><p>the first front camera</p>
+</div></li>
+<li class="tsd-parameter">
+<h5>flip<wbr/>Video<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>whether to flip the dimensions of the video, that is whether to film in vertical orientation.</p>
+
+<h3>Default</h3><p><code>true</code></p>
+</div></li>
+<li class="tsd-parameter">
+<h5>max<wbr/>Bandwidth<span class="tsd-signature-symbol">: </span><a href="TrackBandwidthLimit.html" class="tsd-signature-type" data-tsd-kind="Type alias">TrackBandwidthLimit</a></h5>
+<div class="tsd-comment tsd-typography"><p>bandwidth limit of a video track. By default there is no bandwidth limit.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5>quality<span class="tsd-signature-symbol">: </span><a href="../enums/VideoQuality.html" class="tsd-signature-type" data-tsd-kind="Enumeration">VideoQuality</a></h5>
+<div class="tsd-comment tsd-typography"><p>resolution + aspect ratio of local video track, one of: <code>QVGA_169</code>, <code>VGA_169</code>, <code>QHD_169</code>, <code>HD_169</code>,
+<code>FHD_169</code>, <code>QVGA_43</code>, <code>VGA_43</code>, <code>QHD_43</code>, <code>HD_43</code>, <code>FHD_43</code>. Note that quality might be worse than
+specified due to device capabilities, internet connection etc.</p>
+
+<h3>Default</h3><p><code>VGA_169</code></p>
+</div></li>
+<li class="tsd-parameter">
+<h5>simulcast<wbr/>Config<span class="tsd-signature-symbol">: </span><a href="SimulcastConfig.html" class="tsd-signature-type" data-tsd-kind="Type alias">SimulcastConfig</a></h5>
+<div class="tsd-comment tsd-typography"><p>SimulcastConfig of a video track. By default simulcast is disabled.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5>video<wbr/>Track<wbr/>Metadata<span class="tsd-signature-symbol">: </span><a href="Metadata.html" class="tsd-signature-type" data-tsd-kind="Type alias">Metadata</a></h5>
+<div class="tsd-comment tsd-typography"><p>a map <code>string -&gt; any</code> containing video track metadata to be sent to the server.</p>
+</div></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jellyfish-dev/react-native-membrane-webrtc/blob/dfc887d/src/index.tsx#L172">index.tsx:172</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/jellyfish-dev/react-native-membrane-webrtc/blob/dfc887d/src/index.tsx#L201">index.tsx:201</a></li></ul></aside></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -136,8 +176,8 @@
 <li class="tsd-kind-enum"><a href="../enums/VideoLayout.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-8-path"></use><use href="#icon-8-text"></use></svg>Video<wbr/>Layout</a></li>
 <li class="tsd-kind-enum"><a href="../enums/VideoQuality.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-8-path"></use><use href="#icon-8-text"></use></svg>Video<wbr/>Quality</a></li>
 <li class="tsd-kind-type-alias"><a href="AudioOutputDevice.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-4194304-path"></rect><path d="M11.31 16V8.224H8.91V7.24H14.79V8.224H12.39V16H11.31Z" fill="var(--color-text)" id="icon-4194304-text"></path></svg>Audio<wbr/>Output<wbr/>Device</a></li>
-<li class="current tsd-kind-type-alias"><a href="BandwidthLimit.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Bandwidth<wbr/>Limit</a></li>
-<li class="tsd-kind-type-alias"><a href="CameraConfig.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Camera<wbr/>Config</a></li>
+<li class="tsd-kind-type-alias"><a href="BandwidthLimit.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Bandwidth<wbr/>Limit</a></li>
+<li class="current tsd-kind-type-alias"><a href="CameraConfig.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Camera<wbr/>Config</a></li>
 <li class="tsd-kind-type-alias"><a href="CaptureDevice.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Capture<wbr/>Device</a></li>
 <li class="tsd-kind-type-alias"><a href="ConnectionOptions.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Connection<wbr/>Options</a></li>
 <li class="tsd-kind-type-alias"><a href="Endpoint.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Endpoint</a></li>
