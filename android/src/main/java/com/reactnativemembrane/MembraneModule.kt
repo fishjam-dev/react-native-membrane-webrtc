@@ -3,7 +3,6 @@ package com.reactnativemembrane
 import android.app.Activity
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.BaseActivityEventListener
@@ -18,24 +17,14 @@ import com.twilio.audioswitch.AudioDevice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.membraneframework.rtc.ConnectOptions
-import org.membraneframework.rtc.EncoderOptions
-import org.membraneframework.rtc.EncoderType
 import org.membraneframework.rtc.MembraneRTC
-import org.membraneframework.rtc.MembraneRTCError
+import org.membraneframework.rtc.models.Endpoint
 import org.membraneframework.rtc.MembraneRTCListener
 import org.membraneframework.rtc.SimulcastConfig
-import org.membraneframework.rtc.media.LocalAudioTrack
-import org.membraneframework.rtc.media.LocalScreencastTrack
-import org.membraneframework.rtc.media.LocalVideoTrack
-import org.membraneframework.rtc.media.RemoteAudioTrack
-import org.membraneframework.rtc.media.RemoteVideoTrack
-import org.membraneframework.rtc.media.TrackBandwidthLimit
-import org.membraneframework.rtc.media.VideoParameters
-import org.membraneframework.rtc.models.Peer
+import org.membraneframework.rtc.media.*
 import org.membraneframework.rtc.models.TrackContext
-import org.membraneframework.rtc.transport.PhoenixTransport
 import org.membraneframework.rtc.utils.Metadata
+import org.membraneframework.rtc.utils.SerializedMediaEvent
 import org.webrtc.Logging
 import java.util.UUID
 
@@ -49,7 +38,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   var localAudioTrack: LocalAudioTrack? = null
   var localVideoTrack: LocalVideoTrack? = null
   var localScreencastTrack: LocalScreencastTrack? = null
-  var localParticipantId: String? = null
+  var localEndpointId: String? = null
 
   var isScreenCastOn = false
   private var localScreencastId: String? = null
@@ -60,13 +49,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   private val globalToLocalTrackId = HashMap<String, String>()
 
   private var connectPromise: Promise? = null
-  private var joinPromise: Promise? = null
   private var screencastPromise: Promise? = null
 
-  var videoQuality: String? = null
-  var flipVideo: Boolean = true
   var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
-  var videoMaxBandwidth: TrackBandwidthLimit = TrackBandwidthLimit.BandwidthLimit(0)
 
   private var localUserMetadata: MutableMap<String, Any> = mutableMapOf()
 
@@ -76,16 +61,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   var screencastMetadata: MutableMap<String, Any> = mutableMapOf()
 
-  var videoTrackMetadata: MutableMap<String, Any> = mutableMapOf()
-  var audioTrackMetadata: MutableMap<String, Any> = mutableMapOf()
-
   var trackContexts: MutableMap<String, TrackContext> = mutableMapOf()
 
-  var captureDeviceId: String? = null
   val audioSwitchManager = AudioSwitchManager(reactContext)
 
   companion object {
-    val participants = LinkedHashMap<String, Participant>()
+    val endpoints = LinkedHashMap<String, com.reactnativemembrane.Endpoint>()
     var onTracksUpdate: (() -> Unit)? = null
   }
 
@@ -152,49 +133,51 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun connect(url: String, roomName: String, connectionOptions: ReadableMap, promise: Promise) {
-    this.videoQuality = connectionOptions.getString("quality")
-    if (connectionOptions.hasKey("flipVideo"))
-      this.flipVideo = connectionOptions.getBoolean("flipVideo")
-    this.localUserMetadata = connectionOptions.getMap("userMetadata")?.toMap() ?: mutableMapOf()
-    this.videoTrackMetadata =
-      connectionOptions.getMap("videoTrackMetadata")?.toMap() ?: mutableMapOf()
-    this.audioTrackMetadata =
-      connectionOptions.getMap("audioTrackMetadata")?.toMap() ?: mutableMapOf()
-
-    if (connectionOptions.hasKey("videoTrackEnabled"))
-      this.isCameraOn = connectionOptions.getBoolean("videoTrackEnabled")
-    if (connectionOptions.hasKey("audioTrackEnabled"))
-      this.isMicrophoneOn = connectionOptions.getBoolean("audioTrackEnabled")
-
-    val socketConnectionParams =
-      connectionOptions.getMap("connectionParams")?.toMap() ?: mutableMapOf()
-
-    val socketChannelParams =
-      connectionOptions.getMap("socketChannelParams")?.toMap() ?: mutableMapOf()
-
-    this.captureDeviceId = connectionOptions.getString("captureDeviceId")
-
-    this.videoSimulcastConfig = getSimulcastConfigFromOptions(connectionOptions)
-    this.videoMaxBandwidth = getMaxBandwidthFromOptions(connectionOptions)
-
-    connectPromise = promise
-    room = MembraneRTC.connect(
+  fun create(url: String, promise: Promise) {
+    val room = MembraneRTC.create(
       appContext = reactApplicationContext,
-      options = ConnectOptions(
-        transport = PhoenixTransport(
-          url,
-          "room:$roomName",
-          Dispatchers.IO,
-          socketConnectionParams,
-          socketChannelParams
-        ),
-        config = this.localUserMetadata,
-        encoderOptions = EncoderOptions(encoderType = EncoderType.SOFTWARE)
-      ),
       listener = this@MembraneModule
     )
+    this.room = room
 
+    localEndpointId = UUID.randomUUID().toString()
+    val endpoint = Endpoint(
+      id = localEndpointId!!,
+      metadata = localUserMetadata,
+      type = "webrtc",
+    )
+
+    endpoints[localEndpointId!!] = endpoint
+
+    emitEndpoints()
+    promise.resolve(null)
+  }
+
+  private fun getVideoParametersFromOptions(createOptions: ReadableMap): VideoParameters {
+    val videoQuality = createOptions.getString("quality")
+    val flipVideo = if (createOptions.hasKey("flipVideo")) createOptions.getBoolean("flipVideo") else true
+    val videoMaxBandwidth = getMaxBandwidthFromOptions(createOptions)
+
+    var videoParameters = when (videoQuality) {
+      "QVGA169" -> VideoParameters.presetQVGA169
+      "VGA169" -> VideoParameters.presetVGA169
+      "QHD169" -> VideoParameters.presetQHD169
+      "HD169" -> VideoParameters.presetHD169
+      "FHD169" -> VideoParameters.presetFHD169
+      "QVGA43" -> VideoParameters.presetQVGA43
+      "VGA43" -> VideoParameters.presetVGA43
+      "QHD43" -> VideoParameters.presetQHD43
+      "HD43" -> VideoParameters.presetHD43
+      "FHD43" -> VideoParameters.presetFHD43
+      else -> VideoParameters.presetVGA169
+    }
+    videoParameters = videoParameters.copy(
+      dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions,
+      simulcastConfig = videoSimulcastConfig,
+      maxBitrate = videoMaxBandwidth
+    )
+
+    return videoParameters
   }
 
   private fun ensureConnected(promise: Promise): Boolean {
@@ -242,12 +225,23 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun join(promise: Promise) {
+  fun receiveMediaEvent(data: String, promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
-      Log.d("MEM", "JOIN" + Thread.currentThread().name)
       if (!ensureConnected(promise)) return@launch
-      joinPromise = promise
-      room?.join()
+      room?.receiveMediaEvent(data)
+    }
+  }
+
+  @ReactMethod
+  fun connect(endpointMetadata: ReadableMap, promise: Promise) {
+    CoroutineScope(Dispatchers.Main).launch {
+      if (!ensureConnected(promise)) return@launch
+      connectPromise = promise
+      localUserMetadata = endpointMetadata.toMap()
+      val id = localEndpointId ?: return@launch
+      val endpoint = endpoints[id] ?: return@launch
+      endpoints[id] = endpoint.copy(metadata = localUserMetadata)
+      room?.connect(localUserMetadata)
     }
   }
 
@@ -256,8 +250,60 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     CoroutineScope(Dispatchers.Main).launch {
       room?.disconnect()
       room = null
-      participants.clear()
+      endpoints.clear()
       promise.resolve(null)
+    }
+  }
+
+  @ReactMethod
+  fun startCamera(config: ReadableMap, promise:Promise) {
+    CoroutineScope(Dispatchers.Main).launch {
+      if (!ensureConnected(promise)) return@launch
+      val videoParameters = getVideoParametersFromOptions(config)
+      val videoTrackMetadata = config.getMap("videoTrackMetadata")?.toMap() ?: mutableMapOf()
+      val captureDeviceId = config.getString("captureDeviceId")
+      this@MembraneModule.videoSimulcastConfig = getSimulcastConfigFromOptions(config)
+      if (config.hasKey("cameraEnabled"))
+        this@MembraneModule.isCameraOn = config.getBoolean("cameraEnabled")
+
+      localVideoTrack =
+        room?.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
+      localVideoTrack?.setEnabled(isCameraOn)
+
+      isCameraOn = localVideoTrack?.enabled() ?: false
+
+      if (localVideoTrack != null) {
+        val localEndpoint = endpoints[localEndpointId]
+        localEndpoint?.addOrUpdateTrack(localVideoTrack!!, videoTrackMetadata)
+      }
+
+      emitEvent("IsCameraOn", isCameraOn)
+      emitEndpoints()
+      promise.resolve(isCameraOn)
+    }
+  }
+
+  @ReactMethod
+  fun startMicrophone(config: ReadableMap, promise: Promise) {
+    CoroutineScope(Dispatchers.Main).launch {
+      if (!ensureConnected(promise)) return@launch
+      val audioTrackMetadata = config.getMap("audioTrackMetadata")?.toMap() ?: mutableMapOf()
+      if (config.hasKey("microphoneEnabled"))
+        this@MembraneModule.isMicrophoneOn = config.getBoolean("microphoneEnabled")
+
+      localAudioTrack = room?.createAudioTrack(audioTrackMetadata)
+      localAudioTrack?.setEnabled(isMicrophoneOn)
+
+      isMicrophoneOn = localAudioTrack?.enabled() ?: false
+
+      if (localAudioTrack != null) {
+        val localEndpoint = endpoints[localEndpointId]
+        localEndpoint?.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
+      }
+
+      emitEvent("IsMicrophoneOn", isMicrophoneOn)
+      emitEndpoints()
+      promise.resolve(isMicrophoneOn)
     }
   }
 
@@ -270,14 +316,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun toggleMicrophone(promise: Promise) {
-    CoroutineScope(Dispatchers.Main).launch {
-      if (!ensureAudioTrack(promise)) return@launch
-      localAudioTrack?.let {
-        val enabled = !it.enabled()
-        it.setEnabled(enabled)
-        isMicrophoneOn = enabled
-        promise.resolve(enabled)
-      }
+    if (!ensureAudioTrack(promise)) return
+    localAudioTrack?.let {
+      val enabled = !it.enabled()
+      it.setEnabled(enabled)
+      isMicrophoneOn = enabled
+      promise.resolve(enabled)
     }
   }
 
@@ -290,33 +334,27 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun toggleCamera(promise: Promise) {
-    CoroutineScope(Dispatchers.Main).launch {
-      if (!ensureVideoTrack(promise)) return@launch
-      localVideoTrack?.let {
-        val enabled = !it.enabled()
-        it.setEnabled(enabled)
-        isCameraOn = enabled
-        promise.resolve(enabled)
-      }
+    if (!ensureVideoTrack(promise)) return
+    localVideoTrack?.let {
+      val enabled = !it.enabled()
+      it.setEnabled(enabled)
+      isCameraOn = enabled
+      promise.resolve(enabled)
     }
   }
 
   @ReactMethod
   fun flipCamera(promise: Promise) {
-    CoroutineScope(Dispatchers.Main).launch {
-      if (!ensureVideoTrack(promise)) return@launch
-      localVideoTrack?.flipCamera()
-      promise.resolve(null)
-    }
+    if (!ensureVideoTrack(promise)) return
+    localVideoTrack?.flipCamera()
+    promise.resolve(null)
   }
 
   @ReactMethod
   fun switchCamera(captureDeviceId: String, promise: Promise) {
-    CoroutineScope(Dispatchers.Main).launch {
-      if (!ensureVideoTrack(promise)) return@launch
-      localVideoTrack?.switchCamera(captureDeviceId)
-      promise.resolve(null)
-    }
+    if (!ensureVideoTrack(promise)) return
+    localVideoTrack?.switchCamera(captureDeviceId)
+    promise.resolve(null)
   }
 
   @ReactMethod
@@ -365,27 +403,27 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun getParticipants(promise: Promise) {
+  fun getEndpoints(promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
-      promise.resolve(getParticipantsAsRNMap())
+      promise.resolve(getEndpointsAsRNMap())
     }
   }
 
   @ReactMethod
-  fun updatePeerMetadata(metadata: ReadableMap, promise: Promise) {
+  fun updateEndpointMetadata(metadata: ReadableMap, promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
       if (!ensureConnected(promise)) return@launch
-      room?.updatePeerMetadata(metadata.toMap())
+      room?.updateEndpointMetadata(metadata.toMap())
       promise.resolve(null)
     }
   }
 
   private fun updateTrackMetadata(trackId: String, metadata: Metadata) {
     room?.updateTrackMetadata(trackId, metadata)
-    val id = localParticipantId ?: return
-    val participant = participants[id] ?: return
-    participant.tracksMetadata[trackId] = metadata
-    emitParticipants()
+    val id = localEndpointId ?: return
+    val endpoint = endpoints[id] ?: return
+    endpoint.tracksMetadata[trackId] = metadata
+    emitEndpoints()
   }
 
   @ReactMethod
@@ -595,9 +633,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       room?.createScreencastTrack(mediaProjectionPermission, videoParameters, screencastMetadata)
 
     localScreencastTrack?.let {
-      val participant = participants[localParticipantId]
-      participant!!.addOrUpdateTrack(it, screencastMetadata)
-      emitParticipants()
+      val endpoint = endpoints[localEndpointId]
+      endpoint!!.addOrUpdateTrack(it, screencastMetadata)
+      emitEndpoints()
     }
     screencastPromise?.resolve(isScreenCastOn)
   }
@@ -606,12 +644,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     isScreenCastOn = false
 
     localScreencastTrack?.let {
-      participants[localParticipantId]?.removeTrack(it)
+      endpoints[localEndpointId]?.removeTrack(it)
       room?.removeTrack(it.id())
-      emitParticipants()
+      emitEndpoints()
       localScreencastTrack = null
     }
-    emitParticipants()
+    emitEndpoints()
     screencastPromise?.resolve(isScreenCastOn)
     screencastPromise = null
   }
@@ -622,18 +660,15 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       .emit(eventName, data)
   }
 
-  private fun getParticipantsAsRNMap(): WritableMap? {
+  private fun getEndpointsAsRNMap(): WritableMap? {
     val params = Arguments.createMap()
-    val participantsArray = Arguments.createArray()
-    participants.values.forEach {
-      val participantMap = Arguments.createMap()
-      participantMap.putString("id", it.id)
-      val participantType = when (it.id) {
-        localParticipantId -> "Local"
-        else -> "Remote"
-      }
-      participantMap.putString("type", participantType)
-      participantMap.putMap("metadata", mapToRNMap(it.metadata))
+    val endpointsArray = Arguments.createArray()
+    endpoints.values.forEach {
+      val endpointsMap = Arguments.createMap()
+      endpointsMap.putString("id", it.id)
+      endpointsMap.putBoolean("isLocal", it.id == localEndpointId)
+      endpointsMap.putString("type", it.type)
+      endpointsMap.putMap("metadata", mapToRNMap(it.metadata))
 
       val tracksArray = Arguments.createArray()
 
@@ -656,16 +691,16 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         tracksArray.pushMap(track)
       }
 
-      participantMap.putArray("tracks", tracksArray)
+      endpointsMap.putArray("tracks", tracksArray)
 
-      participantsArray.pushMap(participantMap)
+      endpointsArray.pushMap(endpointsMap)
     }
-    params.putArray("participants", participantsArray)
+    params.putArray("endpoints", endpointsArray)
     return params
   }
 
-  private fun emitParticipants() {
-    emitEvent("ParticipantsUpdate", getParticipantsAsRNMap())
+  private fun emitEndpoints() {
+    emitEvent("EndpointsUpdate", getEndpointsAsRNMap())
   }
 
   private fun audioDeviceAsRNMap(audioDevice: AudioDevice): WritableMap {
@@ -698,93 +733,38 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     return map
   }
 
-  override fun onConnected() {
+  override fun onConnected(endpointID: String, otherEndpoints: List<Endpoint>) {
     CoroutineScope(Dispatchers.Main).launch {
-      room?.let {
-        localAudioTrack = it.createAudioTrack(audioTrackMetadata)
-        localAudioTrack?.setEnabled(isMicrophoneOn)
-
-        var videoParameters = when (videoQuality) {
-          "QVGA169" -> VideoParameters.presetQVGA169
-          "VGA169" -> VideoParameters.presetVGA169
-          "QHD169" -> VideoParameters.presetQHD169
-          "HD169" -> VideoParameters.presetHD169
-          "FHD169" -> VideoParameters.presetFHD169
-          "QVGA43" -> VideoParameters.presetQVGA43
-          "VGA43" -> VideoParameters.presetVGA43
-          "QHD43" -> VideoParameters.presetQHD43
-          "HD43" -> VideoParameters.presetHD43
-          "FHD43" -> VideoParameters.presetFHD43
-          else -> VideoParameters.presetVGA169
-        }
-        videoParameters = videoParameters.copy(
-          dimensions = if (flipVideo) videoParameters.dimensions.flip() else videoParameters.dimensions,
-          simulcastConfig = videoSimulcastConfig,
-          maxBitrate = videoMaxBandwidth
-        )
-
-        localVideoTrack = it.createVideoTrack(videoParameters, videoTrackMetadata, captureDeviceId)
-        localVideoTrack?.setEnabled(isCameraOn)
-
-        isCameraOn = localVideoTrack?.enabled() ?: false
-        isMicrophoneOn = localAudioTrack?.enabled() ?: false
-
-        emitEvent("IsCameraOn", isCameraOn)
-        emitEvent("IsMicrophoneOn", isMicrophoneOn)
-
-        localParticipantId = UUID.randomUUID().toString()
-        var participant = Participant(
-          id = localParticipantId!!,
-          metadata = localUserMetadata,
-        )
-        if (localVideoTrack != null) {
-          participant.addOrUpdateTrack(localVideoTrack!!, videoTrackMetadata)
-        }
-        if (localAudioTrack != null) {
-          participant.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
-        }
-        participants[localParticipantId!!] = participant
-
-        connectPromise?.resolve(null)
-        connectPromise = null
-        emitParticipants()
+      endpoints.remove(endpointID)
+      otherEndpoints.forEach {
+        endpoints[it.id] = Endpoint(it.id, it.metadata, it.type)
       }
+      connectPromise?.resolve(null)
+      connectPromise = null
+      emitEndpoints()
     }
   }
 
-  override fun onJoinSuccess(peerID: String, peersInRoom: List<Peer>) {
+  override fun onConnectError(metadata: Any) {
     CoroutineScope(Dispatchers.Main).launch {
-      Log.d("MEM", "JOIN SUCCESS" + Thread.currentThread().name)
-      participants.remove(peerID)
-      peersInRoom.forEach {
-        participants[it.id] = Participant(it.id, it.metadata)
-      }
-      joinPromise?.resolve(null)
-      joinPromise = null
-      emitParticipants()
-    }
-  }
-
-  override fun onJoinError(metadata: Any) {
-    CoroutineScope(Dispatchers.Main).launch {
-      joinPromise?.reject("E_JOIN_ERROR", metadata.toString())
-      joinPromise = null
+      connectPromise?.reject("E_CONNECT_ERROR", metadata.toString())
+      connectPromise = null
     }
   }
 
   private fun addOrUpdateTrack(ctx: TrackContext) {
-    val participant = participants[ctx.peer.id]
-      ?: throw IllegalArgumentException("participant with id ${ctx.peer.id} not found")
+    val endpoint = endpoints[ctx.endpoint.id]
+      ?: throw IllegalArgumentException("endpoint with id ${ctx.endpoint.id} not found")
 
     when (ctx.track) {
       is RemoteVideoTrack -> {
         val localTrackId = (ctx.track as RemoteVideoTrack).id()
         globalToLocalTrackId[ctx.trackId] = localTrackId
-        participant.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata)
+        endpoint.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata)
         if (trackContexts[localTrackId] == null) {
           trackContexts[localTrackId] = ctx
           ctx.setOnEncodingChangedListener {
-            emitParticipants()
+            emitEndpoints()
           }
         }
       }
@@ -792,11 +772,11 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       is RemoteAudioTrack -> {
         val localTrackId = (ctx.track as RemoteAudioTrack).id()
         globalToLocalTrackId[ctx.trackId] = localTrackId
-        participant.addOrUpdateTrack(ctx.track as RemoteAudioTrack, ctx.metadata)
+        endpoint.addOrUpdateTrack(ctx.track as RemoteAudioTrack, ctx.metadata)
         if (trackContexts[localTrackId] == null) {
           trackContexts[localTrackId] = ctx
           ctx.setOnVoiceActivityChangedListener {
-            emitParticipants()
+            emitEndpoints()
           }
         }
       }
@@ -805,7 +785,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         throw IllegalArgumentException("invalid type of incoming remote track")
     }
 
-    emitParticipants()
+    emitEndpoints()
     onTracksUpdate?.let { it1 -> it1() }
   }
 
@@ -820,12 +800,12 @@ class MembraneModule(reactContext: ReactApplicationContext) :
 
   override fun onTrackRemoved(ctx: TrackContext) {
     CoroutineScope(Dispatchers.Main).launch {
-      val participant = participants[ctx.peer.id]
-        ?: throw IllegalArgumentException("participant with id ${ctx.peer.id} not found")
+      val endpoint = endpoints[ctx.endpoint.id]
+        ?: throw IllegalArgumentException("endpoint with id ${ctx.endpoint.id} not found")
 
       when (ctx.track) {
-        is RemoteVideoTrack -> participant.removeTrack(ctx.track as RemoteVideoTrack)
-        is RemoteAudioTrack -> participant.removeTrack(ctx.track as RemoteAudioTrack)
+        is RemoteVideoTrack -> endpoint.removeTrack(ctx.track as RemoteVideoTrack)
+        is RemoteAudioTrack -> endpoint.removeTrack(ctx.track as RemoteAudioTrack)
         else -> throw IllegalArgumentException("invalid type of incoming remote track")
       }
 
@@ -833,7 +813,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       ctx.setOnEncodingChangedListener(null)
       ctx.setOnVoiceActivityChangedListener(null)
       trackContexts.remove(ctx.trackId)
-      emitParticipants()
+      emitEndpoints()
       onTracksUpdate?.let { it1 -> it1() }
     }
   }
@@ -844,42 +824,30 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun onPeerJoined(peer: Peer) {
+  override fun onEndpointAdded(endpoint: Endpoint) {
     CoroutineScope(Dispatchers.Main).launch {
-      participants[peer.id] =
-        Participant(id = peer.id, metadata = peer.metadata)
-      emitParticipants()
+      endpoints[endpoint.id] =
+        Endpoint(id = endpoint.id, metadata = endpoint.metadata, type = endpoint.type)
+      emitEndpoints()
     }
   }
 
-  override fun onPeerLeft(peer: Peer) {
+  override fun onEndpointRemoved(endpoint: Endpoint) {
     CoroutineScope(Dispatchers.Main).launch {
-      participants.remove(peer.id)
-      emitParticipants()
+      endpoints.remove(endpoint.id)
+      emitEndpoints()
     }
   }
 
-  override fun onPeerUpdated(peer: Peer) {
+  override fun onEndpointUpdated(endpoint: Endpoint) {}
+
+  override fun onSendMediaEvent(event: SerializedMediaEvent) {
+    emitEvent("SendMediaEvent", event)
   }
 
   override fun onBandwidthEstimationChanged(estimation: Long) {
     emitEvent("BandwidthEstimation", estimation.toFloat())
   }
 
-  override fun onError(error: MembraneRTCError) {
-    CoroutineScope(Dispatchers.Main).launch {
-      when {
-        connectPromise != null -> {
-          connectPromise?.reject("E_MEMBRANE_ERROR", error.toString())
-          connectPromise = null
-        }
-
-        joinPromise != null -> {
-          joinPromise?.reject("E_MEMBRANE_ERROR", error.toString())
-          joinPromise = null
-        }
-      }
-      emitEvent("MembraneError", error.toString())
-    }
-  }
+  override fun onDisconnected() {}
 }

@@ -7,16 +7,19 @@ import { Typo } from './Typo';
 import { SimulcastMenuButton } from './buttons/SimulcastMenuButton';
 
 type SimulcastMenuProps = {
-  type: Membrane.ParticipantType;
+  isLocalParticipant: boolean;
   encoding?: Membrane.TrackEncoding | null;
 };
 
-export const SimulcastMenu = ({ type, encoding }: SimulcastMenuProps) => {
+export const SimulcastMenu = ({
+  isLocalParticipant,
+  encoding,
+}: SimulcastMenuProps) => {
   const { simulcastConfig } = Membrane.useSimulcast();
 
   return (
     <View style={styles.encodingContainer}>
-      {type === Membrane.ParticipantType.Local ? (
+      {isLocalParticipant ? (
         <View style={styles.simulcastButtons}>
           <Typo variant="label">Encodings to send: </Typo>
           <SimulcastMenuButton

@@ -1,4 +1,5 @@
 import { takeRight } from 'lodash';
+import { Channel, Socket, MessageRef } from 'phoenix';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   NativeModules,
@@ -35,11 +36,6 @@ const Membrane = NativeModules.Membrane
       }
     );
 const eventEmitter = new NativeEventEmitter(Membrane);
-
-export enum ParticipantType {
-  Remote = 'Remote',
-  Local = 'Local',
-}
 
 export enum TrackType {
   Audio = 'Audio',
@@ -84,21 +80,25 @@ export type Metadata = { [key: string]: any };
 export type SocketConnectionParams = { [key: string]: any };
 export type SocketChannelParams = { [key: string]: any };
 
-export type Participant = {
+export type Endpoint = {
   /**
-   *  id used to identify a participant
+   *  id used to identify an endpoint
    */
   id: string;
   /**
-   * used to indicate participant type.
+   * used to indicate endpoint type.
    */
-  type: ParticipantType;
+  type: string;
   /**
-   * a map `string -> any` containing participant metadata from the server
+   * whether the endpoint is local or remote
+   */
+  isLocal: boolean;
+  /**
+   * a map `string -> any` containing endpoint metadata from the server
    */
   metadata: Metadata;
   /**
-   * a list of participant's video and audio tracks
+   * a list of endpoints's video and audio tracks
    */
   tracks: Track[];
 };
@@ -184,6 +184,22 @@ export type TrackBandwidthLimit = BandwidthLimit | SimulcastBandwidthLimit;
 
 export type ConnectionOptions = {
   /**
+   * a map `string -> any` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
+   */
+  endpointMetadata: Metadata;
+
+  /**
+   *  a map `string -> any` containing connection params passed to the socket.
+   */
+  connectionParams: SocketConnectionParams;
+  /**
+   * a map `string -> any` containing params passed to the socket channel.
+   */
+  socketChannelParams: SocketChannelParams;
+};
+
+export type CameraConfig = {
+  /**
    * resolution + aspect ratio of local video track, one of: `QVGA_169`, `VGA_169`, `QHD_169`, `HD_169`,
    * `FHD_169`, `QVGA_43`, `VGA_43`, `QHD_43`, `HD_43`, `FHD_43`. Note that quality might be worse than
    * specified due to device capabilities, internet connection etc.
@@ -196,17 +212,9 @@ export type ConnectionOptions = {
    */
   flipVideo: boolean;
   /**
-   * a map `string -> any` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
-   */
-  userMetadata: Metadata;
-  /**
    * a map `string -> any` containing video track metadata to be sent to the server.
    */
   videoTrackMetadata: Metadata;
-  /**
-   * a map `string -> any` containing audio track metadata to be sent to the server.
-   */
-  audioTrackMetadata: Metadata;
   /**
    *  SimulcastConfig of a video track. By default simulcast is disabled.
    */
@@ -216,29 +224,28 @@ export type ConnectionOptions = {
    */
   maxBandwidth: TrackBandwidthLimit;
   /**
-   *  a map `string -> any` containing connection params passed to the socket.
-   */
-  connectionParams: SocketConnectionParams;
-  /**
-   * a map `string -> any` containing params passed to the socket channel.
-   */
-  socketChannelParams: SocketChannelParams;
-  /**
-   * whether the video track is initially enabled
+   * whether the camera track is initially enabled, you can toggle it on/off later with toggleCamera method
    * @default `true`
    */
-  videoTrackEnabled: boolean;
-  /**
-   * whether the audio track is initially enabled
-   * @default `true`
-   */
-  audioTrackEnabled: boolean;
+  cameraEnabled: boolean;
   /**
    * id of the camera to start capture with. Get available cameras with `getCaptureDevices()`.
    * You can switch the cameras later with `flipCamera`/`switchCamera` functions.
    * @default the first front camera
    */
   captureDeviceId: string;
+};
+
+export type MicrophoneConfig = {
+  /**
+   * a map `string -> any` containing audio track metadata to be sent to the server.
+   */
+  audioTrackMetadata: Metadata;
+  /**
+   * whether the microphone is initially enabled, you can toggle it on/off later with toggleMicrophone method
+   * @default `true`
+   */
+  microphoneEnabled: boolean;
 };
 
 export type ScreencastOptions = {
@@ -347,15 +354,28 @@ let screencastSimulcastConfig: SimulcastConfig = defaultSimulcastConfig();
  * The hook used to manage a connection with membrane server.
  * @returns An object with functions to manage membrane server connection and `error` if connection failed.
  */
-export function useMembraneServer() {
+export function useWebRTC() {
   const [error, setError] = useState<string | null>(null);
   // prevent user from calling connect methods multiple times
   const lock = useRef(false);
+  const socket = useRef<Socket | null>(null);
+  const webrtcChannel = useRef<Channel | null>(null);
+  const onSocketError = useRef<MessageRef | null>(null);
+  const onSocketClose = useRef<MessageRef | null>(null);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener('MembraneError', setError);
+    const eventListener = eventEmitter.addListener(
+      'SendMediaEvent',
+      sendMediaEvent
+    );
     return () => eventListener.remove();
   }, []);
+
+  const sendMediaEvent = (mediaEvent: string) => {
+    if (webrtcChannel.current) {
+      webrtcChannel.current.push('mediaEvent', { data: mediaEvent });
+    }
+  };
 
   const withLock =
     (f: any) =>
@@ -372,7 +392,7 @@ export function useMembraneServer() {
     };
 
   /**
-   * Connects to a room.
+   * Connects to a server.
    * @returns A promise that resolves on success or rejects in case of an error.
    */
   const connect: (
@@ -384,29 +404,66 @@ export function useMembraneServer() {
     connectionOptions?: Partial<ConnectionOptions>
   ) => Promise<void> = useCallback(
     withLock(
-      (
+      async (
         url: string,
         roomName: string,
         connectionOptions: Partial<ConnectionOptions> = {}
-      ): Promise<void> => {
+      ) => {
         setError(null);
-        videoSimulcastConfig =
-          connectionOptions.simulcastConfig || defaultSimulcastConfig();
-        return Membrane.connect(url, roomName, connectionOptions);
+        const _socket = new Socket(url, {
+          params: connectionOptions.connectionParams,
+        });
+        _socket.connect();
+
+        onSocketClose.current = _socket.onClose(cleanUp);
+        onSocketError.current = _socket.onError(() => {
+          setError(`Socket error occured.`);
+          cleanUp();
+        });
+
+        const _webrtcChannel = _socket.channel(
+          `room:${roomName}`,
+          connectionOptions.socketChannelParams
+        );
+
+        _webrtcChannel.on('mediaEvent', (event) => {
+          Membrane.receiveMediaEvent(event.data);
+        });
+
+        _webrtcChannel.on('error', (error) => {
+          console.error(error);
+          setError(
+            `Received error report from the server: ${error.message ?? ''}`
+          );
+          cleanUp();
+        });
+
+        _webrtcChannel.onError((reason) => {
+          console.error(reason);
+          setError(`Webrtc channel error occurred: ${reason}.`);
+          cleanUp();
+        });
+
+        socket.current = _socket;
+        webrtcChannel.current = _webrtcChannel;
+
+        await Membrane.create(url);
+
+        await new Promise<void>((resolve, reject) => {
+          _webrtcChannel
+            .join()
+            .receive('ok', () => {
+              resolve();
+            })
+            .receive('error', (_response) => {
+              console.error(_response);
+              reject(_response);
+            });
+        });
+
+        await Membrane.connect(connectionOptions.endpointMetadata || {});
       }
     ),
-    []
-  );
-
-  /**
-   * Call this after successfully connecting with the server to join the room. Other participants' tracks will be sent and the user will be visible to other room participants.
-   * @returns A promise that resolves on success or rejects in case of an error.
-   */
-  const joinRoom: () => Promise<void> = useCallback(
-    withLock((): Promise<void> => {
-      setError(null);
-      return Membrane.join();
-    }),
     []
   );
 
@@ -417,47 +474,54 @@ export function useMembraneServer() {
   const disconnect: () => Promise<void> = useCallback(
     withLock((): Promise<void> => {
       setError(null);
-      return Membrane.disconnect();
+      return cleanUp();
     }),
     []
   );
+
+  const cleanUp = (): Promise<void> => {
+    webrtcChannel.current?.leave();
+    const refs: MessageRef[] = [];
+    if (onSocketClose.current) refs.push(onSocketClose.current);
+    if (onSocketError.current) refs.push(onSocketError.current);
+    socket.current?.off(refs);
+    return Membrane.disconnect();
+  };
+
   return {
     connect,
     disconnect,
-    joinRoom,
     error,
   };
 }
 
 /**
- * This hook provides live updates of room participants.
- * @returns An array of room participants.
+ * This hook provides live updates of room endpoints.
+ * @returns An array of room endpoints.
  */
-export function useRoomParticipants() {
-  const [participants, setParticipants] = useState<Participant[]>([]);
+export function useEndpoints() {
+  const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener(
-      'ParticipantsUpdate',
-      ({ participants }) => {
-        setParticipants(participants);
+      'EndpointsUpdate',
+      ({ endpoints }) => {
+        setEndpoints(endpoints);
       }
     );
-    Membrane.getParticipants().then(
-      ({ participants }: { participants: Participant[] }) => {
-        setParticipants(participants);
-      }
-    );
+    Membrane.getEndpoints().then(({ endpoints }: { endpoints: Endpoint[] }) => {
+      setEndpoints(endpoints);
+    });
     return () => eventListener.remove();
   }, []);
 
-  return participants;
+  return endpoints;
 }
 
 /**
  * This hook can toggle camera on/off and provides current camera state.
  */
-export function useCameraState() {
+export function useCamera() {
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -476,13 +540,56 @@ export function useCameraState() {
     setIsCameraOn(state);
   }, []);
 
-  return { isCameraOn, toggleCamera };
+  /**
+   * Starts local camera capture.
+   * @param config configuration of the camera capture
+   * @returns A promise that resolves when camera is started.
+   */
+  const startCamera = useCallback(
+    async (config: Partial<CameraConfig> = {}) => {
+      videoSimulcastConfig = config.simulcastConfig || defaultSimulcastConfig();
+      await Membrane.startCamera(config);
+    },
+    []
+  );
+
+  /**
+   * Function that toggles between front and back camera. By default the front camera is used.
+   * @returns A promise that resolves when camera is toggled.
+   */
+  const flipCamera = useCallback(async () => {
+    return Membrane.flipCamera();
+  }, []);
+
+  /**
+   * Function that switches to the specified camera. By default the front camera is used.
+   * @returns A promise that resolves when camera is switched.
+   */
+  const switchCamera = useCallback(async (captureDeviceId: string) => {
+    return Membrane.switchCamera(captureDeviceId);
+  }, []);
+
+  /** Function that queries available cameras.
+   * @returns A promise that resolves to the list of available cameras.
+   */
+  const getCaptureDevices = useCallback(async () => {
+    return Membrane.getCaptureDevices() as Promise<CaptureDevice[]>;
+  }, []);
+
+  return {
+    isCameraOn,
+    toggleCamera,
+    startCamera,
+    flipCamera,
+    switchCamera,
+    getCaptureDevices,
+  };
 }
 
 /**
  * This hook can toggle microphone on/off and provides current microphone state.
  */
-export function useMicrophoneState() {
+export function useMicrophone() {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -501,30 +608,19 @@ export function useMicrophoneState() {
     setIsMicrophoneOn(state);
   }, []);
 
-  return { isMicrophoneOn, toggleMicrophone };
-}
+  /**
+   * Starts local microphone capturing.
+   * @param config configuration of the microphone capture
+   * @returns A promise that resolves when microphone capturing is started.
+   */
+  const startMicrophone = useCallback(
+    async (config: Partial<MicrophoneConfig> = {}) => {
+      await Membrane.startMicrophone(config);
+    },
+    []
+  );
 
-/**
- * Function that toggles between front and back camera. By default the front camera is used.
- * @returns A promise that resolves when camera is toggled.
- */
-export function flipCamera(): Promise<void> {
-  return Membrane.flipCamera();
-}
-
-/**
- * Function that switches to the specified camera. By default the front camera is used.
- * @returns A promise that resolves when camera is switched.
- */
-export function switchCamera(captureDeviceId: string): Promise<void> {
-  return Membrane.switchCamera(captureDeviceId);
-}
-
-/** Function that queries available cameras.
- * @returns A promise that resolves to the list of available cameras.
- */
-export function getCaptureDevices(): Promise<CaptureDevice[]> {
-  return Membrane.getCaptureDevices();
+  return { isMicrophoneOn, toggleMicrophone, startMicrophone };
 }
 
 /**
@@ -550,11 +646,6 @@ export function useScreencast() {
 
   /**
    * Toggles the screencast on/off
-   *
-   * Under the hood the screencast is just given participant's another video track.
-   * However for convenience the library creates a fake screencasting participant.
-   * The library recognizes a screencast track by `type: "screencasting"` metadata in
-   * screencasting video track.
    */
   const toggleScreencast = useCallback(
     async (screencastOptions: Partial<ScreencastOptions> = {}) => {
@@ -632,47 +723,27 @@ export function useScreencast() {
 }
 
 /**
- * This hook manages user's metadata. Use it to for example update when user is muted etc.
+ * a function that updates endpoints's metadata on the server
+ * @param metadata a map `string -> any` containing user's track metadata to be sent to the server
  */
-export function usePeerMetadata() {
-  /**
-   * a function that updates user's metadata on the server
-   * @param metadata a map `string -> any` containing user's track metadata to be sent to the server
-   */
-  const updatePeerMetadata = useCallback(async (metadata: Metadata) => {
-    await Membrane.updatePeerMetadata(metadata);
-  }, []);
-  return { updatePeerMetadata };
+export async function updateEndpointMetadata(metadata: Metadata) {
+  await Membrane.updateEndpointMetadata(metadata);
 }
 
 /**
- * This hook manages video track metadata.
+ * a function that updates video metadata on the server.
+ * @param metadata a map string -> any containing video track metadata to be sent to the server
  */
-export function useVideoTrackMetadata() {
-  /**
-   * a function that updates video metadata on the server.
-   * @param metadata a map string -> any containing video track metadata to be sent to the server
-   */
-  const updateVideoTrackMetadata = useCallback(async (metadata: Metadata) => {
-    await Membrane.updateVideoTrackMetadata(metadata);
-  }, []);
-  return { updateVideoTrackMetadata };
+export async function updateVideoTrackMetadata(metadata: Metadata) {
+  await Membrane.updateVideoTrackMetadata(metadata);
 }
-
 /**
- * This hook manages audio track metadata.
+ * a function that updates audio metadata on the server
+ * @param metadata a map `string -> any` containing audio track metadata to be sent to the server
  */
-export function useAudioTrackMetadata() {
-  /**
-   * a function that updates audio metadata on the server
-   * @param metadata a map `string -> any` containing audio track metadata to be sent to the server
-   */
-  const updateAudioTrackMetadata = useCallback(async (metadata: Metadata) => {
-    await Membrane.updateAudioTrackMetadata(metadata);
-  }, []);
-  return { updateAudioTrackMetadata };
+export async function updateAudioTrackMetadata(metadata: Metadata) {
+  await Membrane.updateAudioTrackMetadata(metadata);
 }
-
 /**
  * This hook manages audio settings.
  */
@@ -833,24 +904,14 @@ export function useSimulcast() {
 }
 
 /**
- * This hook manages the bandwidth limit of a video track.
+ * updates maximum bandwidth for the video track. This value directly translates
+ * to quality of the stream and the amount of RTP packets being sent. In case simulcast
+ * is enabled bandwidth is split between all of the variant streams proportionally to
+ * their resolution.
+ * @param BandwidthLimit to set
  */
-export function useBandwidthLimit() {
-  /**
-   * updates maximum bandwidth for the video track. This value directly translates
-   * to quality of the stream and the amount of RTP packets being sent. In case simulcast
-   * is enabled bandwidth is split between all of the variant streams proportionally to
-   * their resolution.
-   * @param BandwidthLimit to set
-   */
-  const setVideoTrackBandwidth = useCallback(
-    async (bandwidth: BandwidthLimit) => {
-      await Membrane.setVideoTrackBandwidth(bandwidth);
-    },
-    []
-  );
-
-  return { setVideoTrackBandwidth };
+export async function setVideoTrackBandwidth(bandwidth: BandwidthLimit) {
+  await Membrane.setVideoTrackBandwidth(bandwidth);
 }
 
 /**
@@ -998,7 +1059,7 @@ export type VideoRendererProps = {
 const VideoRendererViewComponentName = 'VideoRendererView';
 
 /**
- * A component used for rendering participant's video and audio. You can add some basic View styling.
+ * A component used for rendering the endpoint's video and audio. You can add some basic View styling.
  */
 export const VideoRendererView =
   UIManager.getViewManagerConfig(VideoRendererViewComponentName) != null

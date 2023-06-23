@@ -29,6 +29,7 @@ export const Preview = ({ navigation, route }: Props) => {
     isMicrophoneOn,
     toggleMicrophone,
     connectAndJoinRoom,
+    getCaptureDevices,
   } = useVideoroomState();
   const { title } = route.params;
   const { width } = Dimensions.get('window');
@@ -51,7 +52,7 @@ export const Preview = ({ navigation, route }: Props) => {
   const availableCameras = useRef<Membrane.CaptureDevice[]>([]);
 
   useEffect(() => {
-    Membrane.getCaptureDevices().then((devices) => {
+    getCaptureDevices().then((devices) => {
       availableCameras.current = devices;
       setCurrentCamera(devices.find((device) => device.isFrontFacing) || null);
     });

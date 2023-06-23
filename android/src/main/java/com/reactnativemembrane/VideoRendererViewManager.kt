@@ -29,7 +29,7 @@ class VideoRendererViewManager : SimpleViewManager<View>() {
   }
 
   @ReactProp(name = "trackId")
-  fun setParticipantId(view: VideoRendererView, trackId: String) {
+  fun setTrackId(view: VideoRendererView, trackId: String) {
     view.init(trackId)
   }
 

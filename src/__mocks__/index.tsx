@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 const {
-  ParticipantType,
+  EndpointType,
   TrackType,
   VadStatus,
   EncodingReason,
@@ -16,7 +16,7 @@ const {
 } = jest.requireActual('../index');
 
 export {
-  ParticipantType,
+  EndpointType,
   TrackType,
   VadStatus,
   EncodingReason,
@@ -38,34 +38,36 @@ const emptyPromise = async (): Promise<void> => {
   });
 };
 
-export const useMembraneServer = () => {
+export const useWebRTC = () => {
   return {
     connect: emptyPromise,
     disconnect: emptyPromise,
-    joinRoom: emptyPromise,
     error: null,
   };
 };
-export const useRoomParticipants = () => [];
-export const useCameraState = () => {
+export const useEndpoints = () => [];
+export const useCamera = () => {
   return {
     isCameraOn: false,
     toggleCamera: NOOP,
+    startCamera: NOOP,
+    flipCamera: emptyPromise,
+    switchCamera: emptyPromise,
+    getCaptureDevices: async (): Promise<typeof CaptureDevice[]> => {
+      return new Promise((resolve) => {
+        resolve([]);
+      });
+    },
   };
 };
-export const useMicrophoneState = () => {
+export const useMicrophone = () => {
   return {
     isMicrophoneOn: false,
     toggleMicrophone: NOOP,
+    startMicrophone: NOOP,
   };
 };
-export const flipCamera = emptyPromise;
-export const switchCamera = emptyPromise;
-export const getCaptureDevices = async (): Promise<typeof CaptureDevice[]> => {
-  return new Promise((resolve) => {
-    resolve([]);
-  });
-};
+
 export const useScreencast = () => {
   return {
     isScreencastOn: false,
@@ -77,21 +79,14 @@ export const useScreencast = () => {
     setScreencastTrackBandwidth: NOOP,
   };
 };
-export const usePeerMetadata = () => {
+export const useEndpointMetadata = () => {
   return {
-    updatePeerMetadata: NOOP,
+    updateEndpointMetadata: NOOP,
   };
 };
-export const useVideoTrackMetadata = () => {
-  return {
-    updateVideoTrackMetadata: NOOP,
-  };
-};
-export const useAudioTrackMetadata = () => {
-  return {
-    updateAudioTrackMetadata: NOOP,
-  };
-};
+export const updateVideoTrackMetadata = emptyPromise;
+export const updateAudioTrackMetadata = emptyPromise;
+
 export const useAudioSettings = () => {
   return {
     selectedAudioOutputDevice: null,

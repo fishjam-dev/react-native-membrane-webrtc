@@ -31,6 +31,8 @@ target 'MembraneExample' do
 
   pod 'react-native-membrane', :path => '../..'
 
+  pod 'MembraneRTC'
+
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and

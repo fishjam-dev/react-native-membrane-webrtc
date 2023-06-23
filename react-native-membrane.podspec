@@ -18,5 +18,5 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '13.0'
   
   s.dependency "React-Core"
-  s.dependency "MembraneRTC", '~> 4.4.1'
+  s.dependency "MembraneRTC", '5.0.0'
 end
