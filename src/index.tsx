@@ -520,6 +520,7 @@ export function useEndpoints() {
 
 /**
  * This hook can toggle camera on/off and provides current camera state.
+ * It manages the simulcast configuration of a camera video track.
  */
 export function useCamera() {
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
