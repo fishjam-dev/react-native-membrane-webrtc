@@ -519,6 +519,28 @@ export function useEndpoints() {
 }
 
 /**
+ * This hook can set target track encoding.
+ */
+export function useTargetTrackEncoding() {
+  /**
+   * sets track encoding that server should send to the client library.
+   * The encoding will be sent whenever it is available. If choosen encoding is
+   * temporarily unavailable, some other encoding will be sent until choosen encoding
+   *  becomes active again.
+   *
+   * @param trackId id of a track which encoding you want to select
+   * @param encoding encoding to select
+   */
+  const setTargetTrackEncoding = useCallback(
+    async (trackId: string, encoding: TrackEncoding) => {
+      await Membrane.setTargetTrackEncoding(trackId, encoding);
+    },
+    []
+  );
+  return { setTargetTrackEncoding };
+}
+
+/**
  * This hook can toggle camera on/off and provides current camera state.
  * It manages the simulcast configuration of a camera video track.
  */
@@ -544,22 +566,6 @@ export function useCamera() {
     Membrane.isCameraOn().then(setIsCameraOn);
     return () => eventListener.remove();
   }, []);
-
-  /**
-   * sets track encoding that server should send to the client library.
-   * The encoding will be sent whenever it is available. If choosen encoding is
-   * temporarily unavailable, some other encoding will be sent until choosen encoding
-   *  becomes active again.
-   *
-   * @param trackId id of a track which encoding you want to select
-   * @param encoding encoding to select
-   */
-  const setTargetTrackEncoding = useCallback(
-    async (trackId: string, encoding: TrackEncoding) => {
-      await Membrane.setTargetTrackEncoding(trackId, encoding);
-    },
-    []
-  );
 
   /**
    * toggles encoding of a video track on/off
@@ -640,7 +646,6 @@ export function useCamera() {
     flipCamera,
     switchCamera,
     getCaptureDevices,
-    setTargetTrackEncoding,
     toggleVideoTrackEncoding,
     setVideoTrackEncodingBandwidth,
   };

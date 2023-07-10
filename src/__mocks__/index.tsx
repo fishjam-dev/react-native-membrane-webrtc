@@ -46,6 +46,9 @@ export const useWebRTC = () => {
   };
 };
 export const useEndpoints = () => [];
+export const useTargetTrackEncoding = () => {
+  return { setTargetTrackEncoding: NOOP };
+};
 export const useCamera = () => {
   return {
     isCameraOn: false,
@@ -59,7 +62,6 @@ export const useCamera = () => {
         resolve([]);
       });
     },
-    setTargetTrackEncoding: NOOP,
     toggleVideoTrackEncoding: NOOP,
     setVideoTrackEncodingBandwidth: NOOP,
   };
