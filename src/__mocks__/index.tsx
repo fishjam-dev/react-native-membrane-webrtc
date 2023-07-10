@@ -49,6 +49,7 @@ export const useEndpoints = () => [];
 export const useCamera = () => {
   return {
     isCameraOn: false,
+    simulcastConfig: { enabled: false, activeEncodings: [] },
     toggleCamera: NOOP,
     startCamera: NOOP,
     flipCamera: emptyPromise,
@@ -58,6 +59,9 @@ export const useCamera = () => {
         resolve([]);
       });
     },
+    setTargetTrackEncoding: NOOP,
+    toggleVideoTrackEncoding: NOOP,
+    setVideoTrackEncodingBandwidth: NOOP,
   };
 };
 export const useMicrophone = () => {
@@ -94,14 +98,6 @@ export const useAudioSettings = () => {
     selectOutputAudioDevice: NOOP,
     selectAudioSessionMode: NOOP,
     showAudioRoutePicker: NOOP,
-  };
-};
-export const useSimulcast = () => {
-  return {
-    simulcastConfig: { enabled: false, activeEncodings: [] },
-    setTargetTrackEncoding: NOOP,
-    toggleVideoTrackEncoding: NOOP,
-    setVideoTrackEncodingBandwidth: NOOP,
   };
 };
 export const useBandwidthLimit = () => {

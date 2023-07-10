@@ -1,7 +1,7 @@
 import {
   Endpoint,
   Track,
-  useSimulcast,
+  useCamera,
   setVideoTrackBandwidth,
   useScreencast,
   TrackEncoding,
@@ -29,7 +29,7 @@ export const Settings = ({
     setTargetTrackEncoding,
     toggleVideoTrackEncoding,
     simulcastConfig: { activeEncodings },
-  } = useSimulcast();
+  } = useCamera();
   const {
     simulcastConfig: { activeEncodings: screencastActiveEncodings },
     toggleScreencastTrackEncoding,
