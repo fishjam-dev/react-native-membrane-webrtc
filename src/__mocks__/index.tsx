@@ -46,9 +46,11 @@ export const useWebRTC = () => {
   };
 };
 export const useEndpoints = () => [];
+export const setTargetTrackEncoding = emptyPromise;
 export const useCamera = () => {
   return {
     isCameraOn: false,
+    simulcastConfig: { enabled: false, activeEncodings: [] },
     toggleCamera: NOOP,
     startCamera: NOOP,
     flipCamera: emptyPromise,
@@ -58,6 +60,9 @@ export const useCamera = () => {
         resolve([]);
       });
     },
+    toggleVideoTrackEncoding: NOOP,
+    setVideoTrackEncodingBandwidth: NOOP,
+    setVideoTrackBandwidth: NOOP,
   };
 };
 export const useMicrophone = () => {
@@ -95,17 +100,6 @@ export const useAudioSettings = () => {
     selectAudioSessionMode: NOOP,
     showAudioRoutePicker: NOOP,
   };
-};
-export const useSimulcast = () => {
-  return {
-    simulcastConfig: { enabled: false, activeEncodings: [] },
-    setTargetTrackEncoding: NOOP,
-    toggleVideoTrackEncoding: NOOP,
-    setVideoTrackEncodingBandwidth: NOOP,
-  };
-};
-export const useBandwidthLimit = () => {
-  return { setVideoTrackBandwidth: NOOP };
 };
 export const useBandwidthEstimation = () => {
   return {

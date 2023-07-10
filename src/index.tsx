@@ -519,10 +519,39 @@ export function useEndpoints() {
 }
 
 /**
+ * sets track encoding that server should send to the client library.
+ * The encoding will be sent whenever it is available. If choosen encoding is
+ * temporarily unavailable, some other encoding will be sent until choosen encoding
+ *  becomes active again.
+ *
+ * @param trackId id of a track which encoding you want to select
+ * @param encoding encoding to select
+ */
+export async function setTargetTrackEncoding(
+  trackId: string,
+  encoding: TrackEncoding
+) {
+  await Membrane.setTargetTrackEncoding(trackId, encoding);
+}
+
+/**
  * This hook can toggle camera on/off and provides current camera state.
+ * It manages the simulcast configuration of a camera video track.
  */
 export function useCamera() {
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
+  const [simulcastConfig, setSimulcastConfig] =
+    useState<SimulcastConfig>(videoSimulcastConfig);
+
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener(
+      'SimulcastConfigUpdate',
+      (event) => {
+        setSimulcastConfig(event);
+      }
+    );
+    return () => eventListener.remove();
+  }, []);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener('IsCameraOn', (event) =>
@@ -531,6 +560,33 @@ export function useCamera() {
     Membrane.isCameraOn().then(setIsCameraOn);
     return () => eventListener.remove();
   }, []);
+
+  /**
+   * toggles encoding of a video track on/off
+   * @param encoding encoding to toggle
+   */
+  const toggleVideoTrackEncoding = useCallback(
+    async (encoding: TrackEncoding) => {
+      videoSimulcastConfig = await Membrane.toggleVideoTrackEncoding(encoding);
+      setSimulcastConfig(videoSimulcastConfig);
+    },
+    []
+  );
+
+  /**
+   * updates maximum bandwidth for the given simulcast encoding of the video track
+   * @param encoding  encoding to update
+   * @param bandwidth BandwidthLimit to set
+   */
+  const setVideoTrackEncodingBandwidth = useCallback(
+    async (encoding: TrackEncoding, bandwidth: BandwidthLimit) => {
+      await Membrane.setVideoTrackEndodingEncodingBandwidth(
+        encoding,
+        bandwidth
+      );
+    },
+    []
+  );
 
   /**
    * Function to toggle camera on/off
@@ -576,13 +632,28 @@ export function useCamera() {
     return Membrane.getCaptureDevices() as Promise<CaptureDevice[]>;
   }, []);
 
+  /**
+   * updates maximum bandwidth for the video track. This value directly translates
+   * to quality of the stream and the amount of RTP packets being sent. In case simulcast
+   * is enabled bandwidth is split between all of the variant streams proportionally to
+   * their resolution.
+   * @param BandwidthLimit to set
+   */
+  const setVideoTrackBandwidth = async (bandwidth: BandwidthLimit) => {
+    await Membrane.setVideoTrackBandwidth(bandwidth);
+  };
+
   return {
     isCameraOn,
+    simulcastConfig,
     toggleCamera,
     startCamera,
     flipCamera,
     switchCamera,
     getCaptureDevices,
+    toggleVideoTrackEncoding,
+    setVideoTrackEncodingBandwidth,
+    setVideoTrackBandwidth,
   };
 }
 
@@ -832,86 +903,6 @@ export function useAudioSettings() {
     selectAudioSessionMode,
     showAudioRoutePicker,
   };
-}
-
-/**
- * This hook manages the simulcast configuration of a video track.
- * @returns An object with functions and data to manage simulcast configuration.
- */
-export function useSimulcast() {
-  const [simulcastConfig, setSimulcastConfig] =
-    useState<SimulcastConfig>(videoSimulcastConfig);
-
-  useEffect(() => {
-    const eventListener = eventEmitter.addListener(
-      'SimulcastConfigUpdate',
-      (event) => {
-        setSimulcastConfig(event);
-      }
-    );
-    return () => eventListener.remove();
-  }, []);
-
-  /**
-   * sets track encoding that server should send to the client library.
-   * The encoding will be sent whenever it is available. If choosen encoding is
-   * temporarily unavailable, some other encoding will be sent until choosen encoding
-   *  becomes active again.
-   *
-   * @param trackId id of a track which encoding you want to select
-   * @param encoding encoding to select
-   */
-  const setTargetTrackEncoding = useCallback(
-    async (trackId: string, encoding: TrackEncoding) => {
-      await Membrane.setTargetTrackEncoding(trackId, encoding);
-    },
-    []
-  );
-
-  /**
-   * toggles encoding of a video track on/off
-   * @param encoding encoding to toggle
-   */
-  const toggleVideoTrackEncoding = useCallback(
-    async (encoding: TrackEncoding) => {
-      videoSimulcastConfig = await Membrane.toggleVideoTrackEncoding(encoding);
-      setSimulcastConfig(videoSimulcastConfig);
-    },
-    []
-  );
-
-  /**
-   * updates maximum bandwidth for the given simulcast encoding of the video track
-   * @param encoding  encoding to update
-   * @param bandwidth BandwidthLimit to set
-   */
-  const setVideoTrackEncodingBandwidth = useCallback(
-    async (encoding: TrackEncoding, bandwidth: BandwidthLimit) => {
-      await Membrane.setVideoTrackEndodingEncodingBandwidth(
-        encoding,
-        bandwidth
-      );
-    },
-    []
-  );
-
-  return {
-    simulcastConfig,
-    setTargetTrackEncoding,
-    toggleVideoTrackEncoding,
-    setVideoTrackEncodingBandwidth,
-  };
-}
-
-/**
- * updates maximum bandwidth for the video track. This value directly translates
- * to quality of the stream and the amount of RTP packets being sent. In case simulcast
- * is enabled bandwidth is split between all of the variant streams proportionally to
- * their resolution.
- * @param BandwidthLimit to set
- */
-export async function setVideoTrackBandwidth(bandwidth: BandwidthLimit) {
-  await Membrane.setVideoTrackBandwidth(bandwidth);
 }
 
 /**

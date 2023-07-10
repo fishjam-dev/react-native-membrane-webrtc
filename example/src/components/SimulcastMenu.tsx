@@ -15,7 +15,7 @@ export const SimulcastMenu = ({
   isLocalParticipant,
   encoding,
 }: SimulcastMenuProps) => {
-  const { simulcastConfig } = Membrane.useSimulcast();
+  const { simulcastConfig } = Membrane.useCamera();
 
   return (
     <View style={styles.encodingContainer}>
