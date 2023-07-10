@@ -519,25 +519,19 @@ export function useEndpoints() {
 }
 
 /**
- * This hook can set target track encoding.
+ * sets track encoding that server should send to the client library.
+ * The encoding will be sent whenever it is available. If choosen encoding is
+ * temporarily unavailable, some other encoding will be sent until choosen encoding
+ *  becomes active again.
+ *
+ * @param trackId id of a track which encoding you want to select
+ * @param encoding encoding to select
  */
-export function useTargetTrackEncoding() {
-  /**
-   * sets track encoding that server should send to the client library.
-   * The encoding will be sent whenever it is available. If choosen encoding is
-   * temporarily unavailable, some other encoding will be sent until choosen encoding
-   *  becomes active again.
-   *
-   * @param trackId id of a track which encoding you want to select
-   * @param encoding encoding to select
-   */
-  const setTargetTrackEncoding = useCallback(
-    async (trackId: string, encoding: TrackEncoding) => {
-      await Membrane.setTargetTrackEncoding(trackId, encoding);
-    },
-    []
-  );
-  return { setTargetTrackEncoding };
+export async function setTargetTrackEncoding(
+  trackId: string,
+  encoding: TrackEncoding
+) {
+  await Membrane.setTargetTrackEncoding(trackId, encoding);
 }
 
 /**
@@ -638,6 +632,17 @@ export function useCamera() {
     return Membrane.getCaptureDevices() as Promise<CaptureDevice[]>;
   }, []);
 
+  /**
+   * updates maximum bandwidth for the video track. This value directly translates
+   * to quality of the stream and the amount of RTP packets being sent. In case simulcast
+   * is enabled bandwidth is split between all of the variant streams proportionally to
+   * their resolution.
+   * @param BandwidthLimit to set
+   */
+  const setVideoTrackBandwidth = async (bandwidth: BandwidthLimit) => {
+    await Membrane.setVideoTrackBandwidth(bandwidth);
+  };
+
   return {
     isCameraOn,
     simulcastConfig,
@@ -648,6 +653,7 @@ export function useCamera() {
     getCaptureDevices,
     toggleVideoTrackEncoding,
     setVideoTrackEncodingBandwidth,
+    setVideoTrackBandwidth,
   };
 }
 
@@ -897,17 +903,6 @@ export function useAudioSettings() {
     selectAudioSessionMode,
     showAudioRoutePicker,
   };
-}
-
-/**
- * updates maximum bandwidth for the video track. This value directly translates
- * to quality of the stream and the amount of RTP packets being sent. In case simulcast
- * is enabled bandwidth is split between all of the variant streams proportionally to
- * their resolution.
- * @param BandwidthLimit to set
- */
-export async function setVideoTrackBandwidth(bandwidth: BandwidthLimit) {
-  await Membrane.setVideoTrackBandwidth(bandwidth);
 }
 
 /**
