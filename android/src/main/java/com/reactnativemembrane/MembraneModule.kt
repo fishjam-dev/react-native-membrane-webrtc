@@ -89,6 +89,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       if (resultCode != Activity.RESULT_OK) {
         screencastPromise?.resolve(false)
         screencastPromise = null
+        screencastMutex.unlock()
         return
       }
 
@@ -388,23 +389,23 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         getSimulcastConfigFromOptions(screencastOptions)
       this@MembraneModule.screencastMaxBandwidth = getMaxBandwidthFromOptions(screencastOptions)
       screencastPromise = promise
-      
-      screencastMutex.withLock {
-        if (!isScreenCastOn) {
-          if (!ensureConnected(promise)) return@launch
-          val currentActivity = currentActivity
-          if (currentActivity == null) {
-            promise.reject("E_ACTIVITY_DOES_NOT_EXIST", "Activity doesn't exist")
-            return@launch
-          }
 
-          val mediaProjectionManager =
-            reactApplicationContext.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-          val intent = mediaProjectionManager.createScreenCaptureIntent()
-          currentActivity.startActivityForResult(intent, SCREENCAST_REQUEST)
-        } else {
-          stopScreencast()
+      screencastMutex.lock()
+
+      if (!isScreenCastOn) {
+        if (!ensureConnected(promise)) return@launch
+        val currentActivity = currentActivity
+        if (currentActivity == null) {
+          promise.reject("E_ACTIVITY_DOES_NOT_EXIST", "Activity doesn't exist")
+          return@launch
         }
+
+        val mediaProjectionManager =
+          reactApplicationContext.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        val intent = mediaProjectionManager.createScreenCaptureIntent()
+        currentActivity.startActivityForResult(intent, SCREENCAST_REQUEST)
+      } else {
+        stopScreencast()
       }
     }
   }
@@ -645,6 +646,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       emitEndpoints()
     }
     screencastPromise?.resolve(isScreenCastOn)
+    screencastMutex.unlock()
   }
 
   private fun stopScreencast() {
@@ -659,6 +661,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     emitEndpoints()
     screencastPromise?.resolve(isScreenCastOn)
     screencastPromise = null
+    screencastMutex.unlock()
   }
 
   private fun emitEvent(eventName: String, data: Any?) {
