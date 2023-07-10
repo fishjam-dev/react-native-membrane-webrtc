@@ -10,7 +10,7 @@ import Animated, {
   withDelay,
   runOnJS,
 } from 'react-native-reanimated';
-import { useVideoroomState } from 'src/VideoroomContext';
+import { useVideoroomState } from '@model/VideoroomContext';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';

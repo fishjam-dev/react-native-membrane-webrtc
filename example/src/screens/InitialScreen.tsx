@@ -7,7 +7,7 @@ import * as Application from 'expo-application';
 import React from 'react';
 import { View, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useVideoroomState } from 'src/VideoroomContext';
+import { useVideoroomState } from '@model/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'InitialScreen'>;
 

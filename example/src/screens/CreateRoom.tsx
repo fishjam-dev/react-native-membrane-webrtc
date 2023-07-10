@@ -19,8 +19,8 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useVideoroomState } from 'src/VideoroomContext';
-import { handlePermissions } from 'src/shared/handlePermissions';
+import { useVideoroomState } from '@model/VideoroomContext';
+import { handlePermissions } from '@shared/handlePermissions';
 
 type Props = NativeStackScreenProps<RootStack, 'CreateRoom'>;
 

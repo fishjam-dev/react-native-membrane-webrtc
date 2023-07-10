@@ -14,7 +14,7 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Navigation } from './Navigation';
-import { VideoroomContextProvider } from './VideoroomContext';
+import { VideoroomContextProvider } from '@model/VideoroomContext';
 
 SplashScreen.preventAutoHideAsync();
 

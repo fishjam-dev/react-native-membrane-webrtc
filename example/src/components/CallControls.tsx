@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useVideoroomState } from 'src/VideoroomContext';
+import { useVideoroomState } from '@model/VideoroomContext';
 
 import { StatsModal } from './StatsModal';
 

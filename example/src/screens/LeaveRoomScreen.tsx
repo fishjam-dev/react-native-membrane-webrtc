@@ -7,7 +7,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Sentry from '@sentry/react-native';
 import React, { useCallback } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
-import { useVideoroomState } from 'src/VideoroomContext';
+import { useVideoroomState } from '@model/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'LeaveRoom'>;
 

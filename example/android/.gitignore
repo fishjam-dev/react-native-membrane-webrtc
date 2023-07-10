@@ -1,2 +1,15 @@
-firebase-admin.json
-report.xml
+# OSX
+#
+.DS_Store
+
+# Android/IntelliJ
+#
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+
+# Bundle artifacts
+*.jsbundle

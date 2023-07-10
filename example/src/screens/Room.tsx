@@ -18,7 +18,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useVideoroomState } from 'src/VideoroomContext';
+import { useVideoroomState } from '@model/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
 import { useParticipantsTracksManager } from '../shared/participantsTracksManager';

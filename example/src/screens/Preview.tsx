@@ -14,7 +14,7 @@ import React, { useEffect, useCallback, useLayoutEffect, useRef } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useVideoroomState } from 'src/VideoroomContext';
+import { useVideoroomState } from '@model/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'Preview'>;
 
@@ -65,6 +65,8 @@ export const Preview = ({ navigation, route }: Props) => {
       await connectAndJoinRoom();
       navigation.navigate('Room');
     } catch (err) {
+      console.log("ERR2", err);
+      
       showNotification('Error connecting to server', 'error');
       Sentry.captureException(err);
     }
