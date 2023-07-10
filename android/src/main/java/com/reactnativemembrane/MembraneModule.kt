@@ -17,6 +17,8 @@ import com.twilio.audioswitch.AudioDevice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.membraneframework.rtc.MembraneRTC
 import org.membraneframework.rtc.models.Endpoint
 import org.membraneframework.rtc.MembraneRTCListener
@@ -64,6 +66,8 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   var trackContexts: MutableMap<String, TrackContext> = mutableMapOf()
 
   val audioSwitchManager = AudioSwitchManager(reactContext)
+
+  private val screencastMutex = Mutex()
 
   companion object {
     val endpoints = LinkedHashMap<String, com.reactnativemembrane.Endpoint>()
@@ -384,20 +388,23 @@ class MembraneModule(reactContext: ReactApplicationContext) :
         getSimulcastConfigFromOptions(screencastOptions)
       this@MembraneModule.screencastMaxBandwidth = getMaxBandwidthFromOptions(screencastOptions)
       screencastPromise = promise
-      if (!isScreenCastOn) {
-        if (!ensureConnected(promise)) return@launch
-        val currentActivity = currentActivity
-        if (currentActivity == null) {
-          promise.reject("E_ACTIVITY_DOES_NOT_EXIST", "Activity doesn't exist")
-          return@launch
-        }
+      
+      screencastMutex.withLock {
+        if (!isScreenCastOn) {
+          if (!ensureConnected(promise)) return@launch
+          val currentActivity = currentActivity
+          if (currentActivity == null) {
+            promise.reject("E_ACTIVITY_DOES_NOT_EXIST", "Activity doesn't exist")
+            return@launch
+          }
 
-        val mediaProjectionManager =
-          reactApplicationContext.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        val intent = mediaProjectionManager.createScreenCaptureIntent()
-        currentActivity.startActivityForResult(intent, SCREENCAST_REQUEST)
-      } else {
-        stopScreencast()
+          val mediaProjectionManager =
+            reactApplicationContext.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+          val intent = mediaProjectionManager.createScreenCaptureIntent()
+          currentActivity.startActivityForResult(intent, SCREENCAST_REQUEST)
+        } else {
+          stopScreencast()
+        }
       }
     }
   }
