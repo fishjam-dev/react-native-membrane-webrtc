@@ -62,6 +62,7 @@ export const useCamera = () => {
     },
     toggleVideoTrackEncoding: NOOP,
     setVideoTrackEncodingBandwidth: NOOP,
+    setVideoTrackBandwidth: NOOP,
   };
 };
 export const useMicrophone = () => {
@@ -81,7 +82,6 @@ export const useScreencast = () => {
     simulcastConfig: NOOP,
     setScreencastTrackEncodingBandwidth: NOOP,
     setScreencastTrackBandwidth: NOOP,
-    setVideoTrackBandwidth: NOOP,
   };
 };
 export const useEndpointMetadata = () => {
