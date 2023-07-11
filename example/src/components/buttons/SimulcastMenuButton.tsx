@@ -13,7 +13,7 @@ export const SimulcastMenuButton = ({
   label,
   enabled = true,
 }: SimulcastMenuButtonProps) => {
-  const { toggleVideoTrackEncoding } = Membrane.useSimulcast();
+  const { toggleVideoTrackEncoding } = Membrane.useCamera();
   return (
     <View>
       <Pressable

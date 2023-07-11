@@ -1,10 +1,10 @@
 import {
   Endpoint,
   Track,
-  useSimulcast,
-  setVideoTrackBandwidth,
+  useCamera,
   useScreencast,
   TrackEncoding,
+  setTargetTrackEncoding,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import React, { useState } from 'react';
 import {
@@ -26,10 +26,10 @@ export const Settings = ({
   track: Track;
 }) => {
   const {
-    setTargetTrackEncoding,
     toggleVideoTrackEncoding,
     simulcastConfig: { activeEncodings },
-  } = useSimulcast();
+    setVideoTrackBandwidth,
+  } = useCamera();
   const {
     simulcastConfig: { activeEncodings: screencastActiveEncodings },
     toggleScreencastTrackEncoding,
