@@ -21,7 +21,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.reactnativemembrane.example"
+      "package": "com.membrane.reactnativemembrane"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -1,4 +1,4 @@
-package com.reactnativemembrane.example;
+package com.membrane.reactnativemembrane;
 
 import android.app.Application;
 import android.content.res.Configuration;

@@ -1,4 +1,4 @@
-package com.reactnativemembrane.example;
+package com.membrane.reactnativemembrane;
 
 import android.graphics.Color;
 import android.os.Build;
