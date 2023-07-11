@@ -459,7 +459,7 @@ PODS:
   - Sentry/HybridSDK (8.3.3):
     - SentryPrivate (= 8.3.3)
   - SentryPrivate (8.3.3)
-  - SocketRocket (0.6.0)
+  - SocketRocket (0.6.1)
   - SwiftAlgorithms (1.0.0)
   - SwiftLogJellyfish (1.5.2)
   - SwiftPhoenixClient (4.0.0):
@@ -752,7 +752,7 @@ SPEC CHECKSUMS:
   RNSentry: 8363f1eff1c685a502e15080b5e2f447969897c5
   Sentry: 8ffc397d98fe58d693e73959b26ed0eaee55646a
   SentryPrivate: bf776a47a131648f5023097215987b40fbd47025
-  SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
+  SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftLogJellyfish: 6207ec91ef3913d303ac797b73298248ee360eb0
   SwiftPhoenixClient: 4e36f35d00e43d11881c255bd60c20efc0f39c91
