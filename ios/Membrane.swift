@@ -248,6 +248,15 @@ class Membrane: RCTEventEmitter, MembraneRTCDelegate {
   
   @objc(disconnect:withRejecter:)
   func disconnect(resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+    guard isScreensharingEnabled == false else {
+      DispatchQueue.main.async {
+        RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
+      }
+      self.emitEvent(name: "IsScreencastOn", data: false)
+      resolve(nil)
+      return
+    }
+
     room?.remove(delegate: self)
     room?.disconnect()
     room = nil

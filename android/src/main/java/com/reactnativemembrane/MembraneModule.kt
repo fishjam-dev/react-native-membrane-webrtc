@@ -248,6 +248,9 @@ class MembraneModule(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun disconnect(promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
+      if (isScreenCastOn) {
+        stopScreencast()
+      }
       room?.disconnect()
       room = null
       endpoints.clear()
@@ -638,6 +641,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
       emitEndpoints()
     }
     screencastPromise?.resolve(isScreenCastOn)
+    emitEvent("IsScreencastOn", isScreenCastOn)
   }
 
   private fun stopScreencast() {
@@ -652,6 +656,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     emitEndpoints()
     screencastPromise?.resolve(isScreenCastOn)
     screencastPromise = null
+    emitEvent("IsScreencastOn", isScreenCastOn)
   }
 
   private fun emitEvent(eventName: String, data: Any?) {

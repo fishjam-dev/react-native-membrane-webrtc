@@ -705,14 +705,10 @@ export function useScreencast() {
   );
 
   useEffect(() => {
-    if (Platform.OS === 'ios') {
-      const eventListener = eventEmitter.addListener(
-        'IsScreencastOn',
-        (event) => setIsScreencastOn(event)
-      );
-      return () => eventListener.remove();
-    }
-    return () => {};
+    const eventListener = eventEmitter.addListener('IsScreencastOn', (event) =>
+      setIsScreencastOn(event)
+    );
+    return () => eventListener.remove();
   }, []);
 
   /**
@@ -720,10 +716,7 @@ export function useScreencast() {
    */
   const toggleScreencast = useCallback(
     async (screencastOptions: Partial<ScreencastOptions> = {}) => {
-      const state = await Membrane.toggleScreencast(screencastOptions);
-      if (Platform.OS === 'android') {
-        setIsScreencastOn(state);
-      }
+      await Membrane.toggleScreencast(screencastOptions);
       screencastSimulcastConfig =
         screencastOptions.simulcastConfig || defaultSimulcastConfig();
       setSimulcastConfig(screencastSimulcastConfig);
