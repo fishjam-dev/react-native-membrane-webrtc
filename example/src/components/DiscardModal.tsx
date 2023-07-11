@@ -1,10 +1,10 @@
+import { useVideoroomState } from '@model/VideoroomContext';
 import {
   EventArg,
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
 import React, { useCallback, useRef, useState } from 'react';
-import { useVideoroomState } from '@model/VideoroomContext';
 
 import { Modal } from './Modal';
 import { StandardButton } from './buttons/StandardButton';

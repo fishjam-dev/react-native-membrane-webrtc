@@ -1,10 +1,14 @@
 import { requireNativeViewManager } from 'expo-modules-core';
 import * as React from 'react';
+import { View } from 'react-native';
 
-// import { MembraneWebRTCViewProps } from './MembraneWebRTC.types';
-const NativeView: React.ComponentType<any> =
-  requireNativeViewManager('VideoPreviewViewModule');
+import { VideoPreviewViewProps } from './MembraneWebRTC.types';
+import { isJest } from './utils';
 
-export default function VideoPreviewView(props: any) {
+const NativeView: React.ComponentType<VideoPreviewViewProps> = isJest()
+? () => <View />
+  : requireNativeViewManager('VideoPreviewViewModule');
+
+export default function VideoPreviewView(props: VideoPreviewViewProps) {
   return <NativeView {...props} />;
 }

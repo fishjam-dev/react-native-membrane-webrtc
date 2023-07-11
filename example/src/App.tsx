@@ -6,6 +6,7 @@ import {
   NotoSans_600SemiBold,
 } from '@expo-google-fonts/noto-sans';
 import { NotificationsContextProvider } from '@model/NotificationsContext';
+import { VideoroomContextProvider } from '@model/VideoroomContext';
 import * as Sentry from '@sentry/react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -14,7 +15,6 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Navigation } from './Navigation';
-import { VideoroomContextProvider } from '@model/VideoroomContext';
 
 SplashScreen.preventAutoHideAsync();
 

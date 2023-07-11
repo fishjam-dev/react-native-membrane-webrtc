@@ -1,12 +1,9 @@
-import { NativeModulesProxy, EventEmitter } from "expo-modules-core";
-import { takeRight } from "lodash";
-import { Channel, Socket, MessageRef } from "phoenix";
-import { useCallback, useEffect, useState, useRef } from "react";
-import { Platform } from "react-native";
+import { NativeModulesProxy, EventEmitter } from 'expo-modules-core';
+import { takeRight } from 'lodash';
+import { Channel, Socket, MessageRef } from 'phoenix';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { Platform } from 'react-native';
 
-import MembraneWebRTCModule from "./MembraneWebRTCModule";
-import VideoPreviewView from "./VideoPreviewView";
-import VideoRendererView from "./VideoRendererView";
 import {
   AudioOutputDevice,
   AudioOutputDeviceType,
@@ -30,7 +27,10 @@ import {
   SimulcastConfig,
   SimulcastConfigUpdateEvent,
   TrackEncoding,
-} from "./MembraneWebRTC.types";
+} from './MembraneWebRTC.types';
+import MembraneWebRTCModule from './MembraneWebRTCModule';
+import VideoPreviewView from './VideoPreviewView';
+import VideoRendererView from './VideoRendererView';
 
 const eventEmitter = new EventEmitter(
   MembraneWebRTCModule ?? NativeModulesProxy.MembraneWebRTC
@@ -59,15 +59,15 @@ export function useWebRTC() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener(
-      "SendMediaEvent",
+      'SendMediaEvent',
       sendMediaEvent
     );
     return () => eventListener.remove();
   }, []);
 
-  const sendMediaEvent = ({event}) => {
+  const sendMediaEvent = ({ event }) => {
     if (webrtcChannel.current) {
-      webrtcChannel.current.push("mediaEvent", { data: event });
+      webrtcChannel.current.push('mediaEvent', { data: event });
     }
   };
 
@@ -120,14 +120,14 @@ export function useWebRTC() {
           connectionOptions.socketChannelParams
         );
 
-        _webrtcChannel.on("mediaEvent", (event) => {
+        _webrtcChannel.on('mediaEvent', (event) => {
           MembraneWebRTCModule.receiveMediaEvent(event.data);
         });
 
-        _webrtcChannel.on("error", (error) => {
+        _webrtcChannel.on('error', (error) => {
           console.error(error);
           setError(
-            `Received error report from the server: ${error.message ?? ""}`
+            `Received error report from the server: ${error.message ?? ''}`
           );
           cleanUp();
         });
@@ -146,10 +146,10 @@ export function useWebRTC() {
         await new Promise<void>((resolve, reject) => {
           _webrtcChannel
             .join()
-            .receive("ok", () => {
+            .receive('ok', () => {
               resolve();
             })
-            .receive("error", (_response) => {
+            .receive('error', (_response) => {
               console.error(_response);
               reject(_response);
             });
@@ -200,7 +200,7 @@ export function useEndpoints() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<EndpointsUpdateEvent>(
-      "EndpointsUpdate",
+      'EndpointsUpdate',
       ({ endpoints }) => {
         setEndpoints(endpoints);
       }
@@ -239,11 +239,11 @@ export function useCamera() {
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
 
   const [simulcastConfig, setSimulcastConfig] =
-  useState<SimulcastConfig>(videoSimulcastConfig);
+    useState<SimulcastConfig>(videoSimulcastConfig);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<SimulcastConfigUpdateEvent>(
-      "SimulcastConfigUpdate",
+      'SimulcastConfigUpdate',
       (event) => {
         setSimulcastConfig(event);
       }
@@ -253,20 +253,21 @@ export function useCamera() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsCameraOnEvent>(
-      "IsCameraOn",
+      'IsCameraOn',
       (event) => setIsCameraOn(event)
     );
     setIsCameraOn(MembraneWebRTCModule.isCameraOn);
     return () => eventListener.remove();
   }, []);
 
-   /**
+  /**
    * toggles encoding of a video track on/off
    * @param encoding encoding to toggle
    */
-   const toggleVideoTrackEncoding = useCallback(
+  const toggleVideoTrackEncoding = useCallback(
     async (encoding: TrackEncoding) => {
-      videoSimulcastConfig = await MembraneWebRTCModule.toggleVideoTrackEncoding(encoding);
+      videoSimulcastConfig =
+        await MembraneWebRTCModule.toggleVideoTrackEncoding(encoding);
       setSimulcastConfig(videoSimulcastConfig);
     },
     []
@@ -304,15 +305,15 @@ export function useCamera() {
     async (config: Partial<CameraConfig> = {}) => {
       videoSimulcastConfig = config.simulcastConfig || defaultSimulcastConfig();
       // expo-modules on Android don't support Either type, so we workaround it
-      if(Platform.OS == 'android') {
-        if(typeof config.maxBandwidth == 'object') {
+      if (Platform.OS === 'android') {
+        if (typeof config.maxBandwidth === 'object') {
           //@ts-ignore
-          config.maxBandwidthMap = config.maxBandwidth
+          config.maxBandwidthMap = config.maxBandwidth;
         } else {
           //@ts-ignore
-          config.maxBandwidthInt = config.maxBandwidth
+          config.maxBandwidthInt = config.maxBandwidth;
         }
-        delete config.maxBandwidth
+        delete config.maxBandwidth;
       }
       await MembraneWebRTCModule.startCamera(config);
     },
@@ -375,7 +376,7 @@ export function useMicrophone() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsMicrophoneOnEvent>(
-      "IsMicrophoneOn",
+      'IsMicrophoneOn',
       (event) => setIsMicrophoneOn(event)
     );
     setIsMicrophoneOn(MembraneWebRTCModule.isMicrophoneOn);
@@ -416,9 +417,9 @@ export function useScreencast() {
   );
 
   useEffect(() => {
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       const eventListener = eventEmitter.addListener<IsScreencastOnEvent>(
-        "IsScreencastOn",
+        'IsScreencastOn',
         (event) => setIsScreencastOn(event)
       );
       return () => eventListener.remove();
@@ -434,7 +435,7 @@ export function useScreencast() {
       const state = await MembraneWebRTCModule.toggleScreencast(
         screencastOptions
       );
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         setIsScreencastOn(state);
       }
       screencastSimulcastConfig =
@@ -547,13 +548,13 @@ export function useAudioSettings() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener(
-      "AudioDeviceUpdate",
+      'AudioDeviceUpdate',
       onAudioDevice
     );
     MembraneWebRTCModule.startAudioSwitcher();
     return () => {
       eventListener.remove();
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         MembraneWebRTCModule.stopAudioSwitcher();
       }
     };
@@ -565,10 +566,10 @@ export function useAudioSettings() {
    */
   const selectOutputAudioDevice = useCallback(
     async (device: AudioOutputDeviceType) => {
-      if (Platform.OS === "ios") {
+      if (Platform.OS === 'ios') {
         throw Error(
-          "selectOutputAudioDevice function is supported only on Android. " +
-            "To select an output audio device on iOS use selectAudioSessionMode or showAudioRoutePicker functions"
+          'selectOutputAudioDevice function is supported only on Android. ' +
+            'To select an output audio device on iOS use selectAudioSessionMode or showAudioRoutePicker functions'
         );
       }
       await MembraneWebRTCModule.setOutputAudioDevice(device);
@@ -583,8 +584,8 @@ export function useAudioSettings() {
    */
   const selectAudioSessionMode = useCallback(
     async (audioSessionMode: AudioSessionMode) => {
-      if (Platform.OS === "android") {
-        throw Error("selectAudioSessionMode function is supported only on iOS");
+      if (Platform.OS === 'android') {
+        throw Error('selectAudioSessionMode function is supported only on iOS');
       }
       await MembraneWebRTCModule.selectAudioSessionMode(audioSessionMode);
     },
@@ -596,10 +597,10 @@ export function useAudioSettings() {
    * information refer to Apple's documentation: https://developer.apple.com/documentation/avkit/avroutepickerview
    */
   const showAudioRoutePicker = useCallback(async () => {
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       throw Error(
-        "showAudioRoutePicker function is supported only on iOS. " +
-          "To select an output audio device on Android use selectOutputAudioDevice function"
+        'showAudioRoutePicker function is supported only on iOS. ' +
+          'To select an output audio device on Android use selectOutputAudioDevice function'
       );
     }
     await MembraneWebRTCModule.showAudioRoutePicker();
@@ -641,7 +642,7 @@ export function useBandwidthEstimation() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<BandwidthEstimationEvent>(
-      "BandwidthEstimation",
+      'BandwidthEstimation',
       (estimation) => setEstimation(estimation)
     );
     return () => eventListener.remove();
@@ -680,7 +681,7 @@ export function useRTCStatistics(refreshInterval: number) {
   const processIncomingStats = useCallback(
     (statistics: RTCStats[], stats: RTCStats) => {
       Object.keys(stats).forEach((obj) => {
-        if (obj.includes("Inbound")) {
+        if (obj.includes('Inbound')) {
           const rtcStats = stats[obj] as RTCInboundStats;
 
           if (
@@ -691,22 +692,22 @@ export function useRTCStatistics(refreshInterval: number) {
               obj
             ] as RTCInboundStats;
 
-            rtcStats["packetsLost/s"] =
-              rtcStats["packetsLost"] - prevRtcStats["packetsLost"];
-            rtcStats["packetsReceived/s"] =
-              rtcStats["packetsReceived"] - prevRtcStats["packetsReceived"];
-            rtcStats["bytesReceived/s"] =
-              rtcStats["bytesReceived"] - prevRtcStats["bytesReceived"];
-            rtcStats["framesReceived/s"] =
-              rtcStats["framesReceived"] - prevRtcStats["framesReceived"];
-            rtcStats["framesDropped/s"] =
-              rtcStats["framesDropped"] - prevRtcStats["framesDropped"];
+            rtcStats['packetsLost/s'] =
+              rtcStats['packetsLost'] - prevRtcStats['packetsLost'];
+            rtcStats['packetsReceived/s'] =
+              rtcStats['packetsReceived'] - prevRtcStats['packetsReceived'];
+            rtcStats['bytesReceived/s'] =
+              rtcStats['bytesReceived'] - prevRtcStats['bytesReceived'];
+            rtcStats['framesReceived/s'] =
+              rtcStats['framesReceived'] - prevRtcStats['framesReceived'];
+            rtcStats['framesDropped/s'] =
+              rtcStats['framesDropped'] - prevRtcStats['framesDropped'];
           } else {
-            rtcStats["packetsLost/s"] = 0;
-            rtcStats["packetsReceived/s"] = 0;
-            rtcStats["bytesReceived/s"] = 0;
-            rtcStats["framesReceived/s"] = 0;
-            rtcStats["framesDropped/s"] = 0;
+            rtcStats['packetsLost/s'] = 0;
+            rtcStats['packetsReceived/s'] = 0;
+            rtcStats['bytesReceived/s'] = 0;
+            rtcStats['framesReceived/s'] = 0;
+            rtcStats['framesDropped/s'] = 0;
           }
           return stats;
         }
@@ -721,16 +722,16 @@ export function useRTCStatistics(refreshInterval: number) {
             obj
           ] as RTCOutboundStats;
 
-          rtcStats["bytesSent/s"] =
-            rtcStats["bytesSent"] - prevRtcStats["bytesSent"];
-          rtcStats["packetsSent/s"] =
-            rtcStats["packetsSent"] - prevRtcStats["packetsSent"];
-          rtcStats["framesEncoded/s"] =
-            rtcStats["framesEncoded"] - prevRtcStats["framesEncoded"];
+          rtcStats['bytesSent/s'] =
+            rtcStats['bytesSent'] - prevRtcStats['bytesSent'];
+          rtcStats['packetsSent/s'] =
+            rtcStats['packetsSent'] - prevRtcStats['packetsSent'];
+          rtcStats['framesEncoded/s'] =
+            rtcStats['framesEncoded'] - prevRtcStats['framesEncoded'];
         } else {
-          rtcStats["bytesSent/s"] = 0;
-          rtcStats["packetsSent/s"] = 0;
-          rtcStats["framesEncoded/s"] = 0;
+          rtcStats['bytesSent/s'] = 0;
+          rtcStats['packetsSent/s'] = 0;
+          rtcStats['framesEncoded/s'] = 0;
         }
         return stats;
       });

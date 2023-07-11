@@ -160,8 +160,8 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
 
   useEffect(() => {
     if (error) {
-      console.log("ERR", error);
-      
+      console.log('ERR', error);
+
       showNotification('Error connecting to server', 'error');
     }
   }, [error]);

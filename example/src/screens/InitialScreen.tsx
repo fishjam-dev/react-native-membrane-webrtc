@@ -2,12 +2,12 @@ import { BackgroundAnimation } from '@components/BackgroundAnimation';
 import { Typo } from '@components/Typo';
 import { CardButton } from '@components/buttons/CardButton';
 import { RootStack } from '@model/NavigationTypes';
+import { useVideoroomState } from '@model/VideoroomContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Application from 'expo-application';
 import React from 'react';
 import { View, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useVideoroomState } from '@model/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'InitialScreen'>;
 

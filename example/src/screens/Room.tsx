@@ -11,6 +11,7 @@ import { Participants } from '@components/Participants';
 import { Typo } from '@components/Typo';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
+import { useVideoroomState } from '@model/VideoroomContext';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useKeepAwake } from 'expo-keep-awake';
@@ -18,7 +19,6 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, InteractionManager } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useVideoroomState } from '@model/VideoroomContext';
 
 import { CallControls } from '../components/CallControls';
 import { useParticipantsTracksManager } from '../shared/participantsTracksManager';

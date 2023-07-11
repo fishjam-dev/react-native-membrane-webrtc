@@ -3,11 +3,11 @@ import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
 import { RootStack } from '@model/NavigationTypes';
 import { useNotifications } from '@model/NotificationsContext';
+import { useVideoroomState } from '@model/VideoroomContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Sentry from '@sentry/react-native';
 import React, { useCallback } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
-import { useVideoroomState } from '@model/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'LeaveRoom'>;
 

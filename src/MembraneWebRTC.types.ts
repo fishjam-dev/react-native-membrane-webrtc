@@ -1,4 +1,4 @@
-import { ViewStyle } from "react-native";
+import { ViewStyle } from 'react-native';
 
 export enum TrackType {
   Audio = 'Audio',
@@ -306,8 +306,8 @@ export type RTCTrackStats = RTCOutboundStats | RTCInboundStats;
 export type RTCStats = { [key: string]: RTCTrackStats };
 
 export type EndpointsUpdateEvent = {
-  endpoints: Endpoint[]
-}
+  endpoints: Endpoint[];
+};
 
 export type IsCameraOnEvent = boolean;
 

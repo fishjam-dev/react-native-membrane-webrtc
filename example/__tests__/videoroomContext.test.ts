@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import {
   VideoroomContextProvider,
   useVideoroomState,
-} from '../src/VideoroomContext';
+} from '../src/model/VideoroomContext';
 
 const NOOP = () => {};
 const voidPromise = (callback) => async (): Promise<void> => {
