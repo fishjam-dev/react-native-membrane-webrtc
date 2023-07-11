@@ -18,7 +18,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.membraneframework.rtc.MembraneRTC
 import org.membraneframework.rtc.models.Endpoint
 import org.membraneframework.rtc.MembraneRTCListener
@@ -615,7 +614,7 @@ class MembraneModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  fun startScreencast(mediaProjectionPermission: Intent) {
+  private fun startScreencast(mediaProjectionPermission: Intent) {
     if (localScreencastTrack != null) return
 
     isScreenCastOn = true
