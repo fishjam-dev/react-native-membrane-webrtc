@@ -23,6 +23,7 @@ import {
   MicrophoneConfig,
   RTCInboundStats,
   RTCOutboundStats,
+  RTCStats,
   ScreencastOptions,
   SimulcastConfig,
   SimulcastConfigUpdateEvent,
@@ -65,7 +66,7 @@ export function useWebRTC() {
     return () => eventListener.remove();
   }, []);
 
-  const sendMediaEvent = ({ event }) => {
+  const sendMediaEvent = ({ event }: { event: string }) => {
     if (webrtcChannel.current) {
       webrtcChannel.current.push('mediaEvent', { data: event });
     }
@@ -541,7 +542,12 @@ export function useAudioSettings() {
     []
   );
 
-  const onAudioDevice = useCallback((event) => {
+  type onAudioDeviceEvent = {
+    selectedDevice: AudioOutputDevice;
+    availableDevices: AudioOutputDevice[];
+  };
+
+  const onAudioDevice = useCallback((event: onAudioDeviceEvent) => {
     setSelectedAudioOutputDevice(event.selectedDevice);
     setAvailableDevices(event.availableDevices);
   }, []);

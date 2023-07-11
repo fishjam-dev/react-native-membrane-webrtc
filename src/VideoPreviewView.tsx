@@ -6,7 +6,7 @@ import { VideoPreviewViewProps } from './MembraneWebRTC.types';
 import { isJest } from './utils';
 
 const NativeView: React.ComponentType<VideoPreviewViewProps> = isJest()
-? () => <View />
+  ? () => <View />
   : requireNativeViewManager('VideoPreviewViewModule');
 
 export default function VideoPreviewView(props: VideoPreviewViewProps) {
