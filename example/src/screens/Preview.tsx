@@ -65,8 +65,6 @@ export const Preview = ({ navigation, route }: Props) => {
       await connectAndJoinRoom();
       navigation.navigate('Room');
     } catch (err) {
-      console.log('ERR2', err);
-
       showNotification('Error connecting to server', 'error');
       Sentry.captureException(err);
     }
