@@ -1,0 +1,17 @@
+{
+  "platforms": ["ios", "android", "web"],
+  "ios": {
+    "modules": [
+      "MembraneWebRTCModule",
+      "VideoPreviewViewModule",
+      "VideoRendererViewModule"
+    ]
+  },
+  "android": {
+    "modules": [
+      "com.reactnativemembrane.MembraneWebRTCModule",
+      "com.reactnativemembrane.VideoPreviewViewModule",
+      "com.reactnativemembrane.VideoRendererViewModule"
+    ]
+  }
+}

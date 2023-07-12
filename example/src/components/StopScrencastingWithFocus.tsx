@@ -1,7 +1,7 @@
 import { BrandColors, TextColors } from '@colors';
+import { useVideoroomState } from '@model/VideoroomContext';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useVideoroomState } from 'src/VideoroomContext';
 
 import { Typo } from './Typo';
 import { StandardButton } from './buttons/StandardButton';

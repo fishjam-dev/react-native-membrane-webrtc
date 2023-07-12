@@ -1,346 +1,41 @@
+import { NativeModulesProxy, EventEmitter } from 'expo-modules-core';
 import { takeRight } from 'lodash';
 import { Channel, Socket, MessageRef } from 'phoenix';
 import { useCallback, useEffect, useState, useRef } from 'react';
+import { Platform } from 'react-native';
+
 import {
-  NativeModules,
-  Platform,
-  requireNativeComponent,
-  UIManager,
-  ViewStyle,
-  NativeEventEmitter,
-} from 'react-native';
+  AudioOutputDevice,
+  AudioOutputDeviceType,
+  AudioSessionMode,
+  BandwidthEstimationEvent,
+  BandwidthLimit,
+  CameraConfig,
+  CaptureDevice,
+  ConnectionOptions,
+  Endpoint,
+  EndpointsUpdateEvent,
+  IsCameraOnEvent,
+  IsMicrophoneOnEvent,
+  IsScreencastOnEvent,
+  LoggingSeverity,
+  Metadata,
+  MicrophoneConfig,
+  RTCInboundStats,
+  RTCOutboundStats,
+  RTCStats,
+  ScreencastOptions,
+  SimulcastConfig,
+  SimulcastConfigUpdateEvent,
+  TrackEncoding,
+} from './MembraneWebRTC.types';
+import MembraneWebRTCModule from './MembraneWebRTCModule';
+import VideoPreviewView from './VideoPreviewView';
+import VideoRendererView from './VideoRendererView';
 
-import { NativeMembraneMock } from './__mocks__/native';
-
-function isJest() {
-  // @ts-ignore
-  return process.env.NODE_ENV === 'test';
-}
-
-const LINKING_ERROR =
-  `The package 'react-native-membrane' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo managed workflow\n';
-
-const Membrane = NativeModules.Membrane
-  ? NativeModules.Membrane
-  : isJest()
-  ? NativeMembraneMock
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
-const eventEmitter = new NativeEventEmitter(Membrane);
-
-export enum TrackType {
-  Audio = 'Audio',
-  Video = 'Video',
-}
-/**
- * Type describing Voice Activity Detection statuses.
- *
- * SPEECH - voice activity has been detected
- * SILENCE - lack of voice activity has been detected
- */
-export enum VadStatus {
-  Silence = 'silence',
-  Speech = 'speech',
-}
-
-/**
- * Type describing possible reasons of currently selected encoding.
- *
- * - OTHER - the exact reason couldn't be determined
- * - ENCODING_INACTIVE - previously selected encoding became inactive
- * - LOW_BANDWIDTH - there is no longer enough bandwidth to maintain previously selected encoding
- */
-export enum EncodingReason {
-  Other = 'other',
-  EncodingInactive = 'encodingInactive',
-  LowBandwidth = 'lowBandwidth',
-}
-
-export type Track = {
-  id: string;
-  type: TrackType;
-  metadata: Metadata;
-  vadStatus: VadStatus;
-  // Encoding that is currently received. Only present for remote tracks.
-  encoding: TrackEncoding | null;
-  // The reason of currently selected encoding. Only present for remote tracks.
-  encodingReason: EncodingReason | null;
-};
-
-export type Metadata = { [key: string]: any };
-export type SocketConnectionParams = { [key: string]: any };
-export type SocketChannelParams = { [key: string]: any };
-
-export type Endpoint = {
-  /**
-   *  id used to identify an endpoint
-   */
-  id: string;
-  /**
-   * used to indicate endpoint type.
-   */
-  type: string;
-  /**
-   * whether the endpoint is local or remote
-   */
-  isLocal: boolean;
-  /**
-   * a map `string -> any` containing endpoint metadata from the server
-   */
-  metadata: Metadata;
-  /**
-   * a list of endpoints's video and audio tracks
-   */
-  tracks: Track[];
-};
-
-export enum VideoLayout {
-  FILL = 'FILL',
-  FIT = 'FIT',
-}
-
-export enum VideoQuality {
-  QVGA_169 = 'QVGA169',
-  VGA_169 = 'VGA169',
-  QHD_169 = 'QHD169',
-  HD_169 = 'HD169',
-  FHD_169 = 'FHD169',
-  QVGA_43 = 'QVGA43',
-  VGA_43 = 'VGA43',
-  QHD_43 = 'QHD43',
-  HD_43 = 'HD43',
-  FHD_43 = 'FHD43',
-}
-
-export enum ScreencastQuality {
-  VGA = 'VGA',
-  HD5 = 'HD5',
-  HD15 = 'HD15',
-  FHD15 = 'FHD15',
-  FHD30 = 'FHD30',
-}
-
-export type TrackEncoding = 'l' | 'm' | 'h';
-
-export enum AudioOutputDeviceType {
-  Bluetooth = 'bluetooth',
-  Headset = 'headset',
-  Speaker = 'speaker',
-  Earpiece = 'earpiece',
-}
-
-export enum AudioSessionMode {
-  VoiceChat = 'voiceChat',
-  VideoChat = 'videoChat',
-}
-
-export type AudioOutputDevice = {
-  type: AudioOutputDeviceType;
-  name: string;
-};
-
-/**
- * A type describing simulcast configuration.
- *
- * At the moment, simulcast track is initialized in three versions - low, medium and high.
- * High resolution is the original track resolution, while medium and low resolutions are
- * the original track resolution scaled down by 2 and 4 respectively.
- */
-export type SimulcastConfig = {
-  /**
-   * whether to simulcast track or not. By default simulcast is disabled.
-   */
-  enabled: boolean;
-  /**
-   *  list of active encodings. Encoding can be one of `"h"` (original encoding), `"m"` (scaled down x2), `"l"` (scaled down x4).
-   */
-  activeEncodings: TrackEncoding[];
-};
-
-/**
- * Type describing maximal bandwidth that can be used, in kbps. 0 is interpreted as unlimited bandwidth.
- */
-export type BandwidthLimit = number;
-
-/**
- * Type describing bandwidth limit for simulcast track. It is a mapping `encoding -> BandwidthLimit`. If encoding isn't present in this mapping,
- * it will be assumed that this particular encoding shouldn't have any bandwidth limit.
- */
-export type SimulcastBandwidthLimit = Record<TrackEncoding, BandwidthLimit>;
-
-/**
- * A type describing bandwidth limitation of a track, including simulcast and non-simulcast tracks. Can be `BandwidthLimit` or `SimulcastBandwidthLimit`.
- */
-export type TrackBandwidthLimit = BandwidthLimit | SimulcastBandwidthLimit;
-
-export type ConnectionOptions = {
-  /**
-   * a map `string -> any` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
-   */
-  endpointMetadata: Metadata;
-
-  /**
-   *  a map `string -> any` containing connection params passed to the socket.
-   */
-  connectionParams: SocketConnectionParams;
-  /**
-   * a map `string -> any` containing params passed to the socket channel.
-   */
-  socketChannelParams: SocketChannelParams;
-};
-
-export type CameraConfig = {
-  /**
-   * resolution + aspect ratio of local video track, one of: `QVGA_169`, `VGA_169`, `QHD_169`, `HD_169`,
-   * `FHD_169`, `QVGA_43`, `VGA_43`, `QHD_43`, `HD_43`, `FHD_43`. Note that quality might be worse than
-   * specified due to device capabilities, internet connection etc.
-   * @default `VGA_169`
-   */
-  quality: VideoQuality;
-  /**
-   * whether to flip the dimensions of the video, that is whether to film in vertical orientation.
-   * @default `true`
-   */
-  flipVideo: boolean;
-  /**
-   * a map `string -> any` containing video track metadata to be sent to the server.
-   */
-  videoTrackMetadata: Metadata;
-  /**
-   *  SimulcastConfig of a video track. By default simulcast is disabled.
-   */
-  simulcastConfig: SimulcastConfig;
-  /**
-   *  bandwidth limit of a video track. By default there is no bandwidth limit.
-   */
-  maxBandwidth: TrackBandwidthLimit;
-  /**
-   * whether the camera track is initially enabled, you can toggle it on/off later with toggleCamera method
-   * @default `true`
-   */
-  cameraEnabled: boolean;
-  /**
-   * id of the camera to start capture with. Get available cameras with `getCaptureDevices()`.
-   * You can switch the cameras later with `flipCamera`/`switchCamera` functions.
-   * @default the first front camera
-   */
-  captureDeviceId: string;
-};
-
-export type MicrophoneConfig = {
-  /**
-   * a map `string -> any` containing audio track metadata to be sent to the server.
-   */
-  audioTrackMetadata: Metadata;
-  /**
-   * whether the microphone is initially enabled, you can toggle it on/off later with toggleMicrophone method
-   * @default `true`
-   */
-  microphoneEnabled: boolean;
-};
-
-export type ScreencastOptions = {
-  /**
-   * Resolution + fps of screencast track, one of: `VGA`, `HD5`, `HD15`, `FHD15`, `FHD30`.
-   * Note that quality might be worse than specified due to device capabilities, internet
-   * connection etc.
-   * @default `HD15``
-   */
-  quality: ScreencastQuality;
-  /**
-   * a map `string -> any` containing screencast track metadata to be sent to the server
-   */
-  screencastMetadata: Metadata;
-  /**
-   * SimulcastConfig of a screencast track. By default simulcast is disabled.
-   */
-  simulcastConfig: SimulcastConfig;
-  /**
-   *  bandwidth limit of a screencast track. By default there is no bandwidth limit.
-   */
-  maxBandwidth: TrackBandwidthLimit;
-};
-
-export type CaptureDevice = {
-  id: string;
-  name: string;
-  isFrontFacing: boolean;
-  isBackFacing: boolean;
-};
-
-export enum LoggingSeverity {
-  Verbose = 'verbose',
-  Info = 'info',
-  Warning = 'warning',
-  Error = 'error',
-  None = 'none',
-}
-
-/**
- * A record of the total time, in seconds,
- * that this stream has spent in each quality limitation state.
- * none: The resolution and/or framerate is not limited.
- * bandwidth: The resolution and/or framerate is primarily limited due to
- * congestion cues during bandwidth estimation.
- * Typical, congestion control algorithms use inter-arrival time,
- * round-trip time, packet or other congestion cues to perform bandwidth estimation.
- * cpu: The resolution and/or framerate is primarily limited due to CPU load.
- * other: The resolution and/or framerate is primarily limited
- * for a reason other than the above.
- */
-export type QualityLimitationDurations = {
-  bandwidth: number;
-  cpu: number;
-  none: number;
-  other: number;
-};
-
-export type RTCOutboundStats = {
-  'kind': string;
-  'rid': string;
-  'bytesSent': number;
-  'targetBitrate': number;
-  'packetsSent': number;
-  'framesEncoded': number;
-  'framesPerSecond': number;
-  'frameWidth': number;
-  'frameHeight': number;
-  'qualityLimitationDurations': QualityLimitationDurations;
-  'bytesSent/s': number;
-  'packetsSent/s': number;
-  'framesEncoded/s': number;
-};
-
-export type RTCInboundStats = {
-  'kind': number;
-  'jitter': number;
-  'packetsLost': number;
-  'packetsReceived': number;
-  'bytesReceived': number;
-  'framesReceived': number;
-  'frameWidth': number;
-  'frameHeight': number;
-  'framesPerSecond': number;
-  'framesDropped': number;
-  'packetsLost/s': number;
-  'packetsReceived/s': number;
-  'bytesReceived/s': number;
-  'framesReceived/s': number;
-  'framesDropped/s': number;
-};
-
-export type RTCTrackStats = RTCOutboundStats | RTCInboundStats;
-
-type RTCStats = { [key: string]: RTCTrackStats };
+const eventEmitter = new EventEmitter(
+  MembraneWebRTCModule ?? NativeModulesProxy.MembraneWebRTC
+);
 
 const defaultSimulcastConfig = () => ({
   enabled: false,
@@ -371,9 +66,9 @@ export function useWebRTC() {
     return () => eventListener.remove();
   }, []);
 
-  const sendMediaEvent = (mediaEvent: string) => {
+  const sendMediaEvent = ({ event }: { event: string }) => {
     if (webrtcChannel.current) {
-      webrtcChannel.current.push('mediaEvent', { data: mediaEvent });
+      webrtcChannel.current.push('mediaEvent', { data: event });
     }
   };
 
@@ -427,7 +122,7 @@ export function useWebRTC() {
         );
 
         _webrtcChannel.on('mediaEvent', (event) => {
-          Membrane.receiveMediaEvent(event.data);
+          MembraneWebRTCModule.receiveMediaEvent(event.data);
         });
 
         _webrtcChannel.on('error', (error) => {
@@ -447,7 +142,7 @@ export function useWebRTC() {
         socket.current = _socket;
         webrtcChannel.current = _webrtcChannel;
 
-        await Membrane.create(url);
+        await MembraneWebRTCModule.create();
 
         await new Promise<void>((resolve, reject) => {
           _webrtcChannel
@@ -461,7 +156,9 @@ export function useWebRTC() {
             });
         });
 
-        await Membrane.connect(connectionOptions.endpointMetadata || {});
+        await MembraneWebRTCModule.connect(
+          connectionOptions.endpointMetadata || {}
+        );
       }
     ),
     []
@@ -485,7 +182,7 @@ export function useWebRTC() {
     if (onSocketClose.current) refs.push(onSocketClose.current);
     if (onSocketError.current) refs.push(onSocketError.current);
     socket.current?.off(refs);
-    return Membrane.disconnect();
+    return MembraneWebRTCModule.disconnect();
   };
 
   return {
@@ -503,15 +200,17 @@ export function useEndpoints() {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener(
+    const eventListener = eventEmitter.addListener<EndpointsUpdateEvent>(
       'EndpointsUpdate',
       ({ endpoints }) => {
         setEndpoints(endpoints);
       }
     );
-    Membrane.getEndpoints().then(({ endpoints }: { endpoints: Endpoint[] }) => {
-      setEndpoints(endpoints);
-    });
+    MembraneWebRTCModule.getEndpoints().then(
+      ({ endpoints }: { endpoints: Endpoint[] }) => {
+        setEndpoints(endpoints);
+      }
+    );
     return () => eventListener.remove();
   }, []);
 
@@ -531,20 +230,20 @@ export async function setTargetTrackEncoding(
   trackId: string,
   encoding: TrackEncoding
 ) {
-  await Membrane.setTargetTrackEncoding(trackId, encoding);
+  await MembraneWebRTCModule.setTargetTrackEncoding(trackId, encoding);
 }
 
 /**
  * This hook can toggle camera on/off and provides current camera state.
- * It manages the simulcast configuration of a camera video track.
  */
 export function useCamera() {
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
+
   const [simulcastConfig, setSimulcastConfig] =
     useState<SimulcastConfig>(videoSimulcastConfig);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener(
+    const eventListener = eventEmitter.addListener<SimulcastConfigUpdateEvent>(
       'SimulcastConfigUpdate',
       (event) => {
         setSimulcastConfig(event);
@@ -554,10 +253,11 @@ export function useCamera() {
   }, []);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener('IsCameraOn', (event) =>
-      setIsCameraOn(event)
+    const eventListener = eventEmitter.addListener<IsCameraOnEvent>(
+      'IsCameraOn',
+      (event) => setIsCameraOn(event)
     );
-    Membrane.isCameraOn().then(setIsCameraOn);
+    setIsCameraOn(MembraneWebRTCModule.isCameraOn);
     return () => eventListener.remove();
   }, []);
 
@@ -567,7 +267,8 @@ export function useCamera() {
    */
   const toggleVideoTrackEncoding = useCallback(
     async (encoding: TrackEncoding) => {
-      videoSimulcastConfig = await Membrane.toggleVideoTrackEncoding(encoding);
+      videoSimulcastConfig =
+        await MembraneWebRTCModule.toggleVideoTrackEncoding(encoding);
       setSimulcastConfig(videoSimulcastConfig);
     },
     []
@@ -580,7 +281,7 @@ export function useCamera() {
    */
   const setVideoTrackEncodingBandwidth = useCallback(
     async (encoding: TrackEncoding, bandwidth: BandwidthLimit) => {
-      await Membrane.setVideoTrackEndodingEncodingBandwidth(
+      await MembraneWebRTCModule.setVideoTrackEndodingEncodingBandwidth(
         encoding,
         bandwidth
       );
@@ -592,7 +293,7 @@ export function useCamera() {
    * Function to toggle camera on/off
    */
   const toggleCamera = useCallback(async () => {
-    const state = await Membrane.toggleCamera();
+    const state = await MembraneWebRTCModule.toggleCamera();
     setIsCameraOn(state);
   }, []);
 
@@ -604,7 +305,18 @@ export function useCamera() {
   const startCamera = useCallback(
     async (config: Partial<CameraConfig> = {}) => {
       videoSimulcastConfig = config.simulcastConfig || defaultSimulcastConfig();
-      await Membrane.startCamera(config);
+      // expo-modules on Android don't support Either type, so we workaround it
+      if (Platform.OS === 'android') {
+        if (typeof config.maxBandwidth === 'object') {
+          //@ts-ignore
+          config.maxBandwidthMap = config.maxBandwidth;
+        } else {
+          //@ts-ignore
+          config.maxBandwidthInt = config.maxBandwidth;
+        }
+        delete config.maxBandwidth;
+      }
+      await MembraneWebRTCModule.startCamera(config);
     },
     []
   );
@@ -614,7 +326,7 @@ export function useCamera() {
    * @returns A promise that resolves when camera is toggled.
    */
   const flipCamera = useCallback(async () => {
-    return Membrane.flipCamera();
+    return MembraneWebRTCModule.flipCamera();
   }, []);
 
   /**
@@ -622,14 +334,14 @@ export function useCamera() {
    * @returns A promise that resolves when camera is switched.
    */
   const switchCamera = useCallback(async (captureDeviceId: string) => {
-    return Membrane.switchCamera(captureDeviceId);
+    return MembraneWebRTCModule.switchCamera(captureDeviceId);
   }, []);
 
   /** Function that queries available cameras.
    * @returns A promise that resolves to the list of available cameras.
    */
   const getCaptureDevices = useCallback(async () => {
-    return Membrane.getCaptureDevices() as Promise<CaptureDevice[]>;
+    return MembraneWebRTCModule.getCaptureDevices() as Promise<CaptureDevice[]>;
   }, []);
 
   /**
@@ -640,7 +352,7 @@ export function useCamera() {
    * @param BandwidthLimit to set
    */
   const setVideoTrackBandwidth = async (bandwidth: BandwidthLimit) => {
-    await Membrane.setVideoTrackBandwidth(bandwidth);
+    await MembraneWebRTCModule.setVideoTrackBandwidth(bandwidth);
   };
 
   return {
@@ -664,10 +376,11 @@ export function useMicrophone() {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener('IsMicrophoneOn', (event) =>
-      setIsMicrophoneOn(event)
+    const eventListener = eventEmitter.addListener<IsMicrophoneOnEvent>(
+      'IsMicrophoneOn',
+      (event) => setIsMicrophoneOn(event)
     );
-    Membrane.isMicrophoneOn().then(setIsMicrophoneOn);
+    setIsMicrophoneOn(MembraneWebRTCModule.isMicrophoneOn);
     return () => eventListener.remove();
   }, []);
 
@@ -675,7 +388,7 @@ export function useMicrophone() {
    * Function to toggle microphone on/off
    */
   const toggleMicrophone = useCallback(async () => {
-    const state = await Membrane.toggleMicrophone();
+    const state = await MembraneWebRTCModule.toggleMicrophone();
     setIsMicrophoneOn(state);
   }, []);
 
@@ -686,7 +399,7 @@ export function useMicrophone() {
    */
   const startMicrophone = useCallback(
     async (config: Partial<MicrophoneConfig> = {}) => {
-      await Membrane.startMicrophone(config);
+      await MembraneWebRTCModule.startMicrophone(config);
     },
     []
   );
@@ -706,7 +419,7 @@ export function useScreencast() {
 
   useEffect(() => {
     if (Platform.OS === 'ios') {
-      const eventListener = eventEmitter.addListener(
+      const eventListener = eventEmitter.addListener<IsScreencastOnEvent>(
         'IsScreencastOn',
         (event) => setIsScreencastOn(event)
       );
@@ -720,7 +433,9 @@ export function useScreencast() {
    */
   const toggleScreencast = useCallback(
     async (screencastOptions: Partial<ScreencastOptions> = {}) => {
-      const state = await Membrane.toggleScreencast(screencastOptions);
+      const state = await MembraneWebRTCModule.toggleScreencast(
+        screencastOptions
+      );
       if (Platform.OS === 'android') {
         setIsScreencastOn(state);
       }
@@ -737,7 +452,7 @@ export function useScreencast() {
    */
   const updateScreencastTrackMetadata = useCallback(
     async (metadata: Metadata) => {
-      await Membrane.updateScreencastTrackMetadata(metadata);
+      await MembraneWebRTCModule.updateScreencastTrackMetadata(metadata);
     },
     []
   );
@@ -748,9 +463,8 @@ export function useScreencast() {
    */
   const toggleScreencastTrackEncoding = useCallback(
     async (encoding: TrackEncoding) => {
-      screencastSimulcastConfig = await Membrane.toggleScreencastTrackEncoding(
-        encoding
-      );
+      screencastSimulcastConfig =
+        await MembraneWebRTCModule.toggleScreencastTrackEncoding(encoding);
       setSimulcastConfig(screencastSimulcastConfig);
     },
     []
@@ -763,7 +477,10 @@ export function useScreencast() {
    */
   const setScreencastTrackEncodingBandwidth = useCallback(
     async (encoding: TrackEncoding, bandwidth: BandwidthLimit) => {
-      await Membrane.setScreencastTrackEncodingBandwidth(encoding, bandwidth);
+      await MembraneWebRTCModule.setScreencastTrackEncodingBandwidth(
+        encoding,
+        bandwidth
+      );
     },
     []
   );
@@ -777,7 +494,7 @@ export function useScreencast() {
    */
   const setScreencastTrackBandwidth = useCallback(
     async (bandwidth: BandwidthLimit) => {
-      await Membrane.setScreencastTrackBandwidth(bandwidth);
+      await MembraneWebRTCModule.setScreencastTrackBandwidth(bandwidth);
     },
     []
   );
@@ -798,7 +515,7 @@ export function useScreencast() {
  * @param metadata a map `string -> any` containing user's track metadata to be sent to the server
  */
 export async function updateEndpointMetadata(metadata: Metadata) {
-  await Membrane.updateEndpointMetadata(metadata);
+  await MembraneWebRTCModule.updateEndpointMetadata(metadata);
 }
 
 /**
@@ -806,14 +523,14 @@ export async function updateEndpointMetadata(metadata: Metadata) {
  * @param metadata a map string -> any containing video track metadata to be sent to the server
  */
 export async function updateVideoTrackMetadata(metadata: Metadata) {
-  await Membrane.updateVideoTrackMetadata(metadata);
+  await MembraneWebRTCModule.updateVideoTrackMetadata(metadata);
 }
 /**
  * a function that updates audio metadata on the server
  * @param metadata a map `string -> any` containing audio track metadata to be sent to the server
  */
 export async function updateAudioTrackMetadata(metadata: Metadata) {
-  await Membrane.updateAudioTrackMetadata(metadata);
+  await MembraneWebRTCModule.updateAudioTrackMetadata(metadata);
 }
 /**
  * This hook manages audio settings.
@@ -825,7 +542,12 @@ export function useAudioSettings() {
     []
   );
 
-  const onAudioDevice = useCallback((event) => {
+  type onAudioDeviceEvent = {
+    selectedDevice: AudioOutputDevice;
+    availableDevices: AudioOutputDevice[];
+  };
+
+  const onAudioDevice = useCallback((event: onAudioDeviceEvent) => {
     setSelectedAudioOutputDevice(event.selectedDevice);
     setAvailableDevices(event.availableDevices);
   }, []);
@@ -835,11 +557,11 @@ export function useAudioSettings() {
       'AudioDeviceUpdate',
       onAudioDevice
     );
-    Membrane.startAudioSwitcher();
+    MembraneWebRTCModule.startAudioSwitcher();
     return () => {
       eventListener.remove();
       if (Platform.OS === 'android') {
-        Membrane.stopAudioSwitcher();
+        MembraneWebRTCModule.stopAudioSwitcher();
       }
     };
   }, []);
@@ -856,7 +578,7 @@ export function useAudioSettings() {
             'To select an output audio device on iOS use selectAudioSessionMode or showAudioRoutePicker functions'
         );
       }
-      await Membrane.setOutputAudioDevice(device);
+      await MembraneWebRTCModule.setOutputAudioDevice(device);
     },
     []
   );
@@ -871,7 +593,7 @@ export function useAudioSettings() {
       if (Platform.OS === 'android') {
         throw Error('selectAudioSessionMode function is supported only on iOS');
       }
-      await Membrane.selectAudioSessionMode(audioSessionMode);
+      await MembraneWebRTCModule.selectAudioSessionMode(audioSessionMode);
     },
     []
   );
@@ -887,7 +609,7 @@ export function useAudioSettings() {
           'To select an output audio device on Android use selectOutputAudioDevice function'
       );
     }
-    await Membrane.showAudioRoutePicker();
+    await MembraneWebRTCModule.showAudioRoutePicker();
   }, []);
 
   return {
@@ -913,7 +635,7 @@ export function useAudioSettings() {
 export function changeWebRTCLoggingSeverity(
   severity: LoggingSeverity
 ): Promise<void> {
-  return Membrane.changeWebRTCLoggingSeverity(severity);
+  return MembraneWebRTCModule.changeWebRTCLoggingSeverity(severity);
 }
 
 /**
@@ -925,7 +647,7 @@ export function useBandwidthEstimation() {
   const [estimation, setEstimation] = useState<number | null>(null);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener(
+    const eventListener = eventEmitter.addListener<BandwidthEstimationEvent>(
       'BandwidthEstimation',
       (estimation) => setEstimation(estimation)
     );
@@ -952,7 +674,7 @@ export function useRTCStatistics(refreshInterval: number) {
 
   // Gets stats from the native libraries.
   const getStatistics = useCallback(async () => {
-    const stats = await Membrane.getStatistics();
+    const stats = await MembraneWebRTCModule.getStatistics();
     setStatistics((prev) => {
       const newStats = [...prev, processIncomingStats(prev, stats)];
       takeRight(newStats, MAX_SIZE);
@@ -1027,67 +749,5 @@ export function useRTCStatistics(refreshInterval: number) {
   return { statistics };
 }
 
-export type VideoRendererProps = {
-  /**
-   * id of the video track which you want to render.
-   */
-  trackId: string;
-  /**
-   * `FILL` or `FIT` - it works just like RN Image component. `FILL` fills the whole view
-   * with video and it may cut some parts of the video. `FIT` scales the video so the whole
-   * video is visible, but it may leave some empty space in the view.
-   * @default `FILL`
-   */
-  videoLayout?: VideoLayout;
-  /**
-   * whether to mirror video
-   * @default false
-   */
-  mirrorVideo?: boolean;
-  style?: ViewStyle;
-};
-
-const VideoRendererViewComponentName = 'VideoRendererView';
-
-/**
- * A component used for rendering the endpoint's video and audio. You can add some basic View styling.
- */
-export const VideoRendererView =
-  UIManager.getViewManagerConfig(VideoRendererViewComponentName) != null
-    ? requireNativeComponent<VideoRendererProps>(VideoRendererViewComponentName)
-    : () => {
-        throw new Error(LINKING_ERROR);
-      };
-
-const VideoPreviewViewName = 'VideoPreviewView';
-
-export type VideoPreviewViewProps = {
-  /**
-   * `FILL` or `FIT` - it works just like RN Image component. `FILL` fills the whole view
-   * with video and it may cut some parts of the video. `FIT` scales the video so the whole
-   * video is visible, but it may leave some empty space in the view.
-   * @default `FILL`
-   */
-  videoLayout?: VideoLayout;
-  /**
-   * whether to mirror video
-   * @default false
-   */
-  mirrorVideo?: boolean;
-  style?: ViewStyle;
-  /**
-   * Id of the camera used for preview. Get available cameras with `getCaptureDevices()` function.
-   * @default the first front camera
-   */
-  captureDeviceId?: string;
-};
-
-/**
- * A component used for preview of the user's video.
- */
-export const VideoPreviewView =
-  UIManager.getViewManagerConfig(VideoPreviewViewName) != null
-    ? requireNativeComponent<VideoPreviewViewProps>(VideoPreviewViewName)
-    : () => {
-        throw new Error(LINKING_ERROR);
-      };
+export { VideoPreviewView, VideoRendererView };
+export * from './MembraneWebRTC.types';

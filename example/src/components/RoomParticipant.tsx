@@ -1,5 +1,6 @@
 import { BrandColors, AdditionalColors, TextColors } from '@colors';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
+import { useVideoroomState } from '@model/VideoroomContext';
 import React, { useRef, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import Animated, {
@@ -10,7 +11,6 @@ import Animated, {
   withDelay,
   runOnJS,
 } from 'react-native-reanimated';
-import { useVideoroomState } from 'src/VideoroomContext';
 
 import { Icon } from './Icon';
 import { NoCameraView } from './NoCameraView';

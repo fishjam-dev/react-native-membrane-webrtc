@@ -7,6 +7,7 @@ import { StandardButton } from '@components/buttons/StandardButton';
 import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { RootStack } from '@model/NavigationTypes';
 import { useNotifications } from '@model/NotificationsContext';
+import { useVideoroomState } from '@model/VideoroomContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Sentry from '@sentry/react-native';
 import { findIndex } from 'lodash';
@@ -14,7 +15,6 @@ import React, { useEffect, useCallback, useLayoutEffect, useRef } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useVideoroomState } from 'src/VideoroomContext';
 
 type Props = NativeStackScreenProps<RootStack, 'Preview'>;
 

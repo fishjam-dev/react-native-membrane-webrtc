@@ -5,9 +5,11 @@ import { TextInput } from '@components/TextInput';
 import { Typo } from '@components/Typo';
 import { StandardButton } from '@components/buttons/StandardButton';
 import { RootStack } from '@model/NavigationTypes';
+import { useVideoroomState } from '@model/VideoroomContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCardAnimation } from '@react-navigation/stack';
+import { handlePermissions } from '@shared/handlePermissions';
 import {
   checkIfUrl,
   extractRoomNameFromUrl,
@@ -23,8 +25,6 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useVideoroomState } from 'src/VideoroomContext';
-import { handlePermissions } from 'src/shared/handlePermissions';
 
 type Props = NativeStackScreenProps<RootStack, 'JoinRoom'>;
 

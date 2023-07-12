@@ -1,180 +1,92 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'maven-publish'
+
+group = 'com.reactnativemembrane'
+version = '0.1.0'
+
 buildscript {
-  def kotlin_version = '1.6.10'
+  def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
+  if (expoModulesCorePlugin.exists()) {
+    apply from: expoModulesCorePlugin
+    applyKotlinExpoModulesCorePlugin()
+  }
+
+  // Simple helper that allows the root project to override versions declared by this library.
+  ext.safeExtGet = { prop, fallback ->
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+  }
+
+  // Ensures backward compatibility
+  ext.getKotlinVersion = {
+    if (ext.has("kotlinVersion")) {
+      ext.kotlinVersion()
+    } else {
+      ext.safeExtGet("kotlinVersion", "1.6.10")
+    }
+  }
 
   repositories {
-    google()
     mavenCentral()
-    jcenter()
-    maven { url "https://jitpack.io" }
   }
 
   dependencies {
-    classpath('com.android.tools.build:gradle:7.1.1')
-    // noinspection DifferentKotlinGradleVersion
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${getKotlinVersion()}")
   }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-
-def getExtOrDefault(name) {
-  return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['Membrane_' + name]
-}
-
-def getExtOrIntegerDefault(name) {
-  return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties['Membrane_' + name]).toInteger()
+afterEvaluate {
+  publishing {
+    publications {
+      release(MavenPublication) {
+        from components.release
+      }
+    }
+    repositories {
+      maven {
+        url = mavenLocal().url
+      }
+    }
+  }
 }
 
 android {
-  compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
-  defaultConfig {
-    minSdkVersion 21
-    targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
+  namespace = "com.reactnativemembrane"
+  compileSdkVersion safeExtGet("compileSdkVersion", 31)
 
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
   }
 
-  buildTypes {
-    release {
-      minifyEnabled false
-    }
+  kotlinOptions {
+    jvmTarget = JavaVersion.VERSION_11.majorVersion
+  }
+
+  defaultConfig {
+    minSdkVersion safeExtGet("minSdkVersion", 21)
+    targetSdkVersion safeExtGet("targetSdkVersion", 31)
+    versionCode 1
+    versionName "0.1.0"
   }
   lintOptions {
-    disable 'GradleCompatible'
+    abortOnError false
   }
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+  publishing {
+    singleVariant("release") {
+      withSourcesJar()
+    }
   }
 }
-
-ext {
-    androidSdk = [
-            compileVersion: 31,
-            targetVersion : 31,
-            minVersion    : 21,
-    ]
-    versions = [
-            androidx_core     : "1.7.0",
-            androidx_lifecycle: "2.4.0",
-            preference_version: "1.2.0",
-            autoService       : '1.0.1',
-            dagger            : "2.27",
-            groupie           : "2.9.0",
-            junit             : "4.13.2",
-            junitJupiter      : "5.5.0",
-            coroutines        : "1.6.0",
-            lint              : "30.0.1",
-            protobuf          : "3.15.1",
-    ]
-    generated = [
-            protoSrc: "$projectDir/protocol",
-    ]
-    deps = [
-            auto              : [
-                    'service'           : "com.google.auto.service:auto-service:${versions.autoService}",
-                    'serviceAnnotations': "com.google.auto.service:auto-service-annotations:${versions.autoService}",
-            ],
-            coroutines        : [
-                    "lib" : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
-                    "test": "org.jetbrains.kotlinx:kotlinx-coroutines-test: ${versions.coroutines}",
-            ],
-            timber            : "com.github.ajalt:timberkt:1.5.1",
-            // lint
-            lint              : "com.android.tools.lint:lint:${versions.lint}",
-            lintApi           : "com.android.tools.lint:lint-api:${versions.lint}",
-            lintChecks        : "com.android.tools.lint:lint-checks:${versions.lint}",
-            lintTests         : "com.android.tools.lint:lint-tests:${versions.lint}",
-
-            // tests
-            junit             : "junit:junit:${versions.junit}",
-            junitJupiterApi   : "org.junit.jupiter:junit-jupiter-api:${versions.junitJupiter}",
-            junitJupiterEngine: "org.junit.jupiter:junit-jupiter-engine:${versions.junitJupiter}",
-    ]
-    annotations = [
-    ]
-}
-
 
 repositories {
   mavenCentral()
-  jcenter()
-  google()
-  maven { url "https://jitpack.io" }
-
-  def found = false
-  def defaultDir = null
-  def androidSourcesName = 'React Native sources'
-
-  if (rootProject.ext.has('reactNativeAndroidRoot')) {
-    defaultDir = rootProject.ext.get('reactNativeAndroidRoot')
-  } else {
-    defaultDir = new File(
-            projectDir,
-            '/../../../node_modules/react-native/android'
-    )
-  }
-
-  if (defaultDir.exists()) {
-    maven {
-      url defaultDir.toString()
-      name androidSourcesName
-    }
-
-    logger.info(":${project.name}:reactNativeAndroidRoot ${defaultDir.canonicalPath}")
-    found = true
-  } else {
-    def parentDir = rootProject.projectDir
-
-    1.upto(5, {
-      if (found) return true
-      parentDir = parentDir.parentFile
-
-      def androidSourcesDir = new File(
-              parentDir,
-              'node_modules/react-native'
-      )
-
-      def androidPrebuiltBinaryDir = new File(
-              parentDir,
-              'node_modules/react-native/android'
-      )
-
-      if (androidPrebuiltBinaryDir.exists()) {
-        maven {
-          url androidPrebuiltBinaryDir.toString()
-          name androidSourcesName
-        }
-
-        logger.info(":${project.name}:reactNativeAndroidRoot ${androidPrebuiltBinaryDir.canonicalPath}")
-        found = true
-      } else if (androidSourcesDir.exists()) {
-        maven {
-          url androidSourcesDir.toString()
-          name androidSourcesName
-        }
-
-        logger.info(":${project.name}:reactNativeAndroidRoot ${androidSourcesDir.canonicalPath}")
-        found = true
-      }
-    })
-  }
-
-  if (!found) {
-    throw new GradleException(
-            "${project.name}: unable to locate React Native android sources. " +
-                    "Ensure you have you installed React Native as a dependency in your project and try again."
-    )
-  }
 }
 
-def kotlin_version = getExtOrDefault('kotlinVersion')
-
 dependencies {
-  // noinspection GradleDynamicVersion
-  api 'com.facebook.react:react-native:+'
-  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}"
+  implementation project(':expo-modules-core')
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${getKotlinVersion()}"
   implementation 'com.github.jellyfish-dev:membrane-webrtc-android:5.0.0'
   api 'com.github.davidliu:audioswitch:8edf84ee46cdbc84c2b7725aa8f8d66363e19876'
+  implementation 'androidx.appcompat:appcompat:1.6.1'
 }

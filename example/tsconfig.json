@@ -1,19 +1,18 @@
 {
-  "extends": "expo-module-scripts/tsconfig.base",
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "./build",
+    "strict": true,
     "paths": {
-      "@jellyfish-dev/react-native-membrane-webrtc": ["../src/index.tsx"],
+      "@jellyfish-dev/react-native-membrane-webrtc": ["../src/index"],
+      "@jellyfish-dev/react-native-membrane-webrtc/*": ["../src/*"],
       "@components/*": ["./src/components/*"],
       "@colors": ["./src/shared/colors.ts"],
       "@screens/*": ["./src/screens/*"],
       "@model/*": ["./src/model/*"],
       "@utils": ["./src/shared/utils.ts"],
-      "@assets/*": ["./assets/*"]
-    },
-    "types": ["node"],
-    "noImplicitAny": true
+      "@assets/*": ["./assets/*"],
+      "@shared/*": ["./src/shared/*"]
+    }
   },
   "include": ["./src"],
   "exclude": ["**/__mocks__/*", "**/__tests__/*", "../src/*"]

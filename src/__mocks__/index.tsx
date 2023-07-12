@@ -55,7 +55,7 @@ export const useCamera = () => {
     startCamera: NOOP,
     flipCamera: emptyPromise,
     switchCamera: emptyPromise,
-    getCaptureDevices: async (): Promise<typeof CaptureDevice[]> => {
+    getCaptureDevices: async (): Promise<(typeof CaptureDevice)[]> => {
       return new Promise((resolve) => {
         resolve([]);
       });

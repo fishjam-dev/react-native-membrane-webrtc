@@ -1,10 +1,10 @@
 import { InCallButton } from '@components/buttons/InCallButton';
 import { RootStack } from '@model/NavigationTypes';
+import { useVideoroomState } from '@model/VideoroomContext';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useVideoroomState } from 'src/VideoroomContext';
 
 import { StatsModal } from './StatsModal';
 
