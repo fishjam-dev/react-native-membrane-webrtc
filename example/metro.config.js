@@ -10,6 +10,7 @@ const config = getDefaultConfig(__dirname);
 config.resolver.blockList = [
   ...Array.from(config.resolver.blockList ?? []),
   new RegExp(path.resolve('..', 'node_modules', 'react-native')),
+  new RegExp(path.resolve('..', 'node_modules', 'react')),
 ];
 
 config.resolver.nodeModulesPaths = [
