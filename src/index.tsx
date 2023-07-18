@@ -418,14 +418,13 @@ export function useScreencast() {
   );
 
   useEffect(() => {
-    if (Platform.OS === 'ios') {
-      const eventListener = eventEmitter.addListener<IsScreencastOnEvent>(
-        'IsScreencastOn',
-        (event) => setIsScreencastOn(event)
-      );
-      return () => eventListener.remove();
-    }
-    return () => {};
+    const eventListener = eventEmitter.addListener<IsScreencastOnEvent>(
+      'IsScreencastOn',
+      (event) => {
+        setIsScreencastOn(MembraneWebRTCModule.isScreencastOn);
+      }
+    );
+    return () => eventListener.remove();
   }, []);
 
   /**
@@ -433,12 +432,7 @@ export function useScreencast() {
    */
   const toggleScreencast = useCallback(
     async (screencastOptions: Partial<ScreencastOptions> = {}) => {
-      const state = await MembraneWebRTCModule.toggleScreencast(
-        screencastOptions
-      );
-      if (Platform.OS === 'android') {
-        setIsScreencastOn(state);
-      }
+      await MembraneWebRTCModule.toggleScreencast(screencastOptions);
       screencastSimulcastConfig =
         screencastOptions.simulcastConfig || defaultSimulcastConfig();
       setSimulcastConfig(screencastSimulcastConfig);

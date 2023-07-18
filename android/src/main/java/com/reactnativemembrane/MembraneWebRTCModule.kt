@@ -78,6 +78,7 @@ class MembraneWebRTCModule : Module() {
         Events(
             "IsCameraOn",
             "IsMicrophoneOn",
+            "IsScreencastOn",
             "SimulcastConfigUpdate",
             "EndpointsUpdate",
             "AudioDeviceUpdate",
@@ -172,6 +173,10 @@ class MembraneWebRTCModule : Module() {
             CoroutineScope(Dispatchers.Main).launch {
                 membraneWebRTC.toggleScreencast(screencastOptions, promise)
             }
+        }
+
+        Property("isScreencastOn") {
+            return@Property membraneWebRTC.isScreencastOn
         }
 
         AsyncFunction("getEndpoints") Coroutine { ->
