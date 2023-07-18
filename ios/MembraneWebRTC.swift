@@ -215,6 +215,12 @@ class MembraneWebRTC: MembraneRTCDelegate {
   }
   
   func disconnect() -> Void {
+    if isScreensharingEnabled {
+      let screencastExtensionBundleId = Bundle.main.infoDictionary?["ScreencastExtensionBundleId"] as? String
+      DispatchQueue.main.async {
+        RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
+      }
+    }
     room?.remove(delegate: self)
     room?.disconnect()
     room = nil

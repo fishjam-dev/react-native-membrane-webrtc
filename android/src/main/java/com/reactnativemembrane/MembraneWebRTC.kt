@@ -41,11 +41,11 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     var localScreencastTrack: LocalScreencastTrack? = null
     var localEndpointId: String? = null
 
-    var isScreenCastOn = false
     private var localScreencastId: String? = null
 
     var isMicrophoneOn = true
     var isCameraOn = true
+    var isScreencastOn = false
 
     private val globalToLocalTrackId = HashMap<String, String>()
 
@@ -212,6 +212,9 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     fun disconnect() {
+        if (isScreencastOn) {
+            stopScreencast()
+        }
         room?.disconnect()
         room = null
         endpoints.clear()
@@ -315,7 +318,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             screencastOptions.maxBandwidthInt
         )
         screencastPromise = promise
-        if (!isScreenCastOn) {
+        if (!isScreencastOn) {
             ensureConnected()
             val currentActivity = appContext?.currentActivity ?: throw ActivityNotFoundException()
 
@@ -511,7 +514,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     private fun startScreencast(mediaProjectionPermission: Intent) {
         if (localScreencastTrack != null) return
 
-        isScreenCastOn = true
+        isScreencastOn = true
 
         localScreencastId = UUID.randomUUID().toString()
 
@@ -542,11 +545,12 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             endpoint!!.addOrUpdateTrack(it, screencastMetadata)
             emitEndpoints()
         }
-        screencastPromise?.resolve(isScreenCastOn)
+        emitEvent("IsScreencastOn", mapOf("isScreencastOn" to isScreencastOn))
+        screencastPromise?.resolve(isScreencastOn)
     }
 
     private fun stopScreencast() {
-        isScreenCastOn = false
+        isScreencastOn = false
 
         localScreencastTrack?.let {
             endpoints[localEndpointId]?.removeTrack(it)
@@ -555,7 +559,8 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             localScreencastTrack = null
         }
         emitEndpoints()
-        screencastPromise?.resolve(isScreenCastOn)
+        emitEvent("IsScreencastOn", mapOf("isScreencastOn" to isScreencastOn))
+        screencastPromise?.resolve(isScreencastOn)
         screencastPromise = null
     }
 
