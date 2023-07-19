@@ -18,6 +18,7 @@ class VideoRendererView(context: Context, appContext: AppContext) : ExpoView(con
     var trackId: String? = null
 
     private val videoView = VideoTextureViewRenderer(context).also {
+        Log.e("KAROL", "videoview init")
         addView(it)
         MembraneWebRTC.onTracksUpdateListeners.add(this)
     }
