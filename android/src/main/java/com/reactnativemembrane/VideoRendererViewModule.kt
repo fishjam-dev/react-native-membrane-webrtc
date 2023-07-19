@@ -1,5 +1,6 @@
 package com.reactnativemembrane
 
+import android.util.Log
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
@@ -14,6 +15,7 @@ class VideoRendererViewModule : Module() {
             }
 
             Prop("trackId") { view: VideoRendererView, trackId: String ->
+                Log.e("KAROL", "INIT")
                 view.init(trackId)
             }
 
