@@ -15,7 +15,6 @@ class VideoRendererViewModule : Module() {
             }
 
             Prop("trackId") { view: VideoRendererView, trackId: String ->
-                Log.e("KAROL", "INIT")
                 view.init(trackId)
             }
 

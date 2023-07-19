@@ -1,5 +1,6 @@
 package com.reactnativemembrane
 
+import android.util.Log
 import android.content.Context
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.views.ExpoView
@@ -42,6 +43,7 @@ class VideoRendererView(context: Context, appContext: AppContext) : ExpoView(con
     }
 
     fun init(trackId: String) {
+        Log.e("KAROL", "INIT inside")
         this.trackId = trackId
         update()
     }
