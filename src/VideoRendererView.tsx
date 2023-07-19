@@ -10,6 +10,5 @@ const NativeView: React.ComponentType<VideoRendererProps> = isJest()
   : requireNativeViewManager('VideoRendererViewModule');
 
 export default function VideoRendererView(props: VideoRendererProps) {
-  console.log('VIdeoRendererProps: ', props);
   return <NativeView {...props} />;
 }

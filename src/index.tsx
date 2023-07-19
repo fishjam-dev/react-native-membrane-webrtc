@@ -745,3 +745,4 @@ export function useRTCStatistics(refreshInterval: number) {
 
 export { VideoPreviewView, VideoRendererView };
 export * from './MembraneWebRTC.types';
+export { NativeMembraneMock } from './__mocks__/native';
