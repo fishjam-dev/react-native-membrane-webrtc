@@ -3,6 +3,7 @@ let numCalled = 0;
 export const NativeMembraneMock = {
   addListener: () => {},
   removeListeners: () => {},
+  create: () => {},
   getStatistics: () => {
     numCalled += 1;
     return {
