@@ -179,8 +179,11 @@ We strongly recommend checking out our example app that implements a basic video
 1. Go to Membrane's server demo repo: https://github.com/membraneframework/membrane_videoroom. Follow instructions there to setup and run demo server.
 2. Clone the repo
 3. ```
+   $ yarn
    $ cd example
    $ yarn
+   $ cd ios && pod install
+   $ cd ..
    ```
 4. In .env replace server url with your server's url.
 5. `yarn run android` or `yarn run ios` or run project from Android Studio / Xcode just like every RN project. Note that simulators won't work, you have to test on real device for camera and screensharing to run.
