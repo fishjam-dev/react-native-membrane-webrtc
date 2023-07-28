@@ -7832,6 +7832,11 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
+react-native-sound-level@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-sound-level/-/react-native-sound-level-1.2.0.tgz#a09c70dc97c241dcfd1f080a17193247927bd061"
+  integrity sha512-gVQr0OzVGstK+JN0sMWriduV4lfToEnuWEnc7ICn+33qCs+8l7Qpq9XdlruCcXH5vM6pLAnD9KOqHjEhrYJVxQ==
+
 react-native@0.72.1:
   version "0.72.1"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.72.1.tgz#a60f8494ec74cc201ed095aaf2ff2c912c708ec6"

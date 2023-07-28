@@ -68,8 +68,11 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
     flipCamera,
     getCaptureDevices,
   } = useCamera();
-  const { toggleMicrophone: membraneToggleMicrophone, startMicrophone } =
-    useMicrophone();
+  const {
+    toggleMicrophone: membraneToggleMicrophone,
+    startVADMonitor,
+    isSpeaking,
+  } = useMicrophone();
   const { isScreencastOn, toggleScreencast: membraneToggleScreencast } =
     useScreencast();
 
@@ -199,6 +202,8 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
   }, [isDevMode, devServerUrl]);
 
   const value = {
+    startVADMonitor,
+    isSpeaking,
     roomName,
     setRoomName,
     username,

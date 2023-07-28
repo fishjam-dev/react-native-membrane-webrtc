@@ -38,7 +38,8 @@
     "access": "public"
   },
   "dependencies": {
-    "phoenix": "^1.7.6"
+    "phoenix": "^1.7.6",
+    "react-native-sound-level": "^1.2.0"
   },
   "devDependencies": {
     "@testing-library/react": "^14.0.0",

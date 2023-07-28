@@ -33,6 +33,7 @@
     "react-native-reanimated": "~3.3.0",
     "react-native-safe-area-context": "4.6.3",
     "react-native-screens": "~3.22.0",
+    "react-native-sound-level": "^1.2.0",
     "use-debounce": "^9.0.4"
   },
   "devDependencies": {

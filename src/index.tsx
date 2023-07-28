@@ -3,8 +3,12 @@ import { takeRight } from 'lodash';
 import { Channel, Socket, MessageRef } from 'phoenix';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { Platform } from 'react-native';
+import RNSoundLevel from 'react-native-sound-level';
 
 import {
+  VadStatus,
+  VADConfiguration,
+  VADData,
   AudioOutputDevice,
   AudioOutputDeviceType,
   AudioSessionMode,
@@ -374,6 +378,8 @@ export function useCamera() {
  */
 export function useMicrophone() {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
+  const [isSpeaking, setIsSpeaking] = useState<VadStatus>(VadStatus.Silence);
+  const [isVADOn, setIsVADOn] = useState<boolean>(false);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsMicrophoneOnEvent>(
@@ -383,6 +389,20 @@ export function useMicrophone() {
     setIsMicrophoneOn(MembraneWebRTCModule.isMicrophoneOn);
     return () => eventListener.remove();
   }, []);
+  /**
+   * This sets the voice activity detection state.
+   */
+  useEffect(() => {
+    if (isVADOn) {
+      RNSoundLevel.onNewFrame = (data: VADData) => {
+        const dB = data.value;
+        const speechThreshold = -60;
+        setIsSpeaking(
+          dB > speechThreshold ? VadStatus.Speech : VadStatus.Silence
+        );
+      };
+    }
+  }, [isVADOn]);
 
   /**
    * Function to toggle microphone on/off
@@ -403,8 +423,34 @@ export function useMicrophone() {
     },
     []
   );
+  /**
+   * Starts local voice activity detection.
+   * @param config configuration of the voice activity monitor
+   */
+  const startVADMonitor = useCallback(
+    (
+      config: VADConfiguration = { monitorInterval: 250, samplingRate: 22050 }
+    ) => {
+      RNSoundLevel.start(config);
+      setIsVADOn(true);
+    },
+    []
+  );
+  /**
+   * Stop local voice activity detection.
+   */
+  const stopVADMonitor = useCallback(() => {
+    RNSoundLevel.stop();
+    setIsVADOn(false);
+  }, []);
 
-  return { isMicrophoneOn, toggleMicrophone, startMicrophone };
+  return {
+    isMicrophoneOn,
+    isSpeaking,
+    toggleMicrophone,
+    startVADMonitor,
+    stopVADMonitor,
+  };
 }
 
 /**
