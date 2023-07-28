@@ -202,15 +202,24 @@ export function useWebRTC() {
  */
 export function useEndpoints<
   EndpointMetadataType extends Metadata,
-  TrackMetadataType extends Metadata
+  VideoTrackMetadataType extends Metadata,
+  AudioTrackMetadataType extends Metadata
 >() {
   const [endpoints, setEndpoints] = useState<
-    Endpoint<EndpointMetadataType, TrackMetadataType>[]
+    Endpoint<
+      EndpointMetadataType,
+      VideoTrackMetadataType,
+      AudioTrackMetadataType
+    >[]
   >([]);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<
-      EndpointsUpdateEvent<EndpointMetadataType, TrackMetadataType>
+      EndpointsUpdateEvent<
+        EndpointMetadataType,
+        VideoTrackMetadataType,
+        AudioTrackMetadataType
+      >
     >('EndpointsUpdate', ({ endpoints }) => {
       setEndpoints(endpoints);
     });
@@ -218,7 +227,11 @@ export function useEndpoints<
       ({
         endpoints,
       }: {
-        endpoints: Endpoint<EndpointMetadataType, TrackMetadataType>[];
+        endpoints: Endpoint<
+          EndpointMetadataType,
+          VideoTrackMetadataType,
+          AudioTrackMetadataType
+        >[];
       }) => {
         setEndpoints(endpoints);
       }

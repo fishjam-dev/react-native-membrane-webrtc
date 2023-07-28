@@ -17,8 +17,9 @@ import {
 } from 'react-native';
 
 import {
-  ParticipantMetadataType,
-  TrackMetadataType,
+  AudioTrackMetadata,
+  ParticipantMetadata,
+  VideoTrackMetadata,
 } from './types/MetadataTypes';
 
 const allEncodings: TrackEncoding[] = ['h', 'm', 'l'];
@@ -27,8 +28,12 @@ export const Settings = ({
   participant: { isLocal, id },
   track,
 }: {
-  participant: Endpoint<ParticipantMetadataType, TrackMetadataType>;
-  track: Track<TrackMetadataType>;
+  participant: Endpoint<
+    ParticipantMetadata,
+    VideoTrackMetadata,
+    AudioTrackMetadata
+  >;
+  track: Track<VideoTrackMetadata>;
 }) => {
   const {
     toggleVideoTrackEncoding,

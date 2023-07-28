@@ -45,7 +45,8 @@ export type SocketChannelParams = { [key: string]: any };
 
 export type Endpoint<
   MetadataType extends Metadata,
-  TrackMetadataType extends Metadata
+  VideoTrackMetadataType extends Metadata,
+  AudioTrackMetadataType extends Metadata
 > = {
   /**
    *  id used to identify an endpoint
@@ -66,7 +67,7 @@ export type Endpoint<
   /**
    * a list of endpoints's video and audio tracks
    */
-  tracks: Track<TrackMetadataType>[];
+  tracks: Track<VideoTrackMetadataType | AudioTrackMetadataType>[];
 };
 
 export enum VideoLayout {
@@ -310,9 +311,14 @@ export type RTCStats = { [key: string]: RTCTrackStats };
 
 export type EndpointsUpdateEvent<
   MetadataType extends Metadata,
-  TrackMetadataType extends Metadata
+  VideoTrackMetadataType extends Metadata,
+  AudioTrackMetadataType extends Metadata
 > = {
-  endpoints: Endpoint<MetadataType, TrackMetadataType>[];
+  endpoints: Endpoint<
+    MetadataType,
+    VideoTrackMetadataType,
+    AudioTrackMetadataType
+  >[];
 };
 
 export type IsCameraOnEvent = boolean;

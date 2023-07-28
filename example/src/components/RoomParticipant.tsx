@@ -19,12 +19,17 @@ import { SimulcastMenu } from './SimulcastMenu';
 import { Typo } from './Typo';
 import { PinButton } from './buttons/PinButton';
 import {
-  ParticipantMetadataType,
-  TrackMetadataType,
+  AudioTrackMetadata,
+  ParticipantMetadata,
+  VideoTrackMetadata,
 } from '../types/MetadataTypes';
 
 type RoomParticipantProps = {
-  participant: Membrane.Endpoint<ParticipantMetadataType, TrackMetadataType>;
+  participant: Membrane.Endpoint<
+    ParticipantMetadata,
+    VideoTrackMetadata,
+    AudioTrackMetadata
+  >;
   trackId?: string;
   onPinButtonPressed?: (value: Participant | null) => void;
   focused?: boolean;
