@@ -20,7 +20,7 @@ import { Typo } from './Typo';
 import { PinButton } from './buttons/PinButton';
 
 type RoomParticipantProps = {
-  participant: Membrane.Endpoint;
+  participant: Membrane.Endpoint<Membrane.Metadata, Membrane.Metadata>;
   trackId?: string;
   onPinButtonPressed?: (value: Participant | null) => void;
   focused?: boolean;

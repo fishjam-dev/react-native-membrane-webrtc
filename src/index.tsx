@@ -90,19 +90,19 @@ export function useWebRTC() {
    * Connects to a server.
    * @returns A promise that resolves on success or rejects in case of an error.
    */
-  const connect: (
+  const connect: <T extends Metadata>(
     /**
      * server url
      */
     url: string,
     roomName: string,
-    connectionOptions?: Partial<ConnectionOptions>
+    connectionOptions?: Partial<ConnectionOptions<T>>
   ) => Promise<void> = useCallback(
     withLock(
-      async (
+      async <T extends Metadata>(
         url: string,
         roomName: string,
-        connectionOptions: Partial<ConnectionOptions> = {}
+        connectionOptions: Partial<ConnectionOptions<T>> = {}
       ) => {
         setError(null);
         const _socket = new Socket(url, {
@@ -196,18 +196,18 @@ export function useWebRTC() {
  * This hook provides live updates of room endpoints.
  * @returns An array of room endpoints.
  */
-export function useEndpoints() {
-  const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
+export function useEndpoints<T extends Metadata, S extends Metadata>() {
+  const [endpoints, setEndpoints] = useState<Endpoint<T, S>[]>([]);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener<EndpointsUpdateEvent>(
+    const eventListener = eventEmitter.addListener<EndpointsUpdateEvent<T, S>>(
       'EndpointsUpdate',
       ({ endpoints }) => {
         setEndpoints(endpoints);
       }
     );
     MembraneWebRTCModule.getEndpoints().then(
-      ({ endpoints }: { endpoints: Endpoint[] }) => {
+      ({ endpoints }: { endpoints: Endpoint<T, S>[] }) => {
         setEndpoints(endpoints);
       }
     );
@@ -303,7 +303,7 @@ export function useCamera() {
    * @returns A promise that resolves when camera is started.
    */
   const startCamera = useCallback(
-    async (config: Partial<CameraConfig> = {}) => {
+    async <T extends Metadata>(config: Partial<CameraConfig<T>> = {}) => {
       videoSimulcastConfig = config.simulcastConfig || defaultSimulcastConfig();
       // expo-modules on Android don't support Either type, so we workaround it
       if (Platform.OS === 'android') {
@@ -398,7 +398,7 @@ export function useMicrophone() {
    * @returns A promise that resolves when microphone capturing is started.
    */
   const startMicrophone = useCallback(
-    async (config: Partial<MicrophoneConfig> = {}) => {
+    async <T extends Metadata>(config: Partial<MicrophoneConfig<T>> = {}) => {
       await MembraneWebRTCModule.startMicrophone(config);
     },
     []
@@ -431,7 +431,9 @@ export function useScreencast() {
    * Toggles the screencast on/off
    */
   const toggleScreencast = useCallback(
-    async (screencastOptions: Partial<ScreencastOptions> = {}) => {
+    async <T extends Metadata>(
+      screencastOptions: Partial<ScreencastOptions<T>> = {}
+    ) => {
       await MembraneWebRTCModule.toggleScreencast(screencastOptions);
       screencastSimulcastConfig =
         screencastOptions.simulcastConfig || defaultSimulcastConfig();
@@ -445,7 +447,7 @@ export function useScreencast() {
    * @param metadata a map `string -> any` containing screencast track metadata to be sent to the server
    */
   const updateScreencastTrackMetadata = useCallback(
-    async (metadata: Metadata) => {
+    async <T extends Metadata>(metadata: T) => {
       await MembraneWebRTCModule.updateScreencastTrackMetadata(metadata);
     },
     []
@@ -508,7 +510,7 @@ export function useScreencast() {
  * a function that updates endpoints's metadata on the server
  * @param metadata a map `string -> any` containing user's track metadata to be sent to the server
  */
-export async function updateEndpointMetadata(metadata: Metadata) {
+export async function updateEndpointMetadata<T extends Metadata>(metadata: T) {
   await MembraneWebRTCModule.updateEndpointMetadata(metadata);
 }
 
@@ -516,14 +518,18 @@ export async function updateEndpointMetadata(metadata: Metadata) {
  * a function that updates video metadata on the server.
  * @param metadata a map string -> any containing video track metadata to be sent to the server
  */
-export async function updateVideoTrackMetadata(metadata: Metadata) {
+export async function updateVideoTrackMetadata<T extends Metadata>(
+  metadata: T
+) {
   await MembraneWebRTCModule.updateVideoTrackMetadata(metadata);
 }
 /**
  * a function that updates audio metadata on the server
  * @param metadata a map `string -> any` containing audio track metadata to be sent to the server
  */
-export async function updateAudioTrackMetadata(metadata: Metadata) {
+export async function updateAudioTrackMetadata<T extends Metadata>(
+  metadata: T
+) {
   await MembraneWebRTCModule.updateAudioTrackMetadata(metadata);
 }
 /**

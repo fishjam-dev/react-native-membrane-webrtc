@@ -7,8 +7,8 @@ import { View, StyleSheet } from 'react-native';
 import { Typo } from './Typo';
 
 type OtherParticipantsProp = {
-  p1?: Membrane.Endpoint;
-  p2?: Membrane.Endpoint;
+  p1?: Membrane.Endpoint<Membrane.Metadata, Membrane.Metadata>;
+  p2?: Membrane.Endpoint<Membrane.Metadata, Membrane.Metadata>;
   numOfOtherParticipants: number;
 };
 

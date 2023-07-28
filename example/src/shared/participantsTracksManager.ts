@@ -4,7 +4,7 @@ import { getNumberOfCurrentlyVisiblePlaces } from '@utils';
 import { useRef, useEffect } from 'react';
 
 export type ParticipantWithTrack = {
-  participant: Membrane.Endpoint;
+  participant: Membrane.Endpoint<Membrane.Metadata, Membrane.Metadata>;
   trackId?: string;
   timeAdded: number;
 };
@@ -41,7 +41,9 @@ export const useParticipantsTracksManager = () => {
     };
   }, []);
 
-  const isScreensharingTrack = (track: Membrane.Track | undefined) => {
+  const isScreensharingTrack = (
+    track: Membrane.Track<Membrane.Metadata> | undefined
+  ) => {
     return track?.metadata.type === 'screensharing';
   };
 

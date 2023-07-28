@@ -28,10 +28,10 @@ export enum EncodingReason {
   LowBandwidth = 'lowBandwidth',
 }
 
-export type Track = {
+export type Track<MetadataType extends Metadata> = {
   id: string;
   type: TrackType;
-  metadata: Metadata;
+  metadata: MetadataType;
   vadStatus: VadStatus;
   // Encoding that is currently received. Only present for remote tracks.
   encoding: TrackEncoding | null;
@@ -43,7 +43,10 @@ export type Metadata = { [key: string]: any };
 export type SocketConnectionParams = { [key: string]: any };
 export type SocketChannelParams = { [key: string]: any };
 
-export type Endpoint = {
+export type Endpoint<
+  MetadataType extends Metadata,
+  TrackMetadataType extends Metadata
+> = {
   /**
    *  id used to identify an endpoint
    */
@@ -59,11 +62,11 @@ export type Endpoint = {
   /**
    * a map `string -> any` containing endpoint metadata from the server
    */
-  metadata: Metadata;
+  metadata: MetadataType;
   /**
    * a list of endpoints's video and audio tracks
    */
-  tracks: Track[];
+  tracks: Track<TrackMetadataType>[];
 };
 
 export enum VideoLayout {
@@ -145,11 +148,11 @@ export type SimulcastBandwidthLimit = Record<TrackEncoding, BandwidthLimit>;
  */
 export type TrackBandwidthLimit = BandwidthLimit | SimulcastBandwidthLimit;
 
-export type ConnectionOptions = {
+export type ConnectionOptions<MetadataType extends Metadata> = {
   /**
    * a map `string -> any` containing user metadata to be sent to the server. Use it to send for example user display name or other options.
    */
-  endpointMetadata: Metadata;
+  endpointMetadata: MetadataType;
 
   /**
    *  a map `string -> any` containing connection params passed to the socket.
@@ -161,7 +164,7 @@ export type ConnectionOptions = {
   socketChannelParams: SocketChannelParams;
 };
 
-export type CameraConfig = {
+export type CameraConfig<MetadataType extends Metadata> = {
   /**
    * resolution + aspect ratio of local video track, one of: `QVGA_169`, `VGA_169`, `QHD_169`, `HD_169`,
    * `FHD_169`, `QVGA_43`, `VGA_43`, `QHD_43`, `HD_43`, `FHD_43`. Note that quality might be worse than
@@ -177,7 +180,7 @@ export type CameraConfig = {
   /**
    * a map `string -> any` containing video track metadata to be sent to the server.
    */
-  videoTrackMetadata: Metadata;
+  videoTrackMetadata: MetadataType;
   /**
    *  SimulcastConfig of a video track. By default simulcast is disabled.
    */
@@ -199,11 +202,11 @@ export type CameraConfig = {
   captureDeviceId: string;
 };
 
-export type MicrophoneConfig = {
+export type MicrophoneConfig<MetadataType extends Metadata> = {
   /**
    * a map `string -> any` containing audio track metadata to be sent to the server.
    */
-  audioTrackMetadata: Metadata;
+  audioTrackMetadata: MetadataType;
   /**
    * whether the microphone is initially enabled, you can toggle it on/off later with toggleMicrophone method
    * @default `true`
@@ -211,7 +214,7 @@ export type MicrophoneConfig = {
   microphoneEnabled: boolean;
 };
 
-export type ScreencastOptions = {
+export type ScreencastOptions<MetadataType extends Metadata> = {
   /**
    * Resolution + fps of screencast track, one of: `VGA`, `HD5`, `HD15`, `FHD15`, `FHD30`.
    * Note that quality might be worse than specified due to device capabilities, internet
@@ -222,7 +225,7 @@ export type ScreencastOptions = {
   /**
    * a map `string -> any` containing screencast track metadata to be sent to the server
    */
-  screencastMetadata: Metadata;
+  screencastMetadata: MetadataType;
   /**
    * SimulcastConfig of a screencast track. By default simulcast is disabled.
    */
@@ -305,8 +308,11 @@ export type RTCTrackStats = RTCOutboundStats | RTCInboundStats;
 
 export type RTCStats = { [key: string]: RTCTrackStats };
 
-export type EndpointsUpdateEvent = {
-  endpoints: Endpoint[];
+export type EndpointsUpdateEvent<
+  MetadataType extends Metadata,
+  TrackMetadataType extends Metadata
+> = {
+  endpoints: Endpoint<MetadataType, TrackMetadataType>[];
 };
 
 export type IsCameraOnEvent = boolean;
