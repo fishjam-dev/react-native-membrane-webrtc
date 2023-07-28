@@ -450,6 +450,7 @@ export function useMicrophone() {
     toggleMicrophone,
     startVADMonitor,
     stopVADMonitor,
+    startMicrophone,
   };
 }
 
