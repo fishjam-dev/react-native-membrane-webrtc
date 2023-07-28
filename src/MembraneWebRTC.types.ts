@@ -14,7 +14,27 @@ export enum VadStatus {
   Silence = 'silence',
   Speech = 'speech',
 }
-
+/**
+ * Type describing Voice Activity Detection configuration.
+ *
+ * monitorInterval - sets monitor interval
+ * samplingRate - sets sampling rate
+ */
+export type VADConfiguration = {
+  monitorInterval: number;
+  samplingRate: number;
+};
+/**
+ * Type describing Voice Activity Detection data.
+ * id - frame number
+ * value - sound level in decibels, -160 is a silence level
+ * rawValue - raw level value, OS-dependent
+ */
+export type VADData = {
+  id: number;
+  value: number;
+  rawValue: number;
+};
 /**
  * Type describing possible reasons of currently selected encoding.
  *
