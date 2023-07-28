@@ -5,7 +5,6 @@ import {
   useScreencast,
   TrackEncoding,
   setTargetTrackEncoding,
-  Metadata,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import React, { useState } from 'react';
 import {
@@ -17,14 +16,19 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import {
+  ParticipantMetadataType,
+  TrackMetadataType,
+} from './types/MetadataTypes';
+
 const allEncodings: TrackEncoding[] = ['h', 'm', 'l'];
 
 export const Settings = ({
   participant: { isLocal, id },
   track,
 }: {
-  participant: Endpoint<Metadata, Metadata>;
-  track: Track<Metadata>;
+  participant: Endpoint<ParticipantMetadataType, TrackMetadataType>;
+  track: Track<TrackMetadataType>;
 }) => {
   const {
     toggleVideoTrackEncoding,

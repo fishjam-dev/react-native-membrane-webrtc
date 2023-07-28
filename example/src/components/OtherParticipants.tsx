@@ -5,10 +5,14 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import { Typo } from './Typo';
+import {
+  ParticipantMetadataType,
+  TrackMetadataType,
+} from '../types/MetadataTypes';
 
 type OtherParticipantsProp = {
-  p1?: Membrane.Endpoint<Membrane.Metadata, Membrane.Metadata>;
-  p2?: Membrane.Endpoint<Membrane.Metadata, Membrane.Metadata>;
+  p1?: Membrane.Endpoint<ParticipantMetadataType, TrackMetadataType>;
+  p2?: Membrane.Endpoint<ParticipantMetadataType, TrackMetadataType>;
   numOfOtherParticipants: number;
 };
 

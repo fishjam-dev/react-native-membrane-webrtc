@@ -6,7 +6,10 @@ import { isEmpty } from 'lodash';
  * @param username string to get the short form of
  * @returns string consisting of upercased first letters of every word in a username
  */
-export const getShortUsername = (username: string) => {
+export const getShortUsername = (username: string | undefined) => {
+  if (username === null || username === undefined) {
+    return '';
+  }
   return username
     .split(' ')
     .map((i) => i.charAt(0))

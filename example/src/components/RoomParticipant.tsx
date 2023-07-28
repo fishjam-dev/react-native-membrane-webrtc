@@ -18,9 +18,13 @@ import { Participant } from './NotFocusedParticipants';
 import { SimulcastMenu } from './SimulcastMenu';
 import { Typo } from './Typo';
 import { PinButton } from './buttons/PinButton';
+import {
+  ParticipantMetadataType,
+  TrackMetadataType,
+} from '../types/MetadataTypes';
 
 type RoomParticipantProps = {
-  participant: Membrane.Endpoint<Membrane.Metadata, Membrane.Metadata>;
+  participant: Membrane.Endpoint<ParticipantMetadataType, TrackMetadataType>;
   trackId?: string;
   onPinButtonPressed?: (value: Participant | null) => void;
   focused?: boolean;

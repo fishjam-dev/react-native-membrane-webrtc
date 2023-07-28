@@ -6,9 +6,13 @@ import { View, StyleSheet } from 'react-native';
 
 import { OtherParticipants } from './OtherParticipants';
 import { RoomParticipant } from './RoomParticipant';
+import {
+  ParticipantMetadataType,
+  TrackMetadataType,
+} from '../types/MetadataTypes';
 
 export type Participant = {
-  participant: Membrane.Endpoint<Membrane.Metadata, Membrane.Metadata>;
+  participant: Membrane.Endpoint<ParticipantMetadataType, TrackMetadataType>;
   trackId?: string;
 };
 
