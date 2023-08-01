@@ -9,7 +9,10 @@ const NativeView: React.ComponentType<VideoRendererProps> = isJest()
   ? () => <View />
   : requireNativeViewManager('VideoRendererViewModule');
 
-export default React.forwardRef((props, ref) => (
+export default React.forwardRef<
+  React.ComponentType<VideoRendererProps>,
+  VideoRendererProps
+>((props, ref) => (
   // @ts-ignore
   <NativeView {...props} ref={ref} />
 ));
