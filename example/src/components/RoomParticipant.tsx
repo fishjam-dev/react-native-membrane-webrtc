@@ -18,9 +18,18 @@ import { Participant } from './NotFocusedParticipants';
 import { SimulcastMenu } from './SimulcastMenu';
 import { Typo } from './Typo';
 import { PinButton } from './buttons/PinButton';
+import {
+  AudioTrackMetadata,
+  ParticipantMetadata,
+  VideoTrackMetadata,
+} from '../types/MetadataTypes';
 
 type RoomParticipantProps = {
-  participant: Membrane.Endpoint;
+  participant: Membrane.Endpoint<
+    ParticipantMetadata,
+    VideoTrackMetadata,
+    AudioTrackMetadata
+  >;
   trackId?: string;
   onPinButtonPressed?: (value: Participant | null) => void;
   focused?: boolean;

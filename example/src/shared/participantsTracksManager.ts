@@ -3,8 +3,18 @@ import * as Membrane from '@jellyfish-dev/react-native-membrane-webrtc';
 import { getNumberOfCurrentlyVisiblePlaces } from '@utils';
 import { useRef, useEffect } from 'react';
 
+import {
+  AudioTrackMetadata,
+  ParticipantMetadata,
+  VideoTrackMetadata,
+} from '../types/MetadataTypes';
+
 export type ParticipantWithTrack = {
-  participant: Membrane.Endpoint;
+  participant: Membrane.Endpoint<
+    ParticipantMetadata,
+    VideoTrackMetadata,
+    AudioTrackMetadata
+  >;
   trackId?: string;
   timeAdded: number;
 };
@@ -41,7 +51,9 @@ export const useParticipantsTracksManager = () => {
     };
   }, []);
 
-  const isScreensharingTrack = (track: Membrane.Track | undefined) => {
+  const isScreensharingTrack = (
+    track: Membrane.Track<VideoTrackMetadata> | undefined
+  ) => {
     return track?.metadata.type === 'screensharing';
   };
 
