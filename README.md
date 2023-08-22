@@ -50,10 +50,12 @@ If you want to use screensharing feature, enable it like this:
     "name": "example",
     ...
     "plugins": [
-      "@jellyfish-dev/react-native-membrane-webrtc",
-      {
-        "setUpScreensharing": true,
-      }
+      [
+        "@jellyfish-dev/react-native-membrane-webrtc",
+        {
+          "setUpScreensharing": true,
+        }
+      ]
     ]
   }
 }

@@ -38,7 +38,8 @@
     "access": "public"
   },
   "dependencies": {
-    "phoenix": "^1.7.6"
+    "phoenix": "^1.7.6",
+    "promise-fs": "^2.1.1"
   },
   "devDependencies": {
     "@testing-library/react": "^14.0.0",
@@ -59,7 +60,6 @@
     "lint-staged": "^13.0.3",
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
-    "promise-fs": "^2.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.72.1",
