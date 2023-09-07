@@ -42,6 +42,25 @@ Add plugin to your `app.json` if it's not already added:
 }
 ```
 
+If you want to use screensharing feature, enable it like this:
+
+```json
+{
+  "expo": {
+    "name": "example",
+    ...
+    "plugins": [
+      [
+        "@jellyfish-dev/react-native-membrane-webrtc",
+        {
+          "setUpScreensharing": true,
+        }
+      ]
+    ]
+  }
+}
+```
+
 On bare workflow run `expo prebuild` to configure the app, then run `pod install`.
 On development build `eas build` should take care of it.
 
