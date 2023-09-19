@@ -5,6 +5,7 @@ import AVKit
 import WebRTC
 import ExpoModulesCore
 
+
 #if os(iOS)
 @available(iOS 12, *)
 public extension RPSystemBroadcastPickerView {
@@ -58,31 +59,38 @@ public extension String {
 }
 
 class MembraneWebRTC: MembraneRTCDelegate {
-  var localVideoTrack: LocalVideoTrack?
+  var room: MembraneRTC? = nil;
+
   var localAudioTrack: LocalAudioTrack?
+  var localVideoTrack: LocalVideoTrack?
   var localScreencastTrack: LocalScreenBroadcastTrack?
-  var localUserMetadata: Metadata = .init()
+  var localEndpointId: String?
   
-  var errorMessage: String?
   var isMicEnabled: Bool = true
   var isCameraEnabled: Bool = true
   var isScreensharingEnabled: Bool = false
+  var isSoundDetectionOn: Bool = false 
   
-  var localEndpointId: String?
-  
-  var room: MembraneRTC? = nil;
-  var connectPromise: Promise? = nil
-  var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
-  var screenshareSimulcastConfig: SimulcastConfig = SimulcastConfig()
-  var screenshareBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
   var globalToLocalTrackId: [String:String] = [:]
   
+  var connectPromise: Promise? = nil
+
+  var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
+
+  var localUserMetadata: Metadata = .init()
+
+  var screenshareSimulcastConfig: SimulcastConfig = SimulcastConfig()
+  var screenshareBandwidthLimit: TrackBandwidthLimit = .BandwidthLimit(0)
+  
   var tracksContexts: [String: TrackContext] = [:]
+
+  var errorMessage: String?
   
   var captureDeviceId: String? = nil
   
   var audioSessionMode: AVAudioSession.Mode = AVAudioSession.Mode.videoChat
-  
+  var soundDetection: SoundDetection? = nil
+
   let sendEvent: (_ eventName: String, _ data: [String: Any]) -> Void
   
   init(sendEvent: @escaping (_ eventName: String, _ data: [String: Any]) -> Void) {
@@ -93,6 +101,11 @@ class MembraneWebRTC: MembraneRTCDelegate {
       name: AVAudioSession.routeChangeNotification,
       object: nil
     )
+      do{
+        self.soundDetection = try SoundDetection()
+      } catch {
+          print("Error initializing SoundDetection: \(error)")
+      }
   }
   
   private func getGlobalTrackId(localTrackId: String) -> String? {
@@ -227,6 +240,30 @@ class MembraneWebRTC: MembraneRTCDelegate {
     MembraneRoom.sharedInstance.endpoints = [:]
   }
   
+  func onSoundDetected(sound: Bool){
+      emitEvent(name:"SoundDetectedEvent", data :["SoundDetectedEvent": sound])
+  }
+
+  func onSoundVolumeChanged(volume: Int) {
+      emitEvent(name:"SoundVolumeChanged", data: ["SoundVolumeChanged":volume])
+  }
+
+  func startSoundDetection(volumeThreshold : Int  = 0 ) throws -> Void {
+    if isSoundDetectionOn {return;}
+    soundDetection?.setOnSoundDetectedListener(listener : self.onSoundDetected)
+    soundDetection?.setOnVolumeChangedListener(listener : self.onSoundVolumeChanged)    
+    try soundDetection?.start(volumeThreshold)
+    if(soundDetection?.isRecording == true){
+      isSoundDetectionOn = true
+    }
+  }
+
+  func stopSoundDetection() -> Void {
+      if !isSoundDetectionOn {return;}
+      soundDetection?.stop()
+      isSoundDetectionOn = false
+  }
+
   func startCamera(config: CameraConfig) throws -> Void {
     try ensureConnected()
     let videoTrackMetadata = config.videoTrackMetadata.toMetadata()
@@ -715,6 +752,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
   
   @objc func onRouteChangeNotification() {
     let currentRoute = AVAudioSession.sharedInstance().currentRoute
+    if currentRoute.outputs.count == 0  {return;}
     let output = currentRoute.outputs[0]
     let deviceType = output.portType
     var deviceTypeString: String = ""
