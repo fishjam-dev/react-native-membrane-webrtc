@@ -78,6 +78,9 @@ class MembraneWebRTCModule : Module() {
         Events(
             "IsCameraOn",
             "IsMicrophoneOn",
+            "isSoundDetected",
+            "SoundDetectedEvent",
+            "SoundVolumeChanged",
             "IsScreencastOn",
             "SimulcastConfigUpdate",
             "EndpointsUpdate",
@@ -133,6 +136,20 @@ class MembraneWebRTCModule : Module() {
 
         Property("isMicrophoneOn") {
             return@Property membraneWebRTC.isMicrophoneOn
+        }
+
+        AsyncFunction("startSoundDetection") Coroutine {  monitorInterval: Int , samplingRate: Int , volumeThreshold: Int ->
+          withContext(Dispatchers.Main)  {
+                membraneWebRTC.startSoundDetection(monitorInterval, samplingRate, volumeThreshold)
+            }
+        }
+        AsyncFunction("stopSoundDetection") Coroutine {  ->
+          withContext(Dispatchers.Main) {
+            membraneWebRTC.stopSoundDetection()
+          }
+        }
+        Property("isSoundDetectionOn") {
+            return@Property membraneWebRTC.isSoundDetectionOn
         }
 
         AsyncFunction("toggleMicrophone") Coroutine { ->

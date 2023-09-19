@@ -3,12 +3,8 @@ import { takeRight } from 'lodash';
 import { Channel, Socket, MessageRef } from 'phoenix';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { Platform } from 'react-native';
-import RNSoundLevel from 'react-native-sound-level';
 
 import {
-  VadStatus,
-  VADConfiguration,
-  VADData,
   AudioOutputDevice,
   AudioOutputDeviceType,
   AudioSessionMode,
@@ -21,6 +17,8 @@ import {
   EndpointsUpdateEvent,
   IsCameraOnEvent,
   IsMicrophoneOnEvent,
+  isSoundDetectedEvent,
+  soundVolume,
   IsScreencastOnEvent,
   LoggingSeverity,
   Metadata,
@@ -378,8 +376,8 @@ export function useCamera() {
  */
 export function useMicrophone() {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
-  const [isSpeaking, setIsSpeaking] = useState<VadStatus>(VadStatus.Silence);
-  const [isVADOn, setIsVADOn] = useState<boolean>(false);
+  const [isSoundDetected, setIsSoundDetected] = useState<boolean>(false);
+  const [soundVolume, setIsSoundVolumeChanged] = useState<number>(0);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsMicrophoneOnEvent>(
@@ -389,20 +387,24 @@ export function useMicrophone() {
     setIsMicrophoneOn(MembraneWebRTCModule.isMicrophoneOn);
     return () => eventListener.remove();
   }, []);
-  /**
-   * This sets the voice activity detection state.
-   */
+
   useEffect(() => {
-    if (isVADOn) {
-      RNSoundLevel.onNewFrame = (data: VADData) => {
-        const dB = data.value;
-        const speechThreshold = -60;
-        setIsSpeaking(
-          dB > speechThreshold ? VadStatus.Speech : VadStatus.Silence
-        );
-      };
-    }
-  }, [isVADOn]);
+    const eventListener = eventEmitter.addListener<isSoundDetectedEvent>(
+      'SoundDetectedEvent',
+      (event) => setIsSoundDetected(event['SoundDetectedEvent'])
+    );
+    setIsSoundDetected(MembraneWebRTCModule.isSoundDetected);
+    return () => eventListener.remove();
+  }, []);
+
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener<soundVolume>(
+      'SoundVolumeChanged',
+      (event) => setIsSoundVolumeChanged(event['SoundVolumeChanged'])
+    );
+    setIsSoundVolumeChanged(MembraneWebRTCModule.soundVolume);
+    return () => eventListener.remove();
+  }, []);
 
   /**
    * Function to toggle microphone on/off
@@ -423,34 +425,48 @@ export function useMicrophone() {
     },
     []
   );
+
   /**
-   * Starts local voice activity detection.
-   * @param config configuration of the voice activity monitor
+   * Starts local sound detection.
+   * @param monitorInterval the time (in milliseconds) between consecutive executions of the task
+   * @param samplingRate it specifies how many audio samples are taken per second to digitize the analog audio signal
+   * @param volumeThreshold is a threshold value specified in decibels (dB) that acts as a reference level
+   * @returns A promise that resolves when sound detection is started.
    */
-  const startVADMonitor = useCallback(
-    (
-      config: VADConfiguration = { monitorInterval: 250, samplingRate: 22050 }
+  const startSoundDetection = useCallback(
+    async (
+      monitorInterval = 1,
+      samplingRate = 22050,
+      volumeThreshold = -60
     ) => {
-      RNSoundLevel.start(config);
-      setIsVADOn(true);
+      if (Platform.OS === 'ios') {
+        await MembraneWebRTCModule.startSoundDetection(-volumeThreshold);
+      } else {
+        await MembraneWebRTCModule.startSoundDetection(
+          monitorInterval,
+          samplingRate,
+          volumeThreshold
+        );
+      }
     },
     []
   );
+
   /**
-   * Stop local voice activity detection.
+   * Stops sound detection.
+   * @returns A promise that resolves when sound detection is stopped.
    */
-  const stopVADMonitor = useCallback(() => {
-    RNSoundLevel.stop();
-    setIsVADOn(false);
+  const stopSoundDetection = useCallback(async () => {
+    await MembraneWebRTCModule.stopSoundDetection();
   }, []);
 
   return {
     isMicrophoneOn,
-    isSpeaking,
+    isSoundDetected,
     toggleMicrophone,
-    startVADMonitor,
-    stopVADMonitor,
     startMicrophone,
+    startSoundDetection,
+    stopSoundDetection,
   };
 }
 

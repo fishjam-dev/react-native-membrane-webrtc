@@ -18,6 +18,7 @@ import org.membraneframework.rtc.SimulcastConfig
 import org.membraneframework.rtc.media.LocalAudioTrack
 import org.membraneframework.rtc.media.LocalScreencastTrack
 import org.membraneframework.rtc.media.LocalVideoTrack
+import org.membraneframework.rtc.media.OnSoundDetectedListener
 import org.membraneframework.rtc.media.RemoteAudioTrack
 import org.membraneframework.rtc.media.RemoteVideoTrack
 import org.membraneframework.rtc.media.TrackBandwidthLimit
@@ -27,12 +28,13 @@ import org.membraneframework.rtc.models.RTCInboundStats
 import org.membraneframework.rtc.models.RTCOutboundStats
 import org.membraneframework.rtc.models.TrackContext
 import org.membraneframework.rtc.utils.Metadata
+import org.membraneframework.rtc.media.SoundDetection
 import org.membraneframework.rtc.utils.SerializedMediaEvent
 import org.webrtc.Logging
 import java.util.UUID
 
 class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> Unit) :
-    MembraneRTCListener {
+    MembraneRTCListener, OnSoundDetectedListener {
     private val SCREENCAST_REQUEST = 1
     private var room: MembraneRTC? = null
 
@@ -46,6 +48,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     var isMicrophoneOn = true
     var isCameraOn = true
     var isScreencastOn = false
+    var isSoundDetectionOn = false
 
     private val globalToLocalTrackId = HashMap<String, String>()
 
@@ -65,6 +68,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     var trackContexts: MutableMap<String, TrackContext> = mutableMapOf()
 
     var audioSwitchManager: AudioSwitchManager? = null
+    var soundDetection: SoundDetection? = null
 
     var appContext: AppContext? = null
 
@@ -79,6 +83,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
 
     fun onDestroy() {
         audioSwitchManager?.stop()
+        stopSoundDetection()
     }
 
     fun onActivityResult(
@@ -128,6 +133,8 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
 
     fun create() {
         this.audioSwitchManager = AudioSwitchManager(appContext?.reactContext!!)
+        this.soundDetection = SoundDetection()
+
         val room = MembraneRTC.create(
             appContext = appContext?.reactContext!!,
             listener = this
@@ -196,6 +203,24 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
+    private fun ensureMicrophoneOn() {
+      if (!isMicrophoneOn) {
+        throw CodedException("Microphone not in use. Make sure to start the microphone first!")
+      }
+    }
+
+    private fun ensureSoundDetectionOn() {
+      if (!isSoundDetectionOn) {
+        throw CodedException("Sound Detection not in use. Make sure to start sound detection first!")
+      }
+    }
+
+    private fun ensureSoundDetectionOff() {
+      if (isSoundDetectionOn) {
+        throw CodedException("Sound Detection in use. Make sure to stop sound detection first!")
+      }
+    }
+
     fun receiveMediaEvent(data: String) {
         ensureConnected()
         room?.receiveMediaEvent(data)
@@ -218,6 +243,29 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         room?.disconnect()
         room = null
         endpoints.clear()
+    }
+
+    override fun onSoundDetected(sound: Boolean){
+      emitEvent("SoundDetectedEvent", mapOf("SoundDetectedEvent" to sound))
+    }
+
+    override fun onSoundVolumeChanged(volume: Int) {
+      emitEvent("SoundVolumeChanged", mapOf("SoundVolumeChanged" to volume))
+    }
+
+  fun startSoundDetection(monitorInterval: Int = 1, samplingRate: Int = 22050, volumeThreshold : Int = -100  ){
+      if (isSoundDetectionOn) return;
+      this.soundDetection?.setSoundDetectionListener(this)
+      this.soundDetection?.start(monitorInterval,samplingRate,volumeThreshold)
+      if(this.soundDetection?.isRecording == true){
+        isSoundDetectionOn = true
+      }
+    }
+
+    fun stopSoundDetection(){
+      if (!isSoundDetectionOn) return;
+      this.soundDetection?.stop()
+      isSoundDetectionOn = false
     }
 
     fun startCamera(config: CameraConfig) {
