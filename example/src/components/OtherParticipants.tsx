@@ -5,10 +5,23 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import { Typo } from './Typo';
+import {
+  AudioTrackMetadata,
+  ParticipantMetadata,
+  VideoTrackMetadata,
+} from '../types/MetadataTypes';
 
 type OtherParticipantsProp = {
-  p1?: Membrane.Endpoint;
-  p2?: Membrane.Endpoint;
+  p1?: Membrane.Endpoint<
+    ParticipantMetadata,
+    VideoTrackMetadata,
+    AudioTrackMetadata
+  >;
+  p2?: Membrane.Endpoint<
+    ParticipantMetadata,
+    VideoTrackMetadata,
+    AudioTrackMetadata
+  >;
   numOfOtherParticipants: number;
 };
 

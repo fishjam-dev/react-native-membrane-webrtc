@@ -22,6 +22,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CallControls } from '../components/CallControls';
 import { useParticipantsTracksManager } from '../shared/participantsTracksManager';
+import {
+  AudioTrackMetadata,
+  ParticipantMetadata,
+  VideoTrackMetadata,
+} from '../types/MetadataTypes';
 
 type Props = NativeStackScreenProps<RootStack, 'Room'>;
 
@@ -30,7 +35,11 @@ export const Room = ({ navigation }: Props) => {
 
   const { isDevMode, roomName, disconnect, flipCamera } = useVideoroomState();
   const { selectedAudioOutputDevice } = Membrane.useAudioSettings();
-  const participants = Membrane.useEndpoints();
+  const participants = Membrane.useEndpoints<
+    ParticipantMetadata,
+    VideoTrackMetadata,
+    AudioTrackMetadata
+  >();
   const [focusedParticipantData, setFocusedParticipantData] =
     useState<Participant | null>(null);
   const { orderParticipantsAccordingToVadStatus, isScreensharingTrack } =

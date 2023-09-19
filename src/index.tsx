@@ -92,19 +92,23 @@ export function useWebRTC() {
    * Connects to a server.
    * @returns A promise that resolves on success or rejects in case of an error.
    */
-  const connect: (
+  const connect: <ConnectionOptionsMetadataType extends Metadata>(
     /**
      * server url
      */
     url: string,
     roomName: string,
-    connectionOptions?: Partial<ConnectionOptions>
+    connectionOptions?: Partial<
+      ConnectionOptions<ConnectionOptionsMetadataType>
+    >
   ) => Promise<void> = useCallback(
     withLock(
-      async (
+      async <ConnectionOptionsMetadataType extends Metadata>(
         url: string,
         roomName: string,
-        connectionOptions: Partial<ConnectionOptions> = {}
+        connectionOptions: Partial<
+          ConnectionOptions<ConnectionOptionsMetadataType>
+        > = {}
       ) => {
         setError(null);
         const _socket = new Socket(url, {
@@ -198,18 +202,39 @@ export function useWebRTC() {
  * This hook provides live updates of room endpoints.
  * @returns An array of room endpoints.
  */
-export function useEndpoints() {
-  const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
+export function useEndpoints<
+  EndpointMetadataType extends Metadata,
+  VideoTrackMetadataType extends Metadata,
+  AudioTrackMetadataType extends Metadata
+>() {
+  const [endpoints, setEndpoints] = useState<
+    Endpoint<
+      EndpointMetadataType,
+      VideoTrackMetadataType,
+      AudioTrackMetadataType
+    >[]
+  >([]);
 
   useEffect(() => {
-    const eventListener = eventEmitter.addListener<EndpointsUpdateEvent>(
-      'EndpointsUpdate',
-      ({ endpoints }) => {
-        setEndpoints(endpoints);
-      }
-    );
+    const eventListener = eventEmitter.addListener<
+      EndpointsUpdateEvent<
+        EndpointMetadataType,
+        VideoTrackMetadataType,
+        AudioTrackMetadataType
+      >
+    >('EndpointsUpdate', ({ endpoints }) => {
+      setEndpoints(endpoints);
+    });
     MembraneWebRTCModule.getEndpoints().then(
-      ({ endpoints }: { endpoints: Endpoint[] }) => {
+      ({
+        endpoints,
+      }: {
+        endpoints: Endpoint<
+          EndpointMetadataType,
+          VideoTrackMetadataType,
+          AudioTrackMetadataType
+        >[];
+      }) => {
         setEndpoints(endpoints);
       }
     );
@@ -305,7 +330,9 @@ export function useCamera() {
    * @returns A promise that resolves when camera is started.
    */
   const startCamera = useCallback(
-    async (config: Partial<CameraConfig> = {}) => {
+    async <CameraConfigMetadataType extends Metadata>(
+      config: Partial<CameraConfig<CameraConfigMetadataType>> = {}
+    ) => {
       videoSimulcastConfig = config.simulcastConfig || defaultSimulcastConfig();
       // expo-modules on Android don't support Either type, so we workaround it
       if (Platform.OS === 'android') {
@@ -420,7 +447,9 @@ export function useMicrophone() {
    * @returns A promise that resolves when microphone capturing is started.
    */
   const startMicrophone = useCallback(
-    async (config: Partial<MicrophoneConfig> = {}) => {
+    async <MicrophoneConfigMetadataType extends Metadata>(
+      config: Partial<MicrophoneConfig<MicrophoneConfigMetadataType>> = {}
+    ) => {
       await MembraneWebRTCModule.startMicrophone(config);
     },
     []
@@ -494,7 +523,11 @@ export function useScreencast() {
    * Toggles the screencast on/off
    */
   const toggleScreencast = useCallback(
-    async (screencastOptions: Partial<ScreencastOptions> = {}) => {
+    async <ScreencastOptionsMetadataType extends Metadata>(
+      screencastOptions: Partial<
+        ScreencastOptions<ScreencastOptionsMetadataType>
+      > = {}
+    ) => {
       await MembraneWebRTCModule.toggleScreencast(screencastOptions);
       screencastSimulcastConfig =
         screencastOptions.simulcastConfig || defaultSimulcastConfig();
@@ -508,7 +541,9 @@ export function useScreencast() {
    * @param metadata a map `string -> any` containing screencast track metadata to be sent to the server
    */
   const updateScreencastTrackMetadata = useCallback(
-    async (metadata: Metadata) => {
+    async <ScreencastMetadataType extends Metadata>(
+      metadata: ScreencastMetadataType
+    ) => {
       await MembraneWebRTCModule.updateScreencastTrackMetadata(metadata);
     },
     []
@@ -571,7 +606,9 @@ export function useScreencast() {
  * a function that updates endpoints's metadata on the server
  * @param metadata a map `string -> any` containing user's track metadata to be sent to the server
  */
-export async function updateEndpointMetadata(metadata: Metadata) {
+export async function updateEndpointMetadata<
+  EndpointMetadataType extends Metadata
+>(metadata: EndpointMetadataType) {
   await MembraneWebRTCModule.updateEndpointMetadata(metadata);
 }
 
@@ -579,14 +616,18 @@ export async function updateEndpointMetadata(metadata: Metadata) {
  * a function that updates video metadata on the server.
  * @param metadata a map string -> any containing video track metadata to be sent to the server
  */
-export async function updateVideoTrackMetadata(metadata: Metadata) {
+export async function updateVideoTrackMetadata<
+  VideoTrackMetadataType extends Metadata
+>(metadata: VideoTrackMetadataType) {
   await MembraneWebRTCModule.updateVideoTrackMetadata(metadata);
 }
 /**
  * a function that updates audio metadata on the server
  * @param metadata a map `string -> any` containing audio track metadata to be sent to the server
  */
-export async function updateAudioTrackMetadata(metadata: Metadata) {
+export async function updateAudioTrackMetadata<
+  AudioTrackMetadataType extends Metadata
+>(metadata: AudioTrackMetadataType) {
   await MembraneWebRTCModule.updateAudioTrackMetadata(metadata);
 }
 /**

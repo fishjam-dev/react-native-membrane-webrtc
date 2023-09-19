@@ -6,9 +6,18 @@ import { View, StyleSheet } from 'react-native';
 
 import { OtherParticipants } from './OtherParticipants';
 import { RoomParticipant } from './RoomParticipant';
+import {
+  AudioTrackMetadata,
+  ParticipantMetadata,
+  VideoTrackMetadata,
+} from '../types/MetadataTypes';
 
 export type Participant = {
-  participant: Membrane.Endpoint;
+  participant: Membrane.Endpoint<
+    ParticipantMetadata,
+    VideoTrackMetadata,
+    AudioTrackMetadata
+  >;
   trackId?: string;
 };
 

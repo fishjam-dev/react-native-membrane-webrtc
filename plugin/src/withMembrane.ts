@@ -25,6 +25,7 @@ type MembranePluginOptions = {
   cameraPermission?: string;
   microphonePermission?: string;
   iPhoneDeploymentTarget?: string;
+  setUpScreensharing?: boolean;
 } | void;
 
 const withAppGroupPermissions: ConfigPlugin = (config) => {
@@ -279,9 +280,11 @@ const withMembraneIOS: ConfigPlugin<MembranePluginOptions> = (
   props
 ) => {
   withMediaPermissions(config, props);
-  withAppGroupPermissions(config);
-  withInfoPlistConstants(config);
-  withMembraneSBE(config, props);
+  if (props?.setUpScreensharing) {
+    withAppGroupPermissions(config);
+    withInfoPlistConstants(config);
+    withMembraneSBE(config, props);
+  }
   withPodfileProperties(config, (config) => {
     config.modResults['ios.deploymentTarget'] =
       props?.iPhoneDeploymentTarget ?? IPHONEOS_DEPLOYMENT_TARGET;

@@ -16,14 +16,24 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import {
+  AudioTrackMetadata,
+  ParticipantMetadata,
+  VideoTrackMetadata,
+} from './types/MetadataTypes';
+
 const allEncodings: TrackEncoding[] = ['h', 'm', 'l'];
 
 export const Settings = ({
   participant: { isLocal, id },
   track,
 }: {
-  participant: Endpoint;
-  track: Track;
+  participant: Endpoint<
+    ParticipantMetadata,
+    VideoTrackMetadata,
+    AudioTrackMetadata
+  >;
+  track: Track<VideoTrackMetadata>;
 }) => {
   const {
     toggleVideoTrackEncoding,
