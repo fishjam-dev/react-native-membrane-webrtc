@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Endpoint | @jellyfish-dev/react-native-membrane-webrtc</title><meta name="description" content="Documentation for @jellyfish-dev/react-native-membrane-webrtc"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><script>
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IsCameraOnEvent | @jellyfish-dev/react-native-membrane-webrtc</title><meta name="description" content="Documentation for @jellyfish-dev/react-native-membrane-webrtc"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><script>
     window.addEventListener("load", () => {
         // aux function to get function name from element
         const elem2functionName = (elem) => (elem.innerText.match(/^[^\s\(:<]*/) ?? [])[0];
@@ -98,43 +98,11 @@
 <div class="tsd-page-title">
 <ul class="tsd-breadcrumb">
 <li><a href="../modules.html">@jellyfish-dev/react-native-membrane-webrtc</a></li>
-<li><a href="Endpoint.html">Endpoint</a></li></ul>
-<h1>Type alias Endpoint&lt;MetadataType, VideoTrackMetadataType, AudioTrackMetadataType&gt;</h1></div>
-<div class="tsd-signature">Endpoint<span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">MetadataType</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">VideoTrackMetadataType</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">AudioTrackMetadataType</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>isLocal<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>metadata<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">MetadataType</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>tracks<span class="tsd-signature-symbol">: </span><a href="Track.html" class="tsd-signature-type" data-tsd-kind="Type alias">Track</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">VideoTrackMetadataType</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">AudioTrackMetadataType</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
-<section class="tsd-panel tsd-type-parameters">
-<h4>Type Parameters</h4>
-<ul class="tsd-type-parameters">
-<li>
-<h4>MetadataType<span class="tsd-signature-symbol"> extends </span><a href="Metadata.html" class="tsd-signature-type" data-tsd-kind="Type alias">Metadata</a></h4></li>
-<li>
-<h4>VideoTrackMetadataType<span class="tsd-signature-symbol"> extends </span><a href="Metadata.html" class="tsd-signature-type" data-tsd-kind="Type alias">Metadata</a></h4></li>
-<li>
-<h4>AudioTrackMetadataType<span class="tsd-signature-symbol"> extends </span><a href="Metadata.html" class="tsd-signature-type" data-tsd-kind="Type alias">Metadata</a></h4></li></ul></section>
-<div class="tsd-type-declaration">
-<h4>Type declaration</h4>
-<ul class="tsd-parameters">
-<li class="tsd-parameter">
-<h5>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-<div class="tsd-comment tsd-typography"><p>id used to identify an endpoint</p>
-</div></li>
-<li class="tsd-parameter">
-<h5>is<wbr/>Local<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
-<div class="tsd-comment tsd-typography"><p>whether the endpoint is local or remote</p>
-</div></li>
-<li class="tsd-parameter">
-<h5>metadata<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">MetadataType</span></h5>
-<div class="tsd-comment tsd-typography"><p>a map <code>string -&gt; any</code> containing endpoint metadata from the server</p>
-</div></li>
-<li class="tsd-parameter">
-<h5>tracks<span class="tsd-signature-symbol">: </span><a href="Track.html" class="tsd-signature-type" data-tsd-kind="Type alias">Track</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">VideoTrackMetadataType</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">AudioTrackMetadataType</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
-<div class="tsd-comment tsd-typography"><p>a list of endpoints&#39;s video and audio tracks</p>
-</div></li>
-<li class="tsd-parameter">
-<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-<div class="tsd-comment tsd-typography"><p>used to indicate endpoint type.</p>
-</div></li></ul></div><aside class="tsd-sources">
+<li><a href="IsCameraOnEvent.html">IsCameraOnEvent</a></li></ul>
+<h1>Type alias IsCameraOnEvent</h1></div>
+<div class="tsd-signature">Is<wbr/>Camera<wbr/>On<wbr/>Event<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/jellyfish-dev/react-native-membrane-webrtc/blob/fa57028/src/MembraneWebRTC.types.ts#L46">src/MembraneWebRTC.types.ts:46</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/jellyfish-dev/react-native-membrane-webrtc/blob/fa57028/src/MembraneWebRTC.types.ts#L324">src/MembraneWebRTC.types.ts:324</a></li></ul></aside></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -173,9 +141,9 @@
 <li class="tsd-kind-type-alias"><a href="CameraConfig.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Camera<wbr/>Config</a></li>
 <li class="tsd-kind-type-alias"><a href="CaptureDevice.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Capture<wbr/>Device</a></li>
 <li class="tsd-kind-type-alias"><a href="ConnectionOptions.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Connection<wbr/>Options</a></li>
-<li class="current tsd-kind-type-alias"><a href="Endpoint.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Endpoint</a></li>
+<li class="tsd-kind-type-alias"><a href="Endpoint.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Endpoint</a></li>
 <li class="tsd-kind-type-alias"><a href="EndpointsUpdateEvent.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Endpoints<wbr/>Update<wbr/>Event</a></li>
-<li class="tsd-kind-type-alias"><a href="IsCameraOnEvent.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Is<wbr/>Camera<wbr/>On<wbr/>Event</a></li>
+<li class="current tsd-kind-type-alias"><a href="IsCameraOnEvent.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Is<wbr/>Camera<wbr/>On<wbr/>Event</a></li>
 <li class="tsd-kind-type-alias"><a href="IsMicrophoneOnEvent.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Is<wbr/>Microphone<wbr/>On<wbr/>Event</a></li>
 <li class="tsd-kind-type-alias"><a href="IsScreencastOnEvent.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Is<wbr/>Screencast<wbr/>On<wbr/>Event</a></li>
 <li class="tsd-kind-type-alias"><a href="Metadata.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg>Metadata</a></li>
