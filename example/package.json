@@ -11,7 +11,6 @@
   "dependencies": {
     "@expo-google-fonts/noto-sans": "^0.2.3",
     "@expo/vector-icons": "^13.0.0",
-    "@jellyfish-dev/react-native-client-sdk": "^0.1.2",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",

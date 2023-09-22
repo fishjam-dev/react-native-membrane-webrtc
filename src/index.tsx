@@ -403,8 +403,6 @@ export function useCamera() {
  */
 export function useMicrophone() {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
-  const [isSoundDetected, setIsSoundDetected] = useState<boolean>(false);
-  const [soundVolume, setIsSoundVolumeChanged] = useState<number>(0);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsMicrophoneOnEvent>(
@@ -412,24 +410,6 @@ export function useMicrophone() {
       (event) => setIsMicrophoneOn(event)
     );
     setIsMicrophoneOn(MembraneWebRTCModule.isMicrophoneOn);
-    return () => eventListener.remove();
-  }, []);
-
-  useEffect(() => {
-    const eventListener = eventEmitter.addListener<isSoundDetectedEvent>(
-      'SoundDetectedEvent',
-      (event) => setIsSoundDetected(event['SoundDetectedEvent'])
-    );
-    setIsSoundDetected(MembraneWebRTCModule.isSoundDetected);
-    return () => eventListener.remove();
-  }, []);
-
-  useEffect(() => {
-    const eventListener = eventEmitter.addListener<soundVolume>(
-      'SoundVolumeChanged',
-      (event) => setIsSoundVolumeChanged(event['SoundVolumeChanged'])
-    );
-    setIsSoundVolumeChanged(MembraneWebRTCModule.soundVolume);
     return () => eventListener.remove();
   }, []);
 
@@ -455,10 +435,38 @@ export function useMicrophone() {
     []
   );
 
+  return {
+    isMicrophoneOn,
+    toggleMicrophone,
+    startMicrophone,
+  };
+}
+export function useSoundDetection() {
+  const [isSoundDetected, setIsSoundDetected] = useState<boolean>(false);
+  const [soundVolume, setIsSoundVolumeChanged] = useState<number>(0);
+
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener<isSoundDetectedEvent>(
+      'SoundDetectedEvent',
+      (event) => setIsSoundDetected(event['SoundDetectedEvent'])
+    );
+    setIsSoundDetected(MembraneWebRTCModule.isSoundDetected);
+    return () => eventListener.remove();
+  }, []);
+
+  useEffect(() => {
+    const eventListener = eventEmitter.addListener<soundVolume>(
+      'SoundVolumeChanged',
+      (event) => setIsSoundVolumeChanged(event['SoundVolumeChanged'])
+    );
+    setIsSoundVolumeChanged(MembraneWebRTCModule.soundVolume);
+    return () => eventListener.remove();
+  }, []);
+
   /**
    * Starts local sound detection.
-   * @param monitorInterval the time (in milliseconds) between consecutive executions of the task
-   * @param samplingRate it specifies how many audio samples are taken per second to digitize the analog audio signal
+   * @param monitorInterval (Android only) the time (in milliseconds) between consecutive executions of the task
+   * @param samplingRate (Android only) it specifies how many audio samples are taken per second to digitize the analog audio signal
    * @param volumeThreshold is a threshold value specified in decibels (dB) that acts as a reference level
    * @returns A promise that resolves when sound detection is started.
    */
@@ -468,15 +476,11 @@ export function useMicrophone() {
       samplingRate = 22050,
       volumeThreshold = -60
     ) => {
-      if (Platform.OS === 'ios') {
-        await MembraneWebRTCModule.startSoundDetection(-volumeThreshold);
-      } else {
-        await MembraneWebRTCModule.startSoundDetection(
-          monitorInterval,
-          samplingRate,
-          volumeThreshold
-        );
-      }
+      await MembraneWebRTCModule.startSoundDetection(
+        monitorInterval,
+        samplingRate,
+        volumeThreshold
+      );
     },
     []
   );
@@ -490,15 +494,11 @@ export function useMicrophone() {
   }, []);
 
   return {
-    isMicrophoneOn,
     isSoundDetected,
-    toggleMicrophone,
-    startMicrophone,
     startSoundDetection,
     stopSoundDetection,
   };
 }
-
 /**
  * This hook can toggle screen sharing on/off and provides current screencast state.
  * @returns An object with functions to manage screencast.

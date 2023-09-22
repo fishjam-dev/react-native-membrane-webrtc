@@ -11,6 +11,7 @@ import {
   useScreencast,
   ScreencastQuality,
   isSoundDetectedEvent,
+  useSoundDetection,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useNotifications } from '@model/NotificationsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -70,13 +71,10 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
     flipCamera,
     getCaptureDevices,
   } = useCamera();
-  const {
-    toggleMicrophone: membraneToggleMicrophone,
-    startMicrophone,
-    isSoundDetected,
-    startSoundDetection,
-    stopSoundDetection,
-  } = useMicrophone();
+  const { toggleMicrophone: membraneToggleMicrophone, startMicrophone } =
+    useMicrophone();
+  const { isSoundDetected, startSoundDetection, stopSoundDetection } =
+    useSoundDetection();
   const { isScreencastOn, toggleScreencast: membraneToggleScreencast } =
     useScreencast();
 
