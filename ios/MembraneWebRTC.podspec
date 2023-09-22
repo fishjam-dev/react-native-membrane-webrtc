@@ -25,5 +25,5 @@ Pod::Spec.new do |s|
   
   s.source_files = "**/*.{h,m,swift}"
 
-  s.dependency "MembraneRTC", '5.0.0'
+  s.dependency "MembraneRTC", '5.1.0'
 end

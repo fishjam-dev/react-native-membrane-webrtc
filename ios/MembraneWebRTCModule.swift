@@ -104,14 +104,18 @@ public class MembraneWebRTCModule: Module {
       return membraneWebRTC.isMicEnabled
     }
 
-    AsyncFunction("startSoundDetection") {(volumeThreshold: Int) in 
+    AsyncFunction("startSoundDetection") {
+      (
+        monitorInterval: Int,
+        samplingRate: Int, volumeThreshold: Int
+      ) in
       try membraneWebRTC.startSoundDetection(volumeThreshold: volumeThreshold)
     }
-    
+
     AsyncFunction("stopSoundDetection") {
       try membraneWebRTC.stopSoundDetection()
     }
-    
+
     Property("isSoundDetectionOn") {
       return membraneWebRTC.isSoundDetectionOn
     }

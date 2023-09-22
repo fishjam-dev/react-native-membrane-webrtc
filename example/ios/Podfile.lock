@@ -41,14 +41,14 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.3)
   - hermes-engine/Pre-built (0.72.3)
   - libevent (2.1.12)
-  - MembraneRTC (5.0.0):
-    - MembraneRTC/Broadcast (= 5.0.0)
+  - MembraneRTC (5.1.0):
+    - MembraneRTC/Broadcast (= 5.1.0)
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
-  - MembraneRTC/Broadcast (5.0.0):
+  - MembraneRTC/Broadcast (5.1.0):
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
@@ -56,7 +56,7 @@ PODS:
     - WebRTC-SDK (= 104.5112.15)
   - MembraneWebRTC (6.0.0):
     - ExpoModulesCore
-    - MembraneRTC (= 5.0.0)
+    - MembraneRTC (= 5.1.0)
   - PromisesObjC (2.3.1)
   - PromisesSwift (2.3.1):
     - PromisesObjC (= 2.3.1)
@@ -549,8 +549,8 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`)
-  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`)
+  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, tag `5.1.0`)
+  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, tag `5.1.0`)
   - MembraneWebRTC (from `../../ios`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -643,6 +643,7 @@ EXTERNAL SOURCES:
     :tag: hermes-2023-03-20-RNv0.72.0-49794cfc7c81fb8f69fd60c3bbf85a7480cc5a77
   MembraneRTC:
     :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
+    :tag: 5.1.0
   MembraneWebRTC:
     :path: "../../ios"
   RCT-Folly:
@@ -728,8 +729,8 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   MembraneRTC:
-    :commit: 37754f0f3220c4797651ccd94fb88f78cc93ae52
     :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
+    :tag: 5.1.0
 
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
@@ -749,8 +750,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 10fbd3f62405c41ea07e71973ea61e1878d07322
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  MembraneRTC: b6f6a85d9bcc83a74a834eac9861fcc4804163a8
-  MembraneWebRTC: d5861383c8a8633cea1254431b946ec98f249c9d
+  MembraneRTC: 47144a83c3549398f309c58f1244de73d66206c1
+  MembraneWebRTC: de88f99bda3a89aa7c25232ef128b988961ec072
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   PromisesSwift: 28dca69a9c40779916ac2d6985a0192a5cb4a265
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -803,6 +804,6 @@ SPEC CHECKSUMS:
   WebRTC-SDK: 18eef1ab50d4c0239adc1cbca33d4ffd9fab6639
   Yoga: 8796b55dba14d7004f980b54bcc9833ee45b28ce
 
-PODFILE CHECKSUM: b1505501abc8733091ea89baf35a3dd750e2264f
+PODFILE CHECKSUM: ee2aef416ca067e3669e22706185118593fb75b2
 
 COCOAPODS: 1.12.1
