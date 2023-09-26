@@ -24,8 +24,3 @@ firebase-admin.json
 *.dSym.zip
 *.mobileprovision
 report.xml
-
-# Expo
-.expo
-dist/
-web-build/
