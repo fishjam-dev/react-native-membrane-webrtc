@@ -324,9 +324,9 @@ export type IsCameraOnEvent = boolean;
 
 export type IsMicrophoneOnEvent = boolean;
 
-export type isSoundDetectedEvent = boolean;
+export type isSoundDetectedEvent = { SoundDetectedEvent?: boolean };
 
-export type soundVolume = number;
+export type soundVolume = { SoundVolumeChanged?: number };
 
 export type IsScreencastOnEvent = boolean;
 

@@ -448,7 +448,12 @@ export function useSoundDetection() {
   useEffect(() => {
     const eventListener = eventEmitter.addListener<isSoundDetectedEvent>(
       'SoundDetectedEvent',
-      (event) => setIsSoundDetected(event['SoundDetectedEvent'] as boolean)
+      (event) => {
+        const { SoundDetectedEvent } = event;
+        if (typeof SoundDetectedEvent === 'boolean') {
+          setIsSoundDetected(SoundDetectedEvent);
+        }
+      }
     );
     setIsSoundDetected(MembraneWebRTCModule.isSoundDetected);
     return () => eventListener.remove();
@@ -457,7 +462,12 @@ export function useSoundDetection() {
   useEffect(() => {
     const eventListener = eventEmitter.addListener<soundVolume>(
       'SoundVolumeChanged',
-      (event) => setIsSoundVolumeChanged(event['SoundVolumeChanged'] as number)
+      (event) => {
+        const { SoundVolumeChanged } = event;
+        if (typeof SoundVolumeChanged === 'number') {
+          setIsSoundVolumeChanged(SoundVolumeChanged);
+        }
+      }
     );
     setIsSoundVolumeChanged(MembraneWebRTCModule.soundVolume);
     return () => eventListener.remove();
