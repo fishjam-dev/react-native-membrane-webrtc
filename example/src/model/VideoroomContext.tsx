@@ -10,7 +10,6 @@ import {
   useMicrophone,
   useScreencast,
   ScreencastQuality,
-  isSoundDetectedEvent,
   useSoundDetection,
 } from '@jellyfish-dev/react-native-membrane-webrtc';
 import { useNotifications } from '@model/NotificationsContext';
@@ -32,7 +31,7 @@ const VideoroomContext = React.createContext<
       isMicrophoneOn: boolean;
       toggleMicrophone: () => void;
       isScreencastOn: boolean;
-      isSoundDetected: isSoundDetectedEvent;
+      isSoundDetected: boolean;
       toggleScreencastAndUpdateMetadata: () => void;
       currentCamera: CaptureDevice | null;
       setCurrentCamera: (camera: CaptureDevice | null) => void;
