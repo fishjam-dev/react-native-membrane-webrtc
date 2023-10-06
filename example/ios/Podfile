@@ -45,6 +45,11 @@ target 'reactnativemembranewebrtcexample' do
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
   use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
 
+<<<<<<< Updated upstream
+=======
+  pod 'MembraneRTC', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :tag => '5.1.1'
+
+>>>>>>> Stashed changes
   # Flags change depending on the env values.
   flags = get_default_flags()
 
@@ -90,5 +95,9 @@ target 'reactnativemembranewebrtcexample' do
 end
 
 target 'ScreenBroadcast' do
+<<<<<<< Updated upstream
   pod 'MembraneRTC/Broadcast'
+=======
+  pod 'MembraneRTC/Broadcast', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :tag => '5.1.1'
+>>>>>>> Stashed changes
 end

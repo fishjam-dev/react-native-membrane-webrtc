@@ -25,5 +25,9 @@ Pod::Spec.new do |s|
   
   s.source_files = "**/*.{h,m,swift}"
 
+<<<<<<< Updated upstream
   s.dependency "MembraneRTC", '5.0.0'
+=======
+  s.dependency "MembraneRTC", '5.1.1'
+>>>>>>> Stashed changes
 end

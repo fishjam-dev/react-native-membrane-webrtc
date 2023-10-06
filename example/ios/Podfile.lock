@@ -41,14 +41,23 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.1)
   - hermes-engine/Pre-built (0.72.1)
   - libevent (2.1.12)
+<<<<<<< Updated upstream
   - MembraneRTC (5.0.0):
     - MembraneRTC/Broadcast (= 5.0.0)
+=======
+  - MembraneRTC (5.1.1):
+    - MembraneRTC/Broadcast (= 5.1.1)
+>>>>>>> Stashed changes
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
+<<<<<<< Updated upstream
   - MembraneRTC/Broadcast (5.0.0):
+=======
+  - MembraneRTC/Broadcast (5.1.1):
+>>>>>>> Stashed changes
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
@@ -56,10 +65,17 @@ PODS:
     - WebRTC-SDK (= 104.5112.15)
   - MembraneWebRTC (6.0.0):
     - ExpoModulesCore
+<<<<<<< Updated upstream
     - MembraneRTC (= 5.0.0)
   - PromisesObjC (2.2.0)
   - PromisesSwift (2.2.0):
     - PromisesObjC (= 2.2.0)
+=======
+    - MembraneRTC (= 5.1.1)
+  - PromisesObjC (2.3.1)
+  - PromisesSwift (2.3.1):
+    - PromisesObjC (= 2.3.1)
+>>>>>>> Stashed changes
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -527,7 +543,11 @@ PODS:
   - SwiftPhoenixClient (4.0.0):
     - SwiftPhoenixClient/Core (= 4.0.0)
   - SwiftPhoenixClient/Core (4.0.0)
+<<<<<<< Updated upstream
   - SwiftProtobuf (1.22.0)
+=======
+  - SwiftProtobuf (1.24.0)
+>>>>>>> Stashed changes
   - SwiftyJSON (5.0.0)
   - WebRTC-SDK (104.5112.15)
   - Yoga (1.14.0)
@@ -548,7 +568,12 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
+<<<<<<< Updated upstream
   - MembraneRTC/Broadcast
+=======
+  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, tag `5.1.1`)
+  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios`, tag `5.1.1`)
+>>>>>>> Stashed changes
   - MembraneWebRTC (from `../../ios`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -640,6 +665,12 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2023-03-20-RNv0.72.0-49794cfc7c81fb8f69fd60c3bbf85a7480cc5a77
+<<<<<<< Updated upstream
+=======
+  MembraneRTC:
+    :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
+    :tag: 5.1.1
+>>>>>>> Stashed changes
   MembraneWebRTC:
     :path: "../../ios"
   RCT-Folly:
@@ -723,6 +754,14 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
+<<<<<<< Updated upstream
+=======
+CHECKOUT OPTIONS:
+  MembraneRTC:
+    :git: https://github.com/jellyfish-dev/membrane-webrtc-ios
+    :tag: 5.1.1
+
+>>>>>>> Stashed changes
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
@@ -741,10 +780,17 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 9df83855a0fd15ef8eb61694652bae636b0c466e
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
+<<<<<<< Updated upstream
   MembraneRTC: b6f6a85d9bcc83a74a834eac9861fcc4804163a8
   MembraneWebRTC: 45729a566d617bf2996756bda26773a0a981823e
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
   PromisesSwift: cf9eb58666a43bbe007302226e510b16c1e10959
+=======
+  MembraneRTC: 88c29eec2b6e1729d6f9b3bc048be65c02ab1f1e
+  MembraneWebRTC: 8cec1e6e53e7c9966fb1a8eaf12c37790a0276cf
+  PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
+  PromisesSwift: 28dca69a9c40779916ac2d6985a0192a5cb4a265
+>>>>>>> Stashed changes
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: c52ee8fb2b35c1b54031dd8e92d88ad4dba8f2ce
   RCTTypeSafety: 75fa444becadf0ebfa0a456b8c64560c7c89c7df
@@ -790,11 +836,19 @@ SPEC CHECKSUMS:
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftLogJellyfish: 6207ec91ef3913d303ac797b73298248ee360eb0
   SwiftPhoenixClient: 4e36f35d00e43d11881c255bd60c20efc0f39c91
+<<<<<<< Updated upstream
   SwiftProtobuf: 40bd808372cb8706108f22d28f8ab4a6b9bc6989
+=======
+  SwiftProtobuf: bcfd2bc231cf9ae552cdc7c4e877bd3b41fe57b1
+>>>>>>> Stashed changes
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
   WebRTC-SDK: 18eef1ab50d4c0239adc1cbca33d4ffd9fab6639
   Yoga: 65286bb6a07edce5e4fe8c90774da977ae8fc009
 
+<<<<<<< Updated upstream
 PODFILE CHECKSUM: 572236a5087de7862dd62f90e6f7bcebcc061765
+=======
+PODFILE CHECKSUM: 0a58f677096128943cfdf076a4ea69fb7243bad4
+>>>>>>> Stashed changes
 
 COCOAPODS: 1.12.1
