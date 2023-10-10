@@ -321,15 +321,15 @@ export type EndpointsUpdateEvent<
   >[];
 };
 
-export type IsCameraOnEvent = boolean;
+export type IsCameraOnEvent = { [key: string]: boolean };
 
-export type IsMicrophoneOnEvent = boolean;
+export type IsMicrophoneOnEvent = { [key: string]: boolean };
 
-export type IsScreencastOnEvent = boolean;
+export type IsScreencastOnEvent = { [key: string]: boolean };
 
 export type SimulcastConfigUpdateEvent = SimulcastConfig;
 
-export type BandwidthEstimationEvent = number;
+export type BandwidthEstimationEvent = { [key: string]: number };
 
 export type VideoPreviewViewProps = {
   /**

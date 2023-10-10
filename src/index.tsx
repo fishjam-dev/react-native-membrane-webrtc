@@ -270,9 +270,7 @@ export function useCamera() {
   useEffect(() => {
     const eventListener = eventEmitter.addListener<SimulcastConfigUpdateEvent>(
       'SimulcastConfigUpdate',
-      (event) => {
-        setSimulcastConfig(event);
-      }
+      (event) => setSimulcastConfig(event)
     );
     return () => eventListener.remove();
   }, []);
@@ -280,7 +278,7 @@ export function useCamera() {
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsCameraOnEvent>(
       'IsCameraOn',
-      (event) => setIsCameraOn(event)
+      (event) => setIsCameraOn(event['IsCameraOn'])
     );
     setIsCameraOn(MembraneWebRTCModule.isCameraOn);
     return () => eventListener.remove();
@@ -405,7 +403,7 @@ export function useMicrophone() {
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsMicrophoneOnEvent>(
       'IsMicrophoneOn',
-      (event) => setIsMicrophoneOn(event)
+      (event) => setIsMicrophoneOn(event['IsMicrophoneOn'])
     );
     setIsMicrophoneOn(MembraneWebRTCModule.isMicrophoneOn);
     return () => eventListener.remove();
@@ -445,14 +443,12 @@ export function useScreencast() {
   const [simulcastConfig, setSimulcastConfig] = useState<SimulcastConfig>(
     screencastSimulcastConfig
   );
-
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsScreencastOnEvent>(
       'IsScreencastOn',
-      (event) => {
-        setIsScreencastOn(MembraneWebRTCModule.isScreencastOn);
-      }
+      (event) => setIsScreencastOn(event['IsScreencastOn'])
     );
+    setIsScreencastOn(MembraneWebRTCModule.isScreencastOn);
     return () => eventListener.remove();
   }, []);
 
@@ -684,7 +680,7 @@ export function useBandwidthEstimation() {
   useEffect(() => {
     const eventListener = eventEmitter.addListener<BandwidthEstimationEvent>(
       'BandwidthEstimation',
-      (estimation) => setEstimation(estimation)
+      (event) => setEstimation(event['BandwidthEstimation'])
     );
     return () => eventListener.remove();
   }, []);

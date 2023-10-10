@@ -43,7 +43,7 @@ export const CallControls = () => {
       </View>
       <View style={styles.iconInRow}>
         <InCallButton
-          iconName={!isScreencastOn ? 'Screenshare' : 'Screen-off'}
+          iconName={!isScreencastOn ? 'Screen-off' : 'Screenshare'}
           onPress={toggleScreencastAndUpdateMetadata}
         />
       </View>

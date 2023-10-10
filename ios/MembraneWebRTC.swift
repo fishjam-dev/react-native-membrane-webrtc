@@ -344,7 +344,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
       MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksMetadata[screencastTrackId] = screencastMetadata
       
       self.isScreensharingEnabled = true
-      self.emitEvent(name: "IsScreencastOn", data: ["isScreencastOn": true])
+      self.emitEvent(name: "IsScreencastOn", data: ["IsScreencastOn": self.isScreensharingEnabled])
       self.emitEndpoints()
     }, onStop: { [weak self] in
       guard let self = self else {
@@ -361,7 +361,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
       self.localScreencastTrack = nil
       
       self.isScreensharingEnabled = false
-      self.emitEvent(name: "IsScreencastOn", data: ["isScreencastOn": false])
+      self.emitEvent(name: "IsScreencastOn", data: ["IsScreencastOn": self.isScreensharingEnabled])
       self.emitEndpoints()
     })
     DispatchQueue.main.async {
@@ -838,7 +838,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
   }
   
   func onBandwidthEstimationChanged(estimation: Int) {
-    emitEvent(name: "BandwidthEstimation", data: ["estimation": estimation])
+    emitEvent(name: "BandwidthEstimation", data: ["BandwidthEstimation": estimation])
   }
   
 }
