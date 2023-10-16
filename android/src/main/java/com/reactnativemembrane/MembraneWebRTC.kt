@@ -545,7 +545,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             endpoint!!.addOrUpdateTrack(it, screencastMetadata)
             emitEndpoints()
         }
-        emitEvent("IsScreencastOn", mapOf("isScreencastOn" to isScreencastOn))
+        emitEvent("IsScreencastOn", mapOf("IsScreencastOn" to isScreencastOn))
         screencastPromise?.resolve(isScreencastOn)
     }
 
@@ -559,7 +559,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             localScreencastTrack = null
         }
         emitEndpoints()
-        emitEvent("IsScreencastOn", mapOf("isScreencastOn" to isScreencastOn))
+        emitEvent("IsScreencastOn", mapOf("IsScreencastOn" to isScreencastOn))
         screencastPromise?.resolve(isScreencastOn)
         screencastPromise = null
     }
@@ -741,7 +741,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     override fun onBandwidthEstimationChanged(estimation: Long) {
-        emitEvent("BandwidthEstimation", mapOf("estimation" to estimation.toFloat()))
+        emitEvent("BandwidthEstimation", mapOf("BandwidthEstimation" to estimation.toFloat()))
     }
 
     override fun onDisconnected() {}
