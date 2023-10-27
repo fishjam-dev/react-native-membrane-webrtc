@@ -56,12 +56,8 @@ export const RoomParticipant = ({
   const audioTrack = tracks.find((t) => t.type === 'Audio');
   const buttonOpacity = useSharedValue(0);
 
-  const participantHasVideo = () => {
-    if (videoTrack) {
-      return videoTrack.metadata.active;
-    }
-    return false;
-  };
+  const participantHasVideo = () =>
+    videoTrack ? videoTrack.metadata.active : false;
 
   const getTextForPinButton = () => {
     return focused ? 'Unpin user' : tileSmall ? 'Pin' : 'Pin user';
@@ -139,7 +135,6 @@ export const RoomParticipant = ({
     }
     return null;
   };
-
   return (
     <View style={styles.fill}>
       <Pressable onPress={triggerShowingPinButton} style={styles.fill}>

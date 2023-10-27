@@ -232,9 +232,7 @@ export function useEndpoints<
           VideoTrackMetadataType,
           AudioTrackMetadataType
         >[];
-      }) => {
-        setEndpoints(endpoints);
-      }
+      }) => setEndpoints(endpoints)
     );
     return () => eventListener.remove();
   }, []);
@@ -262,7 +260,9 @@ export async function setTargetTrackEncoding(
  * This hook can toggle camera on/off and provides current camera state.
  */
 export function useCamera() {
-  const [isCameraOn, setIsCameraOn] = useState<boolean>(false);
+  const [isCameraOn, setIsCameraOn] = useState<boolean>(
+    MembraneWebRTCModule.isCameraOn
+  );
 
   const [simulcastConfig, setSimulcastConfig] =
     useState<SimulcastConfig>(videoSimulcastConfig);
@@ -278,7 +278,7 @@ export function useCamera() {
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsCameraOnEvent>(
       'IsCameraOn',
-      (event) => setIsCameraOn(event['IsCameraOn'])
+      (event) => setIsCameraOn(event.IsCameraOn)
     );
     setIsCameraOn(MembraneWebRTCModule.isCameraOn);
     return () => eventListener.remove();
@@ -304,7 +304,7 @@ export function useCamera() {
    */
   const setVideoTrackEncodingBandwidth = useCallback(
     async (encoding: TrackEncoding, bandwidth: BandwidthLimit) => {
-      await MembraneWebRTCModule.setVideoTrackEndodingEncodingBandwidth(
+      await MembraneWebRTCModule.setVideoTrackEncodingBandwidth(
         encoding,
         bandwidth
       );
@@ -316,8 +316,7 @@ export function useCamera() {
    * Function to toggle camera on/off
    */
   const toggleCamera = useCallback(async () => {
-    const state = await MembraneWebRTCModule.toggleCamera();
-    setIsCameraOn(state);
+    await MembraneWebRTCModule.toggleCamera();
   }, []);
 
   /**
@@ -398,12 +397,14 @@ export function useCamera() {
  * This hook can toggle microphone on/off and provides current microphone state.
  */
 export function useMicrophone() {
-  const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(false);
+  const [isMicrophoneOn, setIsMicrophoneOn] = useState<boolean>(
+    MembraneWebRTCModule.isMicrophoneOn
+  );
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsMicrophoneOnEvent>(
       'IsMicrophoneOn',
-      (event) => setIsMicrophoneOn(event['IsMicrophoneOn'])
+      (event) => setIsMicrophoneOn(event.IsMicrophoneOn)
     );
     setIsMicrophoneOn(MembraneWebRTCModule.isMicrophoneOn);
     return () => eventListener.remove();
@@ -413,8 +414,7 @@ export function useMicrophone() {
    * Function to toggle microphone on/off
    */
   const toggleMicrophone = useCallback(async () => {
-    const state = await MembraneWebRTCModule.toggleMicrophone();
-    setIsMicrophoneOn(state);
+    await MembraneWebRTCModule.toggleMicrophone();
   }, []);
 
   /**
@@ -439,14 +439,16 @@ export function useMicrophone() {
  * @returns An object with functions to manage screencast.
  */
 export function useScreencast() {
-  const [isScreencastOn, setIsScreencastOn] = useState<boolean>(false);
+  const [isScreencastOn, setIsScreencastOn] = useState<boolean>(
+    MembraneWebRTCModule.isScreencastOn
+  );
   const [simulcastConfig, setSimulcastConfig] = useState<SimulcastConfig>(
     screencastSimulcastConfig
   );
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsScreencastOnEvent>(
       'IsScreencastOn',
-      (event) => setIsScreencastOn(event['IsScreencastOn'])
+      (event) => setIsScreencastOn(event.IsScreencastOn)
     );
     setIsScreencastOn(MembraneWebRTCModule.isScreencastOn);
     return () => eventListener.remove();
@@ -680,7 +682,7 @@ export function useBandwidthEstimation() {
   useEffect(() => {
     const eventListener = eventEmitter.addListener<BandwidthEstimationEvent>(
       'BandwidthEstimation',
-      (event) => setEstimation(event['BandwidthEstimation'])
+      (event) => setEstimation(event.BandwidthEstimation)
     );
     return () => eventListener.remove();
   }, []);

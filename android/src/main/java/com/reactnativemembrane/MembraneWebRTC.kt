@@ -241,7 +241,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             localEndpoint?.addOrUpdateTrack(localVideoTrack!!, config.videoTrackMetadata)
         }
 
-        emitEvent("IsCameraOn", mapOf("isCameraOn" to isCameraOn))
+        emitEvent("IsCameraOn", mapOf("IsCameraOn" to isCameraOn))
         emitEndpoints()
     }
 
@@ -260,7 +260,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             localEndpoint?.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
         }
 
-        emitEvent("IsMicrophoneOn", mapOf("isMicrophoneOn" to isMicrophoneOn))
+        emitEvent("IsMicrophoneOn", mapOf("IsMicrophoneOn" to isMicrophoneOn))
         emitEndpoints()
     }
 

@@ -228,7 +228,6 @@ class MembraneWebRTC: MembraneRTCDelegate {
   }
   
   func startCamera(config: CameraConfig) throws -> Void {
-    try ensureConnected()
     let videoTrackMetadata = config.videoTrackMetadata.toMetadata()
     self.isCameraEnabled = config.cameraEnabled
     let captureDeviceId = config.captureDeviceId
@@ -247,11 +246,11 @@ class MembraneWebRTC: MembraneRTCDelegate {
       MembraneRoom.sharedInstance.endpoints[localEndpointId]?.videoTracks = [localVideoTrack.trackId(): localVideoTrack]
       MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksMetadata[localVideoTrack.trackId()] = videoTrackMetadata
     }
+    emitEvent(name: "IsCameraOn", data: ["IsCameraOn" :self.isCameraEnabled])
     emitEndpoints()
   }
   
   func startMicrophone(config: MicrophoneConfig) throws -> Void {
-    try ensureConnected()
     let audioTrackMetadata = config.audioTrackMetadata.toMetadata()
     self.isMicEnabled = config.microphoneEnabled
     localAudioTrack = room?.createAudioTrack(metadata: audioTrackMetadata)
@@ -263,6 +262,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
       MembraneRoom.sharedInstance.endpoints[localEndpointId]?.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
       MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
     }
+    emitEvent(name: "IsMicrophoneOn", data: ["IsMicrophoneOn" :self.isMicEnabled])
     emitEndpoints()
   }
   
@@ -409,16 +409,16 @@ class MembraneWebRTC: MembraneRTCDelegate {
   }
   
   func toggleCamera() throws -> Bool {
-    try ensureVideoTrack()
     isCameraEnabled = !isCameraEnabled
     localVideoTrack?.setEnabled(isCameraEnabled)
+    emitEvent(name: "IsCameraOn", data: ["IsCameraOn" : isCameraEnabled])
     return isCameraEnabled
   }
   
   func toggleMicrophone() throws -> Bool {
-    try ensureAudioTrack()
     isMicEnabled = !isMicEnabled
     localAudioTrack?.setEnabled(isMicEnabled)
+    emitEvent(name: "IsMicrophoneOn", data: ["IsMicrophoneOn" : isMicEnabled])
     return isMicEnabled
   }
   

@@ -104,7 +104,7 @@ public class MembraneWebRTCModule: Module {
       try membraneWebRTC.toggleMicrophone()
     }
     
-    Property("IsCameraOn") {
+    Property("isCameraOn") {
       return membraneWebRTC.isCameraEnabled
     }
     
@@ -128,11 +128,15 @@ public class MembraneWebRTCModule: Module {
       try membraneWebRTC.toggleScreencast(screencastOptions: screencastOptions)
     }
     
+    Property("isScreencastOn") {
+      return membraneWebRTC.isScreensharingEnabled
+    }
+    
     AsyncFunction("getEndpoints") {
       membraneWebRTC.getEndpoints()
     }
     
-    AsyncFunction("updateEndpointsMetadata") { (metadata: [String: Any]) in
+    AsyncFunction("updateEndpointMetadata") { (metadata: [String: Any]) in
       try membraneWebRTC.updateEndpointMetadata(metadata: metadata)
     }
     
@@ -154,6 +158,10 @@ public class MembraneWebRTCModule: Module {
     
     AsyncFunction("setScreencastTrackBandwidth") { (bandwidth: Int) in
       try membraneWebRTC.setScreencastTrackBandwidth(bandwidth: bandwidth)
+    }
+
+    AsyncFunction("setScreencastTrackEncodingBandwidth") { (encoding: String, bandwidth: Int) in 
+      try membraneWebRTC.setScreencastTrackEncodingBandwidth(encoding,bandwidth)
     }
     
     AsyncFunction("setTargetTrackEncoding") { (trackId: String, encoding: String) in

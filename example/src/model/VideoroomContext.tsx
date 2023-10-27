@@ -55,21 +55,23 @@ type VideoroomContextProps = {
 const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
   const [roomName, setRoomName] = useState('');
   const [username, setUsername] = useState('');
-  const [isCameraOn, setIsCameraOn] = useState(true);
-  const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
   const [currentCamera, setCurrentCamera] = useState<CaptureDevice | null>(
     null
   );
   const [isDevMode, setIsDevMode] = useState(false);
   const [devServerUrl, setDevServerUrl] = useState(SERVER_URL);
   const {
+    isCameraOn,
     toggleCamera: membraneToggleCamera,
     startCamera,
     flipCamera,
     getCaptureDevices,
   } = useCamera();
-  const { toggleMicrophone: membraneToggleMicrophone, startMicrophone } =
-    useMicrophone();
+  const {
+    isMicrophoneOn,
+    toggleMicrophone: membraneToggleMicrophone,
+    startMicrophone,
+  } = useMicrophone();
   const { isScreencastOn, toggleScreencast: membraneToggleScreencast } =
     useScreencast();
 
@@ -165,22 +167,20 @@ const VideoroomContextProvider = ({ children }: VideoroomContextProps) => {
   }, [error]);
 
   const toggleCamera = useCallback(async () => {
+    await membraneToggleCamera();
     if (videoroomState === 'InMeeting') {
-      await membraneToggleCamera();
       await updateVideoTrackMetadata({ active: !isCameraOn, type: 'camera' });
     }
-    setIsCameraOn(!isCameraOn);
   }, [isCameraOn, videoroomState]);
 
   const toggleMicrophone = useCallback(async () => {
+    await membraneToggleMicrophone();
     if (videoroomState === 'InMeeting') {
-      await membraneToggleMicrophone();
       await updateAudioTrackMetadata({
         active: !isMicrophoneOn,
         type: 'audio',
       });
     }
-    setIsMicrophoneOn(!isMicrophoneOn);
   }, [isMicrophoneOn, videoroomState]);
 
   const toggleScreencastAndUpdateMetadata = useCallback(() => {
