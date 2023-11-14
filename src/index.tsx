@@ -316,7 +316,8 @@ export function useCamera() {
    * Function to toggle camera on/off
    */
   const toggleCamera = useCallback(async () => {
-    await MembraneWebRTCModule.toggleCamera();
+    const state = await MembraneWebRTCModule.toggleCamera();
+    setIsCameraOn(state);
   }, []);
 
   /**
@@ -414,7 +415,8 @@ export function useMicrophone() {
    * Function to toggle microphone on/off
    */
   const toggleMicrophone = useCallback(async () => {
-    await MembraneWebRTCModule.toggleMicrophone();
+    const state = await MembraneWebRTCModule.toggleMicrophone();
+    setIsMicrophoneOn(state);
   }, []);
 
   /**
