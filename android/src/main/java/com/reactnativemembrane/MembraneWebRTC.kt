@@ -3,6 +3,7 @@ package com.reactnativemembrane
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import org.membraneframework.rtc.media.AudioTrack
 import android.media.projection.MediaProjectionManager
 import androidx.appcompat.app.AppCompatActivity
 import com.twilio.audioswitch.AudioDevice
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.membraneframework.rtc.MembraneRTC
 import org.membraneframework.rtc.MembraneRTCListener
 import org.membraneframework.rtc.SimulcastConfig
+import org.membraneframework.rtc.media.VideoTrack
 import org.membraneframework.rtc.media.LocalAudioTrack
 import org.membraneframework.rtc.media.LocalScreencastTrack
 import org.membraneframework.rtc.media.LocalVideoTrack
@@ -34,7 +36,7 @@ import java.util.UUID
 class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> Unit) :
     MembraneRTCListener {
     private val SCREENCAST_REQUEST = 1
-    private var room: MembraneRTC? = null
+    private var membraneRTC: MembraneRTC? = null
 
     var localAudioTrack: LocalAudioTrack? = null
     var localVideoTrack: LocalVideoTrack? = null
@@ -53,7 +55,6 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     private var screencastPromise: Promise? = null
 
     var videoSimulcastConfig: SimulcastConfig = SimulcastConfig()
-
     private var localUserMetadata: Metadata = mutableMapOf()
 
     var screencastQuality: String? = null
@@ -82,9 +83,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?
+        requestCode: Int, resultCode: Int, data: Intent?
     ) {
         if (requestCode != SCREENCAST_REQUEST) return
         if (resultCode != Activity.RESULT_OK) {
@@ -102,20 +101,17 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         val simulcastEnabled = simulcastConfigMap.enabled
         val activeEncodings = simulcastConfigMap.activeEncodings.map { e -> e.toTrackEncoding() }
         return SimulcastConfig(
-            enabled = simulcastEnabled,
-            activeEncodings = activeEncodings
+            enabled = simulcastEnabled, activeEncodings = activeEncodings
         )
     }
 
     private fun getMaxBandwidthFromOptions(
-        maxBandwidthMap: Map<String, Int>?,
-        maxBandwidthInt: Int
+        maxBandwidthMap: Map<String, Int>?, maxBandwidthInt: Int
     ): TrackBandwidthLimit {
         if (maxBandwidthMap != null) {
             val maxBandwidthSimulcast = mutableMapOf<String, TrackBandwidthLimit.BandwidthLimit>()
             maxBandwidthMap.forEach {
-                maxBandwidthSimulcast[it.key] =
-                    TrackBandwidthLimit.BandwidthLimit(it.value)
+                maxBandwidthSimulcast[it.key] = TrackBandwidthLimit.BandwidthLimit(it.value)
             }
             return TrackBandwidthLimit.SimulcastBandwidthLimit(maxBandwidthSimulcast)
         }
@@ -126,30 +122,30 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         return globalToLocalTrackId.filterValues { it == localTrackId }.keys.firstOrNull()
     }
 
-    fun create() {
-        this.audioSwitchManager = AudioSwitchManager(appContext?.reactContext!!)
-        val room = MembraneRTC.create(
-            appContext = appContext?.reactContext!!,
-            listener = this
-        )
-        this.room = room
-
-        localEndpointId = UUID.randomUUID().toString()
+    private fun initLocalEndpoint() {
+        val uuid = UUID.randomUUID().toString()
+        localEndpointId = uuid
         val endpoint = RNEndpoint(
-            id = localEndpointId!!,
+            id = uuid,
             metadata = localUserMetadata,
             type = "webrtc",
         )
-
-        endpoints[localEndpointId!!] = endpoint
-
+        endpoints[uuid] = endpoint
         emitEndpoints()
+    }
+
+    fun create() {
+        audioSwitchManager = AudioSwitchManager(appContext?.reactContext!!)
+        membraneRTC = MembraneRTC.create(
+            appContext = appContext?.reactContext!!, listener = this
+        )
+        ensureCreated()
+        initLocalEndpoint()
     }
 
     private fun getVideoParametersFromOptions(createOptions: CameraConfig): VideoParameters {
         val videoMaxBandwidth =
             getMaxBandwidthFromOptions(createOptions.maxBandwidthMap, createOptions.maxBandwidthInt)
-
         var videoParameters = when (createOptions.quality) {
             "QVGA169" -> VideoParameters.presetQVGA169
             "VGA169" -> VideoParameters.presetVGA169
@@ -168,12 +164,16 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             simulcastConfig = videoSimulcastConfig,
             maxBitrate = videoMaxBandwidth
         )
-
         return videoParameters
     }
 
+    private fun ensureCreated() {
+        if (membraneRTC == null) {
+            throw CodedException("Client not created yet. Make sure to call create() first!")
+        }
+    }
     private fun ensureConnected() {
-        if (room == null) {
+        if (membraneRTC == null) {
             throw CodedException("Client not connected to server yet. Make sure to call connect() first!")
         }
     }
@@ -196,94 +196,76 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
+    private fun ensureEndpoints(){
+        if (localEndpointId == null || endpoints.size == 0){
+            throw CodedException("No endpoints available. Ensure the connection is established or endpoints are present.")
+        }
+    }
+
+
     fun receiveMediaEvent(data: String) {
         ensureConnected()
-        room?.receiveMediaEvent(data)
+        membraneRTC?.receiveMediaEvent(data)
     }
 
     fun connect(endpointMetadata: Metadata, promise: Promise) {
-        ensureConnected()
+        ensureCreated()
+        ensureEndpoints()
         connectPromise = promise
         localUserMetadata = endpointMetadata
         val id = localEndpointId ?: return
-        val endpoint = endpoints[id] ?: return
+        val endpoint = endpoints[id]?: return
         endpoints[id] = endpoint.copy(metadata = localUserMetadata)
-        room?.connect(localUserMetadata)
+        membraneRTC?.connect(localUserMetadata)
     }
 
     fun disconnect() {
+        ensureCreated()
         if (isScreencastOn) {
             stopScreencast()
         }
-        room?.disconnect()
-        room = null
+        membraneRTC?.disconnect()
+        membraneRTC = null
         endpoints.clear()
     }
 
     fun startCamera(config: CameraConfig) {
         ensureConnected()
-        val videoParameters = getVideoParametersFromOptions(config)
-        this.videoSimulcastConfig = getSimulcastConfigFromOptions(config.simulcastConfig)
-        this.isCameraOn = config.cameraEnabled
-
-        localVideoTrack =
-            room?.createVideoTrack(
-                videoParameters,
-                config.videoTrackMetadata,
-                config.captureDeviceId
-            )
-        localVideoTrack?.setEnabled(isCameraOn)
-
-        isCameraOn = localVideoTrack?.enabled() ?: false
-
-        if (localVideoTrack != null) {
-            val localEndpoint = endpoints[localEndpointId]
-            localEndpoint?.addOrUpdateTrack(localVideoTrack!!, config.videoTrackMetadata)
-        }
-
-        emitEvent("IsCameraOn", mapOf("IsCameraOn" to isCameraOn))
-        emitEndpoints()
+        val cameraTrack = createCameraTrack(config) ?: return
+        localVideoTrack = cameraTrack
+        addTrackToLocalEndpoint(cameraTrack, config.videoTrackMetadata)
+        setCameraTrackState(cameraTrack, config.cameraEnabled)
     }
 
-    fun startMicrophone(config: MicrophoneConfig) {
+    private fun createCameraTrack(config: CameraConfig): LocalVideoTrack? {
         ensureConnected()
-        val audioTrackMetadata = config.audioTrackMetadata
-        this@MembraneWebRTC.isMicrophoneOn = config.microphoneEnabled
-
-        localAudioTrack = room?.createAudioTrack(audioTrackMetadata)
-        localAudioTrack?.setEnabled(isMicrophoneOn)
-
-        isMicrophoneOn = localAudioTrack?.enabled() ?: false
-
-        if (localAudioTrack != null) {
-            val localEndpoint = endpoints[localEndpointId]
-            localEndpoint?.addOrUpdateTrack(localAudioTrack!!, audioTrackMetadata)
-        }
-
-        emitEvent("IsMicrophoneOn", mapOf("IsMicrophoneOn" to isMicrophoneOn))
-        emitEndpoints()
+        val videoParameters = getVideoParametersFromOptions(config)
+        videoSimulcastConfig = getSimulcastConfigFromOptions(config.simulcastConfig)
+        return membraneRTC?.createVideoTrack(
+            videoParameters, config.videoTrackMetadata, config.captureDeviceId
+        )
     }
 
-    fun toggleMicrophone(): Boolean {
-        ensureAudioTrack()
-        localAudioTrack?.let {
-            val enabled = !it.enabled()
-            it.setEnabled(enabled)
-            isMicrophoneOn = enabled
-            return enabled
-        }
-        return false
+    private fun setCameraTrackState(cameraTrack: LocalVideoTrack, isEnabled: Boolean) {
+        ensureConnected()
+        cameraTrack.setEnabled(isEnabled)
+        isCameraOn = isEnabled
+        val isCameraOnMap = mapOf("IsCameraOn" to isEnabled)
+        emitEvent("IsCameraOn", isCameraOnMap)
     }
 
-    fun toggleCamera(): Boolean {
+    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata) {
+        ensureEndpoints()
+        val localEndpoint = endpoints[localEndpointId]
+        localEndpoint?.let{
+            it.addOrUpdateTrack(track, metadata)
+            emitEndpoints()
+        }
+    }
+
+    fun toggleCamera() {
         ensureVideoTrack()
-        localVideoTrack?.let {
-            val enabled = !it.enabled()
-            it.setEnabled(enabled)
-            isCameraOn = enabled
-            return enabled
-        }
-        return false
+        localVideoTrack?.let { setCameraTrackState(it, !isCameraOn) }
     }
 
     fun flipCamera() {
@@ -296,26 +278,62 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         localVideoTrack?.switchCamera(captureDeviceId)
     }
 
-    fun getCaptureDevices(): List<Map<String, Any>> {
-        val devices = LocalVideoTrack.getCaptureDevices(appContext?.reactContext!!)
-        return devices.map { device ->
-            mapOf<String, Any>(
-                "id" to device.deviceName,
-                "name" to device.deviceName,
-                "isFrontFacing" to device.isFrontFacing,
-                "isBackFacing" to device.isBackFacing
-            )
+    private fun addTrackToLocalEndpoint(track: AudioTrack, metadata: Metadata) {
+        ensureEndpoints()
+        val localEndpoint = endpoints[localEndpointId]
+        localEndpoint?.let {
+            it.addOrUpdateTrack(track, metadata)
+            emitEndpoints()
         }
     }
 
+    private fun removeTrackFromLocalEndpoint(track: VideoTrack) {
+        ensureEndpoints()
+        val localEndpoint = endpoints[localEndpointId]
+        localEndpoint?.let {
+            it.removeTrack(track)
+            membraneRTC?.removeTrack(track.id())
+            emitEndpoints()
+        }
+    }
+    private fun removeTrackFromLocalEndpoint(track: AudioTrack) {
+        ensureEndpoints()
+        val localEndpoint = endpoints[localEndpointId]
+        localEndpoint?.let {
+            it.removeTrack(track)
+            membraneRTC?.removeTrack(track.id())
+            emitEndpoints()
+        }
+    }
+
+    fun startMicrophone(config: MicrophoneConfig) {
+        ensureConnected()
+        val microphoneTrack = membraneRTC?.createAudioTrack(config.audioTrackMetadata) ?: throw CodedException("Failed to Create Track")
+        localAudioTrack = microphoneTrack
+        addTrackToLocalEndpoint(microphoneTrack, config.audioTrackMetadata)
+        setMicrophoneTrackState(microphoneTrack, config.microphoneEnabled)
+    }
+
+    private fun setMicrophoneTrackState(microphoneTrack: LocalAudioTrack, isEnabled: Boolean) {
+        ensureConnected()
+        microphoneTrack.setEnabled(isEnabled)
+        isMicrophoneOn = isEnabled
+        val isMicrophoneOnMap = mapOf("IsMicrophoneOn" to isEnabled)
+        emitEvent("IsMicrophoneOn", isMicrophoneOnMap)
+    }
+
+    fun toggleMicrophone() {
+        ensureAudioTrack()
+        localAudioTrack?.let { setMicrophoneTrackState(it, !isMicrophoneOn) }
+    }
+
     fun toggleScreencast(screencastOptions: ScreencastOptions, promise: Promise) {
-        this@MembraneWebRTC.screencastMetadata = screencastOptions.screencastMetadata
-        this@MembraneWebRTC.screencastQuality = screencastOptions.quality
-        this@MembraneWebRTC.screencastSimulcastConfig =
+        this.screencastMetadata = screencastOptions.screencastMetadata
+        this.screencastQuality = screencastOptions.quality
+        this.screencastSimulcastConfig =
             getSimulcastConfigFromOptions(screencastOptions.simulcastConfig)
-        this@MembraneWebRTC.screencastMaxBandwidth = getMaxBandwidthFromOptions(
-            screencastOptions.maxBandwidthMap,
-            screencastOptions.maxBandwidthInt
+        this.screencastMaxBandwidth = getMaxBandwidthFromOptions(
+            screencastOptions.maxBandwidthMap, screencastOptions.maxBandwidthInt
         )
         screencastPromise = promise
         if (!isScreencastOn) {
@@ -335,35 +353,54 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         return getEndpointsAsRNMap()
     }
 
+    fun getCaptureDevices(): List<Map<String, Any>> {
+        val devices = LocalVideoTrack.getCaptureDevices(appContext?.reactContext!!)
+        return devices.map { device ->
+            mapOf<String, Any>(
+                "id" to device.deviceName,
+                "name" to device.deviceName,
+                "isFrontFacing" to device.isFrontFacing,
+                "isBackFacing" to device.isBackFacing
+            )
+        }
+    }
+
     fun updateEndpointMetadata(metadata: Metadata) {
         ensureConnected()
-        room?.updateEndpointMetadata(metadata)
+        membraneRTC?.updateEndpointMetadata(metadata)
     }
 
     private fun updateTrackMetadata(trackId: String, metadata: Metadata) {
-        room?.updateTrackMetadata(trackId, metadata)
-        val id = localEndpointId ?: return
-        val endpoint = endpoints[id] ?: return
-        endpoint.tracksMetadata[trackId] = metadata
-        emitEndpoints()
+        membraneRTC?.updateTrackMetadata(trackId, metadata)
+        localEndpointId?.let {
+            val endpoint = endpoints[it] ?: throw CodedException("Endpoint with id $it not Found")
+            endpoint.tracksMetadata[trackId] = metadata
+            emitEndpoints()
+        }
     }
 
-    fun updateVideoTrackMetadata(metadata: Metadata) {
+    fun updateLocalVideoTrackMetadata(metadata: Metadata) {
         ensureVideoTrack()
-        val trackId = localVideoTrack?.rtcTrack()?.id() ?: return
-        updateTrackMetadata(trackId, metadata)
+        localVideoTrack?.let {
+            val trackId = it.rtcTrack().id()
+            updateTrackMetadata(trackId, metadata)
+        }
     }
 
-    fun updateAudioTrackMetadata(metadata: Metadata) {
+    fun updateLocalAudioTrackMetadata(metadata: Metadata) {
         ensureAudioTrack()
-        val trackId = localAudioTrack?.rtcTrack()?.id() ?: return
-        updateTrackMetadata(trackId, metadata)
+        localAudioTrack?.let {
+            val trackId = it.rtcTrack().id()
+            updateTrackMetadata(trackId, metadata)
+        }
     }
 
-    fun updateScreencastTrackMetadata(metadata: Metadata) {
+    fun updateLocalScreencastTrackMetadata(metadata: Metadata) {
         ensureScreencastTrack()
-        val trackId = localScreencastTrack?.rtcTrack()?.id() ?: return
-        updateTrackMetadata(trackId, metadata)
+        localScreencastTrack?.let {
+            val trackId = it.rtcTrack().id()
+            updateTrackMetadata(trackId, metadata)
+        }
     }
 
     fun setOutputAudioDevice(audioDevice: String) {
@@ -371,11 +408,12 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     fun startAudioSwitcher() {
-        audioSwitchManager?.start(this::emitAudioDeviceEvent)
-        emitAudioDeviceEvent(
-            audioSwitchManager?.availableAudioDevices() ?: emptyList(),
-            audioSwitchManager?.selectedAudioDevice()
-        )
+        audioSwitchManager?.let {
+            it.start(this::emitAudioDeviceEvent)
+            emitAudioDeviceEvent(
+                it.availableAudioDevices(), it.selectedAudioDevice()
+            )
+        }
     }
 
     fun stopAudioSwitcher() {
@@ -383,51 +421,62 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     private fun toggleTrackEncoding(
-        encoding: String,
-        trackId: String,
-        simulcastConfig: SimulcastConfig
+        encoding: String, trackId: String, simulcastConfig: SimulcastConfig
     ): SimulcastConfig {
         val trackEncoding = encoding.toTrackEncoding()
-        if (simulcastConfig.activeEncodings.contains(trackEncoding)) {
-            room?.disableTrackEncoding(trackId, trackEncoding)
-            return SimulcastConfig(
-                enabled = true,
-                activeEncodings = simulcastConfig.activeEncodings.filter { e -> e != trackEncoding }
-            )
+
+        val isTrackEncodingActive = simulcastConfig.activeEncodings.contains(trackEncoding)
+
+        if (isTrackEncodingActive) {
+            membraneRTC?.disableTrackEncoding(trackId, trackEncoding)
         } else {
-            room?.enableTrackEncoding(trackId, trackEncoding)
-            return SimulcastConfig(
-                enabled = true,
-                activeEncodings = simulcastConfig.activeEncodings + listOf(trackEncoding)
-            )
+            membraneRTC?.enableTrackEncoding(trackId, trackEncoding)
         }
+
+        val updatedActiveEncodings = if (isTrackEncodingActive) {
+            simulcastConfig.activeEncodings.filter { it != trackEncoding }
+        } else {
+            simulcastConfig.activeEncodings + trackEncoding
+        }
+
+        return SimulcastConfig(
+            enabled = true, activeEncodings = updatedActiveEncodings
+        )
     }
 
     fun toggleScreencastTrackEncoding(encoding: String): Map<String, Any> {
         ensureScreencastTrack()
-        val trackId = localScreencastTrack?.id() ?: return emptyMap()
-        screencastSimulcastConfig =
-            toggleTrackEncoding(encoding, trackId, screencastSimulcastConfig)
+        localScreencastTrack?.let {
+            val trackId = it.id()
+            screencastSimulcastConfig = toggleTrackEncoding(encoding, trackId, screencastSimulcastConfig)
+        }
         return getSimulcastConfigAsRNMap(screencastSimulcastConfig)
     }
 
     fun setScreencastTrackBandwidth(bandwidth: Int) {
         ensureScreencastTrack()
-        val trackId = localScreencastTrack?.id() ?: return
-        room?.setTrackBandwidth(trackId, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+        localScreencastTrack?.let {
+            val trackId = it.id()
+            membraneRTC?.setTrackBandwidth(trackId, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+        }
     }
 
     fun setScreencastTrackEncodingBandwidth(encoding: String, bandwidth: Int) {
         ensureScreencastTrack()
-        val trackId = localScreencastTrack?.id() ?: return
-        room?.setEncodingBandwidth(trackId, encoding, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+        localScreencastTrack?.let {
+            val trackId = it.id()
+            membraneRTC?.setEncodingBandwidth(
+                trackId, encoding, TrackBandwidthLimit.BandwidthLimit(bandwidth)
+            )
+        }
     }
 
     fun setTargetTrackEncoding(trackId: String, encoding: String) {
         ensureConnected()
-        val globalTrackId = getGlobalTrackId(trackId)
-            ?: throw CodedException("Remote track with id=${trackId} not found")
-        room?.setTargetTrackEncoding(globalTrackId, encoding.toTrackEncoding())
+        val globalTrackId =
+            getGlobalTrackId(trackId)
+                ?: throw CodedException("Remote track with id=$trackId not found")
+        membraneRTC?.setTargetTrackEncoding(globalTrackId, encoding.toTrackEncoding())
     }
 
     fun toggleVideoTrackEncoding(encoding: String): Map<String, Any> {
@@ -440,23 +489,29 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
 
     fun setVideoTrackEncodingBandwidth(encoding: String, bandwidth: Int) {
         ensureVideoTrack()
-        val trackId = localVideoTrack?.id() ?: return
-        room?.setEncodingBandwidth(trackId, encoding, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+        localVideoTrack?.let {
+            val trackId = it.id()
+            membraneRTC?.setEncodingBandwidth(
+                trackId, encoding, TrackBandwidthLimit.BandwidthLimit(bandwidth)
+            )
+        }
     }
 
     fun setVideoTrackBandwidth(bandwidth: Int) {
         ensureVideoTrack()
-        val trackId = localVideoTrack?.id() ?: return
-        room?.setTrackBandwidth(trackId, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+        localVideoTrack?.let{
+            val trackId = it.id()
+            membraneRTC?.setTrackBandwidth(trackId, TrackBandwidthLimit.BandwidthLimit(bandwidth))
+        }
     }
 
     fun changeWebRTCLoggingSeverity(severity: String) {
         when (severity) {
-            "verbose" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_VERBOSE)
-            "info" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_INFO)
-            "error" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_ERROR)
-            "warning" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_WARNING)
-            "none" -> room?.changeWebRTCLoggingSeverity(Logging.Severity.LS_NONE)
+            "verbose" -> membraneRTC?.changeWebRTCLoggingSeverity(Logging.Severity.LS_VERBOSE)
+            "info" -> membraneRTC?.changeWebRTCLoggingSeverity(Logging.Severity.LS_INFO)
+            "error" -> membraneRTC?.changeWebRTCLoggingSeverity(Logging.Severity.LS_ERROR)
+            "warning" -> membraneRTC?.changeWebRTCLoggingSeverity(Logging.Severity.LS_WARNING)
+            "none" -> membraneRTC?.changeWebRTCLoggingSeverity(Logging.Severity.LS_NONE)
             else -> {
                 throw CodedException("Severity with name=$severity not found")
             }
@@ -502,8 +557,9 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     fun getStatistics(): MutableMap<String, Map<String, Any?>> {
+        ensureCreated()
         val newMap = mutableMapOf<String, Map<String, Any?>>()
-        room?.getStats()?.forEach { entry ->
+        membraneRTC?.getStats()?.forEach { entry ->
             newMap[entry.key] = if (entry.value is RTCInboundStats) rtcInboundStatsToRNMap(
                 entry.value as RTCInboundStats
             ) else rtcOutboundStatsToRNMap(entry.value as RTCOutboundStats)
@@ -512,13 +568,20 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     private fun startScreencast(mediaProjectionPermission: Intent) {
-        if (localScreencastTrack != null) return
-
-        isScreencastOn = true
-
         localScreencastId = UUID.randomUUID().toString()
+        val videoParameters = getScreencastVideoParameters()
+        val screencastTrack = membraneRTC?.createScreencastTrack(
+            mediaProjectionPermission, videoParameters, screencastMetadata
+        ) ?: throw CodedException("Failed to Create ScreenCast Track")
+        localScreencastTrack = screencastTrack
+        addTrackToLocalEndpoint(screencastTrack, screencastMetadata)
+        setScreencastTrackState(true)
 
-        var videoParameters = when (screencastQuality) {
+        screencastPromise?.resolve(isScreencastOn)
+    }
+
+    private fun getScreencastVideoParameters(): VideoParameters {
+        val videoParameters = when (screencastQuality) {
             "VGA" -> VideoParameters.presetScreenShareVGA
             "HD5" -> VideoParameters.presetScreenShareHD5
             "HD15" -> VideoParameters.presetScreenShareHD15
@@ -527,39 +590,27 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             else -> VideoParameters.presetScreenShareHD15
         }
         val dimensions = videoParameters.dimensions.flip()
-        videoParameters = videoParameters.copy(
+        return videoParameters.copy(
             dimensions = dimensions,
             simulcastConfig = screencastSimulcastConfig,
             maxBitrate = screencastMaxBandwidth,
         )
+    }
 
-        localScreencastTrack =
-            room?.createScreencastTrack(
-                mediaProjectionPermission,
-                videoParameters,
-                screencastMetadata
-            )
-
-        localScreencastTrack?.let {
-            val endpoint = endpoints[localEndpointId]
-            endpoint!!.addOrUpdateTrack(it, screencastMetadata)
-            emitEndpoints()
-        }
-        emitEvent("IsScreencastOn", mapOf("IsScreencastOn" to isScreencastOn))
-        screencastPromise?.resolve(isScreencastOn)
+    private fun setScreencastTrackState(isEnabled: Boolean) {
+        isScreencastOn = isEnabled
+        emitEvent("IsScreencastOn", mapOf("IsScreencastOn" to isEnabled))
+        emitEndpoints()
     }
 
     private fun stopScreencast() {
-        isScreencastOn = false
-
+        ensureScreencastTrack()
         localScreencastTrack?.let {
-            endpoints[localEndpointId]?.removeTrack(it)
-            room?.removeTrack(it.id())
-            emitEndpoints()
+            removeTrackFromLocalEndpoint(it)
             localScreencastTrack = null
         }
-        emitEndpoints()
-        emitEvent("IsScreencastOn", mapOf("IsScreencastOn" to isScreencastOn))
+
+        setScreencastTrackState(false)
         screencastPromise?.resolve(isScreencastOn)
         screencastPromise = null
     }
@@ -569,32 +620,28 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     private fun getEndpointsAsRNMap(): Map<String, Any> {
-        return mapOf(
-            "endpoints" to endpoints.values.map { endpoint ->
-                mapOf(
-                    "id" to endpoint.id,
-                    "isLocal" to (endpoint.id == localEndpointId),
-                    "type" to endpoint.type,
-                    "metadata" to endpoint.metadata,
-                    "tracks" to endpoint.videoTracks.values.map { video ->
-                        mapOf(
-                            "id" to video.id(),
-                            "type" to "Video",
-                            "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
-                            "encoding" to trackContexts[video.id()]?.encoding?.rid,
-                            "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
-                        )
-                    } + endpoint.audioTracks.values.map { audio ->
-                        mapOf(
-                            "id" to audio.id(),
-                            "type" to "Audio",
-                            "metadata" to (endpoint.tracksMetadata[audio.id()] ?: emptyMap()),
-                            "vadStatus" to trackContexts[audio.id()]?.vadStatus?.value
-                        )
-                    }
-                )
-            }
-        )
+        return mapOf("endpoints" to endpoints.values.map { endpoint ->
+            mapOf("id" to endpoint.id,
+                "isLocal" to (endpoint.id == localEndpointId),
+                "type" to endpoint.type,
+                "metadata" to endpoint.metadata,
+                "tracks" to endpoint.videoTracks.values.map { video ->
+                    mapOf(
+                        "id" to video.id(),
+                        "type" to "Video",
+                        "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
+                        "encoding" to trackContexts[video.id()]?.encoding?.rid,
+                        "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
+                    )
+                } + endpoint.audioTracks.values.map { audio ->
+                    mapOf(
+                        "id" to audio.id(),
+                        "type" to "Audio",
+                        "metadata" to (endpoint.tracksMetadata[audio.id()] ?: emptyMap()),
+                        "vadStatus" to trackContexts[audio.id()]?.vadStatus?.value
+                    )
+                })
+        })
     }
 
     private fun emitEndpoints() {
@@ -609,23 +656,23 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     private fun emitAudioDeviceEvent(
-        audioDevices: List<AudioDevice>,
-        selectedDevice: AudioDevice?
+        audioDevices: List<AudioDevice>, selectedDevice: AudioDevice?
     ) {
-        val map = mapOf(
-            "selectedDevice" to (if (selectedDevice != null) audioDeviceAsRNMap(selectedDevice) else null),
-            "availableDevices" to audioDevices.map { audioDevice -> audioDeviceAsRNMap(audioDevice) }
-        )
+        val map =
+            mapOf("selectedDevice" to (if (selectedDevice != null) audioDeviceAsRNMap(selectedDevice) else null),
+                "availableDevices" to audioDevices.map { audioDevice ->
+                    audioDeviceAsRNMap(
+                        audioDevice
+                    )
+                })
         emitEvent("AudioDeviceUpdate", map)
     }
 
     private fun getSimulcastConfigAsRNMap(simulcastConfig: SimulcastConfig): Map<String, Any> {
-        return mapOf(
-            "enabled" to simulcastConfig.enabled,
+        return mapOf("enabled" to simulcastConfig.enabled,
             "activeEncodings" to simulcastConfig.activeEncodings.map {
                 it.rid
-            }
-        )
+            })
     }
 
     override fun onConnected(endpointID: String, otherEndpoints: List<Endpoint>) {
@@ -676,8 +723,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                 }
             }
 
-            else ->
-                throw IllegalArgumentException("invalid type of incoming remote track")
+            else -> throw IllegalArgumentException("invalid type of incoming remote track")
         }
 
         emitEndpoints()
@@ -690,8 +736,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
-    override fun onTrackAdded(ctx: TrackContext) {
-    }
+    override fun onTrackAdded(ctx: TrackContext) {}
 
     override fun onTrackRemoved(ctx: TrackContext) {
         CoroutineScope(Dispatchers.Main).launch {
