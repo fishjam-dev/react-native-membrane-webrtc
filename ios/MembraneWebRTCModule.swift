@@ -161,7 +161,7 @@ public class MembraneWebRTCModule: Module {
     }
 
     AsyncFunction("setScreencastTrackEncodingBandwidth") { (encoding: String, bandwidth: Int) in 
-      try membraneWebRTC.setScreencastTrackEncodingBandwidth(encoding,bandwidth)
+        try membraneWebRTC.setScreencastTrackEncodingBandwidth(encoding: encoding,bandwidth: bandwidth)
     }
     
     AsyncFunction("setTargetTrackEncoding") { (trackId: String, encoding: String) in

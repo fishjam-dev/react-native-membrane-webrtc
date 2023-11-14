@@ -228,6 +228,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
   }
   
   func startCamera(config: CameraConfig) throws -> Void {
+    try ensureConnected()
     let videoTrackMetadata = config.videoTrackMetadata.toMetadata()
     self.isCameraEnabled = config.cameraEnabled
     let captureDeviceId = config.captureDeviceId
@@ -251,16 +252,18 @@ class MembraneWebRTC: MembraneRTCDelegate {
   }
   
   func startMicrophone(config: MicrophoneConfig) throws -> Void {
+    try ensureConnected()
     let audioTrackMetadata = config.audioTrackMetadata.toMetadata()
-    self.isMicEnabled = config.microphoneEnabled
     localAudioTrack = room?.createAudioTrack(metadata: audioTrackMetadata)
-    localAudioTrack?.setEnabled(isMicEnabled)
+    localAudioTrack?.setEnabled(config.microphoneEnabled)
+     
     setAudioSessionMode()
     
     if let localAudioTrack = localAudioTrack,
        let localEndpointId = localEndpointId {
       MembraneRoom.sharedInstance.endpoints[localEndpointId]?.audioTracks = [localAudioTrack.trackId(): localAudioTrack]
       MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksMetadata[localAudioTrack.trackId()] = audioTrackMetadata
+      isMicEnabled = localAudioTrack.enabled()
     }
     emitEvent(name: "IsMicrophoneOn", data: ["IsMicrophoneOn" :self.isMicEnabled])
     emitEndpoints()
