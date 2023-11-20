@@ -73,7 +73,7 @@ public class MembraneWebRTCModule: Module {
     }
     
     AsyncFunction("create") {
-      membraneWebRTC.create()
+      try membraneWebRTC.create()
     }
     
     AsyncFunction("connect") { (endpointMetadata: [String: Any], promise: Promise) in
