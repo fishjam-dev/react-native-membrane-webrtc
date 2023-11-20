@@ -419,7 +419,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
                     try setScreencastTrackState(isEnabled: true)
                 }
                 catch{
-                    os_log("Error starting screencast: \(error)", log: log, type: .error)
+                    os_log("Error starting screencast: %{public}s", log: log, type: .error, String(describing: error))
                 }
                 
             }, onStop: { [weak self] in
@@ -433,7 +433,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
                     try setScreencastTrackState(isEnabled: false)
                 }
                 catch{
-                    os_log("Error stoping screencast: \(error)", log: log, type: .error)
+                    os_log("Error stopping screencast: %{public}s", log: log, type: .error, String(describing: error))
                 }
             })
         DispatchQueue.main.async {
