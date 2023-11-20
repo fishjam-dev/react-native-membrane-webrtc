@@ -1,3 +1,4 @@
+import os.log
 import MembraneRTC
 import React
 import ReplayKit
@@ -5,6 +6,7 @@ import AVKit
 import WebRTC
 import ExpoModulesCore
 
+let log = OSLog(subsystem: "com.example.app", category: "MyLogger")
 #if os(iOS)
 @available(iOS 12, *)
 public extension RPSystemBroadcastPickerView {
@@ -229,16 +231,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
         membraneRTC?.receiveMediaEvent(mediaEvent: data as SerializedMediaEvent)
     }
     
-    //  func connect(metadata: [String: Any], promise: Promise) -> Void {
-    //      connectPromise = promise
-    //      .localUserMetadata = metadata.toMetadata()
-    //
-    //      if let localEndpointId = localEndpointId {
-    //          .endpoints[localEndpointId]?.metadata = metadata.toMetadata()
-    //    }
-    //
-    //    membraneRTC?.connect(metadata: metadata.toMetadata())
-    //  }
+
     func connect(metadata: [String: Any], promise: Promise) {
         connectPromise = promise
         localUserMetadata = metadata.toMetadata()
