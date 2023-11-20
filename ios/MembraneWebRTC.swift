@@ -6,7 +6,8 @@ import AVKit
 import WebRTC
 import ExpoModulesCore
 
-let log = OSLog(subsystem: "com.example.app", category: "MyLogger")
+let log = OSLog(subsystem: "com.swm.membranewebrtc", category: "ErrorHandling")
+
 #if os(iOS)
 @available(iOS 12, *)
 public extension RPSystemBroadcastPickerView {
@@ -231,7 +232,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
         membraneRTC?.receiveMediaEvent(mediaEvent: data as SerializedMediaEvent)
     }
     
-
+    
     func connect(metadata: [String: Any], promise: Promise) {
         connectPromise = promise
         localUserMetadata = metadata.toMetadata()
@@ -418,7 +419,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
                     try setScreencastTrackState(isEnabled: true)
                 }
                 catch{
-                    print("Error starting screencast: \(error)")
+                    os_log("Error starting screencast: \(error)", log: log, type: .error)
                 }
                 
             }, onStop: { [weak self] in
@@ -432,7 +433,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
                     try setScreencastTrackState(isEnabled: false)
                 }
                 catch{
-                    print("Error stoping screencast: \(error)")
+                    os_log("Error starting screencast: \(error)", log: log, type: .error)
                 }
             })
         DispatchQueue.main.async {
