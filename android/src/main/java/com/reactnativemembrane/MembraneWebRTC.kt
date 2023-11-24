@@ -263,9 +263,10 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
-    fun toggleCamera() {
+    fun toggleCamera(): Boolean {
         ensureVideoTrack()
         localVideoTrack?.let { setCameraTrackState(it, !isCameraOn) }
+      return isCameraOn
     }
 
     fun flipCamera() {
@@ -322,9 +323,10 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         emitEvent("IsMicrophoneOn", isMicrophoneOnMap)
     }
 
-    fun toggleMicrophone() {
+    fun toggleMicrophone(): Boolean {
         ensureAudioTrack()
         localAudioTrack?.let { setMicrophoneTrackState(it, !isMicrophoneOn) }
+      return isMicrophoneOn
     }
 
     fun toggleScreencast(screencastOptions: ScreencastOptions, promise: Promise) {
@@ -349,8 +351,29 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
-    fun getEndpoints(): Map<String, Any> {
-        return getEndpointsAsRNMap()
+    fun getEndpoints(): List<Map<String, Any>> {
+      return endpoints.values.map { endpoint ->
+        mapOf("id" to endpoint.id,
+          "isLocal" to (endpoint.id == localEndpointId),
+          "type" to endpoint.type,
+          "metadata" to endpoint.metadata,
+          "tracks" to endpoint.videoTracks.values.map { video ->
+            mapOf(
+              "id" to video.id(),
+              "type" to "Video",
+              "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
+              "encoding" to trackContexts[video.id()]?.encoding?.rid,
+              "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
+            )
+          } + endpoint.audioTracks.values.map { audio ->
+            mapOf(
+              "id" to audio.id(),
+              "type" to "Audio",
+              "metadata" to (endpoint.tracksMetadata[audio.id()] ?: emptyMap()),
+              "vadStatus" to trackContexts[audio.id()]?.vadStatus?.value
+            )
+          })
+      }
     }
 
     fun getCaptureDevices(): List<Map<String, Any>> {
@@ -619,33 +642,9 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         sendEvent(eventName, data)
     }
 
-    private fun getEndpointsAsRNMap(): Map<String, Any> {
-        return mapOf("endpoints" to endpoints.values.map { endpoint ->
-            mapOf("id" to endpoint.id,
-                "isLocal" to (endpoint.id == localEndpointId),
-                "type" to endpoint.type,
-                "metadata" to endpoint.metadata,
-                "tracks" to endpoint.videoTracks.values.map { video ->
-                    mapOf(
-                        "id" to video.id(),
-                        "type" to "Video",
-                        "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
-                        "encoding" to trackContexts[video.id()]?.encoding?.rid,
-                        "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
-                    )
-                } + endpoint.audioTracks.values.map { audio ->
-                    mapOf(
-                        "id" to audio.id(),
-                        "type" to "Audio",
-                        "metadata" to (endpoint.tracksMetadata[audio.id()] ?: emptyMap()),
-                        "vadStatus" to trackContexts[audio.id()]?.vadStatus?.value
-                    )
-                })
-        })
-    }
-
     private fun emitEndpoints() {
-        emitEvent("EndpointsUpdate", getEndpointsAsRNMap())
+        val map = mapOf("EndpointsUpdate" to getEndpoints())
+        emitEvent("EndpointsUpdate", map)
     }
 
     private fun audioDeviceAsRNMap(audioDevice: AudioDevice): Map<String, String?> {

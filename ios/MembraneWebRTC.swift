@@ -441,24 +441,8 @@ class MembraneWebRTC: MembraneRTCDelegate {
         }
     }
     
-    func getEndpoints() -> Dictionary<String, Array<Dictionary<String, Any>>> {
-        return getEndpointsForRN()
-    }
-    func getCaptureDevices() -> [[String: Any]] {
-        let devices = LocalCameraVideoTrack.getCaptureDevices()
-        var rnArray: [[String : Any]] = []
-        devices.forEach { device in
-            rnArray.append([
-                "id": device.uniqueID,
-                "name": device.localizedName,
-                "isFrontFacing": device.position == .front,
-                "isBackFacing": device.position == .back,
-            ])
-        }
-        return rnArray
-    }
-    func getEndpointsForRN() -> Dictionary<String, Array<Dictionary<String, Any>>> {
-        return ["endpoints": MembraneRoom.sharedInstance.endpoints.values.sorted(by: {$0.order < $1.order}).map {
+    func getEndpoints() ->  Array<Dictionary<String, Any>> {
+        MembraneRoom.sharedInstance.endpoints.values.sorted(by: {$0.order < $1.order}).map {
             (p) -> Dictionary in
             let videoTracks = p.videoTracks.keys.map { trackId in [
                 "id": trackId,
@@ -482,7 +466,21 @@ class MembraneWebRTC: MembraneRTCDelegate {
                 "isLocal": p.id == localEndpointId,
                 "type": p.type,
             ]
-        }]
+        }
+    }
+    
+    func getCaptureDevices() -> [[String: Any]] {
+        let devices = LocalCameraVideoTrack.getCaptureDevices()
+        var rnArray: [[String : Any]] = []
+        devices.forEach { device in
+            rnArray.append([
+                "id": device.uniqueID,
+                "name": device.localizedName,
+                "isFrontFacing": device.position == .front,
+                "isBackFacing": device.position == .back,
+            ])
+        }
+        return rnArray
     }
     
     func getSimulcastConfigAsRNMap(simulcastConfig: SimulcastConfig) -> [String: Any] {
@@ -749,7 +747,8 @@ class MembraneWebRTC: MembraneRTCDelegate {
     }
     
     func emitEndpoints() -> Void {
-        emitEvent(name: "EndpointsUpdate", data: getEndpointsForRN())
+        let EndpointsUpdateMap = ["EndpointsUpdate": getEndpoints()]
+        emitEvent(name: "EndpointsUpdate", data: EndpointsUpdateMap )
     }
     
     @objc func onRouteChangeNotification() {
