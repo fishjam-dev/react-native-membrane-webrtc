@@ -33,6 +33,17 @@ import MembraneWebRTCModule from './MembraneWebRTCModule';
 import VideoPreviewView from './VideoPreviewView';
 import VideoRendererView from './VideoRendererView';
 
+const ReceivableEvents = {
+  IsCameraOn: 'IsCameraOn',
+  IsMicrophoneOn: 'IsMicrophoneOn',
+  IsScreencastOn: 'IsScreencastOn',
+  SimulcastConfigUpdate: 'SimulcastConfigUpdate',
+  EndpointsUpdate: 'EndpointsUpdate',
+  AudioDeviceUpdate: 'AudioDeviceUpdate',
+  SendMediaEvent: 'SendMediaEvent',
+  BandwidthEstimation: 'BandwidthEstimation',
+} as const;
+
 const eventEmitter = new EventEmitter(
   MembraneWebRTCModule ?? NativeModulesProxy.MembraneWebRTC
 );
@@ -60,7 +71,7 @@ export function useWebRTC() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener(
-      'SendMediaEvent',
+      ReceivableEvents.SendMediaEvent,
       sendMediaEvent
     );
     return () => eventListener.remove();
@@ -220,19 +231,17 @@ export function useEndpoints<
         VideoTrackMetadataType,
         AudioTrackMetadataType
       >
-    >('EndpointsUpdate', ({ endpoints }) => {
-      setEndpoints(endpoints);
+    >(ReceivableEvents.EndpointsUpdate, (event) => {
+      setEndpoints(event.EndpointsUpdate);
     });
     MembraneWebRTCModule.getEndpoints().then(
-      ({
-        endpoints,
-      }: {
+      (
         endpoints: Endpoint<
           EndpointMetadataType,
           VideoTrackMetadataType,
           AudioTrackMetadataType
-        >[];
-      }) => setEndpoints(endpoints)
+        >[]
+      ) => setEndpoints(endpoints)
     );
     return () => eventListener.remove();
   }, []);
@@ -269,7 +278,7 @@ export function useCamera() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<SimulcastConfigUpdateEvent>(
-      'SimulcastConfigUpdate',
+      ReceivableEvents.SimulcastConfigUpdate,
       (event) => setSimulcastConfig(event)
     );
     return () => eventListener.remove();
@@ -277,7 +286,7 @@ export function useCamera() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsCameraOnEvent>(
-      'IsCameraOn',
+      ReceivableEvents.IsCameraOn,
       (event) => setIsCameraOn(event.IsCameraOn)
     );
     setIsCameraOn(MembraneWebRTCModule.isCameraOn);
@@ -404,7 +413,7 @@ export function useMicrophone() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsMicrophoneOnEvent>(
-      'IsMicrophoneOn',
+      ReceivableEvents.IsMicrophoneOn,
       (event) => setIsMicrophoneOn(event.IsMicrophoneOn)
     );
     setIsMicrophoneOn(MembraneWebRTCModule.isMicrophoneOn);
@@ -449,7 +458,7 @@ export function useScreencast() {
   );
   useEffect(() => {
     const eventListener = eventEmitter.addListener<IsScreencastOnEvent>(
-      'IsScreencastOn',
+      ReceivableEvents.IsScreencastOn,
       (event) => setIsScreencastOn(event.IsScreencastOn)
     );
     setIsScreencastOn(MembraneWebRTCModule.isScreencastOn);
@@ -578,18 +587,20 @@ export function useAudioSettings() {
   );
 
   type onAudioDeviceEvent = {
-    selectedDevice: AudioOutputDevice;
-    availableDevices: AudioOutputDevice[];
+    AudioDeviceUpdate: {
+      selectedDevice: AudioOutputDevice;
+      availableDevices: AudioOutputDevice[];
+    };
   };
 
   const onAudioDevice = useCallback((event: onAudioDeviceEvent) => {
-    setSelectedAudioOutputDevice(event.selectedDevice);
-    setAvailableDevices(event.availableDevices);
+    setSelectedAudioOutputDevice(event.AudioDeviceUpdate.selectedDevice);
+    setAvailableDevices(event.AudioDeviceUpdate.availableDevices);
   }, []);
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener(
-      'AudioDeviceUpdate',
+      ReceivableEvents.AudioDeviceUpdate,
       onAudioDevice
     );
     MembraneWebRTCModule.startAudioSwitcher();
@@ -683,7 +694,7 @@ export function useBandwidthEstimation() {
 
   useEffect(() => {
     const eventListener = eventEmitter.addListener<BandwidthEstimationEvent>(
-      'BandwidthEstimation',
+      ReceivableEvents.BandwidthEstimation,
       (event) => setEstimation(event.BandwidthEstimation)
     );
     return () => eventListener.remove();
