@@ -103,6 +103,7 @@ export const Preview = ({ navigation, route }: Props) => {
 
             <View style={styles.cameraPreview}>
               {isCameraOn ? (
+                // @ts-ignore
                 <Membrane.VideoPreviewView
                   style={styles.membraneVideoPreview}
                   mirrorVideo
