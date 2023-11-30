@@ -314,7 +314,7 @@ export type EndpointsUpdateEvent<
   VideoTrackMetadataType extends Metadata,
   AudioTrackMetadataType extends Metadata
 > = {
-  endpoints: Endpoint<
+  EndpointsUpdate: Endpoint<
     MetadataType,
     VideoTrackMetadataType,
     AudioTrackMetadataType
