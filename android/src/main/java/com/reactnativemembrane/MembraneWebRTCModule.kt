@@ -193,19 +193,19 @@ class MembraneWebRTCModule : Module() {
 
         AsyncFunction("updateVideoTrackMetadata") Coroutine { metadata: Map<String, Any> ->
             withContext(Dispatchers.Main) {
-                membraneWebRTC.updateVideoTrackMetadata(metadata)
+                membraneWebRTC.updateLocalVideoTrackMetadata(metadata)
             }
         }
 
         AsyncFunction("updateAudioTrackMetadata") Coroutine { metadata: Map<String, Any> ->
             withContext(Dispatchers.Main) {
-                membraneWebRTC.updateAudioTrackMetadata(metadata)
+                membraneWebRTC.updateLocalAudioTrackMetadata(metadata)
             }
         }
 
         AsyncFunction("updateScreencastTrackMetadata") Coroutine { metadata: Map<String, Any> ->
             withContext(Dispatchers.Main) {
-                membraneWebRTC.updateScreencastTrackMetadata(metadata)
+                membraneWebRTC.updateLocalScreencastTrackMetadata(metadata)
             }
         }
 

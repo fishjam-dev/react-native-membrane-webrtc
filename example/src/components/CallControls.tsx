@@ -31,19 +31,19 @@ export const CallControls = () => {
     <View style={styles.iconsContainer}>
       <View style={styles.iconInRow}>
         <InCallButton
-          iconName={!isCameraOn ? 'Cam-disabled' : 'Cam'}
+          iconName={isCameraOn ? 'Cam' : 'Cam-disabled'}
           onPress={toggleCamera}
         />
       </View>
       <View style={styles.iconInRow}>
         <InCallButton
-          iconName={!isMicrophoneOn ? 'Microphone-off' : 'Microphone'}
+          iconName={isMicrophoneOn ? 'Microphone' : 'Microphone-off'}
           onPress={toggleMicrophone}
         />
       </View>
       <View style={styles.iconInRow}>
         <InCallButton
-          iconName={!isScreencastOn ? 'Screen-off' : 'Screenshare'}
+          iconName={isScreencastOn ? 'Screenshare' : 'Screen-off'}
           onPress={toggleScreencastAndUpdateMetadata}
         />
       </View>
