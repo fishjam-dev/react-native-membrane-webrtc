@@ -19,6 +19,7 @@ import {
   IsMicrophoneOnEvent,
   IsScreencastOnEvent,
   LoggingSeverity,
+  MembraneWebRTC,
   Metadata,
   MicrophoneConfig,
   RTCInboundStats,
@@ -231,18 +232,16 @@ export function useEndpoints<
         VideoTrackMetadataType,
         AudioTrackMetadataType
       >
-    >(ReceivableEvents.EndpointsUpdate, (event) => {
+    >('EndpointsUpdate', (event) => {
       setEndpoints(event.EndpointsUpdate);
     });
-    MembraneWebRTCModule.getEndpoints().then(
-      (
-        endpoints: Endpoint<
-          EndpointMetadataType,
-          VideoTrackMetadataType,
-          AudioTrackMetadataType
-        >[]
-      ) => setEndpoints(endpoints)
-    );
+    MembraneWebRTCModule.getEndpoints<
+      EndpointMetadataType,
+      VideoTrackMetadataType,
+      AudioTrackMetadataType
+    >().then((endpoints) => {
+      setEndpoints(endpoints);
+    });
     return () => eventListener.remove();
   }, []);
 
