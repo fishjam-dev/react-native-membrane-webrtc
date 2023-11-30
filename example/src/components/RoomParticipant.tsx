@@ -144,7 +144,6 @@ export const RoomParticipant = ({
     <View style={styles.fill}>
       <Pressable onPress={triggerShowingPinButton} style={styles.fill}>
         {participantHasVideo() ? (
-          // @ts-ignore
           <Membrane.VideoRendererView
             trackId={videoTrack!.id}
             style={getStyleForVideoView()}
