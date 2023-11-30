@@ -1,4 +1,8 @@
-import { NativeModulesProxy, EventEmitter } from 'expo-modules-core';
+import {
+  NativeModulesProxy,
+  EventEmitter,
+  requireNativeModule,
+} from 'expo-modules-core';
 import { takeRight } from 'lodash';
 import { Channel, Socket, MessageRef } from 'phoenix';
 import { useCallback, useEffect, useState, useRef } from 'react';
