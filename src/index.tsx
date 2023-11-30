@@ -1,8 +1,4 @@
-import {
-  NativeModulesProxy,
-  EventEmitter,
-  requireNativeModule,
-} from 'expo-modules-core';
+import { NativeModulesProxy, EventEmitter } from 'expo-modules-core';
 import { takeRight } from 'lodash';
 import { Channel, Socket, MessageRef } from 'phoenix';
 import { useCallback, useEffect, useState, useRef } from 'react';
@@ -23,7 +19,6 @@ import {
   IsMicrophoneOnEvent,
   IsScreencastOnEvent,
   LoggingSeverity,
-  MembraneWebRTC,
   Metadata,
   MicrophoneConfig,
   RTCInboundStats,
@@ -236,7 +231,7 @@ export function useEndpoints<
         VideoTrackMetadataType,
         AudioTrackMetadataType
       >
-    >('EndpointsUpdate', (event) => {
+    >(ReceivableEvents.EndpointsUpdate, (event) => {
       setEndpoints(event.EndpointsUpdate);
     });
     MembraneWebRTCModule.getEndpoints<
