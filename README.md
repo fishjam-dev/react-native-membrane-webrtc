@@ -297,6 +297,9 @@ toggleScreencast({screencastMetadata: { displayName: "Annie's desktop" }});
 Use track metadata to differentiate between video and screencast tracks.
 
 ### Developing
+
+Run `./scripts/init.sh` in the main directory to install swift-format and set up git hooks.
+
 To release a new version of the lib just run `yarn release`, follow the prompts to bump version, make tags, commits and upload to npm
 To release a new version of the example app on Android install fastlane, get upload key password and firebase auth json from the devs, update `~/.gradle/gradle.properties` like this:
 ```
