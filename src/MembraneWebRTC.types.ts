@@ -28,6 +28,8 @@ export enum EncodingReason {
   LowBandwidth = 'lowBandwidth',
 }
 
+
+
 export type Track<MetadataType extends Metadata> = {
   id: string;
   type: TrackType;
@@ -35,6 +37,7 @@ export type Track<MetadataType extends Metadata> = {
   vadStatus: VadStatus;
   // Encoding that is currently received. Only present for remote tracks.
   encoding: TrackEncoding | null;
+  simulcastConfig: SimulcastConfig | null;
   // The reason of currently selected encoding. Only present for remote tracks.
   encodingReason: EncodingReason | null;
 };
