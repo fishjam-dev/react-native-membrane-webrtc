@@ -688,7 +688,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         CoroutineScope(Dispatchers.Main).launch {
             endpoints.remove(endpointID)
             otherEndpoints.forEach {
-                endpoints[it.id] = RNEndpoint(it.id, it.metadata, it.type)
+                endpoints[it.id] = RNEndpoint(it.id, it.metadata ?: mapOf(), it.type)
             }
             connectPromise?.resolve(null)
             connectPromise = null
