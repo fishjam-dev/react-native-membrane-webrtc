@@ -1,17 +1,20 @@
 package com.reactnativemembrane
 
+import org.membraneframework.rtc.events.TracksAdded
 import org.membraneframework.rtc.media.AudioTrack
 import org.membraneframework.rtc.media.VideoTrack
 import org.membraneframework.rtc.utils.Metadata
 
 data class RNEndpoint(
-    val id: String,
-    val metadata: Metadata,
-    val type: String,
-    val videoTracks: HashMap<String, VideoTrack> = hashMapOf(),
-    val audioTracks: HashMap<String, AudioTrack> = hashMapOf(),
-    val tracksMetadata: HashMap<String, Metadata> = hashMapOf()
-) {
+  val id: String,
+  val metadata: Metadata,
+  val type: String,
+  val videoTracks: HashMap<String, VideoTrack> = hashMapOf(),
+  val audioTracks: HashMap<String, AudioTrack> = hashMapOf(),
+  val tracksMetadata: HashMap<String, Metadata> = hashMapOf(),
+  val tracks: Map<String, TracksAdded.Data.TrackData>,
+
+  ) {
 
     fun addOrUpdateTrack(videoTrack: VideoTrack, metadata: Metadata) {
         this.tracksMetadata[videoTrack.id()] = metadata

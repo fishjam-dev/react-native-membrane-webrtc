@@ -129,6 +129,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                 id = uuid,
                 metadata = localUserMetadata,
                 type = "webrtc",
+                tracks = mapOf(),
         )
         endpoints[uuid] = endpoint
         emitEndpoints()
@@ -688,7 +689,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         CoroutineScope(Dispatchers.Main).launch {
             endpoints.remove(endpointID)
             otherEndpoints.forEach {
-                endpoints[it.id] = RNEndpoint(it.id, it.metadata ?: mapOf(), it.type)
+                endpoints[it.id] = RNEndpoint(it.id, it.metadata ?: mapOf(), it.type, tracks = it.tracks)
             }
             connectPromise?.resolve(null)
             connectPromise = null
@@ -776,7 +777,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     override fun onEndpointAdded(endpoint: Endpoint) {
         CoroutineScope(Dispatchers.Main).launch {
             endpoints[endpoint.id] =
-                    RNEndpoint(id = endpoint.id, metadata = endpoint.metadata, type = endpoint.type)
+                    RNEndpoint(id = endpoint.id, metadata = endpoint.metadata, type = endpoint.type, tracks=endpoint.tracks)
             emitEndpoints()
         }
     }
