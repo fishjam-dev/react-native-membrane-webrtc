@@ -364,20 +364,22 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                     "type" to endpoint.type,
                     "metadata" to endpoint.metadata,
                     "tracks" to endpoint.videoTracks.values.map { video ->
-                        mapOf(
-                                "id" to video.id(),
-                                "type" to "Video",
-                                "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
-                                "encoding" to trackContexts[video.id()]?.encoding?.rid,
-                                "encodingReason" to trackContexts[video.id()]?.encodingReason?.value,
-                                "simulcastConfig" to trackContexts[video.id()]?.simulcastConfig?.let {
-                                  SerializableSimulcastConfig.fromSimulcastConfig(
-                                    it
-                                  )
-                                },
+                      val videoMap = mutableMapOf<String, Any?>(
+                        "id" to video.id(),
+                        "type" to "Video",
+                        "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
+                        "encoding" to trackContexts[video.id()]?.encoding?.rid,
+                        "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
+                      )
 
-
+                      trackContexts[video.id()]?.simulcastConfig?.let {config ->
+                        videoMap["simulcastConfig"] = mutableMapOf(
+                          "enabled" to config.enabled,
+                          "activeEncodings" to config.activeEncodings.map { encoding -> encoding.rid }
                         )
+                      }
+
+                      videoMap
                     } + endpoint.audioTracks.values.map { audio ->
                         mapOf(
                                 "id" to audio.id(),

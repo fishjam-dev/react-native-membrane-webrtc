@@ -4,6 +4,7 @@ import org.membraneframework.rtc.TrackEncoding
 import org.membraneframework.rtc.SimulcastConfig
 import java.io.Serializable
 
+
 enum class SerializableTrackEncoding(val rid: String) : Serializable {
   L("l"), M("m"), H("h");
 
