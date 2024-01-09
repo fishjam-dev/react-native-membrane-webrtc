@@ -370,7 +370,13 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                                 "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
                                 "encoding" to trackContexts[video.id()]?.encoding?.rid,
                                 "encodingReason" to trackContexts[video.id()]?.encodingReason?.value,
-                                "simulcastConfig" to trackContexts[video.id()]?.simulcastConfig
+                                "simulcastConfig" to trackContexts[video.id()]?.simulcastConfig?.let {
+                                  SerializableSimulcastConfig.fromSimulcastConfig(
+                                    it
+                                  )
+                                },
+
+
                         )
                     } + endpoint.audioTracks.values.map { audio ->
                         mapOf(
@@ -383,7 +389,9 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
-    fun getCaptureDevices(): List<Map<String, Any>> {
+
+
+  fun getCaptureDevices(): List<Map<String, Any>> {
         val devices = LocalVideoTrack.getCaptureDevices(appContext?.reactContext!!)
         return devices.map { device ->
             mapOf<String, Any>(
