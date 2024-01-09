@@ -256,7 +256,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         emitEvent(eventName, isCameraOnMap)
     }
 
-    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata) {
+    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata = mapOf()) {
         ensureEndpoints()
         val localEndpoint = endpoints[localEndpointId]
         localEndpoint?.let {
@@ -281,7 +281,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         localVideoTrack?.switchCamera(captureDeviceId)
     }
 
-    private fun addTrackToLocalEndpoint(track: AudioTrack, metadata: Metadata) {
+    private fun addTrackToLocalEndpoint(track: AudioTrack, metadata: Metadata = mapOf()) {
         ensureEndpoints()
         val localEndpoint = endpoints[localEndpointId]
         localEndpoint?.let {

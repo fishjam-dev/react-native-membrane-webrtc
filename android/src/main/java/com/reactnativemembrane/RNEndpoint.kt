@@ -6,7 +6,7 @@ import org.membraneframework.rtc.utils.Metadata
 
 data class RNEndpoint(
     val id: String,
-    val metadata: Metadata,
+    val metadata: Metadata = hashMapOf(),
     val type: String,
     val videoTracks: HashMap<String, VideoTrack> = hashMapOf(),
     val audioTracks: HashMap<String, AudioTrack> = hashMapOf(),
