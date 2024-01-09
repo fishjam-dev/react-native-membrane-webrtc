@@ -4,10 +4,10 @@ import org.membraneframework.rtc.media.AudioTrack
 import org.membraneframework.rtc.media.VideoTrack
 import org.membraneframework.rtc.utils.Metadata
 
-data class RNEndpoint(
+data class RNEndpoint (
     val id: String,
     val metadata: Metadata = hashMapOf(),
-    val type: String,
+    val type: String?,
     val videoTracks: HashMap<String, VideoTrack> = hashMapOf(),
     val audioTracks: HashMap<String, AudioTrack> = hashMapOf(),
     val tracksMetadata: HashMap<String, Metadata> = hashMapOf()
