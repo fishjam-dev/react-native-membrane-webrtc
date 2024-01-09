@@ -356,7 +356,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
-    fun getEndpoints(): List<Map<String, Any>> {
+    fun getEndpoints(): List<Map<String, Any?>> {
         return endpoints.values.map { endpoint ->
             mapOf("id" to endpoint.id,
                     "isLocal" to (endpoint.id == localEndpointId),
