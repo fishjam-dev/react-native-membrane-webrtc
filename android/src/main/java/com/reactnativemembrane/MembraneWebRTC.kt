@@ -369,7 +369,8 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                                 "type" to "Video",
                                 "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
                                 "encoding" to trackContexts[video.id()]?.encoding?.rid,
-                                "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
+                                "encodingReason" to trackContexts[video.id()]?.encodingReason?.value,
+                                "simulcastConfig" to trackContexts[video.id()]?.simulcastConfig
                         )
                     } + endpoint.audioTracks.values.map { audio ->
                         mapOf(
