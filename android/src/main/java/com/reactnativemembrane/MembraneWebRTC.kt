@@ -209,7 +209,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         membraneRTC?.receiveMediaEvent(data)
     }
 
-    fun connect(endpointMetadata: Metadata, promise: Promise) {
+    fun connect(endpointMetadata: Metadata = mapOf(), promise: Promise) {
         ensureCreated()
         ensureEndpoints()
         connectPromise = promise
@@ -368,7 +368,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                                 "type" to "Video",
                                 "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
                                 "encoding" to trackContexts[video.id()]?.encoding?.rid,
-                                "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
+                                "encodingReason" to trackContexts[video.id()]?.encodingReason?.value,
                         )
                     } + endpoint.audioTracks.values.map { audio ->
                         mapOf(
