@@ -209,7 +209,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         membraneRTC?.receiveMediaEvent(data)
     }
 
-    fun connect(endpointMetadata: Metadata, promise: Promise) {
+    fun connect(endpointMetadata: Metadata = mapOf(), promise: Promise) {
         ensureCreated()
         ensureEndpoints()
         connectPromise = promise
@@ -256,7 +256,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         emitEvent(eventName, isCameraOnMap)
     }
 
-    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata) {
+    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata = mapOf()) {
         ensureEndpoints()
         val localEndpoint = endpoints[localEndpointId]
         localEndpoint?.let {
@@ -281,7 +281,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         localVideoTrack?.switchCamera(captureDeviceId)
     }
 
-    private fun addTrackToLocalEndpoint(track: AudioTrack, metadata: Metadata) {
+    private fun addTrackToLocalEndpoint(track: AudioTrack, metadata: Metadata = mapOf()) {
         ensureEndpoints()
         val localEndpoint = endpoints[localEndpointId]
         localEndpoint?.let {
@@ -356,7 +356,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
-    fun getEndpoints(): List<Map<String, Any>> {
+    fun getEndpoints(): List<Map<String, Any?>> {
         return endpoints.values.map { endpoint ->
             mapOf("id" to endpoint.id,
                     "isLocal" to (endpoint.id == localEndpointId),
@@ -368,7 +368,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                                 "type" to "Video",
                                 "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
                                 "encoding" to trackContexts[video.id()]?.encoding?.rid,
-                                "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
+                                "encodingReason" to trackContexts[video.id()]?.encodingReason?.value,
                         )
                     } + endpoint.audioTracks.values.map { audio ->
                         mapOf(
@@ -688,7 +688,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         CoroutineScope(Dispatchers.Main).launch {
             endpoints.remove(endpointID)
             otherEndpoints.forEach {
-                endpoints[it.id] = RNEndpoint(it.id, it.metadata, it.type)
+                endpoints[it.id] = RNEndpoint(it.id, it.metadata ?: mapOf() , it.type)
             }
             connectPromise?.resolve(null)
             connectPromise = null
