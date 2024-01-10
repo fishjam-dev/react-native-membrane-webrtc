@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import org.membraneframework.rtc.media.AudioTrack
 import android.media.projection.MediaProjectionManager
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.twilio.audioswitch.AudioDevice
 import expo.modules.kotlin.Promise
@@ -371,10 +372,13 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                         "encoding" to trackContexts[video.id()]?.encoding?.rid,
                         "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
                       )
+
+                      Log.d("AAA",trackContexts[video.id()]?.simulcastConfig?.toString() ?: "")
+
                       trackContexts[video.id()]?.simulcastConfig?.let {config ->
                         videoMap["simulcastConfig"] = mutableMapOf(
                           "enabled" to config.enabled,
-                          "activeEncodings" to config.activeEncodings.map { encoding -> encoding?.name ?: "" }
+                          "activeEncodings" to config.activeEncodings.map { encoding -> encoding.rid }
                         )
                       }
                       videoMap
