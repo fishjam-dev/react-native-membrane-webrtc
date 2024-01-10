@@ -371,14 +371,12 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                         "encoding" to trackContexts[video.id()]?.encoding?.rid,
                         "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
                       )
-
                       trackContexts[video.id()]?.simulcastConfig?.let {config ->
                         videoMap["simulcastConfig"] = mutableMapOf(
                           "enabled" to config.enabled,
-                          "activeEncodings" to config.activeEncodings.map { encoding -> encoding.rid }
+                          "activeEncodings" to config.activeEncodings.map { encoding -> encoding.name }
                         )
                       }
-
                       videoMap
                     } + endpoint.audioTracks.values.map { audio ->
                         mapOf(
