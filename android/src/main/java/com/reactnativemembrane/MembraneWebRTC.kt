@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import org.membraneframework.rtc.media.AudioTrack
 import android.media.projection.MediaProjectionManager
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.twilio.audioswitch.AudioDevice
 import expo.modules.kotlin.Promise
@@ -211,7 +210,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         membraneRTC?.receiveMediaEvent(data)
     }
 
-    fun connect(endpointMetadata: Metadata, promise: Promise) {
+    fun connect(endpointMetadata: Metadata = mapOf(), promise: Promise) {
         ensureCreated()
         ensureEndpoints()
         connectPromise = promise
@@ -258,7 +257,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         emitEvent(eventName, isCameraOnMap)
     }
 
-    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata) {
+    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata = mapOf()) {
         ensureEndpoints()
         val localEndpoint = endpoints[localEndpointId]
         localEndpoint?.let {
@@ -283,7 +282,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         localVideoTrack?.switchCamera(captureDeviceId)
     }
 
-    private fun addTrackToLocalEndpoint(track: AudioTrack, metadata: Metadata) {
+    private fun addTrackToLocalEndpoint(track: AudioTrack, metadata: Metadata = mapOf()) {
         ensureEndpoints()
         val localEndpoint = endpoints[localEndpointId]
         localEndpoint?.let {
@@ -358,7 +357,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
-    fun getEndpoints(): List<Map<String, Any>> {
+    fun getEndpoints(): List<Map<String, Any?>> {
         return endpoints.values.map { endpoint ->
             mapOf("id" to endpoint.id,
                     "isLocal" to (endpoint.id == localEndpointId),
@@ -391,9 +390,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         }
     }
 
-
-
-  fun getCaptureDevices(): List<Map<String, Any>> {
+    fun getCaptureDevices(): List<Map<String, Any>> {
         val devices = LocalVideoTrack.getCaptureDevices(appContext?.reactContext!!)
         return devices.map { device ->
             mapOf<String, Any>(

@@ -7,13 +7,12 @@ import org.membraneframework.rtc.utils.Metadata
 
 data class RNEndpoint(
   val id: String,
-  val metadata: Metadata,
-  val type: String,
+  val metadata: Metadata? = hashMapOf(),
+  val type: String?,
   val videoTracks: HashMap<String, VideoTrack> = hashMapOf(),
   val audioTracks: HashMap<String, AudioTrack> = hashMapOf(),
   val tracksMetadata: HashMap<String, Metadata> = hashMapOf(),
-  val tracks: Map<String, TracksAdded.Data.TrackData>,
-
+  val tracks: HashMap<String, TracksAdded.Data.TrackData> = hashMapOf(),
   ) {
 
     fun addOrUpdateTrack(videoTrack: VideoTrack, metadata: Metadata) {
