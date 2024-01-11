@@ -542,6 +542,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
     func updateEndpointMetadata(metadata: [String: Any]) throws {
         try ensureConnected()
         membraneRTC?.updateEndpointMetadata(metadata: metadata.toMetadata())
+        emitEndpoints()
     }
 
     func updateTrackMetadata(trackId: String, metadata: [String: Any]) {
