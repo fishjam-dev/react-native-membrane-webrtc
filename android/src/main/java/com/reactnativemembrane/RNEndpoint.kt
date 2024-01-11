@@ -12,7 +12,7 @@ data class RNEndpoint(
   val videoTracks: HashMap<String, VideoTrack> = hashMapOf(),
   val audioTracks: HashMap<String, AudioTrack> = hashMapOf(),
   val tracksMetadata: HashMap<String, Metadata> = hashMapOf(),
-  val tracks: HashMap<String, TracksAdded.Data.TrackData> = hashMapOf(),
+  val tracks: Map<String, TracksAdded.Data.TrackData> = mapOf(),
   ) {
 
     fun addOrUpdateTrack(videoTrack: VideoTrack, metadata: Metadata) {
