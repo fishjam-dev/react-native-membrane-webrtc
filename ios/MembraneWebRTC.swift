@@ -957,7 +957,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
     func onEndpointUpdated(endpoint: Endpoint) {
         MembraneRoom.sharedInstance.endpoints[endpoint.id] = RNEndpoint(
             id: endpoint.id, metadata: endpoint.metadata, type: endpoint.type)
-        print("UPDATE TRIGGERED")
+        os_log("UPDATE TRIGGERED")
         emitEndpoints()
     }
 
