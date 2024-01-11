@@ -373,8 +373,6 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                         "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
                       )
 
-                      Log.d("AAA",trackContexts[video.id()]?.simulcastConfig?.toString() ?: "")
-
                       trackContexts[video.id()]?.simulcastConfig?.let {config ->
                         videoMap["simulcastConfig"] = mutableMapOf(
                           "enabled" to config.enabled,
