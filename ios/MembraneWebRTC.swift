@@ -490,13 +490,26 @@ class MembraneWebRTC: MembraneRTCDelegate {
         MembraneRoom.sharedInstance.endpoints.values.sorted(by: { $0.order < $1.order }).map {
             (p) -> Dictionary in
             let videoTracks = p.videoTracks.keys.map { trackId in
-                [
+                var data = [
                     "id": trackId,
                     "type": "Video",
                     "metadata": p.tracksMetadata[trackId]?.toDict() ?? [:],
                     "encoding": tracksContexts[trackId]?.encoding?.description as Any,
                     "encodingReason": tracksContexts[trackId]?.encodingReason?.rawValue as Any,
                 ]
+                
+                if let simulcast = tracksContexts[trackId]?.simulcastConfig{
+                    let simulcastConfig = [
+                        "enabled": simulcast.enabled,
+                        "activeEncodings": simulcast.activeEncodings.map({ encoding in
+                            encoding.description
+                        })
+                    ]
+                    
+                    data["simulcastConfig"] = simulcastConfig
+                }
+                
+                return data
             }
 
             let audioTracks = p.audioTracks.keys.map { trackId in
@@ -861,7 +874,8 @@ class MembraneWebRTC: MembraneRTCDelegate {
     func onConnected(endpointId: String, otherEndpoints: [Endpoint]) {
         otherEndpoints.forEach { endpoint in
             MembraneRoom.sharedInstance.endpoints[endpoint.id] = RNEndpoint(
-                id: endpoint.id, metadata: endpoint.metadata, type: endpoint.type)
+                id: endpoint.id, metadata: endpoint.metadata, type: endpoint.type, tracks: endpoint.tracks ?? [:]
+            )
         }
 
         emitEndpoints()

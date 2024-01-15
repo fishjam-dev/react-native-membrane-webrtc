@@ -25,6 +25,7 @@ prepare_react_native_project!
 #   }
 # }
 # ```
+pod 'MembraneRTC', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios.git', :branch => 'karkakol/add_simulcast_config_to_endpoints'
 flipper_config = FlipperConfiguration.disabled
 if ENV['NO_FLIPPER'] == '1' then
   # Explicitly disabled through environment variables
@@ -90,5 +91,7 @@ target 'reactnativemembranewebrtcexample' do
 end
 
 target 'ScreenBroadcast' do
-  pod 'MembraneRTC/Broadcast'
+  pod 'MembraneRTC/Broadcast', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios.git', :branch => 'karkakol/add_simulcast_config_to_endpoints'
+
+#   pod 'MembraneRTC/Broadcast'
 end

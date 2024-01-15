@@ -550,7 +550,8 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - MembraneRTC/Broadcast
+  - MembraneRTC (from `https://github.com/jellyfish-dev/membrane-webrtc-ios.git`, branch `karkakol/add_simulcast_config_to_endpoints`)
+  - MembraneRTC/Broadcast (from `https://github.com/jellyfish-dev/membrane-webrtc-ios.git`, branch `karkakol/add_simulcast_config_to_endpoints`)
   - MembraneWebRTC (from `../../ios`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -599,7 +600,6 @@ SPEC REPOS:
     - Charts
     - fmt
     - libevent
-    - MembraneRTC
     - PromisesObjC
     - PromisesSwift
     - Sentry
@@ -642,6 +642,9 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2023-08-07-RNv0.72.4-813b2def12bc9df02654b3e3653ae4a68d0572e0
+  MembraneRTC:
+    :branch: karkakol/add_simulcast_config_to_endpoints
+    :git: https://github.com/jellyfish-dev/membrane-webrtc-ios.git
   MembraneWebRTC:
     :path: "../../ios"
   RCT-Folly:
@@ -725,6 +728,11 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
+CHECKOUT OPTIONS:
+  MembraneRTC:
+    :commit: 3f69dd641e86749784b865a79fbba060a55db993
+    :git: https://github.com/jellyfish-dev/membrane-webrtc-ios.git
+
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
@@ -797,6 +805,6 @@ SPEC CHECKSUMS:
   WebRTC-SDK: 18eef1ab50d4c0239adc1cbca33d4ffd9fab6639
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
 
-PODFILE CHECKSUM: 572236a5087de7862dd62f90e6f7bcebcc061765
+PODFILE CHECKSUM: 498be1dd6de0a97f1a26d32b5f3d2b63b7edc959
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.13.0
