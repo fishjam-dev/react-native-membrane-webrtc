@@ -41,14 +41,14 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.6)
   - hermes-engine/Pre-built (0.72.6)
   - libevent (2.1.12)
-  - MembraneRTC (5.1.1):
-    - MembraneRTC/Broadcast (= 5.1.1)
+  - MembraneRTC (5.1.2):
+    - MembraneRTC/Broadcast (= 5.1.2)
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
-  - MembraneRTC/Broadcast (5.1.1):
+  - MembraneRTC/Broadcast (5.1.2):
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
@@ -56,7 +56,7 @@ PODS:
     - WebRTC-SDK (= 104.5112.15)
   - MembraneWebRTC (7.0.2):
     - ExpoModulesCore
-    - MembraneRTC (= 5.1.1)
+    - MembraneRTC (= 5.1.2)
   - PromisesObjC (2.3.1)
   - PromisesSwift (2.3.1):
     - PromisesObjC (= 2.3.1)
@@ -529,7 +529,7 @@ PODS:
   - SwiftPhoenixClient (4.0.0):
     - SwiftPhoenixClient/Core (= 4.0.0)
   - SwiftPhoenixClient/Core (4.0.0)
-  - SwiftProtobuf (1.25.1)
+  - SwiftProtobuf (1.25.2)
   - SwiftyJSON (5.0.0)
   - WebRTC-SDK (104.5112.15)
   - Yoga (1.14.0)
@@ -743,8 +743,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 8057e75cfc1437b178ac86c8654b24e7fead7f60
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  MembraneRTC: 88c29eec2b6e1729d6f9b3bc048be65c02ab1f1e
-  MembraneWebRTC: b6cf0e0b7758f54417e3825b56068673141d0442
+  MembraneRTC: b903559a1510596fca378691839d3a08b6f1e95a
+  MembraneWebRTC: 064786b19d1641d6ba66bd4c7b0e755747404e48
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   PromisesSwift: 28dca69a9c40779916ac2d6985a0192a5cb4a265
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -792,7 +792,7 @@ SPEC CHECKSUMS:
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftLogJellyfish: 6207ec91ef3913d303ac797b73298248ee360eb0
   SwiftPhoenixClient: 4e36f35d00e43d11881c255bd60c20efc0f39c91
-  SwiftProtobuf: 69f02cd54fb03201c5e6bf8b76f687c5ef7541a3
+  SwiftProtobuf: 407a385e97fd206c4fbe880cc84123989167e0d1
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
   WebRTC-SDK: 18eef1ab50d4c0239adc1cbca33d4ffd9fab6639
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
