@@ -28,8 +28,6 @@ export enum EncodingReason {
   LowBandwidth = 'lowBandwidth',
 }
 
-
-
 export type Track<MetadataType extends Metadata> = {
   id: string;
   type: TrackType;
