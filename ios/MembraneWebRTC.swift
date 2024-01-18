@@ -306,7 +306,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
     private func addTrackToLocalEndpoint(_ track: LocalVideoTrack, _ metadata: Metadata) throws {
         try ensureEndpoints()
         if let localEndpointId = localEndpointId {
-            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.videoTracks = [track.trackId(): track]
+            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.videoTracks[track.trackId()] = track
             MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksMetadata[track.trackId()] =
                 metadata
             emitEndpoints()
@@ -337,7 +337,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
     private func addTrackToLocalEndpoint(_ track: LocalAudioTrack, _ metadata: Metadata) throws {
         try ensureEndpoints()
         if let localEndpointId = localEndpointId {
-            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.audioTracks = [track.trackId(): track]
+            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.audioTracks[track.trackId()] = track
             MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksMetadata[track.trackId()] =
                 metadata
             emitEndpoints()
