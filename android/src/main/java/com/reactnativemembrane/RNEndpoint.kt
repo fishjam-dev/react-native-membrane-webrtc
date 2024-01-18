@@ -1,8 +1,8 @@
 package com.reactnativemembrane
 
-import org.membraneframework.rtc.events.TracksAdded
 import org.membraneframework.rtc.media.AudioTrack
 import org.membraneframework.rtc.media.VideoTrack
+import org.membraneframework.rtc.models.TrackData
 import org.membraneframework.rtc.utils.Metadata
 
 data class RNEndpoint(
@@ -12,7 +12,7 @@ data class RNEndpoint(
   val videoTracks: HashMap<String, VideoTrack> = hashMapOf(),
   val audioTracks: HashMap<String, AudioTrack> = hashMapOf(),
   val tracksMetadata: HashMap<String, Metadata> = hashMapOf(),
-  val tracks: Map<String, TracksAdded.Data.TrackData> = mapOf(),
+  val tracks: Map<String, TrackData> = mapOf(),
   ) {
 
     fun addOrUpdateTrack(videoTrack: VideoTrack, metadata: Metadata) {

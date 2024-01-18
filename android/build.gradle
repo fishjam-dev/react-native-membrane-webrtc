@@ -87,7 +87,7 @@ repositories {
 dependencies {
   implementation project(':expo-modules-core')
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${getKotlinVersion()}"
-  implementation 'com.github.jellyfish-dev:membrane-webrtc-android:efe6ef519c49a11da0cefa960c64407c8af7774f'
+  implementation 'com.github.jellyfish-dev:membrane-webrtc-android:527dd74c514cf5b9f76fc509827e359407434b88'
   api 'com.github.davidliu:audioswitch:8edf84ee46cdbc84c2b7725aa8f8d66363e19876'
   implementation 'androidx.appcompat:appcompat:1.6.1'
 }
