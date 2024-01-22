@@ -249,8 +249,8 @@ export function useEndpoints<
 
 /**
  * sets track encoding that server should send to the client library.
- * The encoding will be sent whenever it is available. If chosen encoding is
- * temporarily unavailable, some other encoding will be sent until chosen encoding
+ * The encoding will be sent whenever it is available. If chooses encoding is
+ * temporarily unavailable, some other encoding will be sent until choose encoding
  *  becomes active again.
  *
  * @param trackId id of a track which encoding you want to select

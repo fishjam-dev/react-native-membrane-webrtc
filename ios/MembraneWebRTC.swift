@@ -306,10 +306,10 @@ class MembraneWebRTC: MembraneRTCDelegate {
     private func addTrackToLocalEndpoint(_ track: LocalVideoTrack, _ metadata: Metadata) throws {
         try ensureEndpoints()
         if let localEndpointId = localEndpointId {
-            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.videoTracks = [track.trackId(): track]
-            let trackData =  MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()]
-            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()] =
-                TrackData(metadata: metadata, simulcastConfig: trackData?.simulcastConfig)
+            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.videoTracks[track.trackId()] = track
+                    let trackData =  MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()]
+                    MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()] =
+                    TrackData(metadata: metadata, simulcastConfig: trackData?.simulcastConfig)
             emitEndpoints()
         }
     }
@@ -338,10 +338,10 @@ class MembraneWebRTC: MembraneRTCDelegate {
     private func addTrackToLocalEndpoint(_ track: LocalAudioTrack, _ metadata: Metadata) throws {
         try ensureEndpoints()
         if let localEndpointId = localEndpointId {
-            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.audioTracks = [track.trackId(): track]
-            let trackData = MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()]
-            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()] =
-                TrackData(metadata: metadata, simulcastConfig: trackData?.simulcastConfig)
+            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.audioTracks[track.trackId()] = track
+                    let trackData = MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()]
+                    MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()] =
+                    TrackData(metadata: metadata, simulcastConfig: trackData?.simulcastConfig)
             emitEndpoints()
         }
     }
@@ -499,7 +499,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
                     "encoding": tracksContexts[trackId]?.encoding?.description as Any,
                     "encodingReason": tracksContexts[trackId]?.encodingReason?.rawValue as Any,
                 ]
-                
+
                 if let simulcast = tracksContexts[trackId]?.simulcastConfig{
                     let simulcastConfig = [
                         "enabled": simulcast.enabled,
@@ -507,10 +507,10 @@ class MembraneWebRTC: MembraneRTCDelegate {
                             encoding.description
                         })
                     ]
-                    
+
                     data["simulcastConfig"] = simulcastConfig
                 }
-                
+
                 return data
             }
 
@@ -568,7 +568,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
         let tracksData = MembraneRoom.sharedInstance.endpoints[endpointId]?.tracks[trackId]
         MembraneRoom.sharedInstance.endpoints[endpointId]?.tracks[trackId] =
             TrackData(metadata: metadata.toMetadata(), simulcastConfig: tracksData?.simulcastConfig)
-        
+
         emitEndpoints()
     }
 
@@ -922,10 +922,10 @@ class MembraneWebRTC: MembraneRTCDelegate {
             globalToLocalTrackId[ctx.trackId] = localTrackId
             endpoint.videoTracks[videoTrack.track.trackId] = videoTrack
             let trackData = endpoint.tracks[videoTrack.track.trackId]
-            
-            endpoint.tracks[videoTrack.track.trackId]  = 
+
+            endpoint.tracks[videoTrack.track.trackId]  =
                 TrackData(metadata: ctx.metadata, simulcastConfig: trackData?.simulcastConfig)
-            
+
             if let localTrackId = localTrackId,
                 tracksContexts[localTrackId] == nil
             {
