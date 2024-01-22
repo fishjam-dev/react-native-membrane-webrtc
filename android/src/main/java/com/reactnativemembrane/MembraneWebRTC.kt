@@ -365,7 +365,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                     "type" to endpoint.type,
                     "metadata" to endpoint.metadata,
                     "tracks" to endpoint.videoTracks.values.map { video ->
-                      val videoMap = mutableMapOf<String, Any?>(
+                      val videoMap = mutableMapOf(
                         "id" to video.id(),
                         "type" to "Video",
                         "metadata" to (endpoint.tracks[video.id()]?.metadata ?: emptyMap()),
