@@ -144,7 +144,8 @@ class MembraneWebRTC: MembraneRTCDelegate {
         let endpoint = RNEndpoint(
             id: uuid,
             metadata: localUserMetadata,
-            type: "webrtc"
+            type: "webrtc",
+            tracks: [:]
         )
         MembraneRoom.sharedInstance.endpoints[uuid] = endpoint
         emitEndpoints()
@@ -257,8 +258,8 @@ class MembraneWebRTC: MembraneRTCDelegate {
             return
         }
 
-        endpoint.metadata = metadata.toMetadata()
-        membraneRTC?.connect(metadata: metadata.toMetadata())
+        endpoint.metadata = localUserMetadata
+        membraneRTC?.connect(metadata: localUserMetadata)
     }
 
     func disconnect() {
@@ -307,9 +308,9 @@ class MembraneWebRTC: MembraneRTCDelegate {
         try ensureEndpoints()
         if let localEndpointId = localEndpointId {
             MembraneRoom.sharedInstance.endpoints[localEndpointId]?.videoTracks[track.trackId()] = track
-                    let trackData =  MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()]
-                    MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()] =
-                    TrackData(metadata: metadata, simulcastConfig: trackData?.simulcastConfig)
+            let trackData =  MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()]
+            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()] =
+                TrackData(metadata: metadata, simulcastConfig: trackData?.simulcastConfig)
             emitEndpoints()
         }
     }
@@ -339,9 +340,9 @@ class MembraneWebRTC: MembraneRTCDelegate {
         try ensureEndpoints()
         if let localEndpointId = localEndpointId {
             MembraneRoom.sharedInstance.endpoints[localEndpointId]?.audioTracks[track.trackId()] = track
-                    let trackData = MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()]
-                    MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()] =
-                    TrackData(metadata: metadata, simulcastConfig: trackData?.simulcastConfig)
+            let trackData = MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()]
+            MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracks[track.trackId()] =
+                TrackData(metadata: metadata, simulcastConfig: trackData?.simulcastConfig)
             emitEndpoints()
         }
     }
