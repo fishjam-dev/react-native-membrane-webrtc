@@ -1,10 +1,5 @@
 import MembraneRTC
 
-struct RNTrack{
-    let metadata: Metadata
-    let simulcastConfig: SimulcastConfig
-}
-
 struct RNEndpoint {
     let id: String
     var metadata: Metadata
