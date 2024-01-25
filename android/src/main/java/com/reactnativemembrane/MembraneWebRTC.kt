@@ -373,7 +373,15 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                         "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
                       )
 
-                      trackContexts[video.id()]?.simulcastConfig?.let {config ->
+                      var simulcastConfig: SimulcastConfig?
+
+                      if(video.id() == localAudioTrack?.id() || video.id() == localVideoTrack?.id() || video.id() == localScreencastTrack?.id()){
+                        simulcastConfig = endpoint.tracks[video.id()]?.simulcastConfig
+                      }else{
+                        simulcastConfig = trackContexts[video.id()]?.simulcastConfig
+                      }
+
+                      simulcastConfig?.let {config ->
                         videoMap["simulcastConfig"] = mutableMapOf(
                           "enabled" to config.enabled,
                           "activeEncodings" to config.activeEncodings.map { encoding -> encoding.rid }
