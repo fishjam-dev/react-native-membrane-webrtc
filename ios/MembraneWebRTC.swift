@@ -489,7 +489,9 @@ class MembraneWebRTC: MembraneRTCDelegate {
             RPSystemBroadcastPickerView.show(for: screencastExtensionBundleId)
         }
     }
-
+    private func isTrackLocal(_ trackId : String) -> Bool{
+        return trackId == localAudioTrack?.trackId() || trackId == localVideoTrack?.trackId() || trackId == localScreencastTrack?.trackId()
+    }
     func getEndpoints() -> [[String: Any]] {
         MembraneRoom.sharedInstance.endpoints.values.sorted(by: { $0.order < $1.order }).map {
             (p) -> Dictionary in
@@ -504,9 +506,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
                 
                 var simulcastConfig : SimulcastConfig? = nil
                 
-                if trackId == localAudioTrack?.trackId() ||
-                    trackId == localVideoTrack?.trackId() ||
-                    trackId == localScreencastTrack?.trackId(){
+                if isTrackLocal(trackId) {
                     simulcastConfig = p.tracksData[trackId]?.simulcastConfig
                 }else{
                     simulcastConfig = tracksContexts[trackId]?.simulcastConfig
