@@ -35,6 +35,7 @@ export type Track<MetadataType extends Metadata> = {
   vadStatus: VadStatus;
   // Encoding that is currently received. Only present for remote tracks.
   encoding: TrackEncoding | null;
+  // Information about simulcast, if null simulcast is not enabled
   simulcastConfig: SimulcastConfig | null;
   // The reason of currently selected encoding. Only present for remote tracks.
   encodingReason: EncodingReason | null;
