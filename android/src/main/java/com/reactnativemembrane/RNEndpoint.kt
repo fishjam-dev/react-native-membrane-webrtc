@@ -12,30 +12,30 @@ data class RNEndpoint(
   val type: String?,
   val videoTracks: HashMap<String, VideoTrack> = hashMapOf(),
   val audioTracks: HashMap<String, AudioTrack> = hashMapOf(),
-  val tracks: HashMap<String, TrackData> = hashMapOf(),
+  val tracksData: HashMap<String, TrackData> = hashMapOf(),
   ) {
 
     fun addOrUpdateTrack(videoTrack: VideoTrack, metadata: Metadata, simulcastConfig: SimulcastConfig?) {
-        val trackData = this.tracks[videoTrack.id()]
+        val trackData = this.tracksData[videoTrack.id()]
         val newTrackData = TrackData(simulcastConfig = simulcastConfig ?: trackData?.simulcastConfig, metadata = metadata)
-        this.tracks[videoTrack.id()] = newTrackData
+        this.tracksData[videoTrack.id()] = newTrackData
         this.videoTracks[videoTrack.id()] = videoTrack
     }
 
     fun addOrUpdateTrack(audioTrack: AudioTrack, metadata: Metadata)  {
-        val trackData = this.tracks[audioTrack.id()]
+        val trackData = this.tracksData[audioTrack.id()]
         val newTrackData = TrackData(simulcastConfig = trackData?.simulcastConfig, metadata = metadata)
-        this.tracks[audioTrack.id()] = newTrackData
+        this.tracksData[audioTrack.id()] = newTrackData
         this.audioTracks[audioTrack.id()] = audioTrack
     }
 
     fun removeTrack(videoTrack: VideoTrack) {
-        this.tracks.remove(videoTrack.id())
+        this.tracksData.remove(videoTrack.id())
         this.videoTracks.remove(videoTrack.id())
     }
 
     fun removeTrack(audioTrack: AudioTrack) {
-        this.tracks.remove(audioTrack.id())
+        this.tracksData.remove(audioTrack.id())
         this.audioTracks.remove(audioTrack.id())
     }
 }

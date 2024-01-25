@@ -130,7 +130,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                 id = uuid,
                 metadata = localUserMetadata,
                 type = "webrtc",
-                tracks = hashMapOf(),
+                tracksData = hashMapOf(),
         )
         endpoints[uuid] = endpoint
         emitEndpoints()
@@ -369,13 +369,13 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                       val videoMap = mutableMapOf(
                         "id" to video.id(),
                         "type" to "Video",
-                        "metadata" to (endpoint.tracks[video.id()]?.metadata ?: emptyMap()),
+                        "metadata" to (endpoint.tracksData[video.id()]?.metadata ?: emptyMap()),
                         "encoding" to trackContexts[video.id()]?.encoding?.rid,
                         "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
                       )
 
                       val simulcastConfig: SimulcastConfig? = if(video.id() == localAudioTrack?.id() || video.id() == localVideoTrack?.id() || video.id() == localScreencastTrack?.id()){
-                        endpoint.tracks[video.id()]?.simulcastConfig
+                        endpoint.tracksData[video.id()]?.simulcastConfig
                       }else{
                         trackContexts[video.id()]?.simulcastConfig
                       }
@@ -391,7 +391,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                         mapOf(
                                 "id" to audio.id(),
                                 "type" to "Audio",
-                                "metadata" to (endpoint.tracks[audio.id()]?.metadata ?: emptyMap()),
+                                "metadata" to (endpoint.tracksData[audio.id()]?.metadata ?: emptyMap()),
                                 "vadStatus" to trackContexts[audio.id()]?.vadStatus?.value
                         )
                     })
@@ -419,9 +419,9 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         membraneRTC?.updateTrackMetadata(trackId, metadata)
         localEndpointId?.let {
             val endpoint = endpoints[it] ?: throw CodedException("Endpoint with id $it not Found")
-            val trackMetadata = endpoint.tracks[trackId]
+            val trackMetadata = endpoint.tracksData[trackId]
             val newTrackData = TrackData(metadata = metadata, simulcastConfig = trackMetadata?.simulcastConfig)
-            endpoint.tracks[trackId] = newTrackData
+            endpoint.tracksData[trackId] = newTrackData
             emitEndpoints()
         }
     }
@@ -707,7 +707,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         CoroutineScope(Dispatchers.Main).launch {
             endpoints.remove(endpointID)
             otherEndpoints.forEach {
-                endpoints[it.id] = RNEndpoint(it.id, it.metadata ?: mapOf(), it.type, tracks = HashMap(it.tracks))
+                endpoints[it.id] = RNEndpoint(it.id, it.metadata ?: mapOf(), it.type, tracksData = HashMap(it.tracks))
             }
             connectPromise?.resolve(null)
             connectPromise = null
@@ -795,7 +795,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     override fun onEndpointAdded(endpoint: Endpoint) {
         CoroutineScope(Dispatchers.Main).launch {
             endpoints[endpoint.id] =
-                    RNEndpoint(id = endpoint.id, metadata = endpoint.metadata, type = endpoint.type, tracks=HashMap(endpoint.tracks))
+                    RNEndpoint(id = endpoint.id, metadata = endpoint.metadata, type = endpoint.type, tracksData=HashMap(endpoint.tracks))
             emitEndpoints()
         }
     }
