@@ -5,9 +5,9 @@ struct RNEndpoint {
     var metadata: Metadata
     let type: String
     let order: Int
-    var tracksMetadata: [String: Metadata]
     var videoTracks: [String: VideoTrack]
     var audioTracks: [String: AudioTrack]
+    var tracksData: [String: TrackData]
 
     static var endpointCounter = 0
 
@@ -17,7 +17,7 @@ struct RNEndpoint {
         type: String,
         videoTracks: [String: VideoTrack] = [:],
         audioTracks: [String: AudioTrack] = [:],
-        tracksMetadata: [String: Metadata] = [:]
+        tracks: [String: TrackData] = [:]
     ) {
         self.id = id
         self.metadata = metadata
@@ -25,7 +25,7 @@ struct RNEndpoint {
         self.order = RNEndpoint.endpointCounter
         self.videoTracks = videoTracks
         self.audioTracks = audioTracks
-        self.tracksMetadata = tracksMetadata
+        self.tracksData = tracks
         RNEndpoint.endpointCounter += 1
     }
 
@@ -33,7 +33,7 @@ struct RNEndpoint {
         var newEndpoint = self
         newEndpoint.videoTracks.removeValue(forKey: trackId)
         newEndpoint.audioTracks.removeValue(forKey: trackId)
-        newEndpoint.tracksMetadata.removeValue(forKey: trackId)
+        newEndpoint.tracksData.removeValue(forKey: trackId)
         return newEndpoint
     }
 }

@@ -28,6 +28,7 @@ import org.membraneframework.rtc.models.Endpoint
 import org.membraneframework.rtc.models.RTCInboundStats
 import org.membraneframework.rtc.models.RTCOutboundStats
 import org.membraneframework.rtc.models.TrackContext
+import org.membraneframework.rtc.models.TrackData
 import org.membraneframework.rtc.utils.Metadata
 import org.membraneframework.rtc.utils.SerializedMediaEvent
 import org.webrtc.Logging
@@ -129,6 +130,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                 id = uuid,
                 metadata = localUserMetadata,
                 type = "webrtc",
+                tracksData = hashMapOf(),
         )
         endpoints[uuid] = endpoint
         emitEndpoints()
@@ -234,7 +236,8 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         ensureConnected()
         val cameraTrack = createCameraTrack(config) ?: return
         localVideoTrack = cameraTrack
-        addTrackToLocalEndpoint(cameraTrack, config.videoTrackMetadata)
+        val simulcastConfig = getSimulcastConfigFromOptions(config.simulcastConfig)
+        addTrackToLocalEndpoint(cameraTrack, config.videoTrackMetadata, simulcastConfig)
         setCameraTrackState(cameraTrack, config.cameraEnabled)
     }
 
@@ -256,11 +259,11 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         emitEvent(eventName, isCameraOnMap)
     }
 
-    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata = mapOf()) {
+    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata = mapOf(), simulcastConfig: SimulcastConfig?) {
         ensureEndpoints()
         val localEndpoint = endpoints[localEndpointId]
         localEndpoint?.let {
-            it.addOrUpdateTrack(track, metadata)
+            it.addOrUpdateTrack(track, metadata, simulcastConfig)
             emitEndpoints()
         }
     }
@@ -363,18 +366,32 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                     "type" to endpoint.type,
                     "metadata" to endpoint.metadata,
                     "tracks" to endpoint.videoTracks.values.map { video ->
-                        mapOf(
-                                "id" to video.id(),
-                                "type" to "Video",
-                                "metadata" to (endpoint.tracksMetadata[video.id()] ?: emptyMap()),
-                                "encoding" to trackContexts[video.id()]?.encoding?.rid,
-                                "encodingReason" to trackContexts[video.id()]?.encodingReason?.value,
+                      val videoMap = mutableMapOf(
+                        "id" to video.id(),
+                        "type" to "Video",
+                        "metadata" to (endpoint.tracksData[video.id()]?.metadata ?: emptyMap()),
+                        "encoding" to trackContexts[video.id()]?.encoding?.rid,
+                        "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
+                      )
+
+                      val simulcastConfig: SimulcastConfig? = if(video.id() == localAudioTrack?.id() || video.id() == localVideoTrack?.id() || video.id() == localScreencastTrack?.id()){
+                        endpoint.tracksData[video.id()]?.simulcastConfig
+                      }else{
+                        trackContexts[video.id()]?.simulcastConfig
+                      }
+
+                      simulcastConfig?.let {config ->
+                        videoMap["simulcastConfig"] = mutableMapOf(
+                          "enabled" to config.enabled,
+                          "activeEncodings" to config.activeEncodings.map { encoding -> encoding.rid }
                         )
+                      }
+                      videoMap
                     } + endpoint.audioTracks.values.map { audio ->
                         mapOf(
                                 "id" to audio.id(),
                                 "type" to "Audio",
-                                "metadata" to (endpoint.tracksMetadata[audio.id()] ?: emptyMap()),
+                                "metadata" to (endpoint.tracksData[audio.id()]?.metadata ?: emptyMap()),
                                 "vadStatus" to trackContexts[audio.id()]?.vadStatus?.value
                         )
                     })
@@ -402,7 +419,9 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         membraneRTC?.updateTrackMetadata(trackId, metadata)
         localEndpointId?.let {
             val endpoint = endpoints[it] ?: throw CodedException("Endpoint with id $it not Found")
-            endpoint.tracksMetadata[trackId] = metadata
+            val trackMetadata = endpoint.tracksData[trackId]
+            val newTrackData = TrackData(metadata = metadata, simulcastConfig = trackMetadata?.simulcastConfig)
+            endpoint.tracksData[trackId] = newTrackData
             emitEndpoints()
         }
     }
@@ -603,7 +622,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                 mediaProjectionPermission, videoParameters, screencastMetadata
         ) ?: throw CodedException("Failed to Create ScreenCast Track")
         localScreencastTrack = screencastTrack
-        addTrackToLocalEndpoint(screencastTrack, screencastMetadata)
+        addTrackToLocalEndpoint(screencastTrack, screencastMetadata, videoParameters.simulcastConfig)
         setScreencastTrackState(true)
 
         screencastPromise?.resolve(isScreencastOn)
@@ -688,7 +707,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         CoroutineScope(Dispatchers.Main).launch {
             endpoints.remove(endpointID)
             otherEndpoints.forEach {
-                endpoints[it.id] = RNEndpoint(it.id, it.metadata ?: mapOf() , it.type)
+                endpoints[it.id] = RNEndpoint(it.id, it.metadata ?: mapOf(), it.type, tracksData = HashMap(it.tracks))
             }
             connectPromise?.resolve(null)
             connectPromise = null
@@ -711,7 +730,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             is RemoteVideoTrack -> {
                 val localTrackId = (ctx.track as RemoteVideoTrack).id()
                 globalToLocalTrackId[ctx.trackId] = localTrackId
-                endpoint.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata)
+                endpoint.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata, null)
                 if (trackContexts[localTrackId] == null) {
                     trackContexts[localTrackId] = ctx
                     ctx.setOnEncodingChangedListener {
@@ -776,7 +795,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     override fun onEndpointAdded(endpoint: Endpoint) {
         CoroutineScope(Dispatchers.Main).launch {
             endpoints[endpoint.id] =
-                    RNEndpoint(id = endpoint.id, metadata = endpoint.metadata, type = endpoint.type)
+                    RNEndpoint(id = endpoint.id, metadata = endpoint.metadata, type = endpoint.type, tracksData=HashMap(endpoint.tracks))
             emitEndpoints()
         }
     }

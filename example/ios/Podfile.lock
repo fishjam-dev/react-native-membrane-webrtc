@@ -41,22 +41,22 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.6)
   - hermes-engine/Pre-built (0.72.6)
   - libevent (2.1.12)
-  - MembraneRTC (5.1.2):
-    - MembraneRTC/Broadcast (= 5.1.2)
+  - MembraneRTC (5.2.0):
+    - MembraneRTC/Broadcast (= 5.2.0)
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
-  - MembraneRTC/Broadcast (5.1.2):
+  - MembraneRTC/Broadcast (5.2.0):
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
-  - MembraneWebRTC (7.0.2):
+  - MembraneWebRTC (7.1.1):
     - ExpoModulesCore
-    - MembraneRTC (= 5.1.2)
+    - MembraneRTC (= 5.2.0)
   - PromisesObjC (2.3.1)
   - PromisesSwift (2.3.1):
     - PromisesObjC (= 2.3.1)
@@ -743,8 +743,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 8057e75cfc1437b178ac86c8654b24e7fead7f60
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  MembraneRTC: b903559a1510596fca378691839d3a08b6f1e95a
-  MembraneWebRTC: 064786b19d1641d6ba66bd4c7b0e755747404e48
+  MembraneRTC: ae0336ddff118f11764d155dcb49ab4d85d3ab21
+  MembraneWebRTC: 331fd2f9b8b96faee6ac83abf5b64ed6f14a1031
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   PromisesSwift: 28dca69a9c40779916ac2d6985a0192a5cb4a265
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -797,6 +797,6 @@ SPEC CHECKSUMS:
   WebRTC-SDK: 18eef1ab50d4c0239adc1cbca33d4ffd9fab6639
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
 
-PODFILE CHECKSUM: 572236a5087de7862dd62f90e6f7bcebcc061765
+PODFILE CHECKSUM: 03b0e4c5b27ea6d7a59b0f6a527791310769c8a7
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.13.0
