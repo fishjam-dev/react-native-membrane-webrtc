@@ -373,12 +373,10 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                         "encodingReason" to trackContexts[video.id()]?.encodingReason?.value
                       )
 
-                      var simulcastConfig: SimulcastConfig?
-
-                      if(video.id() == localAudioTrack?.id() || video.id() == localVideoTrack?.id() || video.id() == localScreencastTrack?.id()){
-                        simulcastConfig = endpoint.tracks[video.id()]?.simulcastConfig
+                      val simulcastConfig: SimulcastConfig? = if(video.id() == localAudioTrack?.id() || video.id() == localVideoTrack?.id() || video.id() == localScreencastTrack?.id()){
+                        endpoint.tracks[video.id()]?.simulcastConfig
                       }else{
-                        simulcastConfig = trackContexts[video.id()]?.simulcastConfig
+                        trackContexts[video.id()]?.simulcastConfig
                       }
 
                       simulcastConfig?.let {config ->
