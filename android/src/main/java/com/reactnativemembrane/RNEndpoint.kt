@@ -1,5 +1,6 @@
 package com.reactnativemembrane
 
+import org.membraneframework.rtc.SimulcastConfig
 import org.membraneframework.rtc.media.AudioTrack
 import org.membraneframework.rtc.media.VideoTrack
 import org.membraneframework.rtc.models.TrackData
@@ -14,14 +15,14 @@ data class RNEndpoint(
   val tracks: HashMap<String, TrackData> = hashMapOf(),
   ) {
 
-    fun addOrUpdateTrack(videoTrack: VideoTrack, metadata: Metadata) {
+    fun addOrUpdateTrack(videoTrack: VideoTrack, metadata: Metadata, simulcastConfig: SimulcastConfig?) {
         val trackData = this.tracks[videoTrack.id()]
-        val newTrackData = TrackData(simulcastConfig = trackData?.simulcastConfig, metadata = metadata)
+        val newTrackData = TrackData(simulcastConfig = simulcastConfig ?: trackData?.simulcastConfig, metadata = metadata)
         this.tracks[videoTrack.id()] = newTrackData
         this.videoTracks[videoTrack.id()] = videoTrack
     }
 
-    fun addOrUpdateTrack(audioTrack: AudioTrack, metadata: Metadata) {
+    fun addOrUpdateTrack(audioTrack: AudioTrack, metadata: Metadata)  {
         val trackData = this.tracks[audioTrack.id()]
         val newTrackData = TrackData(simulcastConfig = trackData?.simulcastConfig, metadata = metadata)
         this.tracks[audioTrack.id()] = newTrackData

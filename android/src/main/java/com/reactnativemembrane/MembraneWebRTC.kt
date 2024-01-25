@@ -236,7 +236,8 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         ensureConnected()
         val cameraTrack = createCameraTrack(config) ?: return
         localVideoTrack = cameraTrack
-        addTrackToLocalEndpoint(cameraTrack, config.videoTrackMetadata)
+        val simulcastConfig = getSimulcastConfigFromOptions(config.simulcastConfig)
+        addTrackToLocalEndpoint(cameraTrack, config.videoTrackMetadata, simulcastConfig)
         setCameraTrackState(cameraTrack, config.cameraEnabled)
     }
 
@@ -258,11 +259,11 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
         emitEvent(eventName, isCameraOnMap)
     }
 
-    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata = mapOf()) {
+    private fun addTrackToLocalEndpoint(track: VideoTrack, metadata: Metadata = mapOf(), simulcastConfig: SimulcastConfig?) {
         ensureEndpoints()
         val localEndpoint = endpoints[localEndpointId]
         localEndpoint?.let {
-            it.addOrUpdateTrack(track, metadata)
+            it.addOrUpdateTrack(track, metadata, simulcastConfig)
             emitEndpoints()
         }
     }
@@ -621,7 +622,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
                 mediaProjectionPermission, videoParameters, screencastMetadata
         ) ?: throw CodedException("Failed to Create ScreenCast Track")
         localScreencastTrack = screencastTrack
-        addTrackToLocalEndpoint(screencastTrack, screencastMetadata)
+        addTrackToLocalEndpoint(screencastTrack, screencastMetadata, videoParameters.simulcastConfig)
         setScreencastTrackState(true)
 
         screencastPromise?.resolve(isScreencastOn)
@@ -729,7 +730,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
             is RemoteVideoTrack -> {
                 val localTrackId = (ctx.track as RemoteVideoTrack).id()
                 globalToLocalTrackId[ctx.trackId] = localTrackId
-                endpoint.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata)
+                endpoint.addOrUpdateTrack(ctx.track as RemoteVideoTrack, ctx.metadata, null)
                 if (trackContexts[localTrackId] == null) {
                     trackContexts[localTrackId] = ctx
                     ctx.setOnEncodingChangedListener {
