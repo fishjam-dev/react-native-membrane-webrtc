@@ -46,12 +46,12 @@ target 'reactnativemembranewebrtcexample' do
   use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
 
   # Flags change depending on the env values.
-  flags = get_default_flags()
+#   flags = get_default_flags()
 
   use_react_native!(
     :path => config[:reactNativePath],
-    :hermes_enabled => podfile_properties['expo.jsEngine'] == nil || podfile_properties['expo.jsEngine'] == 'hermes',
-    :fabric_enabled => flags[:fabric_enabled],
+#     :hermes_enabled => podfile_properties['expo.jsEngine'] == nil || podfile_properties['expo.jsEngine'] == 'hermes',
+#     :fabric_enabled => flags[:fabric_enabled],
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/..",
     # Note that if you have use_frameworks! enabled, Flipper will not work if enabled
@@ -66,7 +66,7 @@ target 'reactnativemembranewebrtcexample' do
       # necessary for Mac Catalyst builds
       :mac_catalyst_enabled => false
     )
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
+#     __apply_Xcode_12_5_M1_post_install_workaround(installer)
 
     # This is necessary for Xcode 14, because it signs resource bundles by default
     # when building for devices.
