@@ -13,11 +13,11 @@ PODS:
     - ExpoModulesCore
   - EXFont (11.4.0):
     - ExpoModulesCore
-  - Expo (49.0.21):
+  - Expo (49.0.22):
     - ExpoModulesCore
   - ExpoKeepAwake (12.3.0):
     - ExpoModulesCore
-  - ExpoModulesCore (1.5.12):
+  - ExpoModulesCore (1.5.13):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - React-NativeModulesApple
@@ -41,22 +41,22 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.6)
   - hermes-engine/Pre-built (0.72.6)
   - libevent (2.1.12)
-  - MembraneRTC (5.1.2):
-    - MembraneRTC/Broadcast (= 5.1.2)
+  - MembraneRTC (5.3.0):
+    - MembraneRTC/Broadcast (= 5.3.0)
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
-  - MembraneRTC/Broadcast (5.1.2):
+  - MembraneRTC/Broadcast (5.3.0):
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
     - WebRTC-SDK (= 104.5112.15)
-  - MembraneWebRTC (7.0.2):
+  - MembraneWebRTC (7.1.1):
     - ExpoModulesCore
-    - MembraneRTC (= 5.1.2)
+    - MembraneRTC (= 5.3.0)
   - PromisesObjC (2.3.1)
   - PromisesSwift (2.3.1):
     - PromisesObjC (= 2.3.1)
@@ -482,7 +482,7 @@ PODS:
     - React-perflogger (= 0.72.6)
   - RNCAsyncStorage (1.18.2):
     - React-Core
-  - RNGestureHandler (2.14.0):
+  - RNGestureHandler (2.15.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNReanimated (3.3.0):
@@ -550,7 +550,8 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - MembraneRTC/Broadcast
+  - MembraneRTC (from `https://github.com/incubo4u/membrane-webrtc-ios.git`, branch `master`)
+  - MembraneRTC/Broadcast (from `https://github.com/incubo4u/membrane-webrtc-ios.git`, branch `master`)
   - MembraneWebRTC (from `../../ios`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -599,7 +600,6 @@ SPEC REPOS:
     - Charts
     - fmt
     - libevent
-    - MembraneRTC
     - PromisesObjC
     - PromisesSwift
     - Sentry
@@ -642,6 +642,9 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2023-08-07-RNv0.72.4-813b2def12bc9df02654b3e3653ae4a68d0572e0
+  MembraneRTC:
+    :branch: master
+    :git: https://github.com/incubo4u/membrane-webrtc-ios.git
   MembraneWebRTC:
     :path: "../../ios"
   RCT-Folly:
@@ -725,6 +728,11 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
+CHECKOUT OPTIONS:
+  MembraneRTC:
+    :commit: c59a83964231184df9dab79be4ceb81530ba14cf
+    :git: https://github.com/incubo4u/membrane-webrtc-ios.git
+
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
@@ -733,9 +741,9 @@ SPEC CHECKSUMS:
   EXConstants: ce5bbea779da8031ac818c36bea41b10e14d04e1
   EXFileSystem: f8b838a880254de42a5a7da20ed5ce12e2697c1b
   EXFont: 738c44c390953ebcbab075a4848bfbef025fd9ee
-  Expo: 61a8e1aa94311557c137c0a4dfd4fe78281cfbb4
+  Expo: 9060b49fecf07bebf1dd967730d079aa5e750ebe
   ExpoKeepAwake: be4cbd52d9b177cde0fd66daa1913afa3161fc1d
-  ExpoModulesCore: c480fd4e3c7c8e81f0a6ba3a7c56869f25fe016d
+  ExpoModulesCore: cf14fc49a3d5df3ed3cf2a38fc758d073bfd1c13
   EXSplashScreen: c0e7f2d4a640f3b875808ed0b88575538daf6d82
   FBLazyVector: 748c0ef74f2bf4b36cfcccf37916806940a64c32
   FBReactNativeSpec: 966f29e4e697de53a3b366355e8f57375c856ad9
@@ -743,8 +751,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 8057e75cfc1437b178ac86c8654b24e7fead7f60
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  MembraneRTC: b903559a1510596fca378691839d3a08b6f1e95a
-  MembraneWebRTC: 064786b19d1641d6ba66bd4c7b0e755747404e48
+  MembraneRTC: 6a59e8ddbe36c034774d1748b60dc808cf85b13f
+  MembraneWebRTC: 5c89ebfd8843088692ed8f71a9f5bc36a7253109
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   PromisesSwift: 28dca69a9c40779916ac2d6985a0192a5cb4a265
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -782,7 +790,7 @@ SPEC CHECKSUMS:
   React-utils: fa59c9a3375fb6f4aeb66714fd3f7f76b43a9f16
   ReactCommon: dd03c17275c200496f346af93a7b94c53f3093a4
   RNCAsyncStorage: ddc4ee162bfd41b0d2c68bf2d95acd81dd7f1f93
-  RNGestureHandler: 32a01c29ecc9bb0b5bf7bc0a33547f61b4dc2741
+  RNGestureHandler: 7909c50383a18f0cb10ce1db7262b9a6da504c03
   RNReanimated: 9f7068e43b9358a46a688d94a5a3adb258139457
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
   RNSentry: 11917f7bf3e28806aca4c2791c6ba7522d8f09fe
@@ -797,6 +805,6 @@ SPEC CHECKSUMS:
   WebRTC-SDK: 18eef1ab50d4c0239adc1cbca33d4ffd9fab6639
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
 
-PODFILE CHECKSUM: 572236a5087de7862dd62f90e6f7bcebcc061765
+PODFILE CHECKSUM: 608f5df5f69ccd2f1204b5448ac3da9bfe809c6d
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.13.0

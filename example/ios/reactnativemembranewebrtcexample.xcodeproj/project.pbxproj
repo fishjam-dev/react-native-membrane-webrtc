@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,15 +11,16 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		152889772D804C2EA0F24E23 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92539F7FBBA24B298C339399 /* noop-file.swift */; };
+		23C737E9DE94F15E5E586804 /* libPods-reactnativemembranewebrtcexample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DC795DB7C593329B9A209A29 /* libPods-reactnativemembranewebrtcexample.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		4479B62F2A585CB1004FFED5 /* ScreenBroadcast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4479B62E2A585CB0004FFED5 /* ScreenBroadcast.swift */; };
-		4495FB132A5858200038D52E /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4495FB002A5851DF0038D52E /* ReplayKit.framework */; };
 		4495FB162A5858200038D52E /* ScreenBroadcast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4495FB152A5858200038D52E /* ScreenBroadcast.swift */; };
 		4495FB1A2A5858200038D52E /* ScreenBroadcast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4495FB122A5858200038D52E /* ScreenBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		96905EF65AED1B983A6B3ABC /* libPods-reactnativemembranewebrtcexample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-reactnativemembranewebrtcexample.a */; };
+		AC79F705DD41D9C1F89226F0 /* libPods-ScreenBroadcast.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72AED6D2F334AFCD0AA8AF97 /* libPods-ScreenBroadcast.a */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		C13B4F42A60CBAA855FDE1CD /* libPods-ScreenBroadcast.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D761A67AC2617A650A18FED3 /* libPods-ScreenBroadcast.a */; };
+		C49F3BE42B7A6F4700B46351 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4495FB002A5851DF0038D52E /* ReplayKit.framework */; };
+		C49F3BE52B7A6F4700B46351 /* ReplayKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4495FB002A5851DF0038D52E /* ReplayKit.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,19 +45,29 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C49F3BE62B7A6F4700B46351 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				C49F3BE52B7A6F4700B46351 /* ReplayKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		0ACF88136DE810CA0F6CBD24 /* Pods-ScreenBroadcast.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.release.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.release.xcconfig"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* reactnativemembranewebrtcexample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = reactnativemembranewebrtcexample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* MembraneVideoroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MembraneVideoroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = reactnativemembranewebrtcexample/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = reactnativemembranewebrtcexample/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = reactnativemembranewebrtcexample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = reactnativemembranewebrtcexample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = reactnativemembranewebrtcexample/main.m; sourceTree = "<group>"; };
 		14D098B02577420CAAAC6DF4 /* reactnativemembranewebrtcexample-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "reactnativemembranewebrtcexample-Bridging-Header.h"; path = "reactnativemembranewebrtcexample/reactnativemembranewebrtcexample-Bridging-Header.h"; sourceTree = "<group>"; };
-		2A922930B5DECF2F503D80E0 /* Pods-ScreenBroadcast.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.debug.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.debug.xcconfig"; sourceTree = "<group>"; };
+		15ED1C620C140ECB3D9D6090 /* Pods-reactnativemembranewebrtcexample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reactnativemembranewebrtcexample.debug.xcconfig"; path = "Target Support Files/Pods-reactnativemembranewebrtcexample/Pods-reactnativemembranewebrtcexample.debug.xcconfig"; sourceTree = "<group>"; };
 		4479B62E2A585CB0004FFED5 /* ScreenBroadcast.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenBroadcast.swift; sourceTree = "<group>"; };
 		4495FB002A5851DF0038D52E /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		4495FB052A5851DF0038D52E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -64,13 +75,14 @@
 		4495FB122A5858200038D52E /* ScreenBroadcast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScreenBroadcast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4495FB152A5858200038D52E /* ScreenBroadcast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenBroadcast.swift; sourceTree = "<group>"; };
 		4495FB172A5858200038D52E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		58EEBF8E8E6FB1BC6CAF49B5 /* libPods-reactnativemembranewebrtcexample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-reactnativemembranewebrtcexample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6C2E3173556A471DD304B334 /* Pods-reactnativemembranewebrtcexample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reactnativemembranewebrtcexample.debug.xcconfig"; path = "Target Support Files/Pods-reactnativemembranewebrtcexample/Pods-reactnativemembranewebrtcexample.debug.xcconfig"; sourceTree = "<group>"; };
-		7A4D352CD337FB3A3BF06240 /* Pods-reactnativemembranewebrtcexample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reactnativemembranewebrtcexample.release.xcconfig"; path = "Target Support Files/Pods-reactnativemembranewebrtcexample/Pods-reactnativemembranewebrtcexample.release.xcconfig"; sourceTree = "<group>"; };
+		72AED6D2F334AFCD0AA8AF97 /* libPods-ScreenBroadcast.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScreenBroadcast.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		92539F7FBBA24B298C339399 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "reactnativemembranewebrtcexample/noop-file.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = reactnativemembranewebrtcexample/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B191E93489B2B340E7A1682B /* Pods-ScreenBroadcast.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.debug.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.debug.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D761A67AC2617A650A18FED3 /* libPods-ScreenBroadcast.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ScreenBroadcast.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D46691E8C2BAFCD302D78C92 /* Pods-ScreenBroadcast.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScreenBroadcast.release.xcconfig"; path = "Target Support Files/Pods-ScreenBroadcast/Pods-ScreenBroadcast.release.xcconfig"; sourceTree = "<group>"; };
+		DC795DB7C593329B9A209A29 /* libPods-reactnativemembranewebrtcexample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-reactnativemembranewebrtcexample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2FC94D946DAE0616A53CB9E /* Pods-reactnativemembranewebrtcexample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-reactnativemembranewebrtcexample.release.xcconfig"; path = "Target Support Files/Pods-reactnativemembranewebrtcexample/Pods-reactnativemembranewebrtcexample.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-reactnativemembranewebrtcexample/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -80,7 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				96905EF65AED1B983A6B3ABC /* libPods-reactnativemembranewebrtcexample.a in Frameworks */,
+				23C737E9DE94F15E5E586804 /* libPods-reactnativemembranewebrtcexample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,8 +100,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4495FB132A5858200038D52E /* ReplayKit.framework in Frameworks */,
-				C13B4F42A60CBAA855FDE1CD /* libPods-ScreenBroadcast.a in Frameworks */,
+				C49F3BE42B7A6F4700B46351 /* ReplayKit.framework in Frameworks */,
+				AC79F705DD41D9C1F89226F0 /* libPods-ScreenBroadcast.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,9 +129,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				58EEBF8E8E6FB1BC6CAF49B5 /* libPods-reactnativemembranewebrtcexample.a */,
 				4495FB002A5851DF0038D52E /* ReplayKit.framework */,
-				D761A67AC2617A650A18FED3 /* libPods-ScreenBroadcast.a */,
+				72AED6D2F334AFCD0AA8AF97 /* libPods-ScreenBroadcast.a */,
+				DC795DB7C593329B9A209A29 /* libPods-reactnativemembranewebrtcexample.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -170,7 +182,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* reactnativemembranewebrtcexample.app */,
+				13B07F961A680F5B00A75B9A /* MembraneVideoroom.app */,
 				4495FB122A5858200038D52E /* ScreenBroadcast.appex */,
 			);
 			name = Products;
@@ -196,10 +208,10 @@
 		D65327D7A22EEC0BE12398D9 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				6C2E3173556A471DD304B334 /* Pods-reactnativemembranewebrtcexample.debug.xcconfig */,
-				7A4D352CD337FB3A3BF06240 /* Pods-reactnativemembranewebrtcexample.release.xcconfig */,
-				2A922930B5DECF2F503D80E0 /* Pods-ScreenBroadcast.debug.xcconfig */,
-				0ACF88136DE810CA0F6CBD24 /* Pods-ScreenBroadcast.release.xcconfig */,
+				B191E93489B2B340E7A1682B /* Pods-ScreenBroadcast.debug.xcconfig */,
+				D46691E8C2BAFCD302D78C92 /* Pods-ScreenBroadcast.release.xcconfig */,
+				15ED1C620C140ECB3D9D6090 /* Pods-reactnativemembranewebrtcexample.debug.xcconfig */,
+				E2FC94D946DAE0616A53CB9E /* Pods-reactnativemembranewebrtcexample.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -219,16 +231,16 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "reactnativemembranewebrtcexample" */;
 			buildPhases = (
-				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
+				7E882E75D792FEE8E2D070E4 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				07DB74D85F25A76874474C94 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				EF73CF098FF212579DFEC839 /* [CP] Embed Pods Frameworks */,
 				4495FB0C2A5851DF0038D52E /* Embed Foundation Extensions */,
+				6851F0642425F109B2409619 /* [CP] Embed Pods Frameworks */,
+				3EC26489495B8624597C5C4A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -237,17 +249,18 @@
 			);
 			name = reactnativemembranewebrtcexample;
 			productName = reactnativemembranewebrtcexample;
-			productReference = 13B07F961A680F5B00A75B9A /* reactnativemembranewebrtcexample.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* MembraneVideoroom.app */;
 			productType = "com.apple.product-type.application";
 		};
 		4495FB112A5858200038D52E /* ScreenBroadcast */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4495FB1B2A5858200038D52E /* Build configuration list for PBXNativeTarget "ScreenBroadcast" */;
 			buildPhases = (
-				3A9059E25B0CE3D8959A8A90 /* [CP] Check Pods Manifest.lock */,
+				0828E3E6ADE09E128AE5F562 /* [CP] Check Pods Manifest.lock */,
 				4495FB0E2A5858200038D52E /* Sources */,
 				4495FB0F2A5858200038D52E /* Frameworks */,
 				4495FB102A5858200038D52E /* Resources */,
+				C49F3BE62B7A6F4700B46351 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -268,7 +281,6 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = J5FM626PE2;
 						LastSwiftMigration = 1250;
 					};
 					4495FB112A5858200038D52E = {
@@ -351,29 +363,7 @@
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-reactnativemembranewebrtcexample/expo-configure-project.sh\"\n";
 		};
-		08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-reactnativemembranewebrtcexample-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		3A9059E25B0CE3D8959A8A90 /* [CP] Check Pods Manifest.lock */ = {
+		0828E3E6ADE09E128AE5F562 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -395,7 +385,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
+		3EC26489495B8624597C5C4A /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -417,7 +407,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-reactnativemembranewebrtcexample/Pods-reactnativemembranewebrtcexample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		EF73CF098FF212579DFEC839 /* [CP] Embed Pods Frameworks */ = {
+		6851F0642425F109B2409619 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -435,6 +425,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-reactnativemembranewebrtcexample/Pods-reactnativemembranewebrtcexample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7E882E75D792FEE8E2D070E4 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-reactnativemembranewebrtcexample-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -492,12 +504,14 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6C2E3173556A471DD304B334 /* Pods-reactnativemembranewebrtcexample.debug.xcconfig */;
+			baseConfigurationReference = 15ED1C620C140ECB3D9D6090 /* Pods-reactnativemembranewebrtcexample.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = reactnativemembranewebrtcexample/reactnativemembranewebrtcexample.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = J5FM626PE2;
 				ENABLE_BITCODE = NO;
@@ -508,7 +522,10 @@
 				INFOPLIST_FILE = reactnativemembranewebrtcexample/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Membrane Videoroom";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -518,6 +535,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.membrane.reactnativemembrane;
 				PRODUCT_NAME = MembraneVideoroom;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "reactnativemembranewebrtcexample/reactnativemembranewebrtcexample-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -528,18 +546,23 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7A4D352CD337FB3A3BF06240 /* Pods-reactnativemembranewebrtcexample.release.xcconfig */;
+			baseConfigurationReference = E2FC94D946DAE0616A53CB9E /* Pods-reactnativemembranewebrtcexample.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = reactnativemembranewebrtcexample/reactnativemembranewebrtcexample.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = J5FM626PE2;
 				INFOPLIST_FILE = reactnativemembranewebrtcexample/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Membrane Videoroom";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -549,6 +572,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.membrane.reactnativemembrane;
 				PRODUCT_NAME = MembraneVideoroom;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "reactnativemembranewebrtcexample/reactnativemembranewebrtcexample-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -558,8 +582,9 @@
 		};
 		4495FB1C2A5858200038D52E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2A922930B5DECF2F503D80E0 /* Pods-ScreenBroadcast.debug.xcconfig */;
+			baseConfigurationReference = B191E93489B2B340E7A1682B /* Pods-ScreenBroadcast.debug.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -578,7 +603,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = ScreenBroadcast;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -597,8 +626,9 @@
 		};
 		4495FB1D2A5858200038D52E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0ACF88136DE810CA0F6CBD24 /* Pods-ScreenBroadcast.release.xcconfig */;
+			baseConfigurationReference = D46691E8C2BAFCD302D78C92 /* Pods-ScreenBroadcast.release.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -618,16 +648,21 @@
 				INFOPLIST_KEY_CFBundleDisplayName = ScreenBroadcast;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.membrane.reactnativemembrane.ScreenBroadcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "reactnativemembranewebrtcexample/reactnativemembranewebrtcexample-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -663,7 +698,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				ENABLE_TESTABILITY = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -683,7 +718,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					/usr/lib/swift,
+					"$(inherited)",
+				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -730,7 +768,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -745,7 +783,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					/usr/lib/swift,
+					"$(inherited)",
+				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
@@ -771,7 +812,7 @@
 				13B07F951A680F5B00A75B9A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4495FB1B2A5858200038D52E /* Build configuration list for PBXNativeTarget "ScreenBroadcast" */ = {
 			isa = XCConfigurationList;
@@ -780,7 +821,7 @@
 				4495FB1D2A5858200038D52E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "reactnativemembranewebrtcexample" */ = {
 			isa = XCConfigurationList;
@@ -789,7 +830,7 @@
 				83CBBA211A601CBA00E9B192 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
