@@ -550,7 +550,6 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - MembraneRTC (from `https://github.com/incubo4u/membrane-webrtc-ios.git`, branch `master`)
   - MembraneRTC/Broadcast (from `https://github.com/incubo4u/membrane-webrtc-ios.git`, branch `master`)
   - MembraneWebRTC (from `../../ios`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -805,6 +804,6 @@ SPEC CHECKSUMS:
   WebRTC-SDK: 18eef1ab50d4c0239adc1cbca33d4ffd9fab6639
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
 
-PODFILE CHECKSUM: 608f5df5f69ccd2f1204b5448ac3da9bfe809c6d
+PODFILE CHECKSUM: 8002f3abec8162f1af49b6fff6d8a4e66aeb2c37
 
 COCOAPODS: 1.13.0
