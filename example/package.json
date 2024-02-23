@@ -18,6 +18,7 @@
     "@sentry/react-native": "5.18.0",
     "@types/react-native-charts-wrapper": "^0.5.5",
     "expo": "^50.0.6",
+    "expo-application": "~5.8.3",
     "expo-font": "~11.10.2",
     "expo-keep-awake": "~12.8.2",
     "expo-splash-screen": "~0.26.4",

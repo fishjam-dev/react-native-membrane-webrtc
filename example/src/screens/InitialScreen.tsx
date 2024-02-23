@@ -4,7 +4,7 @@ import { CardButton } from '@components/buttons/CardButton';
 import { RootStack } from '@model/NavigationTypes';
 import { useVideoroomState } from '@model/VideoroomContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-// import * as Application from 'expo-application';
+import * as Application from 'expo-application';
 import React from 'react';
 import { View, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -60,10 +60,10 @@ export const InitialScreen = ({ navigation }: Props) => {
             </CardButton>
           </View>
         </View>
-        {/*<Typo variant="body-small" style={styles.versionName}>*/}
-        {/*  App version: {Application.nativeApplicationVersion}*/}
-        {/*  {isDevMode ? '_DEV' : ''}*/}
-        {/*</Typo>*/}
+        <Typo variant="body-small" style={styles.versionName}>
+          App version: {Application.nativeApplicationVersion}
+          {isDevMode ? '_DEV' : ''}
+        </Typo>
       </SafeAreaView>
     </BackgroundAnimation>
   );
