@@ -66,7 +66,6 @@ export const StatsModal = ({ visible, onClose }: StatsModalProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    felx: 1,
     width: '100%',
     height: '90%',
   },
