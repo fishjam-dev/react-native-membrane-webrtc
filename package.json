@@ -43,11 +43,6 @@
     "promise-fs": "^2.1.1"
   },
   "devDependencies": {
-    "@babel/core": "7.23.9",
-    "@babel/eslint-parser": "7.23.10",
-    "@babel/plugin-proposal-private-property-in-object": "7.21.11",
-    "@babel/preset-env": "7.23.9",
-    "@react-native/babel-preset": "0.73.21",
     "@testing-library/react": "^14.0.0",
     "@types/lodash": "^4.14.195",
     "@types/phoenix": "^1.6.0",
