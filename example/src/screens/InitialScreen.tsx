@@ -8,7 +8,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { View, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Application } from 'typedoc';
 
 type Props = NativeStackScreenProps<RootStack, 'InitialScreen'>;
 
