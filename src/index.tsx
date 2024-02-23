@@ -214,7 +214,7 @@ export function useWebRTC() {
 export function useEndpoints<
   EndpointMetadataType extends Metadata,
   VideoTrackMetadataType extends Metadata,
-  AudioTrackMetadataType extends Metadata
+  AudioTrackMetadataType extends Metadata,
 >() {
   const [endpoints, setEndpoints] = useState<
     Endpoint<
@@ -551,7 +551,7 @@ export function useScreencast() {
  * @param metadata a map `string -> any` containing user's track metadata to be sent to the server
  */
 export async function updateEndpointMetadata<
-  EndpointMetadataType extends Metadata
+  EndpointMetadataType extends Metadata,
 >(metadata: EndpointMetadataType) {
   await MembraneWebRTCModule.updateEndpointMetadata(metadata);
 }
@@ -561,7 +561,7 @@ export async function updateEndpointMetadata<
  * @param metadata a map string -> any containing video track metadata to be sent to the server
  */
 export async function updateVideoTrackMetadata<
-  VideoTrackMetadataType extends Metadata
+  VideoTrackMetadataType extends Metadata,
 >(metadata: VideoTrackMetadataType) {
   await MembraneWebRTCModule.updateVideoTrackMetadata(metadata);
 }
@@ -570,7 +570,7 @@ export async function updateVideoTrackMetadata<
  * @param metadata a map `string -> any` containing audio track metadata to be sent to the server
  */
 export async function updateAudioTrackMetadata<
-  AudioTrackMetadataType extends Metadata
+  AudioTrackMetadataType extends Metadata,
 >(metadata: AudioTrackMetadataType) {
   await MembraneWebRTCModule.updateAudioTrackMetadata(metadata);
 }

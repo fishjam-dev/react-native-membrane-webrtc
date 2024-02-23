@@ -107,8 +107,8 @@ export const RoomParticipant = ({
         ? styles.videoTrackFocused
         : styles.videoTrack
       : focused
-      ? styles.videoTrackScreencastFocused
-      : styles.videoTrack;
+        ? styles.videoTrackScreencastFocused
+        : styles.videoTrack;
   };
 
   const getAudioIcon = () => {

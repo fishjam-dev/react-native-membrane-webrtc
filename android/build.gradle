@@ -52,16 +52,7 @@ afterEvaluate {
 
 android {
   namespace = "com.reactnativemembrane"
-  compileSdkVersion safeExtGet("compileSdkVersion", 31)
-
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_11
-    targetCompatibility JavaVersion.VERSION_11
-  }
-
-  kotlinOptions {
-    jvmTarget = JavaVersion.VERSION_11.majorVersion
-  }
+  compileSdk(31)
 
   defaultConfig {
     minSdkVersion safeExtGet("minSdkVersion", 21)

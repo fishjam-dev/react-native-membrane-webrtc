@@ -48,7 +48,7 @@ export type SocketChannelParams = { [key: string]: any };
 export type Endpoint<
   MetadataType extends Metadata,
   VideoTrackMetadataType extends Metadata,
-  AudioTrackMetadataType extends Metadata
+  AudioTrackMetadataType extends Metadata,
 > = {
   /**
    *  id used to identify an endpoint
@@ -314,7 +314,7 @@ export type RTCStats = { [key: string]: RTCTrackStats };
 export type EndpointsUpdateEvent<
   MetadataType extends Metadata,
   VideoTrackMetadataType extends Metadata,
-  AudioTrackMetadataType extends Metadata
+  AudioTrackMetadataType extends Metadata,
 > = {
   EndpointsUpdate: Endpoint<
     MetadataType,
@@ -402,7 +402,7 @@ export type MembraneWebRTC = {
   getEndpoints: <
     EndpointMetadataType extends Metadata,
     VideoTrackMetadataType extends Metadata,
-    AudioTrackMetadataType extends Metadata
+    AudioTrackMetadataType extends Metadata,
   >() => Promise<
     Endpoint<
       EndpointMetadataType,
