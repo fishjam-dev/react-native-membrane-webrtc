@@ -12,9 +12,12 @@ import fs from 'promise-fs';
 const SBE_TARGET_NAME = 'MembraneScreenBroadcastExtension';
 const SBE_PODFILE_SNIPPET = `
 target '${SBE_TARGET_NAME}' do
-  pod 'MembraneRTC/Broadcast', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :commit => 'f0a7c81d2af051503bdba3c873ac89cb80b7e28f'
+  pod 'MembraneRTC/Broadcast', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :commit => 'e60f952dbe3ca01ca1870f24812399a2593a6d77'
 '
 end`;
+const MEMBRANE_PODFILE_SNIPPET = `
+pod 'MembraneRTC', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :commit => 'e60f952dbe3ca01ca1870f24812399a2593a6d77'
+`;
 const TARGETED_DEVICE_FAMILY = `"1,2"`;
 const IPHONEOS_DEPLOYMENT_TARGET = '13.0';
 const GROUP_IDENTIFIER_TEMPLATE_REGEX = /{{GROUP_IDENTIFIER}}/gm;
@@ -97,8 +100,38 @@ async function updateFileWithRegex(
   await fs.writeFile(filePath, file);
 }
 
+async function updateMembraneRTCPod(iosPath: string) {
+  let podfileContent;
+  const re = /pod '.+'(?=[\r\n]+\s*end[\r\n]+)$|use_react_native!.+(?=[\r\n]+\s*pod[\r\n]+[\r\n]+\s*end[\r\n]+$)/;
+  try {
+    const podfile = `${iosPath}/Podfile`;
+    podfileContent = await fs.readFile(podfile, 'utf-8');
+
+    if (podfileContent.includes(MEMBRANE_PODFILE_SNIPPET)) {
+      console.log("MembraneRTC pod already exists in Podfile");
+      return;
+    }
+
+    const match = podfileContent.match(re);
+
+    if (match !== undefined && match!.index !== undefined) {
+      const newContent = [
+        podfileContent.slice(0, match!.index! + match![0].length),
+        '\n',
+        MEMBRANE_PODFILE_SNIPPET,
+        podfileContent.slice(match!.index! + match![0].length)
+      ].join('');
+
+      await fs.writeFile(podfile, newContent, 'utf-8');
+    }
+  } catch (error) {
+    console.error('Error updating Podfile: ', error);
+  }
+}
+
 async function updatePodfile(iosPath: string) {
   let matches;
+
   try {
     const podfile = await fs.readFile(`${iosPath}/Podfile`, {
       encoding: 'utf-8',
@@ -134,6 +167,7 @@ const withMembraneSBE: ConfigPlugin<MembranePluginOptions> = (
     const xcodeProject = props.modResults;
 
     await updatePodfile(iosPath);
+    await updateMembraneRTCPod(iosPath)
 
     const projPath = `${iosPath}/${appName}.xcodeproj/project.pbxproj`;
     const extFiles = [
