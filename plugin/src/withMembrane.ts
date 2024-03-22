@@ -12,7 +12,8 @@ import fs from 'promise-fs';
 const SBE_TARGET_NAME = 'MembraneScreenBroadcastExtension';
 const SBE_PODFILE_SNIPPET = `
 target '${SBE_TARGET_NAME}' do
-  pod 'MembraneRTC/Broadcast'
+  pod 'MembraneRTC/Broadcast', :git => 'https://github.com/jellyfish-dev/membrane-webrtc-ios', :commit => 'f0a7c81d2af051503bdba3c873ac89cb80b7e28f'
+'
 end`;
 const TARGETED_DEVICE_FAMILY = `"1,2"`;
 const IPHONEOS_DEPLOYMENT_TARGET = '13.0';
