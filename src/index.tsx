@@ -56,6 +56,10 @@ const defaultSimulcastConfig = () => ({
 let videoSimulcastConfig: SimulcastConfig = defaultSimulcastConfig();
 let screencastSimulcastConfig: SimulcastConfig = defaultSimulcastConfig();
 
+export async function initializeWebRTC() {
+  await MembraneWebRTCModule.create();
+}
+
 /**
  * The hook used to manage a connection with membrane server.
  * @returns An object with functions to manage membrane server connection and `error` if connection failed.
@@ -156,9 +160,6 @@ export function useWebRTC() {
 
         socket.current = _socket;
         webrtcChannel.current = _webrtcChannel;
-
-        await MembraneWebRTCModule.create();
-
         await new Promise<void>((resolve, reject) => {
           _webrtcChannel
             .join()
