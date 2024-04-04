@@ -313,7 +313,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
             let trackId = track.trackId()
             MembraneRoom.sharedInstance.endpoints[localEndpointId]?.videoTracks[trackId] = track
             MembraneRoom.sharedInstance.endpoints[localEndpointId]?.tracksData[trackId] = TrackData(metadata: metadata, simulcastConfig: simulcastConfig)
-            
+
             emitEndpoints()
         }
     }
@@ -503,15 +503,15 @@ class MembraneWebRTC: MembraneRTCDelegate {
                     "encoding": tracksContexts[trackId]?.encoding?.description as Any,
                     "encodingReason": tracksContexts[trackId]?.encodingReason?.rawValue as Any,
                 ]
-                
+
                 var simulcastConfig : SimulcastConfig? = nil
-                
+
                 if isTrackLocal(trackId) {
                     simulcastConfig = p.tracksData[trackId]?.simulcastConfig
                 }else{
                     simulcastConfig = tracksContexts[trackId]?.simulcastConfig
                 }
-                
+
                 if let simulcastConfig = simulcastConfig {
                     let simulcastConfigMap = [
                         "enabled": simulcastConfig.enabled,
@@ -580,7 +580,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
         let tracksData = MembraneRoom.sharedInstance.endpoints[endpointId]?.tracksData[trackId]
         MembraneRoom.sharedInstance.endpoints[endpointId]?.tracksData[trackId] =
             TrackData(metadata: metadata.toMetadata(), simulcastConfig: tracksData?.simulcastConfig)
-        
+
         emitEndpoints()
     }
 
@@ -828,7 +828,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
     }
 
     func showAudioRoutePicker() {
-        DispatchQueue.main.async {
+        DispatchQueue.main.sync {
             let pickerView = AVRoutePickerView()
             if let button = pickerView.subviews.first(where: { $0 is UIButton }) as? UIButton {
                 button.sendActions(for: .touchUpInside)

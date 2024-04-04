@@ -206,7 +206,7 @@ We strongly recommend checking out our example app that implements a basic video
 
 # Usage
 
-Important note!! Since version 7.4.0 Call function `initializeWebRTC()` once in your app before using any other functionality.
+Important note!! Since version 7.4.0 call function `initializeWebRTC()` once in your app before using any other functionality.
 
 
 Start with connecting to the membrane webrtc server. Use `useWebRTC()` hook to manage connection:
