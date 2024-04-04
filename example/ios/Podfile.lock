@@ -42,25 +42,25 @@ PODS:
     - hermes-engine/Pre-built (= 0.73.4)
   - hermes-engine/Pre-built (0.73.4)
   - libevent (2.1.12)
-  - MembraneRTC (5.2.0):
-    - MembraneRTC/Broadcast (= 5.2.0)
+  - MembraneRTC (5.3.0):
+    - MembraneRTC/Broadcast (= 5.3.0)
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
-    - WebRTC-SDK (= 104.5112.15)
-  - MembraneRTC/Broadcast (5.2.0):
+    - WebRTC-SDK (= 114.5735.08)
+  - MembraneRTC/Broadcast (5.3.0):
     - PromisesSwift
     - SwiftLogJellyfish (= 1.5.2)
     - SwiftPhoenixClient (~> 4.0.0)
     - SwiftProtobuf
-    - WebRTC-SDK (= 104.5112.15)
-  - MembraneWebRTC (7.1.1):
+    - WebRTC-SDK (= 114.5735.08)
+  - MembraneWebRTC (7.4.0):
     - ExpoModulesCore
-    - MembraneRTC (= 5.2.0)
-  - PromisesObjC (2.3.1)
-  - PromisesSwift (2.3.1):
-    - PromisesObjC (= 2.3.1)
+    - MembraneRTC (= 5.3.0)
+  - PromisesObjC (2.4.0)
+  - PromisesSwift (2.4.0):
+    - PromisesObjC (= 2.4.0)
   - RCT-Folly (2022.05.16.00):
     - boost
     - DoubleConversion
@@ -1133,9 +1133,9 @@ PODS:
   - SwiftPhoenixClient (4.0.0):
     - SwiftPhoenixClient/Core (= 4.0.0)
   - SwiftPhoenixClient/Core (4.0.0)
-  - SwiftProtobuf (1.25.2)
+  - SwiftProtobuf (1.26.0)
   - SwiftyJSON (5.0.0)
-  - WebRTC-SDK (104.5112.15)
+  - WebRTC-SDK (114.5735.08)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1374,10 +1374,10 @@ SPEC CHECKSUMS:
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: b2669ce35fc4ac14f523b307aff8896799829fe2
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  MembraneRTC: ae0336ddff118f11764d155dcb49ab4d85d3ab21
-  MembraneWebRTC: 331fd2f9b8b96faee6ac83abf5b64ed6f14a1031
-  PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
-  PromisesSwift: 28dca69a9c40779916ac2d6985a0192a5cb4a265
+  MembraneRTC: b62d9f01edbee0c251d6671e868ac3b25e68e66a
+  MembraneWebRTC: 8a8d9560ee34a4e5315a37034831ab1861d18c0e
+  PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
+  PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   RCT-Folly: 7169b2b1c44399c76a47b5deaaba715eeeb476c0
   RCTRequired: ab7f915c15569f04a49669e573e6e319a53f9faa
   RCTTypeSafety: 63b97ced7b766865057e7154db0e81ce4ee6cf1e
@@ -1431,11 +1431,11 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   SwiftLogJellyfish: 6207ec91ef3913d303ac797b73298248ee360eb0
   SwiftPhoenixClient: 4e36f35d00e43d11881c255bd60c20efc0f39c91
-  SwiftProtobuf: 407a385e97fd206c4fbe880cc84123989167e0d1
+  SwiftProtobuf: 5e8349171e7c2f88f5b9e683cb3cb79d1dc780b3
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
-  WebRTC-SDK: 18eef1ab50d4c0239adc1cbca33d4ffd9fab6639
+  WebRTC-SDK: c24d2a6c9f571f2ed42297cb8ffba9557093142b
   Yoga: 64cd2a583ead952b0315d5135bf39e053ae9be70
 
-PODFILE CHECKSUM: 47d532b3b2a139e9166846bf80109032aa38aeda
+PODFILE CHECKSUM: f13d16626e52afb9adf146a9166b386dcc764ff4
 
 COCOAPODS: 1.13.0

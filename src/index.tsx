@@ -56,6 +56,10 @@ const defaultSimulcastConfig = () => ({
 let videoSimulcastConfig: SimulcastConfig = defaultSimulcastConfig();
 let screencastSimulcastConfig: SimulcastConfig = defaultSimulcastConfig();
 
+/**
+ * This function initialize necessary native objects to properly handle sound and video.
+ * Call it only once in your app before any other functionality, otherwise package will not work as intended.
+ */
 export async function initializeWebRTC() {
   await MembraneWebRTCModule.create();
 }
