@@ -78,7 +78,8 @@ On development build <code>eas build</code> should take care of it.</p>
 <li>In App.ts replace server url with your server&#39;s url.</li>
 <li><code>yarn run android</code> or <code>yarn run ios</code> or run project from Android Studio / Xcode just like every RN project. Note that simulators won&#39;t work, you have to test on real device for camera and screensharing to run.</li>
 </ol>
-<a id="md:usage" class="tsd-anchor"></a><h1><a href="#md:usage">Usage</a></h1><p>Start with connecting to the membrane webrtc server. Use <code>useWebRTC()</code> hook to manage connection:</p>
+<a id="md:usage" class="tsd-anchor"></a><h1><a href="#md:usage">Usage</a></h1><p>Important note!! Since version 7.4.0 call function <code>initializeWebRTC()</code> once in your app before using any other functionality.</p>
+<p>Start with connecting to the membrane webrtc server. Use <code>useWebRTC()</code> hook to manage connection:</p>
 <pre><code class="language-ts"><span class="hl-5">const</span><span class="hl-1"> { </span><span class="hl-13">connect</span><span class="hl-1">, </span><span class="hl-13">disconnect</span><span class="hl-1">, </span><span class="hl-13">error</span><span class="hl-1"> } = </span><span class="hl-11">useWebRTC</span><span class="hl-1">();</span>
 </code><button>Copy</button></pre>
 <p>Connect to the server and join the room using the <code>connect</code> function. Use user metadata to pass things like usernames etc. to the server. You can also pass connection params that will be sent to the socket when establishing the connection tries.</p>
