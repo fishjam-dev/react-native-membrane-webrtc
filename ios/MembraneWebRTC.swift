@@ -828,7 +828,7 @@ class MembraneWebRTC: MembraneRTCDelegate {
     }
 
     func showAudioRoutePicker() {
-        DispatchQueue.main.sync {
+        DispatchQueue.main.async {
             let pickerView = AVRoutePickerView()
             if let button = pickerView.subviews.first(where: { $0 is UIButton }) as? UIButton {
                 button.sendActions(for: .touchUpInside)
