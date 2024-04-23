@@ -280,5 +280,9 @@ class MembraneWebRTCModule : Module() {
         OnDestroy {
             membraneWebRTC.onDestroy()
         }
+
+        OnActivityDestroys{
+            membraneWebRTC.disconnect()
+        }
     }
 }
