@@ -1,4 +1,4 @@
-package com.reactnativemembrane
+package org.membraneframework.reactnative
 
 import org.membraneframework.rtc.SimulcastConfig
 import org.membraneframework.rtc.media.AudioTrack

@@ -1,4 +1,4 @@
-package com.reactnativemembrane
+package org.membraneframework.reactnative
 
 import android.content.Context
 import expo.modules.kotlin.AppContext

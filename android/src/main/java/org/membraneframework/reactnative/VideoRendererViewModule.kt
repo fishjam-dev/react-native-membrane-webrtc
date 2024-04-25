@@ -1,4 +1,4 @@
-package com.reactnativemembrane
+package org.membraneframework.reactnative
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition

@@ -1,4 +1,4 @@
-package com.reactnativemembrane
+package org.membraneframework.reactnative
 
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.functions.Coroutine
