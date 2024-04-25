@@ -225,7 +225,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
   fun disconnect() {
     ensureCreated()
     if (isScreencastOn) {
-      stopScreencast(false)
+      stopScreencast()
     }
     membraneRTC?.disconnect()
     membraneRTC = null
@@ -632,6 +632,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     setScreencastTrackState(true)
 
     screencastPromise?.resolve(isScreencastOn)
+    screencastPromise = null
   }
 
   private fun getScreencastVideoParameters(): VideoParameters {
@@ -658,7 +659,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     emitEndpoints()
   }
 
-  private fun stopScreencast(calledFromToggleScreencast: Boolean = true) {
+  private fun stopScreencast() {
     ensureScreencastTrack()
     localScreencastTrack?.let {
       removeTrackFromLocalEndpoint(it)
@@ -666,10 +667,8 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
 
     setScreencastTrackState(false)
-    if (calledFromToggleScreencast) {
-      screencastPromise?.resolve(isScreencastOn)
-    }
 
+    screencastPromise?.resolve(isScreencastOn)
     screencastPromise = null
   }
 
