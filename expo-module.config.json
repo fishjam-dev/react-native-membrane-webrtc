@@ -1,5 +1,9 @@
 {
-  "platforms": ["ios", "android", "web"],
+  "platforms": [
+    "ios",
+    "android",
+    "web"
+  ],
   "ios": {
     "modules": [
       "MembraneWebRTCModule",
@@ -9,9 +13,9 @@
   },
   "android": {
     "modules": [
-      "com.reactnativemembrane.MembraneWebRTCModule",
-      "com.reactnativemembrane.VideoPreviewViewModule",
-      "com.reactnativemembrane.VideoRendererViewModule"
+      "org.membraneframework.reactnative.MembraneWebRTCModule",
+      "org.membraneframework.reactnative.VideoPreviewViewModule",
+      "org.membraneframework.reactnative.VideoRendererViewModule"
     ]
   }
 }

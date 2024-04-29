@@ -1,4 +1,4 @@
-package com.reactnativemembrane
+package org.membraneframework.reactnative
 
 import com.twilio.audioswitch.AudioDevice
 

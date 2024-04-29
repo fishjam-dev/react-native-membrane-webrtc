@@ -1,4 +1,4 @@
-package com.reactnativemembrane
+package org.membraneframework.reactnative
 
 object EmitableEvents {
     const val IsCameraOn = "IsCameraOn"

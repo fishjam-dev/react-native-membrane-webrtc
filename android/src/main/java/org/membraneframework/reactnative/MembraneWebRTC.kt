@@ -1,4 +1,4 @@
-package com.reactnativemembrane
+package org.membraneframework.reactnative
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
