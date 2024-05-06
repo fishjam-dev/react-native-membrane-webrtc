@@ -6,14 +6,6 @@ import MembraneWebRTCModule from '../MembraneWebRTCModule';
 import { ReceivableEvents, eventEmitter } from '../common/eventEmitter';
 
 /**
- * This function initialize necessary native objects to properly handle sound and video.
- * Call it only once in your app before any other functionality, otherwise package will not work as intended.
- */
-export async function initializeWebRTC() {
-  await MembraneWebRTCModule.create();
-}
-
-/**
  * The hook used to manage a connection with membrane server.
  * @returns An object with functions to manage membrane server connection and `error` if connection failed.
  */
@@ -113,6 +105,9 @@ export function useWebRTC() {
 
         socket.current = _socket;
         webrtcChannel.current = _webrtcChannel;
+
+        await MembraneWebRTCModule.create();
+
         await new Promise<void>((resolve, reject) => {
           _webrtcChannel
             .join()
