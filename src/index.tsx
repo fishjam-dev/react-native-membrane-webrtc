@@ -13,7 +13,6 @@ export {
   updateVideoTrackMetadata,
 } from './common/metadata';
 export {
-  initializeWebRTC,
   changeWebRTCLoggingSeverity,
   setTargetTrackEncoding,
 } from './common/webRTC';

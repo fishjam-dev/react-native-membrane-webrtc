@@ -2,14 +2,6 @@ import { LoggingSeverity, TrackEncoding } from '../MembraneWebRTC.types';
 import MembraneWebRTCModule from '../MembraneWebRTCModule';
 
 /**
- * This function initialize necessary native objects to properly handle sound and video.
- * Call it only once in your app before any other functionality, otherwise package will not work as intended.
- */
-export async function initializeWebRTC() {
-  await MembraneWebRTCModule.create();
-}
-
-/**
  * sets track encoding that server should send to the client library.
  * The encoding will be sent whenever it is available. If chooses encoding is
  * temporarily unavailable, some other encoding will be sent until choose encoding

@@ -79,7 +79,12 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     var onTracksUpdateListeners: MutableList<OnTrackUpdateListener> = mutableListOf()
   }
 
-  fun onDestroy() {
+  fun onModuleCreate(appContext: AppContext){
+    this.appContext = appContext
+    this.audioSwitchManager = AudioSwitchManager(appContext.reactContext!!)
+  }
+
+  fun onModuleDestroy() {
     audioSwitchManager?.stop()
   }
 
@@ -98,7 +103,7 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
     }
   }
 
-  private fun getSimulcastConfigFromOptions(simulcastConfigMap: com.reactnativemembrane.SimulcastConfig): SimulcastConfig {
+  private fun getSimulcastConfigFromOptions(simulcastConfigMap: org.membraneframework.reactnative.SimulcastConfig): SimulcastConfig {
     val simulcastEnabled = simulcastConfigMap.enabled
     val activeEncodings = simulcastConfigMap.activeEncodings.map { e -> e.toTrackEncoding() }
     return SimulcastConfig(
@@ -137,7 +142,6 @@ class MembraneWebRTC(val sendEvent: (name: String, data: Map<String, Any?>) -> U
   }
 
   fun create() {
-    audioSwitchManager = AudioSwitchManager(appContext?.reactContext!!)
     membraneRTC = MembraneRTC.create(
       appContext = appContext?.reactContext!!, listener = this
     )
